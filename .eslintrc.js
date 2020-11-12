@@ -5,7 +5,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: ["./tsconfig.eslint.json"],
   },
-  plugins: ["@typescript-eslint", "jest-formatting", "prettier"],
+  plugins: ["@typescript-eslint", "mocha", "prettier"],
   extends: [
     "eslint:recommended",
     "oclif",
@@ -13,9 +13,9 @@ module.exports = {
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:mocha/recommended",
     "prettier/@typescript-eslint",
     "prettier",
-    "plugin:jest-formatting/recommended",
     "plugin:prettier/recommended",
   ],
   env: {
@@ -33,6 +33,7 @@ module.exports = {
       files: ["*.test.ts"],
       rules: {
         "@typescript-eslint/unbound-method": 0,
+        "max-nested-callbacks": 0
       },
     },
   ]
