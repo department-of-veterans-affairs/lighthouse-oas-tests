@@ -27,7 +27,7 @@ declare module 'swagger-client' {
   }
 
   //  function SwaggerClient(opts: Opts): Promise<Swagger>;
-  function resolve(opts: Opts): Promise<Swagger>;
+  function swaggerClient(opts: Opts): Promise<Swagger>;
 
-  export = resolve;
+  export = swaggerClient;
 }

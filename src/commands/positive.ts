@@ -1,8 +1,9 @@
-import { Command, flags } from '@oclif/command';
+import { flags } from '@oclif/command';
 import loadJsonFile from 'load-json-file';
-import resolve from 'swagger-client';
+import swaggerClient from 'swagger-client';
+import BaseCommand from '../baseCommands/base';
 
-export default class Positive extends Command {
+export default class Positive extends BaseCommand {
   static description =
     'Runs positive smoke tests for Lighthouse APIs based on OpenAPI specs';
 
@@ -13,8 +14,7 @@ hello world from ./src/hello.ts!
   ];
 
   static flags = {
-    help: flags.help({ char: 'h' }),
-    apiKey: flags.string({ char: 'a', description: 'API key to use' }),
+    ...BaseCommand.flags,
     file: flags.boolean({
       char: 'f',
       description: 'Provide this flag if the path is to a local file',
@@ -32,17 +32,8 @@ hello world from ./src/hello.ts!
   async run(): Promise<void> {
     const { args, flags } = this.parse(Positive);
 
-    const apiKey = flags.apiKey ?? process.env.API_KEY;
-
-    if (!apiKey) {
-      this.error(
-        'apiKey flag should be provided or the API_KEY environment variable should be set',
-        { exit: 2 },
-      );
-    }
-
-    const swaggerClientOptions: Parameters<typeof resolve>[0] = {
-      securities: { authorized: { apikey: { value: apiKey } } },
+    const swaggerClientOptions: Parameters<typeof swaggerClient>[0] = {
+      securities: { authorized: { apikey: { value: this.apiKey } } },
     };
 
     if (flags.file) {
@@ -59,7 +50,7 @@ hello world from ./src/hello.ts!
     // ignoring this eslint rule because this is the only way to access SwaggerClient
     //    const schema = await SwaggerClient(swaggerClientOptions); // eslint-disable-line new-cap
 
-    const schema = await resolve(swaggerClientOptions);
+    const schema = await swaggerClient(swaggerClientOptions);
 
     Object.values(schema.apis).forEach((value) => {
       Object.keys(value).forEach((operation) => {
