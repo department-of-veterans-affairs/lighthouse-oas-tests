@@ -63,7 +63,7 @@ hello world from ./src/hello.ts!
               parameters: operationIdToParameters[operationId],
             })
             .catch((error) => {
-              this.log(error);
+              return error.response;
             });
         });
       }),
