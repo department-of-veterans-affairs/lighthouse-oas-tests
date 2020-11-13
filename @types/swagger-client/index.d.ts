@@ -1,12 +1,48 @@
 declare module 'swagger-client' {
-  interface Swagger {
+  export interface Swagger {
     spec: Spec;
-    apis: string;
+    apis: { [name: string]: Api };
+    execute: (options: {
+      parameters: { [name: string]: ReturnType<JSON['parse']> };
+      operationId: string;
+      requestInterceptor?: (request: string) => string;
+    }) => Promise<Response>;
   }
 
   interface Spec {
-    paths: string;
+    paths: { [path: string]: Path };
   }
+
+  interface Response {
+    ok: boolean;
+    status: number;
+    url: string;
+  }
+
+  interface Path {
+    get?: Method;
+    post?: Method;
+    put?: Method;
+    delete?: Method;
+    patch?: Method;
+  }
+
+  interface Method {
+    operationId: string;
+    parameters: Parameter[];
+  }
+
+  interface Parameter {
+    name: string;
+    example: ReturnType<JSON['parse']>;
+    required: boolean;
+  }
+
+  type Api = {
+    [operationId: string]: (options: {
+      parameters: { [name: string]: ReturnType<JSON['parse']> };
+    }) => Promise<Response>;
+  };
 
   interface ApiKey {
     value: string;
@@ -16,18 +52,11 @@ declare module 'swagger-client' {
     apikey: ApiKey;
   }
 
-  interface Securities {
-    authorized: Authorized;
-  }
-
   interface Opts {
-    securities: Securities;
+    authorizations: Authorized;
     spec?: ReturnType<JSON['parse']>;
     url?: string;
   }
 
-  //  function SwaggerClient(opts: Opts): Promise<Swagger>;
-  function swaggerClient(opts: Opts): Promise<Swagger>;
-
-  export = swaggerClient;
+  export default function swaggerClient(opts: Opts): Promise<Swagger>;
 }
