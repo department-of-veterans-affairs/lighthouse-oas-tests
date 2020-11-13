@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite id="0" name="/Users/johnborden/code/lighthouse-oas-tests/test/commands/positive.test.ts" errors="0" package="/Users/johnborden/code/lighthouse-oas-tests/test/commands/positive.test.ts" hostname="localhost" tests="4" failures="0" time="1.92" timestamp="2020-11-13T15:01:14">
+    <properties>
+    </properties>
+    <testcase classname="API key is not set" name="throws an error" time="0">
+    </testcase>
+    <testcase classname="Provided file does not exist" name="throws an error" time="0">
+    </testcase>
+    <testcase classname="Non-json file" name="throws an error" time="0">
+    </testcase>
+    <testcase classname="Invalid json" name="throws an error" time="0">
+    </testcase>
+    <system-out/>
+    <system-err/>
+  </testsuite>
+</testsuites>
