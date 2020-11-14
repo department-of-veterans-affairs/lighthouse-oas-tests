@@ -8,6 +8,9 @@ abstract class BaseCommand extends Command {
 
   protected apiKey = '';
 
+  // linting does not recognize rules starting with '@' as valid, so we need to
+  // supply another non-existing rule before the one we actually want to disable
+  // eslint-disable-next-line no, @typescript-eslint/require-await
   async init(): Promise<void> {
     this.validateApiKey();
   }

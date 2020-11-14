@@ -134,7 +134,8 @@
                         "required": true,
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "vha_688"
                     }
                 ],
                 "responses": {
@@ -244,7 +245,9 @@
                         "schema": {
                             "type": "string",
                             "format": "##### or #####-####"
-                        }
+                        },
+                        "required": true,
+                        "example": "20005"
                     },
                     {
                         "name": "state",
@@ -483,7 +486,9 @@
                         "description": "Street address of the location from which drive time will be calculated.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "1350 I St. NW",
+                        "required": true
                     },
                     {
                         "name": "city",
@@ -491,7 +496,9 @@
                         "description": "City of the location from which drive time will be calculated.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "Washington",
+                        "required": true
                     },
                     {
                         "name": "state",
@@ -499,7 +506,9 @@
                         "description": "Two character state code of the location from which drive time will be calculated.",
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "DC",
+                        "required": true
                     },
                     {
                         "name": "zip",
@@ -508,7 +517,9 @@
                         "schema": {
                             "type": "string",
                             "description": "##### or #####-####"
-                        }
+                        },
+                        "example": "20005",
+                        "required": true
                     },
                     {
                         "name": "lat",

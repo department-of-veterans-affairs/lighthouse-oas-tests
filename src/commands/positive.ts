@@ -1,18 +1,13 @@
 import { flags } from '@oclif/command';
 import loadJsonFile from 'load-json-file';
 import swaggerClient from 'swagger-client';
-import { Swagger } from 'swagger-client';
 import BaseCommand from '../baseCommands/base';
+import initializeSwaggerClient, { execute } from '../utilities/swagger-utils';
+import getParameters from '../utilities/utilities';
 
 export default class Positive extends BaseCommand {
   static description =
     'Runs positive smoke tests for Lighthouse APIs based on OpenAPI specs';
-
-  static examples = [
-    `$ loast hello
-hello world from ./src/hello.ts!
-`,
-  ];
 
   static flags = {
     ...BaseCommand.flags,
@@ -48,23 +43,20 @@ hello world from ./src/hello.ts!
       swaggerClientOptions.url = args.path;
     }
 
-    const schema = await swaggerClient(swaggerClientOptions);
+    const schema = await initializeSwaggerClient(swaggerClientOptions);
 
     const operationIdToParameters: {
       [operationId: string]: { [name: string]: string };
-    } = this.getParameters(schema);
+    } = getParameters(schema);
 
     const responses = await Promise.all(
       Object.values(schema.apis).flatMap((api) => {
-        return Object.keys(api).map(async (operationId) => {
-          return schema
-            .execute({
-              operationId,
-              parameters: operationIdToParameters[operationId],
-            })
-            .catch((error) => {
-              return error.response;
-            });
+        return Object.keys(api).map((operationId) => {
+          return execute(
+            schema,
+            operationId,
+            operationIdToParameters[operationId],
+          );
         });
       }),
     );
@@ -76,29 +68,5 @@ hello world from ./src/hello.ts!
         this.log(response.ok.toString());
       }
     });
-  }
-
-  private getParameters(
-    schema: Swagger,
-  ): {
-    [operationId: string]: { [name: string]: string };
-  } {
-    return Object.fromEntries(
-      Object.values(schema.spec.paths).flatMap((path) => {
-        return Object.values(path).map((method) => {
-          return [
-            method.operationId,
-            Object.fromEntries(
-              method.parameters
-                .filter((parameter) => parameter.required)
-                .map((parameter) => {
-                  const { name, example } = parameter;
-                  return [name, example];
-                }),
-            ),
-          ];
-        });
-      }),
-    );
   }
 }

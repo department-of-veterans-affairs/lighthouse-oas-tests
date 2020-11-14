@@ -53,7 +53,7 @@ declare module 'swagger-client' {
   }
 
   interface Opts {
-    authorizations: Authorized;
+    authorizations?: Authorized;
     spec?: ReturnType<JSON['parse']>;
     url?: string;
   }
