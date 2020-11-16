@@ -1,5 +1,19 @@
 import Positive from '../../src/commands/positive';
 
+const mockGetParameters = jest.fn();
+const mockGetOperationIds = jest.fn();
+const mockExecute = jest.fn();
+
+jest.mock('../../src/utilities/oas-schema', () => {
+  return function () {
+    return {
+      getParameters: mockGetParameters,
+      getOperationIds: mockGetOperationIds,
+      execute: mockExecute,
+    };
+  };
+});
+
 describe('Positive', () => {
   let result;
 
@@ -8,6 +22,10 @@ describe('Positive', () => {
     jest
       .spyOn(process.stdout, 'write')
       .mockImplementation((val) => result.push(val));
+
+    mockGetParameters.mockReset();
+    mockGetOperationIds.mockReset();
+    mockExecute.mockReset();
   });
 
   describe('API key is not set', () => {
@@ -53,6 +71,54 @@ describe('Positive', () => {
           }).rejects.toThrow('unable to load json file');
         });
       });
+    });
+
+    it('generates requests for each endpoint in the spec', async () => {
+      mockGetParameters.mockImplementation(
+        () => new Promise((resolve) => resolve({})),
+      );
+      mockGetOperationIds.mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            resolve(['walkIntoMordor', 'getHobbit', 'getTomBombadil']),
+          ),
+      );
+      mockExecute
+        .mockReturnValueOnce(
+          new Promise((resolve) =>
+            resolve({
+              url: 'https://www.lotr.com/walkIntoMorder',
+              status: 400,
+              ok: false,
+            }),
+          ),
+        )
+        .mockReturnValueOnce(
+          new Promise((resolve) =>
+            resolve({
+              url: 'https://www.lotr.com/getHobbit',
+              status: 200,
+              ok: true,
+            }),
+          ),
+        )
+        .mockReturnValueOnce(
+          new Promise((resolve) =>
+            resolve({
+              url: 'https://www.lotr.com/getTomBombadil',
+              status: 404,
+              ok: false,
+            }),
+          ),
+        );
+
+      await Positive.run(['http://urldoesnotmatter.com']);
+
+      expect(result).toEqual([
+        'https://www.lotr.com/walkIntoMorder: 400 Not OK\n',
+        'https://www.lotr.com/getHobbit: 200 OK\n',
+        'https://www.lotr.com/getTomBombadil: 404 Not OK\n',
+      ]);
     });
   });
 });
