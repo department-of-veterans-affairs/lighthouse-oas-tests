@@ -5,7 +5,7 @@ const mockGetOperationIds = jest.fn();
 const mockExecute = jest.fn();
 
 jest.mock('../../src/utilities/oas-schema', () => {
-  return function () {
+  return function (): Record<string, jest.Mock> {
     return {
       getParameters: mockGetParameters,
       getOperationIds: mockGetOperationIds,
