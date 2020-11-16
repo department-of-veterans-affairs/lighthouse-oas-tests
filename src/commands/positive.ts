@@ -1,16 +1,14 @@
 import { flags } from '@oclif/command';
 import loadJsonFile from 'load-json-file';
-import swaggerClient from 'swagger-client';
-import BaseCommand from '../baseCommands/base';
-import initializeSwaggerClient, { execute } from '../utilities/swagger-utils';
-import getParameters from '../utilities/utilities';
+import { ApiKeyCommand } from '../baseCommands';
+import OasSchema from '../utilities/oas-schema';
 
-export default class Positive extends BaseCommand {
+export default class Positive extends ApiKeyCommand {
   static description =
     'Runs positive smoke tests for Lighthouse APIs based on OpenAPI specs';
 
   static flags = {
-    ...BaseCommand.flags,
+    ...ApiKeyCommand.flags,
     file: flags.boolean({
       char: 'f',
       description: 'Provide this flag if the path is to a local file',
@@ -27,45 +25,42 @@ export default class Positive extends BaseCommand {
 
   async run(): Promise<void> {
     const { args, flags } = this.parse(Positive);
-
-    const swaggerClientOptions: Parameters<typeof swaggerClient>[0] = {
+    const oasSchemaOptions: ConstructorParameters<typeof OasSchema>[0] = {
       authorizations: { apikey: { value: this.apiKey } },
     };
 
     if (flags.file) {
       try {
         const json = await loadJsonFile(args.path);
-        swaggerClientOptions.spec = json;
+        oasSchemaOptions.spec = json;
       } catch (error) {
         this.error('unable to load json file', { exit: 2 });
       }
     } else {
-      swaggerClientOptions.url = args.path;
+      oasSchemaOptions.url = args.path;
     }
 
-    const schema = await initializeSwaggerClient(swaggerClientOptions);
+    const schema = new OasSchema(oasSchemaOptions);
 
-    const operationIdToParameters: {
-      [operationId: string]: { [name: string]: string };
-    } = getParameters(schema);
+    const operationIdToParameters = await schema.getParameters();
+    const operationIds = await schema.getOperationIds();
 
     const responses = await Promise.all(
-      Object.values(schema.apis).flatMap((api) => {
-        return Object.keys(api).map((operationId) => {
-          return execute(
-            schema,
-            operationId,
-            operationIdToParameters[operationId],
-          );
-        });
+      operationIds.map((operationId) => {
+        return schema.execute(
+          operationId,
+          operationIdToParameters[operationId],
+        );
       }),
     );
 
     responses.forEach((response) => {
       if (response) {
-        this.log(response.url);
-        this.log(response.status.toString());
-        this.log(response.ok.toString());
+        this.log(
+          `${response.url}: ${response.status.toString()} ${
+            response.ok ? 'OK' : 'Not OK'
+          }`,
+        );
       }
     });
   }

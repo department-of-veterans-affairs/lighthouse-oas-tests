@@ -1,6 +1,6 @@
 import Command, { flags } from '@oclif/command';
 
-abstract class BaseCommand extends Command {
+abstract class ApiKeyCommand extends Command {
   static flags = {
     help: flags.help({ char: 'h' }),
     apiKey: flags.string({ char: 'a', description: 'API key to use' }),
@@ -16,7 +16,7 @@ abstract class BaseCommand extends Command {
   }
 
   private validateApiKey(): void {
-    const { flags } = this.parse(this.constructor as typeof BaseCommand);
+    const { flags } = this.parse(this.constructor as typeof ApiKeyCommand);
     const apiKey = flags.apiKey ?? process.env.API_KEY;
 
     if (!apiKey) {
@@ -30,4 +30,4 @@ abstract class BaseCommand extends Command {
   }
 }
 
-export default BaseCommand;
+export default ApiKeyCommand;
