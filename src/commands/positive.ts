@@ -46,6 +46,8 @@ export default class Positive extends ApiKeyCommand {
     const operationIdToParameters = await schema.getParameters();
     const operationIds = await schema.getOperationIds();
 
+    // TODO: there's probably a better way to do this with a 2d array maybe?
+    // This was just a first pass at removing array index checking
     const operationIdToResponse: { [operationId: string]: Response } = {};
 
     await Promise.all(
