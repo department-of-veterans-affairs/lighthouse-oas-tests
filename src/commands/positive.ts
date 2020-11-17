@@ -46,35 +46,33 @@ export default class Positive extends ApiKeyCommand {
     const operationIdToParameters = await schema.getParameters();
     const operationIds = await schema.getOperationIds();
 
-    // TODO: there's probably a better way to do this with a 2d array maybe?
-    // This was just a first pass at removing array index checking
-    const operationIdToResponse: { [operationId: string]: Response } = {};
+    const operationIdToResponseAndValidation: {
+      [operationId: string]: { response: Response; isValid?: boolean };
+    } = {};
 
     await Promise.all(
       operationIds.map((operationId) => {
         return schema
           .execute(operationId, operationIdToParameters[operationId])
           .then((response) => {
-            operationIdToResponse[operationId] = response;
+            operationIdToResponseAndValidation[operationId] = { response };
           });
       }),
     );
 
-    const operationIdToResponseAndValidation: {
-      [operationId: string]: { response: Response; isValid: boolean };
-    } = {};
-
     await Promise.all(
-      Object.entries(operationIdToResponse).map(([operationId, response]) => {
-        return schema
-          .validateResponse(operationId, response)
-          .then((isValid) => {
-            operationIdToResponseAndValidation[operationId] = {
-              response,
-              isValid,
-            };
-          });
-      }),
+      Object.entries(operationIdToResponseAndValidation).map(
+        ([operationId, { response }]) => {
+          return schema
+            .validateResponse(operationId, response)
+            .then((isValid) => {
+              operationIdToResponseAndValidation[operationId] = {
+                response,
+                isValid,
+              };
+            });
+        },
+      ),
     );
 
     Object.entries(operationIdToResponseAndValidation).forEach(
@@ -88,21 +86,5 @@ export default class Positive extends ApiKeyCommand {
         }
       },
     );
-
-    /*
-    const responsesValid = await Promise.all(
-      responses.map((response, index) =>
-        schema.validateResponse(operationIds[index], response),
-      ),
-    );
-    responsesValid.forEach((responseIsValid, index) => {
-      const response = responses[index];
-      if (responseIsValid && response.ok) {
-        this.log(`${response.url}: Succeeded`);
-      } else {
-        this.log(`${response.url}: Failed`);
-      }
-    });
-    */
   }
 }

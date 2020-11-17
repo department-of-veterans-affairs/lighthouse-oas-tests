@@ -1,5 +1,5 @@
 import loadJsonFile from 'load-json-file';
-import { Swagger } from 'swagger-client';
+import { Swagger, Response } from 'swagger-client';
 import OASSchema from '../../src/utilities/oas-schema';
 
 describe('OASSchema', () => {
@@ -108,6 +108,36 @@ describe('OASSchema', () => {
           id: 'testId',
         },
       });
+    });
+  });
+
+  describe('validateResponse', () => {
+    it('returns true if the response status code is in the OAS', async () => {
+      const filePath = 'test/fixtures/forms_oas.json';
+      const schema = await generateSchema(filePath);
+
+      const response: Response = {
+        ok: true,
+        status: 200,
+        url: 'http://anything.com',
+      };
+
+      const isValid = await schema.validateResponse('findForms', response);
+      expect(isValid).toBe(true);
+    });
+
+    it('returns false if the response status code is not in the OAS', async () => {
+      const filePath = 'test/fixtures/forms_oas.json';
+      const schema = await generateSchema(filePath);
+
+      const response: Response = {
+        ok: false,
+        status: 500,
+        url: 'http://anything.com',
+      };
+
+      const isValid = await schema.validateResponse('findForms', response);
+      expect(isValid).toBe(false);
     });
   });
 });

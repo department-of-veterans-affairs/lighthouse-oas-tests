@@ -3,6 +3,7 @@ import Positive from '../../src/commands/positive';
 const mockGetParameters = jest.fn();
 const mockGetOperationIds = jest.fn();
 const mockExecute = jest.fn();
+const mockValidateResponse = jest.fn();
 
 jest.mock('../../src/utilities/oas-schema', () => {
   return function (): Record<string, jest.Mock> {
@@ -10,6 +11,7 @@ jest.mock('../../src/utilities/oas-schema', () => {
       getParameters: mockGetParameters,
       getOperationIds: mockGetOperationIds,
       execute: mockExecute,
+      validateResponse: mockValidateResponse,
     };
   };
 });
@@ -26,6 +28,7 @@ describe('Positive', () => {
     mockGetParameters.mockReset();
     mockGetOperationIds.mockReset();
     mockExecute.mockReset();
+    mockValidateResponse.mockReset();
   });
 
   describe('API key is not set', () => {
@@ -111,13 +114,16 @@ describe('Positive', () => {
             }),
           ),
         );
+      mockValidateResponse.mockImplementation(
+        () => new Promise((resolve) => resolve(true)),
+      );
 
       await Positive.run(['http://urldoesnotmatter.com']);
 
       expect(result).toEqual([
-        'https://www.lotr.com/walkIntoMorder: 400 Not OK\n',
-        'https://www.lotr.com/getHobbit: 200 OK\n',
-        'https://www.lotr.com/getTomBombadil: 404 Not OK\n',
+        'walkIntoMordor: Failed\n',
+        'getHobbit: Succeeded\n',
+        'getTomBombadil: Failed\n',
       ]);
     });
   });
