@@ -67,3 +67,17 @@ OPTIONS
 
 _See code: [src/commands/positive.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/v0.1.0/src/commands/positive.ts)_
 <!-- commandsstop -->
+
+
+# Local Development
+While developing locally, `$ ./bin/run` is the equivalent of running `$ loast` with the CLI installed.
+- e.g.: `$ ./bin/run positive -a YOUR_API_KEY -f test/fixtures/facilities_oas.json` will run positive tests against the facilities OAS present in our test fixtures.
+
+## Testing
+Tests are setup with [Jest](https://jestjs.io/). Run tests using the `npm run test` command.
+
+## Linting
+This library is setup with [eslint](https://eslint.org/) and [Prettier](https://prettier.io/). Run linting using the `npm run lint` command or the `npm run lint:fix` command for in place corrections of errors.
+
+## Releasing
+See [oclif's release documentation](https://oclif.io/docs/releasing) for instructions on how to release new versions of the CLI both to npm and as standalone packages
