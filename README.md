@@ -70,6 +70,9 @@ _See code: [src/commands/positive.ts](https://github.com/department-of-veterans-
 
 
 # Local Development
+
+## Running Commands
+Before running any commands locally and after any code changes, the code will need to be built using `npm run build`.  
 While developing locally, `$ ./bin/run` is the equivalent of running `$ loast` with the CLI installed.
 - e.g.: `$ ./bin/run positive -a YOUR_API_KEY -f test/fixtures/facilities_oas.json` will run positive tests against the facilities OAS present in our test fixtures.
 
