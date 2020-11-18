@@ -22,7 +22,6 @@ abstract class ApiKeyCommand extends Command {
     if (!apiKey) {
       this.error(
         'apiKey flag should be provided or the API_KEY environment variable should be set',
-        { exit: 2 },
       );
     }
 

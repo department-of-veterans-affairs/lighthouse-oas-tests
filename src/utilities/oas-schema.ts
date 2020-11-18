@@ -27,25 +27,33 @@ class OasSchema {
       });
   };
 
+  // Retrieves parameter name and example values for each operationId in the OAS.
   getParameters = async (): Promise<OasParameters> => {
     const schema = await this.client;
-    return Object.fromEntries(
-      Object.values(schema.spec.paths).flatMap((path) => {
-        return Object.values(path).map((method) => {
-          return [
-            method.operationId,
-            Object.fromEntries(
-              method.parameters
-                .filter((parameter) => parameter.required)
-                .map((parameter) => {
-                  const { name, example } = parameter;
-                  return [name, example];
-                }),
-            ),
-          ];
-        });
-      }),
+
+    const methods = Object.values(schema.spec.paths).flatMap((path) =>
+      Object.values(path),
     );
+
+    // transforms each OAS method into a tuple that contains the operation id and an object containing parameter names and example values
+    // e.g. [ 'findFormByFormName', { form_name: 'VA10192' } ]
+    const operationIdToParameters = methods.map((method) => {
+      // transforms each OAS parameter into a tuple that contains the parameter name and example value
+      // e.g. [form_name: 'VA10192']
+      const requiredParametersAndExamples = method.parameters
+        .filter((parameter) => parameter.required)
+        .map((parameter) => {
+          const { name, example } = parameter;
+          return [name, example];
+        });
+
+      return [
+        method.operationId,
+        Object.fromEntries(requiredParametersAndExamples),
+      ];
+    });
+
+    return Object.fromEntries(operationIdToParameters);
   };
 
   getOperationIds = async (): Promise<string[]> => {

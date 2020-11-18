@@ -92,9 +92,9 @@ describe('OASSchema', () => {
       const schema = await generateSchema(filePath);
 
       schema.client = new Promise((resolve) => {
-        resolve({
+        resolve(({
           execute: executeMock,
-        } as Swagger);
+        } as unknown) as Swagger);
       });
 
       await schema.execute('getFacilityById', {
