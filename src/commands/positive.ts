@@ -46,12 +46,9 @@ export default class Positive extends ApiKeyCommand {
     const operationIds = await schema.getOperationIds();
 
     const responses = await Promise.all(
-      operationIds.map((operationId) => {
-        return schema.execute(
-          operationId,
-          operationIdToParameters[operationId],
-        );
-      }),
+      operationIds.map((operationId) =>
+        schema.execute(operationId, operationIdToParameters[operationId]),
+      ),
     );
 
     responses.forEach((response) => {
