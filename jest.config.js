@@ -6,6 +6,7 @@ module.exports = {
       diagnostics: false,
     },
   },
+  coveragePathIgnorePatterns: ["/node_modules/", "/lib/"],
   coverageThreshold: {
     '**/*.ts': {
       statements: 80,
