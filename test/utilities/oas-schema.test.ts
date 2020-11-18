@@ -1,5 +1,6 @@
 import loadJsonFile from 'load-json-file';
-import { Swagger, Response } from 'swagger-client';
+import { Swagger, Response, SchemaObject } from 'swagger-client';
+import OasSchema from '../../src/utilities/oas-schema';
 import OASSchema from '../../src/utilities/oas-schema';
 
 describe('OASSchema', () => {
@@ -112,32 +113,241 @@ describe('OASSchema', () => {
   });
 
   describe('validateResponse', () => {
-    it('returns true if the response status code is in the OAS', async () => {
-      const filePath = 'test/fixtures/forms_oas.json';
-      const schema = await generateSchema(filePath);
+    describe('response status code not in OAS', () => {
+      it('throws an error', async () => {
+        const filePath = 'test/fixtures/forms_oas.json';
+        const schema = await generateSchema(filePath);
 
-      const response: Response = {
-        ok: true,
-        status: 200,
-        url: 'http://anything.com',
-      };
+        const response: Response = {
+          ok: false,
+          status: 500,
+          url: 'http://anything.com',
+          headers: {},
+          body: {},
+        };
 
-      const isValid = await schema.validateResponse('findForms', response);
-      expect(isValid).toBe(true);
+        await expect(async () => {
+          await schema.validateResponse('findForms', response);
+        }).rejects.toThrow('Response status code not present in schema');
+      });
     });
 
-    it('returns false if the response status code is not in the OAS', async () => {
-      const filePath = 'test/fixtures/forms_oas.json';
-      const schema = await generateSchema(filePath);
+    describe('response status code is in the OAS', () => {
+      describe('Response content type does is not in the OAS', () => {
+        it('throws an error', async () => {
+          const filePath = 'test/fixtures/forms_oas.json';
+          const schema = await generateSchema(filePath);
 
-      const response: Response = {
-        ok: false,
-        status: 500,
-        url: 'http://anything.com',
+          const response: Response = {
+            ok: true,
+            status: 200,
+            url: 'http://anything.com',
+            headers: {
+              'content-type': 'text/csv',
+            },
+            body: {},
+          };
+
+          await expect(async () => {
+            await schema.validateResponse('findForms', response);
+          }).rejects.toThrow('Response content type not present in schema');
+        });
+      });
+
+      describe('Response content type is in the OAS', () => {
+        it('calls validateObjectAgainstSchema with the response body', async () => {
+          const filePath = 'test/fixtures/simple_forms_oas.json';
+          const schema = await generateSchema(filePath);
+          const originalValidateObjectAgainstSchema =
+            OasSchema.validateObjectAgainstSchema;
+          OasSchema.validateObjectAgainstSchema = jest.fn();
+
+          const response: Response = {
+            ok: false,
+            status: 200,
+            url: 'http://anything.com',
+            headers: {
+              'content-type': 'application/json',
+            },
+            body: {
+              data: 'test',
+            },
+          };
+
+          await schema.validateResponse('findForms', response);
+          expect(OasSchema.validateObjectAgainstSchema).toHaveBeenCalledWith(
+            response.body,
+            {
+              type: 'object',
+              required: ['data'],
+              properties: {
+                data: {
+                  type: 'string',
+                },
+              },
+            },
+          );
+          OasSchema.validateObjectAgainstSchema = originalValidateObjectAgainstSchema;
+        });
+      });
+    });
+  });
+
+  describe('validateObjectAgainstSchema', () => {
+    const validateSpy = jest.spyOn(OasSchema, 'validateObjectAgainstSchema');
+    beforeEach(() => {
+      validateSpy.mockClear();
+    });
+    describe('schema expects a string', () => {
+      const schema: SchemaObject = {
+        type: 'string',
+        description: 'a string',
       };
 
-      const isValid = await schema.validateResponse('findForms', response);
-      expect(isValid).toBe(false);
+      describe('object is a string', () => {
+        it('does nothing', () => {
+          expect(
+            OasSchema.validateObjectAgainstSchema('This is a string', schema),
+          ).toBeFalsy();
+        });
+      });
+
+      describe('object is not a string', () => {
+        it('throws an error', () => {
+          expect(() =>
+            OasSchema.validateObjectAgainstSchema(42, schema),
+          ).toThrow('Object type did not match schema');
+        });
+      });
+    });
+
+    describe('schema expects a number', () => {
+      const schema: SchemaObject = {
+        type: 'number',
+        description: 'a number',
+      };
+
+      describe('object is a number', () => {
+        it('does nothing', () => {
+          expect(OasSchema.validateObjectAgainstSchema(42, schema)).toBeFalsy();
+        });
+      });
+
+      describe('object is not a number', () => {
+        it('throws an error', () => {
+          expect(() =>
+            OasSchema.validateObjectAgainstSchema('this is a string', schema),
+          ).toThrow('Object type did not match schema');
+        });
+      });
+    });
+
+    describe('schema expects an array', () => {
+      const schema: SchemaObject = {
+        type: 'array',
+        items: {
+          type: 'number',
+          description: 'a number',
+        },
+        description: 'an array of number',
+      };
+
+      describe('object is not an array', () => {
+        it('throws an error', () => {
+          expect(() =>
+            OasSchema.validateObjectAgainstSchema('this is a string', schema),
+          ).toThrow('Object type did not match schema');
+        });
+      });
+
+      describe('object is an array', () => {
+        describe('items property is not defined in schema', () => {
+          let originalItems;
+          beforeEach(() => {
+            originalItems = schema.items;
+            schema.items = undefined;
+          });
+          it('throws an error', () => {
+            expect(() =>
+              OasSchema.validateObjectAgainstSchema([42], schema),
+            ).toThrow('Array schema missing items property');
+          });
+
+          afterEach(() => {
+            schema.items = originalItems;
+          });
+        });
+        it('calls validateObjectAgainstSchema once for each child', () => {
+          OasSchema.validateObjectAgainstSchema([42, 56], schema);
+
+          // Once for the call in the test, and once for each member in the array
+          expect(validateSpy).toHaveBeenCalledTimes(3);
+        });
+      });
+    });
+
+    describe('schema expects an object', () => {
+      const schema = {
+        type: 'object',
+        required: [],
+        properties: {
+          value: {
+            type: 'string',
+            description: 'a string',
+          },
+        },
+      };
+
+      describe('object is not an object', () => {
+        it('throws an error', () => {
+          expect(() =>
+            OasSchema.validateObjectAgainstSchema('this is a string', schema),
+          ).toThrow('Object type did not match schema');
+        });
+      });
+
+      describe('object is an object', () => {
+        describe('object has a property not listed in schema', () => {
+          it('throws an error', () => {
+            expect(() => {
+              OasSchema.validateObjectAgainstSchema(
+                { fake: 'property' },
+                schema,
+              );
+            }).toThrow('Object contains a property not present in schema');
+          });
+        });
+
+        describe('object is missing a required value', () => {
+          beforeEach(() => {
+            schema.required = ['value'];
+          });
+
+          it('throws an error', () => {
+            expect(() => {
+              OasSchema.validateObjectAgainstSchema({}, schema);
+            }).toThrow('Object missing required property: value');
+          });
+
+          afterEach(() => {
+            schema.required = [];
+          });
+        });
+
+        describe('object has properties', () => {
+          it('calls validateObjectAgainstSchema with the properties', () => {
+            OasSchema.validateObjectAgainstSchema(
+              {
+                value: 'string',
+              },
+              schema,
+            );
+
+            // Once for the call in the test, and once for it's property
+            expect(validateSpy).toHaveBeenCalledTimes(2);
+          });
+        });
+      });
     });
   });
 });

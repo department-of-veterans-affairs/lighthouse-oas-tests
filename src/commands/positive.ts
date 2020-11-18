@@ -47,7 +47,7 @@ export default class Positive extends ApiKeyCommand {
     const operationIds = await schema.getOperationIds();
 
     const operationIdToResponseAndValidation: {
-      [operationId: string]: { response: Response; isValid?: boolean };
+      [operationId: string]: { response: Response; validationError?: Error };
     } = {};
 
     await Promise.all(
@@ -65,24 +65,25 @@ export default class Positive extends ApiKeyCommand {
         ([operationId, { response }]) => {
           return schema
             .validateResponse(operationId, response)
-            .then((isValid) => {
-              operationIdToResponseAndValidation[operationId] = {
-                response,
-                isValid,
-              };
+            .catch((error) => {
+              operationIdToResponseAndValidation[
+                operationId
+              ].validationError = error;
             });
         },
       ),
     );
 
     Object.entries(operationIdToResponseAndValidation).forEach(
-      ([operationId, responseAndValidation]) => {
-        const response = responseAndValidation.response;
-
-        if (responseAndValidation.isValid && response.ok) {
+      ([operationId, { response, validationError }]) => {
+        if (!validationError && response.ok) {
           this.log(`${operationId}: Succeeded`);
         } else {
-          this.log(`${operationId}: Failed`);
+          this.log(
+            `${operationId}: Failed${
+              validationError ? ` ${validationError.message}` : ''
+            }`,
+          );
         }
       },
     );
