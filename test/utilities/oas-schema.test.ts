@@ -58,6 +58,7 @@ describe('OASSchema', () => {
       const schema = await generateSchema(filePath);
       return schema.getOperationIds();
     };
+
     it('gets parameters from forms_oas.json', async () => {
       const filePath = 'test/fixtures/forms_oas.json';
 
