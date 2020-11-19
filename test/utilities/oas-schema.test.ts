@@ -210,6 +210,50 @@ describe('OASSchema', () => {
             OasSchema.validateObjectAgainstSchema('This is a string', schema),
           ).toBeFalsy();
         });
+
+        describe('schema expects an enum', () => {
+          beforeAll(() => {
+            schema.enum = ['test', 'anything'];
+          });
+
+          describe('enum contains duplicate values', () => {
+            let originalEnum;
+            beforeAll(() => {
+              originalEnum = schema.enum;
+              schema.enum = ['test', 'test', 'anything'];
+            });
+
+            it('throws an error', () => {
+              expect(() =>
+                OasSchema.validateObjectAgainstSchema('does not match', schema),
+              ).toThrow('Schema enum contains duplicate values');
+            });
+
+            afterAll(() => {
+              schema.enum = originalEnum;
+            });
+          });
+
+          describe('object matches enum', () => {
+            it('does nothing', () => {
+              expect(
+                OasSchema.validateObjectAgainstSchema('test', schema),
+              ).toBeFalsy();
+            });
+          });
+
+          describe('object does not match enum', () => {
+            it('throws an error', () => {
+              expect(() =>
+                OasSchema.validateObjectAgainstSchema('does not match', schema),
+              ).toThrow('Object does not match enum');
+            });
+          });
+
+          afterAll(() => {
+            schema.enum = undefined;
+          });
+        });
       });
 
       describe('object is not a string', () => {
@@ -230,6 +274,50 @@ describe('OASSchema', () => {
       describe('object is a number', () => {
         it('does nothing', () => {
           expect(OasSchema.validateObjectAgainstSchema(42, schema)).toBeFalsy();
+        });
+
+        describe('schema expects an enum', () => {
+          beforeAll(() => {
+            schema.enum = [42, 56];
+          });
+
+          describe('object matches enum', () => {
+            it('does nothing', () => {
+              expect(
+                OasSchema.validateObjectAgainstSchema(42, schema),
+              ).toBeFalsy();
+            });
+          });
+
+          describe('object does not match enum', () => {
+            it('throws an error', () => {
+              expect(() =>
+                OasSchema.validateObjectAgainstSchema(100, schema),
+              ).toThrow('Object does not match enum');
+            });
+          });
+
+          describe('enum contains duplicate values', () => {
+            let originalEnum;
+            beforeAll(() => {
+              originalEnum = schema.enum;
+              schema.enum = [42, 42, 56];
+            });
+
+            it('throws an error', () => {
+              expect(() =>
+                OasSchema.validateObjectAgainstSchema(100, schema),
+              ).toThrow('Schema enum contains duplicate values');
+            });
+
+            afterAll(() => {
+              schema.enum = originalEnum;
+            });
+          });
+
+          afterAll(() => {
+            schema.enum = undefined;
+          });
         });
       });
 
@@ -283,11 +371,62 @@ describe('OASSchema', () => {
           // Once for the call in the test, and once for each member in the array
           expect(validateSpy).toHaveBeenCalledTimes(3);
         });
+
+        describe('schema expects an enum', () => {
+          beforeAll(() => {
+            schema.enum = [
+              [42, 56],
+              [100, 200],
+            ];
+          });
+
+          describe('object matches enum', () => {
+            it('does nothing', () => {
+              expect(
+                OasSchema.validateObjectAgainstSchema([42, 56], schema),
+              ).toBeFalsy();
+            });
+          });
+
+          describe('object does not match enum', () => {
+            it('throws an error', () => {
+              expect(() =>
+                OasSchema.validateObjectAgainstSchema([42, 100], schema),
+              ).toThrow('Object does not match enum');
+            });
+          });
+
+          describe('enum contains duplicate values', () => {
+            let originalEnum;
+            beforeAll(() => {
+              originalEnum = schema.enum;
+              schema.enum = [
+                [42, 56],
+                [100, 200],
+                [42, 56],
+              ];
+            });
+
+            it('throws an error', () => {
+              expect(() =>
+                OasSchema.validateObjectAgainstSchema([100, 200], schema),
+              ).toThrow('Schema enum contains duplicate values');
+            });
+
+            afterAll(() => {
+              schema.enum = originalEnum;
+            });
+          });
+
+          afterAll(() => {
+            schema.enum = undefined;
+          });
+        });
       });
     });
 
     describe('schema expects an object', () => {
-      const schema = {
+      const schema: SchemaObject = {
         type: 'object',
         required: [],
         properties: {
@@ -296,6 +435,7 @@ describe('OASSchema', () => {
             description: 'a string',
           },
         },
+        description: 'schema for an object',
       };
 
       describe('object is not an object', () => {
@@ -345,6 +485,63 @@ describe('OASSchema', () => {
 
             // Once for the call in the test, and once for it's property
             expect(validateSpy).toHaveBeenCalledTimes(2);
+          });
+        });
+
+        describe('schema expects an enum', () => {
+          beforeAll(() => {
+            schema.enum = [{ value: 'test' }, { value: 'anything' }];
+          });
+
+          describe('object matches enum', () => {
+            it('does nothing', () => {
+              expect(
+                OasSchema.validateObjectAgainstSchema(
+                  { value: 'test' },
+                  schema,
+                ),
+              ).toBeFalsy();
+            });
+          });
+
+          describe('object does not match enum', () => {
+            it('throws an error', () => {
+              expect(() =>
+                OasSchema.validateObjectAgainstSchema(
+                  { value: 'does not match' },
+                  schema,
+                ),
+              ).toThrow('Object does not match enum');
+            });
+          });
+
+          describe('enum contains duplicate values', () => {
+            let originalEnum;
+            beforeAll(() => {
+              originalEnum = schema.enum;
+              schema.enum = [
+                { value: 'test' },
+                { value: 'anything' },
+                { value: 'test' },
+              ];
+            });
+
+            it('throws an error', () => {
+              expect(() =>
+                OasSchema.validateObjectAgainstSchema(
+                  { value: 'does not match' },
+                  schema,
+                ),
+              ).toThrow('Schema enum contains duplicate values');
+            });
+
+            afterAll(() => {
+              schema.enum = originalEnum;
+            });
+          });
+
+          afterAll(() => {
+            schema.enum = undefined;
           });
         });
       });

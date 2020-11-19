@@ -5,6 +5,8 @@ import swaggerClient, {
   Swagger,
 } from 'swagger-client';
 import { parse } from 'content-type';
+import isEqual from 'lodash.isequal';
+import uniqWith from 'lodash.uniqwith';
 
 type OasParameters = {
   [operationId: string]: { [name: string]: string };
@@ -105,7 +107,24 @@ class OasSchema {
     object: ReturnType<typeof JSON['parse']>,
     schema: SchemaObject,
   ): void {
+    const enumValues = schema.enum;
+
+    if (enumValues) {
+      // check that schema enums do not contain duplicate values
+      const uniqueEnumValues = uniqWith(enumValues, isEqual);
+      if (uniqueEnumValues.length !== enumValues.length) {
+        throw new TypeError('Schema enum contains duplicate values');
+      }
+
+      // check that the object matches an element in the schema enum
+      const filteredEnum = enumValues.filter((value) => isEqual(value, object));
+      if (filteredEnum.length === 0) {
+        throw new TypeError('Object does not match enum');
+      }
+    }
+
     const objectType = typeof object;
+
     // check that type matches
     if (schema.type === 'array') {
       if (!Array.isArray(object)) {

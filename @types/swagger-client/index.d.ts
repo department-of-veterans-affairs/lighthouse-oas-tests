@@ -68,6 +68,7 @@ declare module 'swagger-client' {
     items?: SchemaObject;
     properties?: { [property: string]: SchemaObject };
     description: string;
+    enum?: Json[];
   }
 
   export default function swaggerClient(opts: Opts): Promise<Swagger>;
