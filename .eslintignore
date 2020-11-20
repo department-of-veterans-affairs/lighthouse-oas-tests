@@ -1,0 +1,4 @@
+/lib
+/bin
+/**/fixtures/**/*
+jest.config.js
