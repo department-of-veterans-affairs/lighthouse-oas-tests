@@ -51,13 +51,17 @@ export default class Positive extends ApiKeyCommand {
       ),
     );
 
-    responses.forEach((response) => {
-      if (response) {
-        this.log(
-          `${response.url}: ${response.status.toString()} ${
-            response.ok ? 'OK' : 'Not OK'
-          }`,
-        );
+    const responsesValid = await Promise.all(
+      responses.map((response, index) =>
+        schema.validateResponse(operationIds[index], response),
+      ),
+    );
+    responsesValid.forEach((responseIsValid, index) => {
+      const response = responses[index];
+      if (responseIsValid && response.ok) {
+        this.log(`${response.url}: Succeeded`);
+      } else {
+        this.log(`${response.url}: Failed`);
       }
     });
   }

@@ -1,4 +1,5 @@
 declare module 'swagger-client' {
+  type Json = ReturnType<JSON['parse']>;
   export interface Swagger {
     spec: Spec;
     apis: { [name: string]: Api };
@@ -27,20 +28,21 @@ declare module 'swagger-client' {
     patch?: Method;
   }
 
-  interface Method {
+  export interface Method {
     operationId: string;
     parameters: Parameter[];
+    responses: { [responseStatus: string]: Json };
   }
 
   interface Parameter {
     name: string;
-    example: ReturnType<JSON['parse']>;
+    example: Json;
     required: boolean;
   }
 
   type Api = {
     [operationId: string]: (options: {
-      parameters: { [name: string]: ReturnType<JSON['parse']> };
+      parameters: { [name: string]: Json };
     }) => Promise<Response>;
   };
 

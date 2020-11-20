@@ -1,11 +1,17 @@
-import swaggerClient, { Response, Swagger } from 'swagger-client';
+import swaggerClient, { Method, Response, Swagger } from 'swagger-client';
 
 type OasParameters = {
   [operationId: string]: { [name: string]: string };
 };
 
+type OasOperations = {
+  [operationId: string]: Method;
+};
+
 class OasSchema {
   private client: Promise<Swagger>;
+
+  private operations: OasOperations = {};
 
   constructor(options: Parameters<typeof swaggerClient>[0]) {
     this.client = swaggerClient(options);
@@ -57,10 +63,39 @@ class OasSchema {
   };
 
   getOperationIds = async (): Promise<string[]> => {
+    const operations = await this.getOperations();
+    return Object.keys(operations);
+  };
+
+  validateResponse = async (
+    operationId: string,
+    response: Response,
+  ): Promise<boolean> => {
+    const operations = await this.getOperations();
+    const operation = operations[operationId];
+
+    if (
+      Object.keys(operation.responses)
+        .map((statusCode) => parseInt(statusCode, 10))
+        .includes(response.status)
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  private getOperations = async (): Promise<OasOperations> => {
     const schema = await this.client;
-    return Object.values(schema.apis).flatMap((api) => {
-      return Object.keys(api);
-    });
+    if (Object.keys(this.operations).length === 0) {
+      this.operations = Object.fromEntries(
+        Object.values(schema.spec.paths).flatMap((path) => {
+          return Object.values(path).map((method) => {
+            return [method.operationId, method];
+          });
+        }),
+      );
+    }
+    return this.operations;
   };
 }
 
