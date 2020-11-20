@@ -2,6 +2,7 @@ import { flags } from '@oclif/command';
 import loadJsonFile from 'load-json-file';
 import { ApiKeyCommand } from '../baseCommands';
 import OasSchema from '../utilities/oas-schema';
+import { Response } from 'swagger-client';
 
 export default class Positive extends ApiKeyCommand {
   static description =
@@ -45,12 +46,48 @@ export default class Positive extends ApiKeyCommand {
     const operationIdToParameters = await schema.getParameters();
     const operationIds = await schema.getOperationIds();
 
-    const responses = await Promise.all(
-      operationIds.map((operationId) =>
-        schema.execute(operationId, operationIdToParameters[operationId]),
-      ),
+    const operationIdToResponse: { [operationId: string]: Response } = {};
+
+    await Promise.all(
+      operationIds.map((operationId) => {
+        return schema
+          .execute(operationId, operationIdToParameters[operationId])
+          .then((response) => {
+            operationIdToResponse[operationId] = response;
+          });
+      }),
     );
 
+    const operationIdToResponseAndValidation: {
+      [operationId: string]: { response: Response; isValid: boolean };
+    } = {};
+
+    await Promise.all(
+      Object.entries(operationIdToResponse).map(([operationId, response]) => {
+        return schema
+          .validateResponse(operationId, response)
+          .then((isValid) => {
+            operationIdToResponseAndValidation[operationId] = {
+              response,
+              isValid,
+            };
+          });
+      }),
+    );
+
+    Object.entries(operationIdToResponseAndValidation).forEach(
+      ([operationId, responseAndValidation]) => {
+        const response = responseAndValidation.response;
+
+        if (responseAndValidation.isValid && response.ok) {
+          this.log(`${operationId}: Succeeded`);
+        } else {
+          this.log(`${operationId}: Failed`);
+        }
+      },
+    );
+
+    /*
     const responsesValid = await Promise.all(
       responses.map((response, index) =>
         schema.validateResponse(operationIds[index], response),
@@ -64,5 +101,6 @@ export default class Positive extends ApiKeyCommand {
         this.log(`${response.url}: Failed`);
       }
     });
+    */
   }
 }
