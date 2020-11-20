@@ -119,13 +119,21 @@ class OasSchema {
       // check that expected enum does not contain duplicate values
       const uniqueEnumValues = uniqWith(enumValues, isEqual);
       if (uniqueEnumValues.length !== enumValues.length) {
-        throw new TypeError('Schema enum contains duplicate values');
+        throw new TypeError(
+          `Schema enum contains duplicate values. Schema enum: ${JSON.stringify(
+            enumValues,
+          )}`,
+        );
       }
 
       // check that the actual object matches an element in the expected enum
       const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
       if (filteredEnum.length === 0) {
-        throw new TypeError('Object does not match enum');
+        throw new TypeError(
+          `Object does not match schema enum. Schema enum: ${JSON.stringify(
+            enumValues,
+          )}. Actual object: ${actual}`,
+        );
       }
     }
 
@@ -140,7 +148,11 @@ class OasSchema {
       // check that the expected object's items property is set
       const itemSchema = expected.items;
       if (!itemSchema) {
-        throw new TypeError('Array schema missing items property');
+        throw new TypeError(
+          `The items property is required for array schemas. Schema: ${JSON.stringify(
+            expected,
+          )}`,
+        );
       }
 
       // re-run for each item
