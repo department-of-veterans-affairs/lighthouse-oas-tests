@@ -10,6 +10,7 @@ describe('OASSchema', () => {
       spec: json,
     });
   };
+
   describe('getParameters', () => {
     const callGetParameters = async (
       filePath: string,
@@ -19,6 +20,7 @@ describe('OASSchema', () => {
       const schema = await generateSchema(filePath);
       return schema.getParameters();
     };
+
     it('gets parameters from forms_oas.json', async () => {
       const filePath = 'test/fixtures/forms_oas.json';
 
@@ -198,6 +200,7 @@ describe('OASSchema', () => {
     beforeEach(() => {
       validateSpy.mockClear();
     });
+
     describe('schema expects a string', () => {
       const schema: SchemaObject = {
         type: 'string',
@@ -355,6 +358,7 @@ describe('OASSchema', () => {
             originalItems = schema.items;
             schema.items = undefined;
           });
+
           it('throws an error', () => {
             expect(() =>
               OasSchema.validateObjectAgainstSchema([42], schema),
@@ -365,6 +369,7 @@ describe('OASSchema', () => {
             schema.items = originalItems;
           });
         });
+
         it('calls validateObjectAgainstSchema once for each child', () => {
           OasSchema.validateObjectAgainstSchema([42, 56], schema);
 
