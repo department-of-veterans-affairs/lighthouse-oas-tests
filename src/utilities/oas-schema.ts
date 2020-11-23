@@ -17,19 +17,23 @@ type OasOperations = {
 };
 
 class OasSchema {
-  private client: Promise<Swagger>;
+  private _client: Promise<Swagger>;
 
   private operations: OasOperations = {};
 
   constructor(options: Parameters<typeof swaggerClient>[0]) {
-    this.client = swaggerClient(options);
+    this._client = swaggerClient(options);
+  }
+
+  public set client(client: Promise<Swagger>) {
+    this._client = client;
   }
 
   execute = async (
     operationId: string,
     parameters: { [name: string]: string },
   ): Promise<Response> => {
-    const schema = await this.client;
+    const schema = await this._client;
 
     return schema
       .execute({
@@ -43,7 +47,7 @@ class OasSchema {
 
   // Retrieves parameter name and example values for each operationId in the OAS.
   getParameters = async (): Promise<OasParameters> => {
-    const schema = await this.client;
+    const schema = await this._client;
 
     const methods = Object.values(schema.spec.paths).flatMap((path) =>
       Object.values(path),
@@ -89,6 +93,7 @@ class OasSchema {
     ) {
       throw new TypeError('Response status code not present in schema');
     }
+
     const contentType = parse(response.headers['content-type']).type;
     const contentTypeSchema =
       operation.responses[response.status].content[contentType];
@@ -133,14 +138,15 @@ class OasSchema {
 
     const objectType = typeof object;
 
-    // check that type matches
     if (schema.type === 'array') {
+      // check that type matches (the object is an array)
       if (!Array.isArray(object)) {
         throw new TypeError(
           `Schema expected the object to be an array. Schema type: ${schema.type}. Actual object type: ${objectType}`,
         );
       }
-      // re-run for each item
+
+      // check that the schema items property is set
       const itemSchema = schema.items;
       if (!itemSchema) {
         throw new TypeError(
@@ -150,22 +156,28 @@ class OasSchema {
         );
       }
 
+      // re-run for each item
       object.forEach((item) => {
         this.validateObjectAgainstSchema(item, itemSchema);
       });
     } else {
+      // check that type matches
       if (objectType !== schema.type) {
         throw new TypeError('Object type did not match schema');
       }
+
       // if type is object
       if (objectType === 'object') {
+        // check that the schema properties field is set
         const properties = schema.properties;
         if (!properties) {
           throw new TypeError('Object schema is missing Properties');
         }
+
         const objectProperties = Object.keys(object);
         const schemaProperties = Object.keys(properties);
 
+        // check that the object only contains properties present in schema
         if (
           objectProperties.filter(
             (property) => !schemaProperties.includes(property),
@@ -175,6 +187,7 @@ class OasSchema {
             'Object contains a property not present in schema',
           );
         }
+
         // check required values are present
         schema.required?.forEach((requiredProperty) => {
           if (!objectProperties.includes(requiredProperty)) {
@@ -183,6 +196,7 @@ class OasSchema {
             );
           }
         });
+
         // re-un for each property
         Object.entries(object).forEach(([propertyName, propertyObject]) => {
           this.validateObjectAgainstSchema(
@@ -195,7 +209,7 @@ class OasSchema {
   }
 
   private getOperations = async (): Promise<OasOperations> => {
-    const schema = await this.client;
+    const schema = await this._client;
     if (Object.keys(this.operations).length === 0) {
       this.operations = Object.fromEntries(
         Object.values(schema.spec.paths).flatMap((path) => {
