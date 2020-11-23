@@ -142,7 +142,9 @@ class OasSchema {
     if (expected.type === 'array') {
       // check that the actual object is an array
       if (!Array.isArray(actual)) {
-        throw new TypeError('Object type did not match schema');
+        throw new TypeError(
+          `Schema expected the object to be an array. Schema type: ${expected.type}. Actual object type: ${actualType}`,
+        );
       }
 
       // check that the expected object's items property is set
