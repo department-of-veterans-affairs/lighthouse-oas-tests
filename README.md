@@ -29,8 +29,29 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
+* [`loast hello [FILE]`](#loast-hello-file)
 * [`loast help [COMMAND]`](#loast-help-command)
 * [`loast positive PATH`](#loast-positive-path)
+
+## `loast hello [FILE]`
+
+describe the command here
+
+```
+USAGE
+  $ loast hello [FILE]
+
+OPTIONS
+  -f, --force
+  -h, --help       show CLI help
+  -n, --name=name  name to print
+
+EXAMPLE
+  $ loast hello
+  hello world from ./src/hello.ts!
+```
+
+_See code: [src/commands/hello.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/v0.2.0/src/commands/hello.ts)_
 
 ## `loast help [COMMAND]`
 
