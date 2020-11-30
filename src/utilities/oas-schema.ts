@@ -115,28 +115,28 @@ class OasSchema {
     const enumValues = expected.enum;
 
     if (enumValues) {
-      // check that schema enums do not contain duplicate values
+      // check that expected enum does not contain duplicate values
       const uniqueEnumValues = uniqWith(enumValues, isEqual);
       if (uniqueEnumValues.length !== enumValues.length) {
         throw new TypeError('Schema enum contains duplicate values');
       }
 
-      // check that the object matches an element in the schema enum
+      // check that the actual object matches an element in the expected enum
       const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
       if (filteredEnum.length === 0) {
         throw new TypeError('Object does not match enum');
       }
     }
 
-    const objectType = typeof actual;
+    const actualType = typeof actual;
 
     if (expected.type === 'array') {
-      // check that type matches (the object is an array)
+      // check that the actual object is an array
       if (!Array.isArray(actual)) {
         throw new TypeError('Object type did not match schema');
       }
 
-      // check that the schema items property is set
+      // check that the expected object's items property is set
       const itemSchema = expected.items;
       if (!itemSchema) {
         throw new TypeError('Array schema missing items property');
@@ -148,25 +148,25 @@ class OasSchema {
       });
     } else {
       // check that type matches
-      if (objectType !== expected.type) {
+      if (actualType !== expected.type) {
         throw new TypeError('Object type did not match schema');
       }
 
       // if type is object
-      if (objectType === 'object') {
-        // check that the schema properties field is set
+      if (actualType === 'object') {
+        // check that the expected object's properties field is set
         const properties = expected.properties;
         if (!properties) {
           throw new TypeError('Object schema is missing Properties');
         }
 
-        const objectProperties = Object.keys(actual);
-        const schemaProperties = Object.keys(properties);
+        const actualProperties = Object.keys(actual);
+        const expectedProperties = Object.keys(properties);
 
-        // check that the object only contains properties present in schema
+        // check that the actual object only contains properties present in expected object
         if (
-          objectProperties.filter(
-            (property) => !schemaProperties.includes(property),
+          actualProperties.filter(
+            (property) => !expectedProperties.includes(property),
           ).length > 0
         ) {
           throw new TypeError(
@@ -176,7 +176,7 @@ class OasSchema {
 
         // check required values are present
         expected.required?.forEach((requiredProperty) => {
-          if (!objectProperties.includes(requiredProperty)) {
+          if (!actualProperties.includes(requiredProperty)) {
             throw new TypeError(
               `Object missing required property: ${requiredProperty}`,
             );
