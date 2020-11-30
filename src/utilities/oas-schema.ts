@@ -77,6 +77,7 @@ class OasSchema {
 
       let parameters: ParameterExamples | ParameterExamples[];
 
+      // If example groups are present, create a parameter set for each one merged with the base parameters
       if (exampleGroups.length > 0) {
         parameters = exampleGroups.map((groupName) => {
           const groupParameters = method.parameters
