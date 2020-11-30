@@ -109,10 +109,10 @@ class OasSchema {
   };
 
   public static validateObjectAgainstSchema(
-    object: ReturnType<typeof JSON['parse']>,
-    schema: SchemaObject,
+    actual: ReturnType<typeof JSON['parse']>,
+    expected: SchemaObject,
   ): void {
-    const enumValues = schema.enum;
+    const enumValues = expected.enum;
 
     if (enumValues) {
       // check that schema enums do not contain duplicate values
@@ -122,45 +122,45 @@ class OasSchema {
       }
 
       // check that the object matches an element in the schema enum
-      const filteredEnum = enumValues.filter((value) => isEqual(value, object));
+      const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
       if (filteredEnum.length === 0) {
         throw new TypeError('Object does not match enum');
       }
     }
 
-    const objectType = typeof object;
+    const objectType = typeof actual;
 
-    if (schema.type === 'array') {
+    if (expected.type === 'array') {
       // check that type matches (the object is an array)
-      if (!Array.isArray(object)) {
+      if (!Array.isArray(actual)) {
         throw new TypeError('Object type did not match schema');
       }
 
       // check that the schema items property is set
-      const itemSchema = schema.items;
+      const itemSchema = expected.items;
       if (!itemSchema) {
         throw new TypeError('Array schema missing items property');
       }
 
       // re-run for each item
-      object.forEach((item) => {
+      actual.forEach((item) => {
         this.validateObjectAgainstSchema(item, itemSchema);
       });
     } else {
       // check that type matches
-      if (objectType !== schema.type) {
+      if (objectType !== expected.type) {
         throw new TypeError('Object type did not match schema');
       }
 
       // if type is object
       if (objectType === 'object') {
         // check that the schema properties field is set
-        const properties = schema.properties;
+        const properties = expected.properties;
         if (!properties) {
           throw new TypeError('Object schema is missing Properties');
         }
 
-        const objectProperties = Object.keys(object);
+        const objectProperties = Object.keys(actual);
         const schemaProperties = Object.keys(properties);
 
         // check that the object only contains properties present in schema
@@ -175,7 +175,7 @@ class OasSchema {
         }
 
         // check required values are present
-        schema.required?.forEach((requiredProperty) => {
+        expected.required?.forEach((requiredProperty) => {
           if (!objectProperties.includes(requiredProperty)) {
             throw new TypeError(
               `Object missing required property: ${requiredProperty}`,
@@ -184,7 +184,7 @@ class OasSchema {
         });
 
         // re-un for each property
-        Object.entries(object).forEach(([propertyName, propertyObject]) => {
+        Object.entries(actual).forEach(([propertyName, propertyObject]) => {
           this.validateObjectAgainstSchema(
             propertyObject,
             properties[propertyName],
