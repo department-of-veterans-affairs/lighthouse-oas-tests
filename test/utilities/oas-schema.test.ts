@@ -223,7 +223,9 @@ describe('OASSchema', () => {
             'body',
             'facility',
           ]),
-        ).toThrow('Schema is missing Type. Path: body -> facility');
+        ).toThrow(
+          'The type property is required for all schemas. Path: body -> facility',
+        );
       });
     });
 
@@ -295,9 +297,9 @@ describe('OASSchema', () => {
                   'id',
                 ]),
               ).toThrow(
-                `Object does not match schema enum. Path: body -> facility -> id. Schema enum: ${JSON.stringify(
+                `Actual value does not match schema enum. Path: body -> facility -> id. Schema enum: ${JSON.stringify(
                   schema.enum,
-                )}. Actual object: ${JSON.stringify(object)}`,
+                )}. Actual value: ${JSON.stringify(object)}`,
               );
             });
           });
@@ -318,9 +320,7 @@ describe('OASSchema', () => {
               'id',
             ]),
           ).toThrow(
-            `Object type did not match schema. Path: body -> facility -> id. Schema type: string. Actual object type: number. Actual object: ${JSON.stringify(
-              object,
-            )}`,
+            'Actual type did not match schema. Path: body -> facility -> id. Schema type: string. Actual type: number',
           );
         });
       });
@@ -370,9 +370,9 @@ describe('OASSchema', () => {
                   'lat',
                 ]),
               ).toThrow(
-                `Object does not match schema enum. Path: body -> facility -> lat. Schema enum: ${JSON.stringify(
+                `Actual value does not match schema enum. Path: body -> facility -> lat. Schema enum: ${JSON.stringify(
                   schema.enum,
-                )}. Actual object: ${JSON.stringify(object)}`,
+                )}. Actual value: ${JSON.stringify(object)}`,
               );
             });
           });
@@ -419,9 +419,7 @@ describe('OASSchema', () => {
               'lat',
             ]),
           ).toThrow(
-            `Object type did not match schema. Path: body -> facility -> lat. Schema type: number. Actual object type: string. Actual object: ${JSON.stringify(
-              object,
-            )}`,
+            'Actual type did not match schema. Path: body -> facility -> lat. Schema type: number. Actual type: string',
           );
         });
       });
@@ -446,9 +444,7 @@ describe('OASSchema', () => {
               'numbers',
             ]),
           ).toThrow(
-            `Schema expected the object to be an array. Path: body -> numbers. Schema type: array. Actual object type: string. Actual object: ${JSON.stringify(
-              object,
-            )}`,
+            'Schema expected an array. Path: body -> numbers. Actual type: string',
           );
         });
       });
@@ -515,9 +511,9 @@ describe('OASSchema', () => {
                   'numbers',
                 ]),
               ).toThrow(
-                `Object does not match schema enum. Path: body -> numbers. Schema enum: ${JSON.stringify(
+                `Actual value does not match schema enum. Path: body -> numbers. Schema enum: ${JSON.stringify(
                   schema.enum,
-                )}. Actual object: ${JSON.stringify(object)}`,
+                )}. Actual value: ${JSON.stringify(object)}`,
               );
             });
           });
@@ -580,9 +576,7 @@ describe('OASSchema', () => {
               'form',
             ]),
           ).toThrow(
-            `Object type did not match schema. Path: body -> form. Schema type: object. Actual object type: string. Actual object: ${JSON.stringify(
-              object,
-            )}`,
+            'Actual type did not match schema. Path: body -> form. Schema type: object. Actual type: string',
           );
         });
       });
@@ -601,7 +595,9 @@ describe('OASSchema', () => {
                 'body',
                 'form',
               ]),
-            ).toThrow('Schema is missing Properties. Path: body -> form');
+            ).toThrow(
+              'The properties property is required for object schemas. Path: body -> form',
+            );
           });
 
           afterAll(() => {
@@ -618,7 +614,7 @@ describe('OASSchema', () => {
                 ['body', 'form'],
               );
             }).toThrow(
-              `Object contains a property not present in schema. Path: body -> form. Schema properties: ${JSON.stringify(
+              `Actual object contains a property not present in schema. Path: body -> form. Schema properties: ${JSON.stringify(
                 ['value'],
               )}. Object properties: ${JSON.stringify(['fake'])}`,
             );
@@ -638,9 +634,7 @@ describe('OASSchema', () => {
                 'form',
               ]);
             }).toThrow(
-              `Object missing required property: value. Path: body -> form. Actual object: ${JSON.stringify(
-                object,
-              )}`,
+              'Actual object missing required property: value. Path: body -> form',
             );
           });
 
@@ -690,9 +684,9 @@ describe('OASSchema', () => {
                   'form',
                 ]),
               ).toThrow(
-                `Object does not match schema enum. Path: body -> form. Schema enum: ${JSON.stringify(
+                `Actual value does not match schema enum. Path: body -> form. Schema enum: ${JSON.stringify(
                   schema.enum,
-                )}. Actual object: ${JSON.stringify(object)}`,
+                )}. Actual value: ${JSON.stringify(object)}`,
               );
             });
           });

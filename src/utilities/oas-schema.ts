@@ -114,123 +114,111 @@ class OasSchema {
   };
 
   public static validateObjectAgainstSchema(
-    object: ReturnType<typeof JSON['parse']>,
-    schema: SchemaObject,
+    actual: ReturnType<typeof JSON['parse']>,
+    expected: SchemaObject,
     path: string[],
   ): void {
-    const enumValues = schema.enum;
+    const formattedPath = path.join(' -> ');
+
+    const enumValues = expected.enum;
 
     if (enumValues) {
-      // check that schema enums do not contain duplicate values
+      // check that expected enum does not contain duplicate values
       const uniqueEnumValues = uniqWith(enumValues, isEqual);
       if (uniqueEnumValues.length !== enumValues.length) {
         throw new TypeError(
-          `Schema enum contains duplicate values. Path: ${path.join(
-            ' -> ',
-          )}. Schema enum: ${JSON.stringify(enumValues)}`,
+          `Schema enum contains duplicate values. Path: ${formattedPath}. Schema enum: ${JSON.stringify(
+            enumValues,
+          )}`,
         );
       }
 
-      // check that the object matches an element in the schema enum
-      const filteredEnum = enumValues.filter((value) => isEqual(value, object));
+      // check that the actual object matches an element in the expected enum
+      const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
       if (filteredEnum.length === 0) {
         throw new TypeError(
-          `Object does not match schema enum. Path: ${path.join(
-            ' -> ',
-          )}. Schema enum: ${JSON.stringify(
+          `Actual value does not match schema enum. Path: ${formattedPath}. Schema enum: ${JSON.stringify(
             enumValues,
-          )}. Actual object: ${JSON.stringify(object)}`,
+          )}. Actual value: ${JSON.stringify(actual)}`,
         );
       }
     }
 
-    const schemaType = schema.type;
-    const objectType = typeof object;
+    const expectedType = expected.type;
+    const actualType = typeof actual;
 
-    // check that type is set on the schema
-    if (!schemaType) {
-      throw new TypeError(`Schema is missing Type. Path: ${path.join(' -> ')}`);
+    // check that type is set on the expected object
+    if (!expectedType) {
+      throw new TypeError(
+        `The type property is required for all schemas. Path: ${formattedPath}`,
+      );
     }
 
-    if (schemaType === 'array') {
-      // check that type matches (the object is an array)
-      if (!Array.isArray(object)) {
+    if (expectedType === 'array') {
+      // check that the actual object is an array
+      if (!Array.isArray(actual)) {
         throw new TypeError(
-          `Schema expected the object to be an array. Path: ${path.join(
-            ' -> ',
-          )}. Schema type: ${schemaType}. Actual object type: ${objectType}. Actual object: ${JSON.stringify(
-            object,
-          )}`,
+          `Schema expected an array. Path: ${formattedPath}. Actual type: ${actualType}`,
         );
       }
 
-      // check that the schema items property is set
-      const itemSchema = schema.items;
+      // check that the expected object's items property is set
+      const itemSchema = expected.items;
       if (!itemSchema) {
         throw new TypeError(
-          `The items property is required for array schemas. Path: ${path.join(
-            ' -> ',
-          )}`,
+          `The items property is required for array schemas. Path: ${formattedPath}`,
         );
       }
 
       // re-run for each item
-      object.forEach((item) => {
+      actual.forEach((item) => {
         this.validateObjectAgainstSchema(item, itemSchema, path);
       });
     } else {
       // check that type matches
-      if (objectType !== schemaType) {
+      if (actualType !== expectedType) {
         throw new TypeError(
-          `Object type did not match schema. Path: ${path.join(
-            ' -> ',
-          )}. Schema type: ${schemaType}. Actual object type: ${objectType}. Actual object: ${JSON.stringify(
-            object,
-          )}`,
+          `Actual type did not match schema. Path: ${formattedPath}. Schema type: ${expectedType}. Actual type: ${actualType}`,
         );
       }
 
       // if type is object
-      if (objectType === 'object') {
-        // check that the schema properties field is set
-        const properties = schema.properties;
+      if (actualType === 'object') {
+        // check that the expected object's properties field is set
+        const properties = expected.properties;
         if (!properties) {
           throw new TypeError(
-            `Schema is missing Properties. Path: ${path.join(' -> ')}`,
+            `The properties property is required for object schemas. Path: ${formattedPath}`,
           );
         }
 
-        const objectProperties = Object.keys(object);
-        const schemaProperties = Object.keys(properties);
+        const actualProperties = Object.keys(actual);
+        const expectedProperties = Object.keys(properties);
 
-        // check that the object only contains properties present in schema
+        // check that the actual object only contains properties present in expected object
         if (
-          objectProperties.filter(
-            (property) => !schemaProperties.includes(property),
+          actualProperties.filter(
+            (property) => !expectedProperties.includes(property),
           ).length > 0
         ) {
           throw new TypeError(
-            `Object contains a property not present in schema. Path: ${path.join(
-              ' -> ',
-            )}. Schema properties: ${JSON.stringify(
-              schemaProperties,
-            )}. Object properties: ${JSON.stringify(objectProperties)}`,
+            `Actual object contains a property not present in schema. Path: ${formattedPath}. Schema properties: ${JSON.stringify(
+              expectedProperties,
+            )}. Object properties: ${JSON.stringify(actualProperties)}`,
           );
         }
 
         // check required values are present
-        schema.required?.forEach((requiredProperty) => {
-          if (!objectProperties.includes(requiredProperty)) {
+        expected.required?.forEach((requiredProperty) => {
+          if (!actualProperties.includes(requiredProperty)) {
             throw new TypeError(
-              `Object missing required property: ${requiredProperty}. Path: ${path.join(
-                ' -> ',
-              )}. Actual object: ${JSON.stringify(object)}`,
+              `Actual object missing required property: ${requiredProperty}. Path: ${formattedPath}`,
             );
           }
         });
 
         // re-un for each property
-        Object.entries(object).forEach(([propertyName, propertyObject]) => {
+        Object.entries(actual).forEach(([propertyName, propertyObject]) => {
           path.push(propertyName);
           this.validateObjectAgainstSchema(
             propertyObject,
