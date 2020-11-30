@@ -3,6 +3,7 @@ import swaggerClient, {
   Response,
   SchemaObject,
   Swagger,
+  Json,
 } from 'swagger-client';
 import { parse } from 'content-type';
 import isEqual from 'lodash.isequal';
@@ -109,7 +110,7 @@ class OasSchema {
   };
 
   public static validateObjectAgainstSchema(
-    actual: ReturnType<typeof JSON['parse']>,
+    actual: Json,
     expected: SchemaObject,
   ): void {
     const enumValues = expected.enum;
