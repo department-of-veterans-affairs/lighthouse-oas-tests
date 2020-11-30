@@ -73,12 +73,12 @@ _See code: [src/commands/positive.ts](https://github.com/department-of-veterans-
 ## Example Groups
 If your endpoint supports different groupings of parameters (such as taking either an address or a set of positional coordinates), you can use the `examples`  field on the `Paramater` object to create groupings.
 Create an `examples` object on each parameter that needs to go into a group in the form:
-```
-{
-  groupName: "example value"
+```json
+"examples": {
+  "group name": "example value"
 }
 ```
-`loast` will go through and execute a test against the endpoint for each grouping it finds. 
+`loast` will go through and execute a test against the endpoint for each grouping it finds, including any required parameters in each request. 
 
 
 # Local Development
