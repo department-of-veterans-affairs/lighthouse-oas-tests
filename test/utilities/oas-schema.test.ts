@@ -452,6 +452,24 @@ describe('OASSchema', () => {
       });
 
       describe('object is an object', () => {
+        describe('schema does not have properties', () => {
+          let originalProperties;
+          beforeAll(() => {
+            originalProperties = schema.properties;
+            schema.properties = undefined;
+          });
+
+          it('throws an error', () => {
+            expect(() =>
+              OasSchema.validateObjectAgainstSchema({ value: 'any' }, schema),
+            ).toThrow('Object schema is missing Properties');
+          });
+
+          afterAll(() => {
+            schema.properties = originalProperties;
+          });
+        });
+
         describe('object has a property not listed in schema', () => {
           it('throws an error', () => {
             expect(() => {
