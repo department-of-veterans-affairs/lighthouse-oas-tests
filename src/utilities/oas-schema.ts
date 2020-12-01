@@ -147,13 +147,6 @@ class OasSchema {
     const expectedType = expected.type;
     const actualType = typeof actual;
 
-    // check that type is set on the expected object
-    if (!expectedType) {
-      throw new TypeError(
-        `The type property is required for all schemas. Path: ${formattedPath}`,
-      );
-    }
-
     if (expectedType === 'array') {
       // check that the actual object is an array
       if (!Array.isArray(actual)) {

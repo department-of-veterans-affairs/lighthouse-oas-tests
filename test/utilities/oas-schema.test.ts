@@ -206,29 +206,6 @@ describe('OASSchema', () => {
       validateSpy.mockClear();
     });
 
-    describe('schema is missing type', () => {
-      it('throws an error', () => {
-        const schema: SchemaObject = {
-          properties: {
-            value: {
-              type: 'string',
-              description: 'a string',
-            },
-          },
-          description: 'schema for an object',
-        };
-
-        expect(() =>
-          OasSchema.validateObjectAgainstSchema({ value: 'any' }, schema, [
-            'body',
-            'facility',
-          ]),
-        ).toThrow(
-          'The type property is required for all schemas. Path: body -> facility',
-        );
-      });
-    });
-
     describe('schema expects a string', () => {
       const schema: SchemaObject = {
         type: 'string',
