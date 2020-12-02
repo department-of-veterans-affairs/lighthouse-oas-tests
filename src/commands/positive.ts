@@ -2,6 +2,7 @@ import { flags } from '@oclif/command';
 import loadJsonFile from 'load-json-file';
 import { ApiKeyCommand } from '../baseCommands';
 import OasSchema from '../utilities/oas-schema';
+import { Response } from 'swagger-client';
 
 export default class Positive extends ApiKeyCommand {
   static description =
@@ -45,20 +46,46 @@ export default class Positive extends ApiKeyCommand {
     const operationIdToParameters = await schema.getParameters();
     const operationIds = await schema.getOperationIds();
 
-    const responses = await Promise.all(
-      operationIds.map((operationId) =>
-        schema.execute(operationId, operationIdToParameters[operationId]),
+    const operationIdToResponseAndValidation: {
+      [operationId: string]: { response: Response; validationError?: Error };
+    } = {};
+
+    await Promise.all(
+      operationIds.map((operationId) => {
+        return schema
+          .execute(operationId, operationIdToParameters[operationId])
+          .then((response) => {
+            operationIdToResponseAndValidation[operationId] = { response };
+          });
+      }),
+    );
+
+    await Promise.all(
+      Object.entries(operationIdToResponseAndValidation).map(
+        ([operationId, { response }]) => {
+          return schema
+            .validateResponse(operationId, response)
+            .catch((error) => {
+              operationIdToResponseAndValidation[
+                operationId
+              ].validationError = error;
+            });
+        },
       ),
     );
 
-    responses.forEach((response) => {
-      if (response) {
-        this.log(
-          `${response.url}: ${response.status.toString()} ${
-            response.ok ? 'OK' : 'Not OK'
-          }`,
-        );
-      }
-    });
+    Object.entries(operationIdToResponseAndValidation).forEach(
+      ([operationId, { response, validationError }]) => {
+        if (!validationError && response.ok) {
+          this.log(`${operationId}: Succeeded`);
+        } else {
+          this.log(
+            `${operationId}: Failed${
+              validationError ? ` ${validationError.message}` : ''
+            }`,
+          );
+        }
+      },
+    );
   }
 }

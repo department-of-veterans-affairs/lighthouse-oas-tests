@@ -1,7 +1,7 @@
 {
   "name": "loast",
   "description": "CLI for testing Lighthouse APIs using OpenAPI specs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "bin": {
     "loast": "./bin/run"
   },
@@ -10,13 +10,18 @@
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
     "@oclif/plugin-help": "^3.2.0",
+    "content-type": "^1.0.4",
     "load-json-file": "^6.2.0",
+    "lodash.isequal": "^4.5.0",
+    "lodash.uniqwith": "^4.5.0",
     "swagger-client": "^3.12.0",
     "tslib": "^1.14.1"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1.22.2",
+    "@types/content-type": "^1.1.3",
     "@types/jest": "^26.0.15",
+    "@types/lodash": "^4.14.165",
     "@types/node": "^10.17.44",
     "eslint": "^5.16.0",
     "eslint-config-oclif": "^3.1.0",

@@ -11,6 +11,7 @@ CLI for testing Lighthouse APIs using OpenAPI specs
 <!-- toc -->
 * [Usage](#usage)
 * [Commands](#commands)
+* [Local Development](#local-development)
 <!-- tocstop -->
 # Usage
 <!-- usage -->
@@ -19,7 +20,7 @@ $ npm install -g loast
 $ loast COMMAND
 running command...
 $ loast (-v|--version|version)
-loast/0.1.0 darwin-x64 node-v14.15.0
+loast/0.2.0 darwin-x64 node-v12.19.0
 $ loast --help [COMMAND]
 USAGE
   $ loast COMMAND
@@ -65,7 +66,7 @@ OPTIONS
   -h, --help           show CLI help
 ```
 
-_See code: [src/commands/positive.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/v0.1.0/src/commands/positive.ts)_
+_See code: [src/commands/positive.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/v0.2.0/src/commands/positive.ts)_
 <!-- commandsstop -->
 
 

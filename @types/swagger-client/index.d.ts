@@ -1,9 +1,11 @@
 declare module 'swagger-client' {
+  export type Json = ReturnType<JSON['parse']>;
+
   export interface Swagger {
     spec: Spec;
     apis: { [name: string]: Api };
     execute: (options: {
-      parameters: { [name: string]: ReturnType<JSON['parse']> };
+      parameters: { [name: string]: Json };
       operationId: string;
       requestInterceptor?: (request: string) => string;
     }) => Promise<Response>;
@@ -17,6 +19,8 @@ declare module 'swagger-client' {
     ok: boolean;
     status: number;
     url: string;
+    headers: { [header: string]: string };
+    body: Json;
   }
 
   interface Path {
@@ -27,20 +31,21 @@ declare module 'swagger-client' {
     patch?: Method;
   }
 
-  interface Method {
+  export interface Method {
     operationId: string;
     parameters: Parameter[];
+    responses: { [responseStatus: string]: Json };
   }
 
   interface Parameter {
     name: string;
-    example: ReturnType<JSON['parse']>;
+    example: Json;
     required: boolean;
   }
 
   type Api = {
     [operationId: string]: (options: {
-      parameters: { [name: string]: ReturnType<JSON['parse']> };
+      parameters: { [name: string]: Json };
     }) => Promise<Response>;
   };
 
@@ -54,8 +59,17 @@ declare module 'swagger-client' {
 
   interface Opts {
     authorizations?: Authorized;
-    spec?: ReturnType<JSON['parse']>;
+    spec?: Json;
     url?: string;
+  }
+
+  export interface SchemaObject {
+    type: 'number' | 'string' | 'object' | 'array';
+    required?: string[];
+    items?: SchemaObject;
+    properties?: { [property: string]: SchemaObject };
+    description: string;
+    enum?: Json[];
   }
 
   export default function swaggerClient(opts: Opts): Promise<Swagger>;
