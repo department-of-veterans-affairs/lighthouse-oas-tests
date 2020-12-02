@@ -5,6 +5,7 @@ import swaggerClient, {
   Swagger,
   Json,
 } from 'swagger-client';
+import { errorMessages } from './constants';
 import { parse } from 'content-type';
 import isEqual from 'lodash.isequal';
 import uniqWith from 'lodash.uniqwith';
@@ -15,6 +16,16 @@ type OasParameters = {
 
 type OasOperations = {
   [operationId: string]: Method;
+};
+
+type ErrorMessageParameters = {
+  enumValues?: Json[];
+  actualValue?: Json;
+  schemaType?: string;
+  actualType?: string;
+  schemaProperties?: string[];
+  actualProperties?: string[];
+  requiredProperty?: string;
 };
 
 class OasSchema {
@@ -119,7 +130,6 @@ class OasSchema {
     expected: SchemaObject,
     path: string[],
   ): void {
-    const formattedPath = path.join(' -> ');
     const enumValues = expected.enum;
 
     if (enumValues) {
@@ -127,9 +137,9 @@ class OasSchema {
       const uniqueEnumValues = uniqWith(enumValues, isEqual);
       if (uniqueEnumValues.length !== enumValues.length) {
         throw new TypeError(
-          `Schema enum contains duplicate values. Path: ${formattedPath}. Schema enum: ${JSON.stringify(
+          OasSchema.formatErrorMessage(errorMessages.DUPLICATE_ENUMS, path, {
             enumValues,
-          )}`,
+          }),
         );
       }
 
@@ -137,9 +147,10 @@ class OasSchema {
       const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
       if (filteredEnum.length === 0) {
         throw new TypeError(
-          `Actual value does not match schema enum. Path: ${formattedPath}. Schema enum: ${JSON.stringify(
+          OasSchema.formatErrorMessage(errorMessages.ENUM_MISMATCH, path, {
             enumValues,
-          )}. Actual value: ${JSON.stringify(actual)}`,
+            actualValue: actual,
+          }),
         );
       }
     }
@@ -151,7 +162,10 @@ class OasSchema {
       // check that the actual object is an array
       if (!Array.isArray(actual)) {
         throw new TypeError(
-          `Schema expected an array. Path: ${formattedPath}. Actual type: ${actualType}`,
+          OasSchema.formatErrorMessage(errorMessages.TYPE_MISMATCH, path, {
+            schemaType: expectedType,
+            actualType,
+          }),
         );
       }
 
@@ -159,7 +173,7 @@ class OasSchema {
       const itemSchema = expected.items;
       if (!itemSchema) {
         throw new TypeError(
-          `The items property is required for array schemas. Path: ${formattedPath}`,
+          OasSchema.formatErrorMessage(errorMessages.ITEMS_MISSING, path, {}),
         );
       }
 
@@ -171,7 +185,10 @@ class OasSchema {
       // check that type matches
       if (actualType !== expectedType) {
         throw new TypeError(
-          `Actual type did not match schema. Path: ${formattedPath}. Schema type: ${expectedType}. Actual type: ${actualType}`,
+          OasSchema.formatErrorMessage(errorMessages.TYPE_MISMATCH, path, {
+            schemaType: expectedType,
+            actualType,
+          }),
         );
       }
 
@@ -181,7 +198,11 @@ class OasSchema {
         const properties = expected.properties;
         if (!properties) {
           throw new TypeError(
-            `The properties property is required for object schemas. Path: ${formattedPath}`,
+            OasSchema.formatErrorMessage(
+              errorMessages.PROPERTIES_MISSING,
+              path,
+              {},
+            ),
           );
         }
 
@@ -195,9 +216,14 @@ class OasSchema {
           ).length > 0
         ) {
           throw new TypeError(
-            `Actual object contains a property not present in schema. Path: ${formattedPath}. Schema properties: ${JSON.stringify(
-              expectedProperties,
-            )}. Object properties: ${JSON.stringify(actualProperties)}`,
+            OasSchema.formatErrorMessage(
+              errorMessages.PROPERTIES_MISMATCH,
+              path,
+              {
+                schemaProperties: expectedProperties,
+                actualProperties,
+              },
+            ),
           );
         }
 
@@ -205,7 +231,13 @@ class OasSchema {
         expected.required?.forEach((requiredProperty) => {
           if (!actualProperties.includes(requiredProperty)) {
             throw new TypeError(
-              `Actual object missing required property: ${requiredProperty}. Path: ${formattedPath}`,
+              OasSchema.formatErrorMessage(
+                errorMessages.MISSING_REQUIRED_PROPERTY,
+                path,
+                {
+                  requiredProperty,
+                },
+              ),
             );
           }
         });
@@ -238,6 +270,35 @@ class OasSchema {
     }
     return this.operations;
   };
+
+  private static formatErrorMessage(
+    message: string,
+    path: string[],
+    {
+      enumValues,
+      schemaType,
+      actualType,
+      schemaProperties,
+      actualProperties,
+      requiredProperty,
+      actualValue,
+    }: ErrorMessageParameters,
+  ): string {
+    return (
+      `${message}. Path: ${path.join(' -> ')}` +
+      (enumValues ? `. Schema enum: ${JSON.stringify(enumValues)}` : '') +
+      (schemaType ? `. Schema type: ${schemaType}` : '') +
+      (actualType ? `. Actual type: ${actualType}` : '') +
+      (schemaProperties
+        ? `. Schema properties: ${JSON.stringify(schemaProperties)}`
+        : '') +
+      (actualProperties
+        ? `. Actual properties: ${JSON.stringify(actualProperties)}`
+        : '') +
+      (requiredProperty ? `. Required property: ${requiredProperty}` : '') +
+      (actualValue ? `. Actual value: ${JSON.stringify(actualValue)}` : '')
+    );
+  }
 }
 
 export default OasSchema;
