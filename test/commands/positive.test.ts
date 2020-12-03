@@ -76,6 +76,52 @@ describe('Positive', () => {
       });
     });
 
+    describe('operation has parameter groups', () => {
+      it('generates requests for each parameter group', async () => {
+        mockGetParameters.mockImplementation(
+          () =>
+            new Promise((resolve) =>
+              resolve({
+                walkIntoMordor: [
+                  {
+                    door: 'front',
+                  },
+                  {
+                    guide: 'gollum',
+                  },
+                ],
+              }),
+            ),
+        );
+        mockGetOperationIds.mockImplementation(
+          () => new Promise((resolve) => resolve(['walkIntoMordor'])),
+        );
+        mockExecute.mockImplementation(
+          () =>
+            new Promise((resolve) =>
+              resolve({
+                url: 'https://www.lotr.com/walkIntoMorder',
+                status: 400,
+                ok: false,
+              }),
+            ),
+        );
+        mockValidateResponse.mockImplementation(
+          () => new Promise((resolve) => resolve()),
+        );
+
+        await Positive.run(['http://urldoesnotmatter.com']);
+
+        expect(mockExecute).toHaveBeenCalledTimes(2);
+        expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
+          door: 'front',
+        });
+        expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
+          guide: 'gollum',
+        });
+      });
+    });
+
     it('generates requests for each endpoint in the spec', async () => {
       mockGetParameters.mockImplementation(
         () => new Promise((resolve) => resolve({})),
