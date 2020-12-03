@@ -132,7 +132,7 @@ describe('OASSchema', () => {
         await expect(async () => {
           await schema.validateResponse('findForms', response);
         }).rejects.toThrow(
-          'Response status code not present in schema. Received status code: 500',
+          `${errorMessages.STATUS_CODE_MISMATCH}. Received status code: 500`,
         );
       });
     });
@@ -156,7 +156,7 @@ describe('OASSchema', () => {
           await expect(async () => {
             await schema.validateResponse('findForms', response);
           }).rejects.toThrow(
-            'Response content type not present in schema. Received content type: text/csv',
+            `${errorMessages.CONTENT_TYPE_MISMATCH}. Received content type: text/csv`,
           );
         });
       });

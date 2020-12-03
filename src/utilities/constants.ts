@@ -1,4 +1,6 @@
 export const errorMessages = {
+  STATUS_CODE_MISMATCH: 'Response status code not present in schema',
+  CONTENT_TYPE_MISMATCH: 'Response content type not present in schema',
   DUPLICATE_ENUMS: 'Schema enum contains duplicate values',
   ENUM_MISMATCH: 'Actual value does not match schema enum',
   TYPE_MISMATCH: 'Actual type did not match schema',

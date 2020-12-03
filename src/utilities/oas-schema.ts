@@ -19,6 +19,9 @@ type OasOperations = {
 };
 
 type ErrorMessageContext = {
+  statusCode?: number;
+  contentType?: string;
+  path?: string[];
   enumValues?: Json[];
   actualValue?: Json;
   schemaType?: string;
@@ -104,7 +107,9 @@ class OasSchema {
         .includes(response.status)
     ) {
       throw new TypeError(
-        `Response status code not present in schema. Received status code: ${response.status}`,
+        OasSchema.formatErrorMessage(errorMessages.STATUS_CODE_MISMATCH, {
+          statusCode: response.status,
+        }),
       );
     }
 
@@ -114,7 +119,9 @@ class OasSchema {
 
     if (!contentTypeSchema) {
       throw new TypeError(
-        `Response content type not present in schema. Received content type: ${contentType}`,
+        OasSchema.formatErrorMessage(errorMessages.CONTENT_TYPE_MISMATCH, {
+          contentType,
+        }),
       );
     }
 
@@ -137,7 +144,8 @@ class OasSchema {
       const uniqueEnumValues = uniqWith(enumValues, isEqual);
       if (uniqueEnumValues.length !== enumValues.length) {
         throw new TypeError(
-          OasSchema.formatErrorMessage(errorMessages.DUPLICATE_ENUMS, path, {
+          OasSchema.formatErrorMessage(errorMessages.DUPLICATE_ENUMS, {
+            path,
             enumValues,
           }),
         );
@@ -147,7 +155,8 @@ class OasSchema {
       const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
       if (filteredEnum.length === 0) {
         throw new TypeError(
-          OasSchema.formatErrorMessage(errorMessages.ENUM_MISMATCH, path, {
+          OasSchema.formatErrorMessage(errorMessages.ENUM_MISMATCH, {
+            path,
             enumValues,
             actualValue: actual,
           }),
@@ -162,7 +171,8 @@ class OasSchema {
       // check that the actual object is an array
       if (!Array.isArray(actual)) {
         throw new TypeError(
-          OasSchema.formatErrorMessage(errorMessages.TYPE_MISMATCH, path, {
+          OasSchema.formatErrorMessage(errorMessages.TYPE_MISMATCH, {
+            path,
             schemaType: expectedType,
             actualType,
           }),
@@ -173,7 +183,7 @@ class OasSchema {
       const itemSchema = expected.items;
       if (!itemSchema) {
         throw new TypeError(
-          OasSchema.formatErrorMessage(errorMessages.ITEMS_MISSING, path, {}),
+          OasSchema.formatErrorMessage(errorMessages.ITEMS_MISSING, { path }),
         );
       }
 
@@ -185,7 +195,8 @@ class OasSchema {
       // check that type matches
       if (actualType !== expectedType) {
         throw new TypeError(
-          OasSchema.formatErrorMessage(errorMessages.TYPE_MISMATCH, path, {
+          OasSchema.formatErrorMessage(errorMessages.TYPE_MISMATCH, {
+            path,
             schemaType: expectedType,
             actualType,
           }),
@@ -198,11 +209,9 @@ class OasSchema {
         const properties = expected.properties;
         if (!properties) {
           throw new TypeError(
-            OasSchema.formatErrorMessage(
-              errorMessages.PROPERTIES_MISSING,
+            OasSchema.formatErrorMessage(errorMessages.PROPERTIES_MISSING, {
               path,
-              {},
-            ),
+            }),
           );
         }
 
@@ -216,14 +225,11 @@ class OasSchema {
           ).length > 0
         ) {
           throw new TypeError(
-            OasSchema.formatErrorMessage(
-              errorMessages.PROPERTIES_MISMATCH,
+            OasSchema.formatErrorMessage(errorMessages.PROPERTIES_MISMATCH, {
               path,
-              {
-                schemaProperties: expectedProperties,
-                actualProperties,
-              },
-            ),
+              schemaProperties: expectedProperties,
+              actualProperties,
+            }),
           );
         }
 
@@ -233,8 +239,8 @@ class OasSchema {
             throw new TypeError(
               OasSchema.formatErrorMessage(
                 errorMessages.MISSING_REQUIRED_PROPERTY,
-                path,
                 {
+                  path,
                   requiredProperty,
                 },
               ),
@@ -273,8 +279,10 @@ class OasSchema {
 
   private static formatErrorMessage(
     message: string,
-    path: string[],
     {
+      statusCode,
+      contentType,
+      path,
       enumValues,
       schemaType,
       actualType,
@@ -285,7 +293,10 @@ class OasSchema {
     }: ErrorMessageContext,
   ): string {
     return (
-      `${message}. Path: ${path.join(' -> ')}` +
+      `${message}` +
+      (statusCode ? `. Received status code: ${statusCode}` : '') +
+      (contentType ? `. Received content type: ${contentType}` : '') +
+      (path ? `. Path: ${path.join(' -> ')}` : '') +
       (enumValues ? `. Schema enum: ${JSON.stringify(enumValues)}` : '') +
       (schemaType ? `. Schema type: ${schemaType}` : '') +
       (actualType ? `. Actual type: ${actualType}` : '') +
