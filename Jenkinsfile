@@ -1,15 +1,14 @@
 pipeline {
   agent {
     docker {
-      image 'node:14-alpine'
+      image 'vasdvp/lighthouse-node-application-base:node12'
     }
   }
 
   stages {
     stage('Setup') {
       steps {
-        sh 'npm config ls -l | grep config'
-        sh 'npm install --cache empty-cache'
+        sh 'npm install'
       }
     }
     stage('Lint') {
