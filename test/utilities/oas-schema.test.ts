@@ -1,12 +1,11 @@
 import loadJsonFile from 'load-json-file';
 import { Swagger, Response, SchemaObject } from 'swagger-client';
 import OasSchema from '../../src/utilities/oas-schema';
-import OASSchema from '../../src/utilities/oas-schema';
 
 describe('OASSchema', () => {
-  const generateSchema = async (filePath: string): Promise<OASSchema> => {
+  const generateSchema = async (filePath: string): Promise<OasSchema> => {
     const json = await loadJsonFile(filePath);
-    return new OASSchema({
+    return new OasSchema({
       spec: json,
     });
   };
@@ -14,9 +13,7 @@ describe('OASSchema', () => {
   describe('getParameters', () => {
     const callGetParameters = async (
       filePath: string,
-    ): Promise<{
-      [operationId: string]: { [name: string]: string };
-    }> => {
+    ): Promise<ReturnType<OasSchema['getParameters']>> => {
       const schema = await generateSchema(filePath);
       return schema.getParameters();
     };
@@ -120,7 +117,9 @@ describe('OASSchema', () => {
 
   describe('execute', () => {
     it('calls the provided operation with the provided parameters', async () => {
-      const executeMock = jest.fn(() => new Promise((resolve) => resolve()));
+      const executeMock = jest.fn(
+        (_arg) => new Promise((resolve) => resolve()),
+      );
       const filePath = 'test/fixtures/facilities_oas.json';
       const schema = await generateSchema(filePath);
 
