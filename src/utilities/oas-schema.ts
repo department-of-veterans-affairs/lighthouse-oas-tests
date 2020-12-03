@@ -8,9 +8,12 @@ import swaggerClient, {
 import { parse } from 'content-type';
 import isEqual from 'lodash.isequal';
 import uniqWith from 'lodash.uniqwith';
+import uniq from 'lodash.uniq';
+
+type ParameterExamples = { [name: string]: string };
 
 type OasParameters = {
-  [operationId: string]: { [name: string]: string };
+  [operationId: string]: ParameterExamples | ParameterExamples[];
 };
 
 type OasOperations = {
@@ -66,10 +69,37 @@ class OasSchema {
           return [name, example];
         });
 
-      return [
-        method.operationId,
-        Object.fromEntries(requiredParametersAndExamples),
-      ];
+      const exampleGroups: string[] = uniq(
+        method.parameters
+          .filter((parameter) => parameter.examples)
+          .flatMap((parameter) => Object.keys(parameter.examples)),
+      );
+
+      let parameters: ParameterExamples | ParameterExamples[];
+
+      if (exampleGroups.length > 0) {
+        parameters = exampleGroups.map((groupName) => {
+          const groupParameters = method.parameters
+            .filter(
+              (parameter) =>
+                parameter.examples && parameter.examples[groupName],
+            )
+            .map((parameter) => {
+              const { name, examples } = parameter;
+              return [name, examples[groupName]];
+            });
+
+          return Object.assign(
+            {},
+            Object.fromEntries(requiredParametersAndExamples),
+            Object.fromEntries(groupParameters),
+          );
+        });
+      } else {
+        parameters = Object.fromEntries(requiredParametersAndExamples);
+      }
+
+      return [method.operationId, parameters];
     });
 
     return Object.fromEntries(operationIdToParameters);

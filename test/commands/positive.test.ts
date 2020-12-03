@@ -76,6 +76,33 @@ describe('Positive', () => {
       });
     });
 
+    describe('operation has parameter groups', () => {
+      it('generates requests for each parameter group', async () => {
+        mockGetParameters.mockImplementation(
+          () =>
+            new Promise((resolve) =>
+              resolve({
+                walkIntoMordor: [
+                  {
+                    door: 'front',
+                  },
+                  {
+                    guide: 'gollum',
+                  },
+                ],
+              }),
+            ),
+        );
+        mockGetOperationIds.mockImplementation(
+          () => new Promise((resolve) => resolve(['walkIntoMordor'])),
+        );
+
+        await Positive.run(['http://urldoesnotmatter.com']);
+
+        expect(mockExecute).toHaveBeenCalledTimes(2);
+      });
+    });
+
     it('generates requests for each endpoint in the spec', async () => {
       mockGetParameters.mockImplementation(
         () => new Promise((resolve) => resolve({})),

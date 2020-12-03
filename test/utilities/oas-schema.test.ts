@@ -54,6 +54,35 @@ describe('OASSchema', () => {
 
       expect(parameters).toEqual(expectedParameters);
     });
+
+    describe('examples grouping is present', () => {
+      it('gets parameters from exmple_groups_oas.json', async () => {
+        const filePath = 'test/fixtures/example_groups_oas.json';
+
+        const expectedParameters = {
+          getNearbyFacilities: [
+            {
+              street_address: '1350 I St. NW',
+              city: 'Washington',
+              state: 'DC',
+              zip: '20005',
+              page: 1,
+              per_page: 20,
+            },
+            {
+              lat: 123.4,
+              lng: 456.7,
+              page: 1,
+              per_page: 20,
+            },
+          ],
+        };
+
+        const parameters = await callGetParameters(filePath);
+
+        expect(parameters).toEqual(expectedParameters);
+      });
+    });
   });
 
   describe('getOperationIds', () => {
