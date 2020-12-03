@@ -18,7 +18,7 @@ type OasOperations = {
   [operationId: string]: Method;
 };
 
-type ErrorMessageParameters = {
+type ErrorMessageContext = {
   enumValues?: Json[];
   actualValue?: Json;
   schemaType?: string;
@@ -282,7 +282,7 @@ class OasSchema {
       actualProperties,
       requiredProperty,
       actualValue,
-    }: ErrorMessageParameters,
+    }: ErrorMessageContext,
   ): string {
     return (
       `${message}. Path: ${path.join(' -> ')}` +
