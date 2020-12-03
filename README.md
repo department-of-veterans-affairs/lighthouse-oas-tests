@@ -71,7 +71,7 @@ _See code: [src/commands/positive.ts](https://github.com/department-of-veterans-
 
 # OpenApi Spec Setup
 ## Example Groups
-If your endpoint supports different groupings of parameters (such as taking either an address or a set of positional coordinates), you can use the `examples`  field on the `Paramater` object to create groupings.
+If your endpoint supports different groupings of parameters (such as taking either an address or a set of positional coordinates), you can use the `examples`  field on the `Parameter` object to create groupings.
 Create an `examples` object on each parameter that needs to go into a group in the form:
 ```json
 "examples": {
