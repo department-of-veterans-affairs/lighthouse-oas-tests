@@ -39,12 +39,18 @@ describe('OASSchema', () => {
         getFacilityById: { id: 'vha_688' },
         getFacilitiesByLocation: { zip: '20005' },
         getFacilityIds: {},
-        getNearbyFacilities: {
-          street_address: '1350 I St. NW',
-          city: 'Washington',
-          state: 'DC',
-          zip: '20005',
-        },
+        getNearbyFacilities: [
+          {
+            street_address: '1350 I St. NW',
+            city: 'Washington',
+            state: 'DC',
+            zip: '20005',
+          },
+          {
+            lat: 123.4,
+            lng: 456.7,
+          },
+        ],
       };
 
       const parameters = await callGetParameters(filePath);
