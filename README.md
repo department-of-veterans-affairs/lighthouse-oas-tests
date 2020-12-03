@@ -69,6 +69,17 @@ OPTIONS
 _See code: [src/commands/positive.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/v0.2.0/src/commands/positive.ts)_
 <!-- commandsstop -->
 
+# OpenApi Spec Setup
+## Example Groups
+If your endpoint supports different groupings of parameters (such as taking either an address or a set of positional coordinates), you can use the `examples`  field on the `Parameter` object to create groupings.
+Create an `examples` object on each parameter that needs to go into a group in the form:
+```json
+"examples": {
+  "group name": "example value"
+}
+```
+`loast` will go through and execute a test against the endpoint for each grouping it finds, including any required parameters in each request. 
+
 
 # Local Development
 

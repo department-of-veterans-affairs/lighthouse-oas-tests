@@ -487,8 +487,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "example": "1350 I St. NW",
-                        "required": true
+                        "examples": {"address": "1350 I St. NW"}
                     },
                     {
                         "name": "city",
@@ -497,8 +496,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "example": "Washington",
-                        "required": true
+                        "examples": {"address": "Washington"}
                     },
                     {
                         "name": "state",
@@ -507,8 +505,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "example": "DC",
-                        "required": true
+                        "examples": {"address": "DC"}
                     },
                     {
                         "name": "zip",
@@ -518,8 +515,7 @@
                             "type": "string",
                             "description": "##### or #####-####"
                         },
-                        "example": "20005",
-                        "required": true
+                        "examples": {"address": "20005"}
                     },
                     {
                         "name": "lat",
@@ -528,7 +524,8 @@
                         "schema": {
                             "type": "number",
                             "format": "float"
-                        }
+                        },
+                        "examples": { "coordinates": 123.4 }
                     },
                     {
                         "name": "lng",
@@ -538,7 +535,8 @@
                         "schema": {
                             "type": "number",
                             "format": "float"
-                        }
+                        },
+                        "examples": { "coordinates": 456.7 }
                     },
                     {
                         "name": "drive_time",
