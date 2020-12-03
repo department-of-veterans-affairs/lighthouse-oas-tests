@@ -1,13 +1,15 @@
 import loadJsonFile from 'load-json-file';
 import { Swagger, Response, SchemaObject } from 'swagger-client';
 import OasSchema from '../../src/utilities/oas-schema';
-import OASSchema from '../../src/utilities/oas-schema';
-import { errorMessages } from '../../src/utilities/constants';
+import {
+  errorMessages,
+  errorContextPrefixes,
+} from '../../src/utilities/constants';
 
 describe('OASSchema', () => {
-  const generateSchema = async (filePath: string): Promise<OASSchema> => {
+  const generateSchema = async (filePath: string): Promise<OasSchema> => {
     const json = await loadJsonFile(filePath);
-    return new OASSchema({
+    return new OasSchema({
       spec: json,
     });
   };
@@ -132,7 +134,7 @@ describe('OASSchema', () => {
         await expect(async () => {
           await schema.validateResponse('findForms', response);
         }).rejects.toThrow(
-          `${errorMessages.STATUS_CODE_MISMATCH}. Received status code: 500`,
+          `${errorMessages.STATUS_CODE_MISMATCH}. ${errorContextPrefixes.STATUS_CODE} 500`,
         );
       });
     });
@@ -156,7 +158,7 @@ describe('OASSchema', () => {
           await expect(async () => {
             await schema.validateResponse('findForms', response);
           }).rejects.toThrow(
-            `${errorMessages.CONTENT_TYPE_MISMATCH}. Received content type: text/csv`,
+            `${errorMessages.CONTENT_TYPE_MISMATCH}. ${errorContextPrefixes.CONTENT_TYPE} text/csv`,
           );
         });
       });
@@ -242,11 +244,11 @@ describe('OASSchema', () => {
                   ['body', 'facility', 'id'],
                 ),
               ).toThrow(
-                `${
-                  errorMessages.DUPLICATE_ENUMS
-                }. Path: body -> facility -> id. Schema enum: ${JSON.stringify(
-                  schema.enum,
-                )}`,
+                `${errorMessages.DUPLICATE_ENUMS}. ${
+                  errorContextPrefixes.PATH
+                } body -> facility -> id. ${
+                  errorContextPrefixes.ENUM
+                } ${JSON.stringify(schema.enum)}`,
               );
             });
 
@@ -277,9 +279,11 @@ describe('OASSchema', () => {
                   'id',
                 ]),
               ).toThrow(
-                `${
-                  errorMessages.ENUM_MISMATCH
-                }. Path: body -> facility -> id. Schema enum: ${JSON.stringify(
+                `${errorMessages.ENUM_MISMATCH}. ${
+                  errorContextPrefixes.PATH
+                } body -> facility -> id. ${
+                  errorContextPrefixes.ENUM
+                } ${JSON.stringify(
                   schema.enum,
                 )}. Actual value: ${JSON.stringify(object)}`,
               );
@@ -302,7 +306,7 @@ describe('OASSchema', () => {
               'id',
             ]),
           ).toThrow(
-            `${errorMessages.TYPE_MISMATCH}. Path: body -> facility -> id. Schema type: string. Actual type: number`,
+            `${errorMessages.TYPE_MISMATCH}. ${errorContextPrefixes.PATH} body -> facility -> id. ${errorContextPrefixes.SCHEMA_TYPE} string. Actual type: number`,
           );
         });
       });
@@ -352,9 +356,11 @@ describe('OASSchema', () => {
                   'lat',
                 ]),
               ).toThrow(
-                `${
-                  errorMessages.ENUM_MISMATCH
-                }. Path: body -> facility -> lat. Schema enum: ${JSON.stringify(
+                `${errorMessages.ENUM_MISMATCH}. ${
+                  errorContextPrefixes.PATH
+                } body -> facility -> lat. ${
+                  errorContextPrefixes.ENUM
+                } ${JSON.stringify(
                   schema.enum,
                 )}. Actual value: ${JSON.stringify(object)}`,
               );
@@ -376,11 +382,11 @@ describe('OASSchema', () => {
                   'lat',
                 ]),
               ).toThrow(
-                `${
-                  errorMessages.DUPLICATE_ENUMS
-                }. Path: body -> facility -> lat. Schema enum: ${JSON.stringify(
-                  schema.enum,
-                )}`,
+                `${errorMessages.DUPLICATE_ENUMS}. ${
+                  errorContextPrefixes.PATH
+                } body -> facility -> lat. ${
+                  errorContextPrefixes.ENUM
+                } ${JSON.stringify(schema.enum)}`,
               );
             });
 
@@ -405,7 +411,7 @@ describe('OASSchema', () => {
               'lat',
             ]),
           ).toThrow(
-            `${errorMessages.TYPE_MISMATCH}. Path: body -> facility -> lat. Schema type: number. Actual type: string`,
+            `${errorMessages.TYPE_MISMATCH}. ${errorContextPrefixes.PATH} body -> facility -> lat. ${errorContextPrefixes.SCHEMA_TYPE} number. Actual type: string`,
           );
         });
       });
@@ -430,7 +436,7 @@ describe('OASSchema', () => {
               'numbers',
             ]),
           ).toThrow(
-            `${errorMessages.TYPE_MISMATCH}. Path: body -> numbers. Schema type: array. Actual type: string`,
+            `${errorMessages.TYPE_MISMATCH}. ${errorContextPrefixes.PATH} body -> numbers. ${errorContextPrefixes.SCHEMA_TYPE} array. ${errorContextPrefixes.ACTUAL_TYPE} string`,
           );
         });
       });
@@ -449,7 +455,9 @@ describe('OASSchema', () => {
                 'body',
                 'numbers',
               ]),
-            ).toThrow(`${errorMessages.ITEMS_MISSING}. Path: body -> numbers`);
+            ).toThrow(
+              `${errorMessages.ITEMS_MISSING}. ${errorContextPrefixes.PATH} body -> numbers`,
+            );
           });
 
           afterEach(() => {
@@ -495,11 +503,13 @@ describe('OASSchema', () => {
                   'numbers',
                 ]),
               ).toThrow(
-                `${
-                  errorMessages.ENUM_MISMATCH
-                }. Path: body -> numbers. Schema enum: ${JSON.stringify(
-                  schema.enum,
-                )}. Actual value: ${JSON.stringify(object)}`,
+                `${errorMessages.ENUM_MISMATCH}. ${
+                  errorContextPrefixes.PATH
+                } body -> numbers. ${
+                  errorContextPrefixes.ENUM
+                } ${JSON.stringify(schema.enum)}. ${
+                  errorContextPrefixes.ACTUAL_VALUE
+                } ${JSON.stringify(object)}`,
               );
             });
           });
@@ -522,11 +532,11 @@ describe('OASSchema', () => {
                   'numbers',
                 ]),
               ).toThrow(
-                `${
-                  errorMessages.DUPLICATE_ENUMS
-                }. Path: body -> numbers. Schema enum: ${JSON.stringify(
-                  schema.enum,
-                )}`,
+                `${errorMessages.DUPLICATE_ENUMS}. ${
+                  errorContextPrefixes.PATH
+                } body -> numbers. ${
+                  errorContextPrefixes.ENUM
+                } ${JSON.stringify(schema.enum)}`,
               );
             });
 
@@ -564,7 +574,7 @@ describe('OASSchema', () => {
               'form',
             ]),
           ).toThrow(
-            `${errorMessages.TYPE_MISMATCH}. Path: body -> form. Schema type: object. Actual type: string`,
+            `${errorMessages.TYPE_MISMATCH}. ${errorContextPrefixes.PATH} body -> form. ${errorContextPrefixes.SCHEMA_TYPE} object. ${errorContextPrefixes.ACTUAL_TYPE} string`,
           );
         });
       });
@@ -584,7 +594,7 @@ describe('OASSchema', () => {
                 'form',
               ]),
             ).toThrow(
-              `${errorMessages.PROPERTIES_MISSING}. Path: body -> form`,
+              `${errorMessages.PROPERTIES_MISSING}. ${errorContextPrefixes.PATH} body -> form`,
             );
           });
 
@@ -602,11 +612,13 @@ describe('OASSchema', () => {
                 ['body', 'form'],
               );
             }).toThrow(
-              `${
-                errorMessages.PROPERTIES_MISMATCH
-              }. Path: body -> form. Schema properties: ${JSON.stringify([
-                'value',
-              ])}. Actual properties: ${JSON.stringify(['fake'])}`,
+              `${errorMessages.PROPERTIES_MISMATCH}. ${
+                errorContextPrefixes.PATH
+              } body -> form. ${
+                errorContextPrefixes.SCHEMA_PROPERTIES
+              } ${JSON.stringify(['value'])}. ${
+                errorContextPrefixes.ACTUAL_PROPERTIES
+              } ${JSON.stringify(['fake'])}`,
             );
           });
         });
@@ -624,7 +636,7 @@ describe('OASSchema', () => {
                 'form',
               ]);
             }).toThrow(
-              `${errorMessages.MISSING_REQUIRED_PROPERTY}. Path: body -> form. Required property: value`,
+              `${errorMessages.MISSING_REQUIRED_PROPERTY}. ${errorContextPrefixes.PATH} body -> form. ${errorContextPrefixes.REQUIRED_PROPERTY} value`,
             );
           });
 
@@ -674,11 +686,13 @@ describe('OASSchema', () => {
                   'form',
                 ]),
               ).toThrow(
-                `${
-                  errorMessages.ENUM_MISMATCH
-                }. Path: body -> form. Schema enum: ${JSON.stringify(
+                `${errorMessages.ENUM_MISMATCH}. ${
+                  errorContextPrefixes.PATH
+                } body -> form. ${errorContextPrefixes.ENUM} ${JSON.stringify(
                   schema.enum,
-                )}. Actual value: ${JSON.stringify(object)}`,
+                )}. ${errorContextPrefixes.ACTUAL_VALUE} ${JSON.stringify(
+                  object,
+                )}`,
               );
             });
           });
@@ -702,9 +716,9 @@ describe('OASSchema', () => {
                   ['body', 'form'],
                 ),
               ).toThrow(
-                `${
-                  errorMessages.DUPLICATE_ENUMS
-                }. Path: body -> form. Schema enum: ${JSON.stringify(
+                `${errorMessages.DUPLICATE_ENUMS}. ${
+                  errorContextPrefixes.PATH
+                } body -> form. ${errorContextPrefixes.ENUM} ${JSON.stringify(
                   schema.enum,
                 )}`,
               );

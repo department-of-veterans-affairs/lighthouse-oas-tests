@@ -1,3 +1,5 @@
+// eslint indent rule is in conflict with prettier for a few lines in this file
+/* eslint-disable indent */
 import swaggerClient, {
   Method,
   Response,
@@ -5,7 +7,7 @@ import swaggerClient, {
   Swagger,
   Json,
 } from 'swagger-client';
-import { errorMessages } from './constants';
+import { errorMessages, errorContextPrefixes } from './constants';
 import { parse } from 'content-type';
 import isEqual from 'lodash.isequal';
 import uniqWith from 'lodash.uniqwith';
@@ -294,20 +296,40 @@ class OasSchema {
   ): string {
     return (
       `${message}` +
-      (statusCode ? `. Received status code: ${statusCode}` : '') +
-      (contentType ? `. Received content type: ${contentType}` : '') +
-      (path ? `. Path: ${path.join(' -> ')}` : '') +
-      (enumValues ? `. Schema enum: ${JSON.stringify(enumValues)}` : '') +
-      (schemaType ? `. Schema type: ${schemaType}` : '') +
-      (actualType ? `. Actual type: ${actualType}` : '') +
+      (statusCode
+        ? `. ${errorContextPrefixes.STATUS_CODE} ${statusCode}`
+        : '') +
+      (contentType
+        ? `. ${errorContextPrefixes.CONTENT_TYPE} ${contentType}`
+        : '') +
+      (path ? `. ${errorContextPrefixes.PATH} ${path.join(' -> ')}` : '') +
+      (enumValues
+        ? `. ${errorContextPrefixes.ENUM} ${JSON.stringify(enumValues)}`
+        : '') +
+      (schemaType
+        ? `. ${errorContextPrefixes.SCHEMA_TYPE} ${schemaType}`
+        : '') +
+      (actualType
+        ? `. ${errorContextPrefixes.ACTUAL_TYPE} ${actualType}`
+        : '') +
       (schemaProperties
-        ? `. Schema properties: ${JSON.stringify(schemaProperties)}`
+        ? `. ${errorContextPrefixes.SCHEMA_PROPERTIES} ${JSON.stringify(
+            schemaProperties,
+          )}`
         : '') +
       (actualProperties
-        ? `. Actual properties: ${JSON.stringify(actualProperties)}`
+        ? `. ${errorContextPrefixes.ACTUAL_PROPERTIES} ${JSON.stringify(
+            actualProperties,
+          )}`
         : '') +
-      (requiredProperty ? `. Required property: ${requiredProperty}` : '') +
-      (actualValue ? `. Actual value: ${JSON.stringify(actualValue)}` : '')
+      (requiredProperty
+        ? `. ${errorContextPrefixes.REQUIRED_PROPERTY} ${requiredProperty}`
+        : '') +
+      (actualValue
+        ? `. ${errorContextPrefixes.ACTUAL_VALUE} ${JSON.stringify(
+            actualValue,
+          )}`
+        : '')
     );
   }
 }

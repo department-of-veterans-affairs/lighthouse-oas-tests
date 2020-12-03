@@ -10,3 +10,16 @@ export const errorMessages = {
     'Actual object contains a property not present in schema',
   MISSING_REQUIRED_PROPERTY: 'Actual object missing required property',
 };
+
+export const errorContextPrefixes = {
+  STATUS_CODE: 'Actual status code:',
+  CONTENT_TYPE: 'Actual content type:',
+  PATH: 'Path:',
+  ENUM: 'Enum values:',
+  SCHEMA_TYPE: 'Schema type:',
+  ACTUAL_TYPE: 'Actual type:',
+  SCHEMA_PROPERTIES: 'Schema properties:',
+  ACTUAL_PROPERTIES: 'Actual properties:',
+  REQUIRED_PROPERTY: 'Required property:',
+  ACTUAL_VALUE: 'Actual value:',
+};
