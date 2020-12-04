@@ -160,6 +160,17 @@ class OasSchema {
       }
     }
 
+    // if the actual object is null check that null values are allowed
+    if (actual === null) {
+      if (expected.nullable) {
+        return;
+      }
+
+      throw new TypeError(
+        'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: ',
+      );
+    }
+
     const actualType = typeof actual;
 
     if (expected.type === 'array') {
