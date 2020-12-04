@@ -625,9 +625,7 @@ describe('OASSchema', () => {
                 ['body', 'form'],
               );
             }).toThrow(
-              `Actual object contains a property not present in schema. Path: body -> form. Schema properties: ${JSON.stringify(
-                ['value'],
-              )}. Actual properties: ${JSON.stringify(['fake'])}`,
+              'Actual object contains a property not present in schema. Path: body -> form. Schema properties: value. Actual properties: fake',
             );
           });
         });
