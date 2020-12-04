@@ -1,5 +1,3 @@
-// eslint indent rule is in conflict with prettier for a few lines in this file
-/* eslint-disable indent */
 import swaggerClient, {
   Method,
   Response,
