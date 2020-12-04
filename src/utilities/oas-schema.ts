@@ -167,7 +167,7 @@ class OasSchema {
       }
 
       throw new TypeError(
-        `Actual value was null. Schema should have nullable field set to true if null is allowed`,
+        'Actual value was null. Schema should have nullable field set to true if null is allowed',
       );
     }
 

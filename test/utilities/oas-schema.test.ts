@@ -307,7 +307,7 @@ describe('OASSchema', () => {
             expect(() =>
               OasSchema.validateObjectAgainstSchema(null, schema),
             ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: ',
+              'Actual value was null. Schema should have nullable field set to true if null is allowed',
             );
           });
         });
@@ -321,7 +321,7 @@ describe('OASSchema', () => {
             expect(() =>
               OasSchema.validateObjectAgainstSchema(null, schema),
             ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: ',
+              'Actual value was null. Schema should have nullable field set to true if null is allowed',
             );
           });
 
@@ -418,7 +418,7 @@ describe('OASSchema', () => {
             expect(() =>
               OasSchema.validateObjectAgainstSchema(null, schema),
             ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: ',
+              'Actual value was null. Schema should have nullable field set to true if null is allowed',
             );
           });
         });
@@ -432,7 +432,7 @@ describe('OASSchema', () => {
             expect(() =>
               OasSchema.validateObjectAgainstSchema(null, schema),
             ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: ',
+              'Actual value was null. Schema should have nullable field set to true if null is allowed',
             );
           });
 
@@ -561,7 +561,7 @@ describe('OASSchema', () => {
             expect(() =>
               OasSchema.validateObjectAgainstSchema(null, schema),
             ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: ',
+              'Actual value was null. Schema should have nullable field set to true if null is allowed',
             );
           });
         });
@@ -575,7 +575,7 @@ describe('OASSchema', () => {
             expect(() =>
               OasSchema.validateObjectAgainstSchema(null, schema),
             ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: ',
+              'Actual value was null. Schema should have nullable field set to true if null is allowed',
             );
           });
 
@@ -747,7 +747,7 @@ describe('OASSchema', () => {
             expect(() =>
               OasSchema.validateObjectAgainstSchema(null, schema),
             ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: ',
+              'Actual value was null. Schema should have nullable field set to true if null is allowed',
             );
           });
         });
@@ -761,7 +761,7 @@ describe('OASSchema', () => {
             expect(() =>
               OasSchema.validateObjectAgainstSchema(null, schema),
             ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: ',
+              'Actual value was null. Schema should have nullable field set to true if null is allowed',
             );
           });
 
