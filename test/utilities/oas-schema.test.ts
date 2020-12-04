@@ -1,10 +1,6 @@
 import loadJsonFile from 'load-json-file';
 import { Swagger, Response, SchemaObject } from 'swagger-client';
 import OasSchema from '../../src/utilities/oas-schema';
-import {
-  errorMessages,
-  errorContextPrefixes,
-} from '../../src/utilities/constants';
 
 describe('OASSchema', () => {
   const generateSchema = async (filePath: string): Promise<OasSchema> => {
@@ -169,7 +165,7 @@ describe('OASSchema', () => {
         await expect(async () => {
           await schema.validateResponse('findForms', response);
         }).rejects.toThrow(
-          `${errorMessages.STATUS_CODE_MISMATCH}. ${errorContextPrefixes.STATUS_CODE} 500`,
+          'Response status code not present in schema. Actual status code: 500',
         );
       });
     });
@@ -193,7 +189,7 @@ describe('OASSchema', () => {
           await expect(async () => {
             await schema.validateResponse('findForms', response);
           }).rejects.toThrow(
-            `${errorMessages.CONTENT_TYPE_MISMATCH}. ${errorContextPrefixes.CONTENT_TYPE} text/csv`,
+            'Response content type not present in schema. Actual content type: text/csv',
           );
         });
       });
@@ -279,11 +275,9 @@ describe('OASSchema', () => {
                   ['body', 'facility', 'id'],
                 ),
               ).toThrow(
-                `${errorMessages.DUPLICATE_ENUMS}. ${
-                  errorContextPrefixes.PATH
-                } body -> facility -> id. ${
-                  errorContextPrefixes.ENUM
-                } ${JSON.stringify(schema.enum)}`,
+                `Schema enum contains duplicate values. Path: body -> facility -> id. Enum values: ${JSON.stringify(
+                  schema.enum,
+                )}`,
               );
             });
 
@@ -314,11 +308,7 @@ describe('OASSchema', () => {
                   'id',
                 ]),
               ).toThrow(
-                `${errorMessages.ENUM_MISMATCH}. ${
-                  errorContextPrefixes.PATH
-                } body -> facility -> id. ${
-                  errorContextPrefixes.ENUM
-                } ${JSON.stringify(
+                `Actual value does not match schema enum. Path: body -> facility -> id. Enum values: ${JSON.stringify(
                   schema.enum,
                 )}. Actual value: ${JSON.stringify(object)}`,
               );
@@ -341,7 +331,7 @@ describe('OASSchema', () => {
               'id',
             ]),
           ).toThrow(
-            `${errorMessages.TYPE_MISMATCH}. ${errorContextPrefixes.PATH} body -> facility -> id. ${errorContextPrefixes.SCHEMA_TYPE} string. Actual type: number`,
+            'Actual type did not match schema. Path: body -> facility -> id. Schema type: string. Actual type: number',
           );
         });
       });
@@ -391,11 +381,7 @@ describe('OASSchema', () => {
                   'lat',
                 ]),
               ).toThrow(
-                `${errorMessages.ENUM_MISMATCH}. ${
-                  errorContextPrefixes.PATH
-                } body -> facility -> lat. ${
-                  errorContextPrefixes.ENUM
-                } ${JSON.stringify(
+                `Actual value does not match schema enum. Path: body -> facility -> lat. Enum values: ${JSON.stringify(
                   schema.enum,
                 )}. Actual value: ${JSON.stringify(object)}`,
               );
@@ -417,11 +403,9 @@ describe('OASSchema', () => {
                   'lat',
                 ]),
               ).toThrow(
-                `${errorMessages.DUPLICATE_ENUMS}. ${
-                  errorContextPrefixes.PATH
-                } body -> facility -> lat. ${
-                  errorContextPrefixes.ENUM
-                } ${JSON.stringify(schema.enum)}`,
+                `Schema enum contains duplicate values. Path: body -> facility -> lat. Enum values: ${JSON.stringify(
+                  schema.enum,
+                )}`,
               );
             });
 
@@ -446,7 +430,7 @@ describe('OASSchema', () => {
               'lat',
             ]),
           ).toThrow(
-            `${errorMessages.TYPE_MISMATCH}. ${errorContextPrefixes.PATH} body -> facility -> lat. ${errorContextPrefixes.SCHEMA_TYPE} number. Actual type: string`,
+            'Actual type did not match schema. Path: body -> facility -> lat. Schema type: number. Actual type: string',
           );
         });
       });
@@ -471,7 +455,7 @@ describe('OASSchema', () => {
               'numbers',
             ]),
           ).toThrow(
-            `${errorMessages.TYPE_MISMATCH}. ${errorContextPrefixes.PATH} body -> numbers. ${errorContextPrefixes.SCHEMA_TYPE} array. ${errorContextPrefixes.ACTUAL_TYPE} string`,
+            'Actual type did not match schema. Path: body -> numbers. Schema type: array. Actual type: string',
           );
         });
       });
@@ -491,7 +475,7 @@ describe('OASSchema', () => {
                 'numbers',
               ]),
             ).toThrow(
-              `${errorMessages.ITEMS_MISSING}. ${errorContextPrefixes.PATH} body -> numbers`,
+              'The items property is required for array schemas. Path: body -> numbers',
             );
           });
 
@@ -538,13 +522,9 @@ describe('OASSchema', () => {
                   'numbers',
                 ]),
               ).toThrow(
-                `${errorMessages.ENUM_MISMATCH}. ${
-                  errorContextPrefixes.PATH
-                } body -> numbers. ${
-                  errorContextPrefixes.ENUM
-                } ${JSON.stringify(schema.enum)}. ${
-                  errorContextPrefixes.ACTUAL_VALUE
-                } ${JSON.stringify(object)}`,
+                `Actual value does not match schema enum. Path: body -> numbers. Enum values: ${JSON.stringify(
+                  schema.enum,
+                )}. Actual value: ${JSON.stringify(object)}`,
               );
             });
           });
@@ -567,11 +547,9 @@ describe('OASSchema', () => {
                   'numbers',
                 ]),
               ).toThrow(
-                `${errorMessages.DUPLICATE_ENUMS}. ${
-                  errorContextPrefixes.PATH
-                } body -> numbers. ${
-                  errorContextPrefixes.ENUM
-                } ${JSON.stringify(schema.enum)}`,
+                `Schema enum contains duplicate values. Path: body -> numbers. Enum values: ${JSON.stringify(
+                  schema.enum,
+                )}`,
               );
             });
 
@@ -609,7 +587,7 @@ describe('OASSchema', () => {
               'form',
             ]),
           ).toThrow(
-            `${errorMessages.TYPE_MISMATCH}. ${errorContextPrefixes.PATH} body -> form. ${errorContextPrefixes.SCHEMA_TYPE} object. ${errorContextPrefixes.ACTUAL_TYPE} string`,
+            'Actual type did not match schema. Path: body -> form. Schema type: object. Actual type: string',
           );
         });
       });
@@ -629,7 +607,7 @@ describe('OASSchema', () => {
                 'form',
               ]),
             ).toThrow(
-              `${errorMessages.PROPERTIES_MISSING}. ${errorContextPrefixes.PATH} body -> form`,
+              'The properties property is required for object schemas. Path: body -> form',
             );
           });
 
@@ -647,13 +625,9 @@ describe('OASSchema', () => {
                 ['body', 'form'],
               );
             }).toThrow(
-              `${errorMessages.PROPERTIES_MISMATCH}. ${
-                errorContextPrefixes.PATH
-              } body -> form. ${
-                errorContextPrefixes.SCHEMA_PROPERTIES
-              } ${JSON.stringify(['value'])}. ${
-                errorContextPrefixes.ACTUAL_PROPERTIES
-              } ${JSON.stringify(['fake'])}`,
+              `Actual object contains a property not present in schema. Path: body -> form. Schema properties: ${JSON.stringify(
+                ['value'],
+              )}. Actual properties: ${JSON.stringify(['fake'])}`,
             );
           });
         });
@@ -671,7 +645,7 @@ describe('OASSchema', () => {
                 'form',
               ]);
             }).toThrow(
-              `${errorMessages.MISSING_REQUIRED_PROPERTY}. ${errorContextPrefixes.PATH} body -> form. ${errorContextPrefixes.REQUIRED_PROPERTY} value`,
+              'Actual object missing required property. Path: body -> form. Required property: value',
             );
           });
 
@@ -721,13 +695,9 @@ describe('OASSchema', () => {
                   'form',
                 ]),
               ).toThrow(
-                `${errorMessages.ENUM_MISMATCH}. ${
-                  errorContextPrefixes.PATH
-                } body -> form. ${errorContextPrefixes.ENUM} ${JSON.stringify(
+                `Actual value does not match schema enum. Path: body -> form. Enum values: ${JSON.stringify(
                   schema.enum,
-                )}. ${errorContextPrefixes.ACTUAL_VALUE} ${JSON.stringify(
-                  object,
-                )}`,
+                )}. Actual value: ${JSON.stringify(object)}`,
               );
             });
           });
@@ -751,9 +721,7 @@ describe('OASSchema', () => {
                   ['body', 'form'],
                 ),
               ).toThrow(
-                `${errorMessages.DUPLICATE_ENUMS}. ${
-                  errorContextPrefixes.PATH
-                } body -> form. ${errorContextPrefixes.ENUM} ${JSON.stringify(
+                `Schema enum contains duplicate values. Path: body -> form. Enum values: ${JSON.stringify(
                   schema.enum,
                 )}`,
               );
