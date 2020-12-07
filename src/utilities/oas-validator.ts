@@ -11,6 +11,7 @@ import {
   RequiredPropertyError,
   StatusCodeMismatchError,
   ContentTypeMismatchError,
+  NullValueError,
 } from '../errors';
 import OasSchema from './oas-schema';
 import { ITEMS_MISSING_ERROR, PROPERTIES_MISSING_ERROR } from './constants';
@@ -57,6 +58,15 @@ class OasValidator {
     expected: SchemaObject,
     path: string[],
   ): void {
+    // if the actual object is null check that null values are allowed
+    if (actual === null) {
+      if (expected.nullable) {
+        return;
+      }
+
+      throw new NullValueError(path);
+    }
+
     const enumValues = expected.enum;
 
     if (enumValues) {

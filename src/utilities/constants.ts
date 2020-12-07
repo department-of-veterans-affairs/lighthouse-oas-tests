@@ -14,6 +14,8 @@ export const PROPERTIES_MISMATCH_ERROR =
   'Actual object contains a property not present in schema';
 export const MISSING_REQUIRED_PROPERTY_ERROR =
   'Actual object missing required property';
+export const NULL_VALUE_ERROR =
+  'Actual value was null. Schema should have nullable field set to true if null is allowed';
 
 // error message context prefixes
 export const STATUS_CODE_PREFIX = 'Actual status code:';
