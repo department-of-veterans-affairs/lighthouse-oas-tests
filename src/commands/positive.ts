@@ -3,6 +3,7 @@ import loadJsonFile from 'load-json-file';
 import { ApiKeyCommand } from '../baseCommands';
 import OasSchema from '../utilities/oas-schema';
 import { Response } from 'swagger-client';
+import OasValidator from '../utilities/oas-validator';
 
 export default class Positive extends ApiKeyCommand {
   static description =
@@ -42,6 +43,7 @@ export default class Positive extends ApiKeyCommand {
     }
 
     const schema = new OasSchema(oasSchemaOptions);
+    const validator = new OasValidator(schema);
 
     const operationIdToParameters = await schema.getParameters();
     const operationIds = await schema.getOperationIds();
@@ -73,7 +75,7 @@ export default class Positive extends ApiKeyCommand {
     await Promise.all(
       Object.entries(operationIdToResponseAndValidation).map(
         ([operationId, { response }]) => {
-          return schema
+          return validator
             .validateResponse(operationId, response)
             .catch((error) => {
               operationIdToResponseAndValidation[

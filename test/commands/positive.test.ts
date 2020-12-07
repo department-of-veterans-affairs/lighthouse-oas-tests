@@ -11,6 +11,12 @@ jest.mock('../../src/utilities/oas-schema', () => {
       getParameters: mockGetParameters,
       getOperationIds: mockGetOperationIds,
       execute: mockExecute,
+    };
+  };
+});
+jest.mock('../../src/utilities/oas-validator', () => {
+  return function (): Record<string, jest.Mock> {
+    return {
       validateResponse: mockValidateResponse,
     };
   };
