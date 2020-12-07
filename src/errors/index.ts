@@ -1,5 +1,3 @@
-import SchemaError from './schema-error';
-
 export { default as ContentTypeMismatchError } from './content-type-mismatch-error';
 export { default as DuplicateEnumError } from './duplicate-enum-error';
 export { default as EnumMismatchError } from './enum-mismatch-error';
