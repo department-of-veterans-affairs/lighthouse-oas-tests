@@ -164,7 +164,9 @@ describe('OASSchema', () => {
 
         await expect(async () => {
           await schema.validateResponse('findForms', response);
-        }).rejects.toThrow('Response status code not present in schema');
+        }).rejects.toThrow(
+          'Response status code not present in schema. Actual status code: 500',
+        );
       });
     });
 
@@ -186,7 +188,9 @@ describe('OASSchema', () => {
 
           await expect(async () => {
             await schema.validateResponse('findForms', response);
-          }).rejects.toThrow('Response content type not present in schema');
+          }).rejects.toThrow(
+            'Response content type not present in schema. Actual content type: text/csv',
+          );
         });
       });
 
@@ -222,6 +226,7 @@ describe('OASSchema', () => {
                 },
               },
             },
+            ['body'],
           );
           OasSchema.validateObjectAgainstSchema = originalValidateObjectAgainstSchema;
         });
@@ -244,7 +249,9 @@ describe('OASSchema', () => {
       describe('object is a string', () => {
         it('does nothing', () => {
           expect(
-            OasSchema.validateObjectAgainstSchema('This is a string', schema),
+            OasSchema.validateObjectAgainstSchema('This is a string', schema, [
+              'test',
+            ]),
           ).toBeFalsy();
         });
 
@@ -262,8 +269,16 @@ describe('OASSchema', () => {
 
             it('throws an error', () => {
               expect(() =>
-                OasSchema.validateObjectAgainstSchema('does not match', schema),
-              ).toThrow('Schema enum contains duplicate values');
+                OasSchema.validateObjectAgainstSchema(
+                  'does not match',
+                  schema,
+                  ['body', 'facility', 'id'],
+                ),
+              ).toThrow(
+                `Schema enum contains duplicate values. Path: body -> facility -> id. Enum values: ${JSON.stringify(
+                  schema.enum,
+                )}`,
+              );
             });
 
             afterAll(() => {
@@ -274,16 +289,29 @@ describe('OASSchema', () => {
           describe('object matches enum', () => {
             it('does nothing', () => {
               expect(
-                OasSchema.validateObjectAgainstSchema('test', schema),
+                OasSchema.validateObjectAgainstSchema('test', schema, [
+                  'body',
+                  'facility',
+                  'id',
+                ]),
               ).toBeFalsy();
             });
           });
 
           describe('object does not match enum', () => {
             it('throws an error', () => {
+              const object = 'does not match';
               expect(() =>
-                OasSchema.validateObjectAgainstSchema('does not match', schema),
-              ).toThrow('Object does not match enum');
+                OasSchema.validateObjectAgainstSchema(object, schema, [
+                  'body',
+                  'facility',
+                  'id',
+                ]),
+              ).toThrow(
+                `Actual value does not match schema enum. Path: body -> facility -> id. Enum values: ${JSON.stringify(
+                  schema.enum,
+                )}. Actual value: ${JSON.stringify(object)}`,
+              );
             });
           });
 
@@ -295,9 +323,16 @@ describe('OASSchema', () => {
 
       describe('object is not a string', () => {
         it('throws an error', () => {
+          const object = 42;
           expect(() =>
-            OasSchema.validateObjectAgainstSchema(42, schema),
-          ).toThrow('Object type did not match schema');
+            OasSchema.validateObjectAgainstSchema(object, schema, [
+              'body',
+              'facility',
+              'id',
+            ]),
+          ).toThrow(
+            'Actual type did not match schema. Path: body -> facility -> id. Schema type: string. Actual type: number',
+          );
         });
       });
     });
@@ -310,7 +345,13 @@ describe('OASSchema', () => {
 
       describe('object is a number', () => {
         it('does nothing', () => {
-          expect(OasSchema.validateObjectAgainstSchema(42, schema)).toBeFalsy();
+          expect(
+            OasSchema.validateObjectAgainstSchema(42, schema, [
+              'body',
+              'facility',
+              'lat',
+            ]),
+          ).toBeFalsy();
         });
 
         describe('schema expects an enum', () => {
@@ -321,16 +362,29 @@ describe('OASSchema', () => {
           describe('object matches enum', () => {
             it('does nothing', () => {
               expect(
-                OasSchema.validateObjectAgainstSchema(42, schema),
+                OasSchema.validateObjectAgainstSchema(42, schema, [
+                  'body',
+                  'facility',
+                  'lat',
+                ]),
               ).toBeFalsy();
             });
           });
 
           describe('object does not match enum', () => {
             it('throws an error', () => {
+              const object = 100;
               expect(() =>
-                OasSchema.validateObjectAgainstSchema(100, schema),
-              ).toThrow('Object does not match enum');
+                OasSchema.validateObjectAgainstSchema(object, schema, [
+                  'body',
+                  'facility',
+                  'lat',
+                ]),
+              ).toThrow(
+                `Actual value does not match schema enum. Path: body -> facility -> lat. Enum values: ${JSON.stringify(
+                  schema.enum,
+                )}. Actual value: ${JSON.stringify(object)}`,
+              );
             });
           });
 
@@ -343,8 +397,16 @@ describe('OASSchema', () => {
 
             it('throws an error', () => {
               expect(() =>
-                OasSchema.validateObjectAgainstSchema(100, schema),
-              ).toThrow('Schema enum contains duplicate values');
+                OasSchema.validateObjectAgainstSchema(100, schema, [
+                  'body',
+                  'facility',
+                  'lat',
+                ]),
+              ).toThrow(
+                `Schema enum contains duplicate values. Path: body -> facility -> lat. Enum values: ${JSON.stringify(
+                  schema.enum,
+                )}`,
+              );
             });
 
             afterAll(() => {
@@ -360,9 +422,16 @@ describe('OASSchema', () => {
 
       describe('object is not a number', () => {
         it('throws an error', () => {
+          const object = 'this is a string';
           expect(() =>
-            OasSchema.validateObjectAgainstSchema('this is a string', schema),
-          ).toThrow('Object type did not match schema');
+            OasSchema.validateObjectAgainstSchema(object, schema, [
+              'body',
+              'facility',
+              'lat',
+            ]),
+          ).toThrow(
+            'Actual type did not match schema. Path: body -> facility -> lat. Schema type: number. Actual type: string',
+          );
         });
       });
     });
@@ -379,9 +448,15 @@ describe('OASSchema', () => {
 
       describe('object is not an array', () => {
         it('throws an error', () => {
+          const object = 'this is a string';
           expect(() =>
-            OasSchema.validateObjectAgainstSchema('this is a string', schema),
-          ).toThrow('Object type did not match schema');
+            OasSchema.validateObjectAgainstSchema(object, schema, [
+              'body',
+              'numbers',
+            ]),
+          ).toThrow(
+            'Actual type did not match schema. Path: body -> numbers. Schema type: array. Actual type: string',
+          );
         });
       });
 
@@ -395,8 +470,13 @@ describe('OASSchema', () => {
 
           it('throws an error', () => {
             expect(() =>
-              OasSchema.validateObjectAgainstSchema([42], schema),
-            ).toThrow('Array schema missing items property');
+              OasSchema.validateObjectAgainstSchema([42], schema, [
+                'body',
+                'numbers',
+              ]),
+            ).toThrow(
+              'The items property is required for array schemas. Path: body -> numbers',
+            );
           });
 
           afterEach(() => {
@@ -405,7 +485,10 @@ describe('OASSchema', () => {
         });
 
         it('calls validateObjectAgainstSchema once for each child', () => {
-          OasSchema.validateObjectAgainstSchema([42, 56], schema);
+          OasSchema.validateObjectAgainstSchema([42, 56], schema, [
+            'body',
+            'numbers',
+          ]);
 
           // Once for the call in the test, and once for each member in the array
           expect(validateSpy).toHaveBeenCalledTimes(3);
@@ -422,16 +505,27 @@ describe('OASSchema', () => {
           describe('object matches enum', () => {
             it('does nothing', () => {
               expect(
-                OasSchema.validateObjectAgainstSchema([42, 56], schema),
+                OasSchema.validateObjectAgainstSchema([42, 56], schema, [
+                  'body',
+                  'numbers',
+                ]),
               ).toBeFalsy();
             });
           });
 
           describe('object does not match enum', () => {
             it('throws an error', () => {
+              const object = [42, 100];
               expect(() =>
-                OasSchema.validateObjectAgainstSchema([42, 100], schema),
-              ).toThrow('Object does not match enum');
+                OasSchema.validateObjectAgainstSchema(object, schema, [
+                  'body',
+                  'numbers',
+                ]),
+              ).toThrow(
+                `Actual value does not match schema enum. Path: body -> numbers. Enum values: ${JSON.stringify(
+                  schema.enum,
+                )}. Actual value: ${JSON.stringify(object)}`,
+              );
             });
           });
 
@@ -448,8 +542,15 @@ describe('OASSchema', () => {
 
             it('throws an error', () => {
               expect(() =>
-                OasSchema.validateObjectAgainstSchema([100, 200], schema),
-              ).toThrow('Schema enum contains duplicate values');
+                OasSchema.validateObjectAgainstSchema([100, 200], schema, [
+                  'body',
+                  'numbers',
+                ]),
+              ).toThrow(
+                `Schema enum contains duplicate values. Path: body -> numbers. Enum values: ${JSON.stringify(
+                  schema.enum,
+                )}`,
+              );
             });
 
             afterAll(() => {
@@ -479,9 +580,15 @@ describe('OASSchema', () => {
 
       describe('object is not an object', () => {
         it('throws an error', () => {
+          const object = 'this is a string';
           expect(() =>
-            OasSchema.validateObjectAgainstSchema('this is a string', schema),
-          ).toThrow('Object type did not match schema');
+            OasSchema.validateObjectAgainstSchema(object, schema, [
+              'body',
+              'form',
+            ]),
+          ).toThrow(
+            'Actual type did not match schema. Path: body -> form. Schema type: object. Actual type: string',
+          );
         });
       });
 
@@ -495,8 +602,13 @@ describe('OASSchema', () => {
 
           it('throws an error', () => {
             expect(() =>
-              OasSchema.validateObjectAgainstSchema({ value: 'any' }, schema),
-            ).toThrow('Object schema is missing Properties');
+              OasSchema.validateObjectAgainstSchema({ value: 'any' }, schema, [
+                'body',
+                'form',
+              ]),
+            ).toThrow(
+              'The properties property is required for object schemas. Path: body -> form',
+            );
           });
 
           afterAll(() => {
@@ -510,8 +622,11 @@ describe('OASSchema', () => {
               OasSchema.validateObjectAgainstSchema(
                 { fake: 'property' },
                 schema,
+                ['body', 'form'],
               );
-            }).toThrow('Object contains a property not present in schema');
+            }).toThrow(
+              'Actual object contains a property not present in schema. Path: body -> form. Schema properties: value. Actual properties: fake',
+            );
           });
         });
 
@@ -521,9 +636,15 @@ describe('OASSchema', () => {
           });
 
           it('throws an error', () => {
+            const object = {};
             expect(() => {
-              OasSchema.validateObjectAgainstSchema({}, schema);
-            }).toThrow('Object missing required property: value');
+              OasSchema.validateObjectAgainstSchema(object, schema, [
+                'body',
+                'form',
+              ]);
+            }).toThrow(
+              'Actual object missing required property. Path: body -> form. Required property: value',
+            );
           });
 
           afterEach(() => {
@@ -538,6 +659,7 @@ describe('OASSchema', () => {
                 value: 'string',
               },
               schema,
+              ['body', 'form'],
             );
 
             // Once for the call in the test, and once for it's property
@@ -556,6 +678,7 @@ describe('OASSchema', () => {
                 OasSchema.validateObjectAgainstSchema(
                   { value: 'test' },
                   schema,
+                  ['body', 'form'],
                 ),
               ).toBeFalsy();
             });
@@ -563,12 +686,17 @@ describe('OASSchema', () => {
 
           describe('object does not match enum', () => {
             it('throws an error', () => {
+              const object = { value: 'does not match' };
               expect(() =>
-                OasSchema.validateObjectAgainstSchema(
-                  { value: 'does not match' },
-                  schema,
-                ),
-              ).toThrow('Object does not match enum');
+                OasSchema.validateObjectAgainstSchema(object, schema, [
+                  'body',
+                  'form',
+                ]),
+              ).toThrow(
+                `Actual value does not match schema enum. Path: body -> form. Enum values: ${JSON.stringify(
+                  schema.enum,
+                )}. Actual value: ${JSON.stringify(object)}`,
+              );
             });
           });
 
@@ -588,8 +716,13 @@ describe('OASSchema', () => {
                 OasSchema.validateObjectAgainstSchema(
                   { value: 'does not match' },
                   schema,
+                  ['body', 'form'],
                 ),
-              ).toThrow('Schema enum contains duplicate values');
+              ).toThrow(
+                `Schema enum contains duplicate values. Path: body -> form. Enum values: ${JSON.stringify(
+                  schema.enum,
+                )}`,
+              );
             });
 
             afterAll(() => {
