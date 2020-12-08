@@ -1,5 +1,6 @@
 import swaggerClient, { Method, Response, Swagger } from 'swagger-client';
 import uniq from 'lodash.uniq';
+import { DEFAULT_PARAMETER_GROUP } from './constants';
 
 export type ParameterExamples = {
   [groupName: string]: { [name: string]: string };
@@ -83,18 +84,20 @@ class OasSchema {
               return [name, examples[groupName]];
             });
 
-          const groupNameToParameters = {};
-          groupNameToParameters[groupName] = Object.assign(
+          const parameterExamples = {};
+          parameterExamples[groupName] = Object.assign(
             {},
             Object.fromEntries(requiredParametersAndExamples),
             Object.fromEntries(groupParameters),
           );
 
-          return groupNameToParameters;
+          return parameterExamples;
         });
       } else {
         parameters = {
-          default: Object.fromEntries(requiredParametersAndExamples),
+          [DEFAULT_PARAMETER_GROUP]: Object.fromEntries(
+            requiredParametersAndExamples,
+          ),
         };
       }
 

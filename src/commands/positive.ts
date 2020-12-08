@@ -104,12 +104,12 @@ export default class Positive extends ApiKeyCommand {
     );
 
     Object.entries(operationIdToResponseAndValidation).forEach(
-      ([id, { response, validationError }]) => {
+      ([operationIdAndGroupName, { response, validationError }]) => {
         if (!validationError && response.ok) {
-          this.log(`${id}: Succeeded`);
+          this.log(`${operationIdAndGroupName}: Succeeded`);
         } else {
           this.log(
-            `${id}: Failed${
+            `${operationIdAndGroupName}: Failed${
               validationError ? ` ${validationError.message}` : ''
             }`,
           );

@@ -1,3 +1,4 @@
+export const DEFAULT_PARAMETER_GROUP = 'default';
 export const SEPERATOR = '#';
 
 // error messages
