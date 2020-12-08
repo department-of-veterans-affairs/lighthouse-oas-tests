@@ -105,6 +105,65 @@ describe('OasValidator', () => {
       validateSpy.mockClear();
     });
 
+    describe('actual object is null', () => {
+      describe('schema object nullable field is not set', () => {
+        const schema: SchemaObject = {
+          type: 'string',
+          description: 'a string',
+        };
+
+        it('throws an error', () => {
+          expect(() =>
+            OasValidator.validateObjectAgainstSchema(null, schema, [
+              'body',
+              'facility',
+              'id',
+            ]),
+          ).toThrow(
+            'Actual value is null but schema does not allow null values. Path: body -> facility -> id',
+          );
+        });
+      });
+
+      describe('schema object nullable field is set to false', () => {
+        const schema: SchemaObject = {
+          type: 'string',
+          description: 'a string',
+          nullable: false,
+        };
+
+        it('throws an error', () => {
+          expect(() =>
+            OasValidator.validateObjectAgainstSchema(null, schema, [
+              'body',
+              'facility',
+              'id',
+            ]),
+          ).toThrow(
+            'Actual value is null but schema does not allow null values. Path: body -> facility -> id',
+          );
+        });
+      });
+
+      describe('schema object nullable field is set to true', () => {
+        const schema: SchemaObject = {
+          type: 'string',
+          description: 'a string',
+          nullable: true,
+        };
+
+        it('does nothing', () => {
+          expect(
+            OasValidator.validateObjectAgainstSchema(null, schema, [
+              'body',
+              'facility',
+              'id',
+            ]),
+          ).toBeFalsy();
+        });
+      });
+    });
+
     describe('schema expects a string', () => {
       const schema: SchemaObject = {
         type: 'string',
@@ -200,64 +259,6 @@ describe('OasValidator', () => {
           ).toThrow(
             'Actual type did not match schema. Path: body -> facility -> id. Schema type: string. Actual type: number',
           );
-        });
-      });
-
-      describe('actual object is null', () => {
-        describe('schema object nullable field is not set', () => {
-          it('throws an error', () => {
-            expect(() =>
-              OasValidator.validateObjectAgainstSchema(null, schema, [
-                'body',
-                'facility',
-                'id',
-              ]),
-            ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: body -> facility -> id',
-            );
-          });
-        });
-
-        describe('schema object nullable field is set to false', () => {
-          beforeAll(() => {
-            schema.nullable = false;
-          });
-
-          it('throws an error', () => {
-            expect(() =>
-              OasValidator.validateObjectAgainstSchema(null, schema, [
-                'body',
-                'facility',
-                'id',
-              ]),
-            ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: body -> facility -> id',
-            );
-          });
-
-          afterAll(() => {
-            schema.nullable = undefined;
-          });
-        });
-
-        describe('schema object nullable field is set to true', () => {
-          beforeAll(() => {
-            schema.nullable = true;
-          });
-
-          it('does nothing', () => {
-            expect(
-              OasValidator.validateObjectAgainstSchema(null, schema, [
-                'body',
-                'facility',
-                'id',
-              ]),
-            ).toBeFalsy();
-          });
-
-          afterAll(() => {
-            schema.nullable = undefined;
-          });
         });
       });
     });
@@ -357,64 +358,6 @@ describe('OasValidator', () => {
           ).toThrow(
             'Actual type did not match schema. Path: body -> facility -> lat. Schema type: number. Actual type: string',
           );
-        });
-      });
-
-      describe('actual object is null', () => {
-        describe('schema object nullable field is not set', () => {
-          it('throws an error', () => {
-            expect(() =>
-              OasValidator.validateObjectAgainstSchema(null, schema, [
-                'body',
-                'facility',
-                'lat',
-              ]),
-            ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: body -> facility -> lat',
-            );
-          });
-        });
-
-        describe('schema object nullable field is set to false', () => {
-          beforeAll(() => {
-            schema.nullable = false;
-          });
-
-          it('throws an error', () => {
-            expect(() =>
-              OasValidator.validateObjectAgainstSchema(null, schema, [
-                'body',
-                'facility',
-                'lat',
-              ]),
-            ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: body -> facility -> lat',
-            );
-          });
-
-          afterAll(() => {
-            schema.nullable = undefined;
-          });
-        });
-
-        describe('schema object nullable field is set to true', () => {
-          beforeAll(() => {
-            schema.nullable = true;
-          });
-
-          it('does nothing', () => {
-            expect(
-              OasValidator.validateObjectAgainstSchema(null, schema, [
-                'body',
-                'facility',
-                'lat',
-              ]),
-            ).toBeFalsy();
-          });
-
-          afterAll(() => {
-            schema.nullable = undefined;
-          });
         });
       });
     });
@@ -543,61 +486,6 @@ describe('OasValidator', () => {
 
           afterAll(() => {
             schema.enum = undefined;
-          });
-        });
-      });
-
-      describe('actual object is null', () => {
-        describe('schema object nullable field is not set', () => {
-          it('throws an error', () => {
-            expect(() =>
-              OasValidator.validateObjectAgainstSchema(null, schema, [
-                'body',
-                'numbers',
-              ]),
-            ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: body -> numbers',
-            );
-          });
-        });
-
-        describe('schema object nullable field is set to false', () => {
-          beforeAll(() => {
-            schema.nullable = false;
-          });
-
-          it('throws an error', () => {
-            expect(() =>
-              OasValidator.validateObjectAgainstSchema(null, schema, [
-                'body',
-                'numbers',
-              ]),
-            ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: body -> numbers',
-            );
-          });
-
-          afterAll(() => {
-            schema.nullable = undefined;
-          });
-        });
-
-        describe('schema object nullable field is set to true', () => {
-          beforeAll(() => {
-            schema.nullable = true;
-          });
-
-          it('does nothing', () => {
-            expect(
-              OasValidator.validateObjectAgainstSchema(null, schema, [
-                'body',
-                'numbers',
-              ]),
-            ).toBeFalsy();
-          });
-
-          afterAll(() => {
-            schema.nullable = undefined;
           });
         });
       });
@@ -771,61 +659,6 @@ describe('OasValidator', () => {
 
           afterAll(() => {
             schema.enum = undefined;
-          });
-        });
-      });
-
-      describe('actual object is null', () => {
-        describe('schema object nullable field is not set', () => {
-          it('throws an error', () => {
-            expect(() =>
-              OasValidator.validateObjectAgainstSchema(null, schema, [
-                'body',
-                'data',
-              ]),
-            ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: body -> data',
-            );
-          });
-        });
-
-        describe('schema object nullable field is set to false', () => {
-          beforeAll(() => {
-            schema.nullable = false;
-          });
-
-          it('throws an error', () => {
-            expect(() =>
-              OasValidator.validateObjectAgainstSchema(null, schema, [
-                'body',
-                'data',
-              ]),
-            ).toThrow(
-              'Actual value was null. Schema should have nullable field set to true if null is allowed. Path: body -> data',
-            );
-          });
-
-          afterAll(() => {
-            schema.nullable = undefined;
-          });
-        });
-
-        describe('schema object nullable field is set to true', () => {
-          beforeAll(() => {
-            schema.nullable = true;
-          });
-
-          it('does nothing', () => {
-            expect(
-              OasValidator.validateObjectAgainstSchema(null, schema, [
-                'body',
-                'data',
-              ]),
-            ).toBeFalsy();
-          });
-
-          afterAll(() => {
-            schema.nullable = undefined;
           });
         });
       });
