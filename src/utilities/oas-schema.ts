@@ -1,7 +1,9 @@
 import swaggerClient, { Method, Response, Swagger } from 'swagger-client';
 import uniq from 'lodash.uniq';
 
-type ParameterExamples = { [name: string]: string };
+export type ParameterExamples = {
+  [groupName: string]: { [name: string]: string };
+};
 
 type OasParameters = {
   [operationId: string]: ParameterExamples | ParameterExamples[];
@@ -81,14 +83,19 @@ class OasSchema {
               return [name, examples[groupName]];
             });
 
-          return Object.assign(
+          const groupNameToParameters = {};
+          groupNameToParameters[groupName] = Object.assign(
             {},
             Object.fromEntries(requiredParametersAndExamples),
             Object.fromEntries(groupParameters),
           );
+
+          return groupNameToParameters;
         });
       } else {
-        parameters = Object.fromEntries(requiredParametersAndExamples);
+        parameters = {
+          default: Object.fromEntries(requiredParametersAndExamples),
+        };
       }
 
       return [method.operationId, parameters];

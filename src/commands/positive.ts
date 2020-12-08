@@ -1,9 +1,10 @@
 import { flags } from '@oclif/command';
 import loadJsonFile from 'load-json-file';
 import { ApiKeyCommand } from '../baseCommands';
-import OasSchema from '../utilities/oas-schema';
+import OasSchema, { ParameterExamples } from '../utilities/oas-schema';
 import { Response } from 'swagger-client';
 import OasValidator from '../utilities/oas-validator';
+import { SEPERATOR } from '../utilities/constants';
 
 export default class Positive extends ApiKeyCommand {
   static description =
@@ -49,7 +50,7 @@ export default class Positive extends ApiKeyCommand {
     const operationIds = await schema.getOperationIds();
 
     const operationIdToResponseAndValidation: {
-      [operationId: string]: { response: Response; validationError?: Error };
+      [id: string]: { response: Response; validationError?: Error };
     } = {};
 
     await Promise.all(
@@ -58,28 +59,44 @@ export default class Positive extends ApiKeyCommand {
 
         // If multiple parameter sets are present (due to example groups), execute once for each
         if (Array.isArray(operationParameters)) {
-          return operationParameters.map((parameters) =>
-            schema.execute(operationId, parameters).then((response) => {
-              operationIdToResponseAndValidation[operationId] = { response };
-            }),
-          );
-        }
-        return schema
-          .execute(operationId, operationParameters)
-          .then((response) => {
-            operationIdToResponseAndValidation[operationId] = { response };
+          return operationParameters.map((parameterExamples) => {
+            return this.executeRequest(
+              parameterExamples,
+              schema,
+              operationId,
+            ).then((response) => {
+              const groupName = Object.keys(parameterExamples)[0];
+              operationIdToResponseAndValidation[
+                `${operationId}${SEPERATOR}${groupName}`
+              ] = { response };
+            });
           });
+        }
+
+        return this.executeRequest(
+          operationParameters,
+          schema,
+          operationId,
+        ).then((response) => {
+          operationIdToResponseAndValidation[operationId] = { response };
+        });
       }),
     );
 
     await Promise.all(
       Object.entries(operationIdToResponseAndValidation).map(
-        ([operationId, { response }]) => {
+        ([operationIdAndGroupName, { response }]) => {
+          const seperatorIndex = operationIdAndGroupName.indexOf(SEPERATOR);
+          const operationId =
+            seperatorIndex === -1
+              ? operationIdAndGroupName
+              : operationIdAndGroupName.slice(0, seperatorIndex);
+
           return validator
             .validateResponse(operationId, response)
             .catch((error) => {
               operationIdToResponseAndValidation[
-                operationId
+                operationIdAndGroupName
               ].validationError = error;
             });
         },
@@ -87,12 +104,12 @@ export default class Positive extends ApiKeyCommand {
     );
 
     Object.entries(operationIdToResponseAndValidation).forEach(
-      ([operationId, { response, validationError }]) => {
+      ([id, { response, validationError }]) => {
         if (!validationError && response.ok) {
-          this.log(`${operationId}: Succeeded`);
+          this.log(`${id}: Succeeded`);
         } else {
           this.log(
-            `${operationId}: Failed${
+            `${id}: Failed${
               validationError ? ` ${validationError.message}` : ''
             }`,
           );
@@ -100,4 +117,18 @@ export default class Positive extends ApiKeyCommand {
       },
     );
   }
+
+  executeRequest = async (
+    parameterExamples: ParameterExamples,
+    schema: OasSchema,
+    operationId: string,
+  ): Promise<Response> => {
+    if (Object.keys(parameterExamples).length !== 1) {
+      throw new TypeError(
+        `Unexpected parameters format: ${JSON.stringify(parameterExamples)}`,
+      );
+    }
+    const parameters = Object.values(parameterExamples)[0];
+    return schema.execute(operationId, parameters);
+  };
 }

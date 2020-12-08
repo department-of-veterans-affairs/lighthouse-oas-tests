@@ -83,54 +83,182 @@ describe('Positive', () => {
     });
 
     describe('operation has parameter groups', () => {
-      it('generates requests for each parameter group', async () => {
+      describe('parameters formatted correctly', () => {
+        it('generates requests for each parameter group', async () => {
+          mockGetParameters.mockImplementation(
+            () =>
+              new Promise((resolve) =>
+                resolve({
+                  walkIntoMordor: [
+                    {
+                      where: {
+                        door: 'front',
+                      },
+                    },
+                    {
+                      who: {
+                        guide: 'gollum',
+                      },
+                    },
+                  ],
+                }),
+              ),
+          );
+          mockGetOperationIds.mockImplementation(
+            () => new Promise((resolve) => resolve(['walkIntoMordor'])),
+          );
+          mockExecute.mockImplementation(
+            () =>
+              new Promise((resolve) =>
+                resolve({
+                  url: 'https://www.lotr.com/walkIntoMorder',
+                  status: 400,
+                  ok: false,
+                }),
+              ),
+          );
+          mockValidateResponse.mockImplementation(
+            () => new Promise((resolve) => resolve()),
+          );
+
+          await Positive.run(['http://urldoesnotmatter.com']);
+
+          expect(mockExecute).toHaveBeenCalledTimes(2);
+          expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
+            door: 'front',
+          });
+          expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
+            guide: 'gollum',
+          });
+        });
+
+        it('executes one request for each parameter group', async () => {
+          mockGetParameters.mockImplementation(
+            () =>
+              new Promise((resolve) =>
+                resolve({
+                  walkIntoMordor: [
+                    {
+                      where: {
+                        door: 'front',
+                      },
+                    },
+                    {
+                      who: {
+                        guide: 'gollum',
+                      },
+                    },
+                  ],
+                }),
+              ),
+          );
+          mockGetOperationIds.mockImplementation(
+            () => new Promise((resolve) => resolve(['walkIntoMordor'])),
+          );
+          mockExecute
+            .mockReturnValueOnce(
+              new Promise((resolve) =>
+                resolve({
+                  url: 'https://www.lotr.com/walkIntoMorder',
+                  status: 400,
+                  ok: false,
+                }),
+              ),
+            )
+            .mockReturnValueOnce(
+              new Promise((resolve) =>
+                resolve({
+                  url: 'https://www.lotr.com/walkIntoMorder',
+                  status: 200,
+                  ok: true,
+                }),
+              ),
+            );
+
+          mockValidateResponse.mockImplementation(
+            () => new Promise((resolve) => resolve(true)),
+          );
+
+          await Positive.run(['http://urldoesnotmatter.com']);
+
+          expect(result).toEqual([
+            'walkIntoMordor#where: Failed\n',
+            'walkIntoMordor#who: Succeeded\n',
+          ]);
+        });
+      });
+
+      describe('unexpected parameters format', () => {
+        it('throws an error', async () => {
+          const parameterExamples = {
+            where: {
+              door: 'front',
+            },
+            who: {
+              guide: 'gollum',
+            },
+          };
+
+          mockGetParameters.mockImplementation(
+            () =>
+              new Promise((resolve) =>
+                resolve({ walkIntoMordor: [parameterExamples] }),
+              ),
+          );
+          mockGetOperationIds.mockImplementation(
+            () => new Promise((resolve) => resolve(['walkIntoMordor'])),
+          );
+
+          await expect(async () => {
+            await Positive.run(['http://urldoesnotmatter.com']);
+          }).rejects.toThrow(
+            `Unexpected parameters format: ${JSON.stringify(
+              parameterExamples,
+            )}`,
+          );
+        });
+      });
+    });
+
+    describe('unexpected parameters format', () => {
+      it('throws an error', async () => {
+        const parameterExamples = {
+          where: {
+            door: 'front',
+          },
+          who: {
+            guide: 'gollum',
+          },
+        };
+
         mockGetParameters.mockImplementation(
           () =>
             new Promise((resolve) =>
-              resolve({
-                walkIntoMordor: [
-                  {
-                    door: 'front',
-                  },
-                  {
-                    guide: 'gollum',
-                  },
-                ],
-              }),
+              resolve({ walkIntoMordor: parameterExamples }),
             ),
         );
         mockGetOperationIds.mockImplementation(
           () => new Promise((resolve) => resolve(['walkIntoMordor'])),
         );
-        mockExecute.mockImplementation(
-          () =>
-            new Promise((resolve) =>
-              resolve({
-                url: 'https://www.lotr.com/walkIntoMorder',
-                status: 400,
-                ok: false,
-              }),
-            ),
-        );
-        mockValidateResponse.mockImplementation(
-          () => new Promise((resolve) => resolve()),
-        );
 
-        await Positive.run(['http://urldoesnotmatter.com']);
-
-        expect(mockExecute).toHaveBeenCalledTimes(2);
-        expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
-          door: 'front',
-        });
-        expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
-          guide: 'gollum',
-        });
+        await expect(async () => {
+          await Positive.run(['http://urldoesnotmatter.com']);
+        }).rejects.toThrow(
+          `Unexpected parameters format: ${JSON.stringify(parameterExamples)}`,
+        );
       });
     });
 
-    it('generates requests for each endpoint in the spec', async () => {
+    it('executes one request for each endpoint in the spec', async () => {
       mockGetParameters.mockImplementation(
-        () => new Promise((resolve) => resolve({})),
+        () =>
+          new Promise((resolve) =>
+            resolve({
+              walkIntoMordor: { default: {} },
+              getHobbit: { default: {} },
+              getTomBombadil: { default: {} },
+            }),
+          ),
       );
       mockGetOperationIds.mockImplementation(
         () =>
