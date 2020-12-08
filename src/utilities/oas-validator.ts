@@ -11,10 +11,13 @@ import {
   RequiredPropertyError,
   StatusCodeMismatchError,
   ContentTypeMismatchError,
-  NullValueError,
 } from '../errors';
 import OasSchema from './oas-schema';
-import { ITEMS_MISSING_ERROR, PROPERTIES_MISSING_ERROR } from './constants';
+import {
+  NULL_VALUE_ERROR,
+  ITEMS_MISSING_ERROR,
+  PROPERTIES_MISSING_ERROR,
+} from './constants';
 
 class OasValidator {
   private schema: OasSchema;
@@ -64,7 +67,7 @@ class OasValidator {
         return;
       }
 
-      throw new NullValueError(path);
+      throw new SchemaError(NULL_VALUE_ERROR, path);
     }
 
     const enumValues = expected.enum;
