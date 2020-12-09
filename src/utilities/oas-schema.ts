@@ -84,14 +84,13 @@ class OasSchema {
               return [name, examples[groupName]];
             });
 
-          const parameterExamples = {};
-          parameterExamples[groupName] = Object.assign(
-            {},
-            Object.fromEntries(requiredParametersAndExamples),
-            Object.fromEntries(groupParameters),
-          );
-
-          return parameterExamples;
+          return {
+            [groupName]: Object.assign(
+              {},
+              Object.fromEntries(requiredParametersAndExamples),
+              Object.fromEntries(groupParameters),
+            ),
+          };
         });
       } else {
         parameters = {

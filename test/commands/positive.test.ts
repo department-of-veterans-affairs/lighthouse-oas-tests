@@ -83,140 +83,84 @@ describe('Positive', () => {
     });
 
     describe('operation has parameter groups', () => {
-      describe('parameters formatted correctly', () => {
-        it('generates requests for each parameter group', async () => {
-          mockGetParameters.mockImplementation(
-            () =>
-              new Promise((resolve) =>
-                resolve({
-                  walkIntoMordor: [
-                    {
-                      where: {
-                        door: 'front',
-                      },
+      beforeEach(() => {
+        mockGetParameters.mockImplementation(
+          () =>
+            new Promise((resolve) =>
+              resolve({
+                walkIntoMordor: [
+                  {
+                    where: {
+                      door: 'front',
                     },
-                    {
-                      who: {
-                        guide: 'gollum',
-                      },
+                  },
+                  {
+                    who: {
+                      guide: 'gollum',
                     },
-                  ],
-                }),
-              ),
-          );
-          mockGetOperationIds.mockImplementation(
-            () => new Promise((resolve) => resolve(['walkIntoMordor'])),
-          );
-          mockExecute.mockImplementation(
-            () =>
-              new Promise((resolve) =>
-                resolve({
-                  url: 'https://www.lotr.com/walkIntoMorder',
-                  status: 400,
-                  ok: false,
-                }),
-              ),
-          );
-          mockValidateResponse.mockImplementation(
-            () => new Promise((resolve) => resolve()),
-          );
+                  },
+                ],
+              }),
+            ),
+        );
+        mockGetOperationIds.mockImplementation(
+          () => new Promise((resolve) => resolve(['walkIntoMordor'])),
+        );
+        mockValidateResponse.mockImplementation(
+          () => new Promise((resolve) => resolve()),
+        );
+      });
 
-          await Positive.run(['http://urldoesnotmatter.com']);
+      it('generates requests for each parameter group', async () => {
+        mockExecute.mockImplementation(
+          () =>
+            new Promise((resolve) =>
+              resolve({
+                url: 'https://www.lotr.com/walkIntoMorder',
+                status: 400,
+                ok: false,
+              }),
+            ),
+        );
 
-          expect(mockExecute).toHaveBeenCalledTimes(2);
-          expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
-            door: 'front',
-          });
-          expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
-            guide: 'gollum',
-          });
+        await Positive.run(['http://urldoesnotmatter.com']);
+
+        expect(mockExecute).toHaveBeenCalledTimes(2);
+        expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
+          door: 'front',
         });
-
-        it('executes one request for each parameter group', async () => {
-          mockGetParameters.mockImplementation(
-            () =>
-              new Promise((resolve) =>
-                resolve({
-                  walkIntoMordor: [
-                    {
-                      where: {
-                        door: 'front',
-                      },
-                    },
-                    {
-                      who: {
-                        guide: 'gollum',
-                      },
-                    },
-                  ],
-                }),
-              ),
-          );
-          mockGetOperationIds.mockImplementation(
-            () => new Promise((resolve) => resolve(['walkIntoMordor'])),
-          );
-          mockExecute
-            .mockReturnValueOnce(
-              new Promise((resolve) =>
-                resolve({
-                  url: 'https://www.lotr.com/walkIntoMorder',
-                  status: 400,
-                  ok: false,
-                }),
-              ),
-            )
-            .mockReturnValueOnce(
-              new Promise((resolve) =>
-                resolve({
-                  url: 'https://www.lotr.com/walkIntoMorder',
-                  status: 200,
-                  ok: true,
-                }),
-              ),
-            );
-
-          mockValidateResponse.mockImplementation(
-            () => new Promise((resolve) => resolve(true)),
-          );
-
-          await Positive.run(['http://urldoesnotmatter.com']);
-
-          expect(result).toEqual([
-            'walkIntoMordor#where: Failed\n',
-            'walkIntoMordor#who: Succeeded\n',
-          ]);
+        expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
+          guide: 'gollum',
         });
       });
 
-      describe('unexpected parameters format', () => {
-        it('throws an error', async () => {
-          const parameterExamples = {
-            where: {
-              door: 'front',
-            },
-            who: {
-              guide: 'gollum',
-            },
-          };
+      it('validates a response for each parameter group', async () => {
+        mockExecute
+          .mockReturnValueOnce(
+            new Promise((resolve) =>
+              resolve({
+                url: 'https://www.lotr.com/walkIntoMorder',
+                status: 400,
+                ok: false,
+              }),
+            ),
+          )
+          .mockReturnValueOnce(
+            new Promise((resolve) =>
+              resolve({
+                url: 'https://www.lotr.com/walkIntoMorder',
+                status: 200,
+                ok: true,
+              }),
+            ),
+          );
 
-          mockGetParameters.mockImplementation(
-            () =>
-              new Promise((resolve) =>
-                resolve({ walkIntoMordor: [parameterExamples] }),
-              ),
-          );
-          mockGetOperationIds.mockImplementation(
-            () => new Promise((resolve) => resolve(['walkIntoMordor'])),
-          );
+        await Positive.run(['http://urldoesnotmatter.com']);
 
-          await expect(async () => {
-            await Positive.run(['http://urldoesnotmatter.com']);
-          }).rejects.toThrow(
-            `Unexpected parameters format: ${JSON.stringify(
-              parameterExamples,
-            )}`,
-          );
-        });
+        expect(result).toEqual([
+          'walkIntoMordor#where: Failed\n',
+          'walkIntoMordor#who: Succeeded\n',
+        ]);
       });
     });
 
@@ -249,7 +193,7 @@ describe('Positive', () => {
       });
     });
 
-    it('executes one request for each endpoint in the spec', async () => {
+    it('validates a response for each endpoint in the spec', async () => {
       mockGetParameters.mockImplementation(
         () =>
           new Promise((resolve) =>
