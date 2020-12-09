@@ -226,118 +226,118 @@
               "description": "Query facilities by bounding box, latitude and longitude, state, or zip code. Bounding box is specified as four `bbox[]` parameters, long1, lat1, long2, lat2. (Relative order is unimportant.)\n\nA query by latitude and longitude returns all facilities in the system, sorted by distance from that location.\n\nAll location queries support filtering by facility type and available services.\n\nOne can also retrieve facilities by ID using a comma-separated list like `?ids=id1,id2`. When requesting multiple facilities by ID, the API will return as many results as it can find matches for, omitting IDs where there is no match. It will not return an HTTP error code if it is unable to match a requested ID. Clients may supply IDs up to the limit their HTTP client enforces for URI path lengths. (Usually 2048 characters.)\n\nResults are paginated. JSON responses include pagination information in the standard JSON API \"links\" and \"meta\" elements. \n\n### Parameter combinations\nYou may optionally specify `page` and `per_page` with any query. You must specify one of the following parameter combinations: \n\n- `bbox[]`, with the option of any combination of `type` or `services[]`\n\n- `ids`\n\n- `lat` and `long`, with the option of any combination of `ids`, `type`, or `services[]`\n\n- `state`, with the option of any combination of `type` or `services[]`\n\n- `zip`, with the option of any combination of `type` or `services[]`\n\n Invalid combinations will return `400 Bad Request`.",
               "operationId": "getFacilitiesByLocation",
               "parameters": [
-                  {
-                      "name": "ids",
-                      "in": "query",
-                      "description": "List of comma-separated facility IDs to retrieve in a single request. Can be combined with lat and long parameters to retrieve facilities sorted by distance from a location.",
-                      "style": "form",
-                      "schema": {
-                          "type": "array",
-                          "items": {
-                              "type": "string"
-                          }
-                      }
-                  },
-                  {
-                      "name": "zip",
-                      "in": "query",
-                      "description": "Zip code to search for facilities. More detailed zip codes can be passed in, but only the first five digits are used to determine facilities to return.",
-                      "schema": {
-                          "type": "string",
-                          "format": "##### or #####-####"
-                      },
-                      "required": true,
-                      "example": "20005"
-                  },
-                  {
-                      "name": "state",
-                      "in": "query",
-                      "description": "State to search for Facilities. Except in rare cases, this is two characters.",
-                      "schema": {
-                          "type": "string",
-                          "format": "XX"
-                      }
-                  },
-                  {
-                      "name": "lat",
-                      "in": "query",
-                      "description": "Latitude of point to search for facilities, in WGS84 coordinate reference system.",
-                      "schema": {
-                          "type": "number",
-                          "format": "float"
-                      }
-                  },
-                  {
-                      "name": "long",
-                      "in": "query",
-                      "description": "Longitude of point to search for facilities, in WGS84 coordinate reference system.",
-                      "style": "form",
-                      "schema": {
-                          "type": "number",
-                          "format": "float"
-                      }
-                  },
-                  {
-                      "name": "bbox[]",
-                      "in": "query",
-                      "description": "Bounding box (longitude, latitude, longitude, latitude) within which facilities will be returned. (WGS84 coordinate reference system)",
-                      "style": "form",
-                      "schema": {
-                          "maxItems": 4,
-                          "minItems": 4,
-                          "type": "array",
-                          "items": {
-                              "type": "number",
-                              "format": "float"
-                          }
-                      }
-                  },
-                  {
-                      "name": "type",
-                      "in": "query",
-                      "description": "Optional facility type search filter",
-                      "schema": {
-                          "type": "string",
-                          "enum": [
-                              "health",
-                              "cemetery",
-                              "benefits",
-                              "vet_center"
-                          ]
-                      }
-                  },
-                  {
-                      "name": "services[]",
-                      "in": "query",
-                      "description": "Optional facility service search filter",
-                      "style": "form",
-                      "schema": {
-                          "type": "array",
-                          "items": {
-                              "type": "string"
-                          }
-                      }
-                  },
-                  {
-                      "name": "page",
-                      "in": "query",
-                      "description": "Page of results to return per paginated response.",
-                      "schema": {
-                          "type": "integer",
-                          "format": "int64",
-                          "default": 1
-                      }
-                  },
-                  {
-                      "name": "per_page",
-                      "in": "query",
-                      "description": "Number of results to return per paginated response.",
-                      "schema": {
-                          "type": "integer",
-                          "format": "int64",
-                          "default": 10
-                      }
-                  }
+                {
+                    "name": "ids",
+                    "in": "query",
+                    "description": "List of comma-separated facility IDs to retrieve in a single request. Can be combined with lat and long parameters to retrieve facilities sorted by distance from a location.",
+                    "style": "form",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "name": "zip",
+                    "in": "query",
+                    "description": "Zip code to search for facilities. More detailed zip codes can be passed in, but only the first five digits are used to determine facilities to return.",
+                    "schema": {
+                        "type": "string",
+                        "format": "##### or #####-####"
+                    },
+                    "required": true,
+                    "example": "20005"
+                },
+                {
+                    "name": "state",
+                    "in": "query",
+                    "description": "State to search for Facilities. Except in rare cases, this is two characters.",
+                    "schema": {
+                        "type": "string",
+                        "format": "XX"
+                    }
+                },
+                {
+                    "name": "lat",
+                    "in": "query",
+                    "description": "Latitude of point to search for facilities, in WGS84 coordinate reference system.",
+                    "schema": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                },
+                {
+                    "name": "long",
+                    "in": "query",
+                    "description": "Longitude of point to search for facilities, in WGS84 coordinate reference system.",
+                    "style": "form",
+                    "schema": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                },
+                {
+                    "name": "bbox[]",
+                    "in": "query",
+                    "description": "Bounding box (longitude, latitude, longitude, latitude) within which facilities will be returned. (WGS84 coordinate reference system)",
+                    "style": "form",
+                    "schema": {
+                        "maxItems": 4,
+                        "minItems": 4,
+                        "type": "array",
+                        "items": {
+                            "type": "number",
+                            "format": "float"
+                        }
+                    }
+                },
+                {
+                    "name": "type",
+                    "in": "query",
+                    "description": "Optional facility type search filter",
+                    "schema": {
+                        "type": "string",
+                        "enum": [
+                            "health",
+                            "cemetery",
+                            "benefits",
+                            "vet_center"
+                        ]
+                    }
+                },
+                {
+                    "name": "services[]",
+                    "in": "query",
+                    "description": "Optional facility service search filter",
+                    "style": "form",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "name": "page",
+                    "in": "query",
+                    "description": "Page of results to return per paginated response.",
+                    "schema": {
+                        "type": "integer",
+                        "format": "int64",
+                        "default": 1
+                    }
+                },
+                {
+                    "name": "per_page",
+                    "in": "query",
+                    "description": "Number of results to return per paginated response.",
+                    "schema": {
+                        "type": "integer",
+                        "format": "int64",
+                        "default": 10
+                    }
+                }
               ],
               "responses": {
                   "200": {
