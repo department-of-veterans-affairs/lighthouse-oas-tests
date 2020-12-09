@@ -102,7 +102,9 @@ export default class Positive extends ApiKeyCommand {
 
     const failingOperations = Object.values(
       operationIdToResponseAndValidation,
-    ).filter(({ validationError }) => validationError);
+    ).filter(
+      ({ validationError, response }) => validationError || !response.ok,
+    );
 
     if (failingOperations.length > 0) {
       this.error(

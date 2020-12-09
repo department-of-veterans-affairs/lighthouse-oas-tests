@@ -107,8 +107,8 @@ describe('Positive', () => {
             new Promise((resolve) =>
               resolve({
                 url: 'https://www.lotr.com/walkIntoMorder',
-                status: 400,
-                ok: false,
+                status: 200,
+                ok: true,
               }),
             ),
         );
@@ -195,6 +195,39 @@ describe('Positive', () => {
       });
     });
 
+    describe('one of the ressponses returns a non-ok status', () => {
+      it('throws an error', async () => {
+        mockGetParameters.mockImplementation(
+          () => new Promise((resolve) => resolve({})),
+        );
+        mockGetOperationIds.mockImplementation(
+          () => new Promise((resolve) => resolve(['walkIntoMordor'])),
+        );
+        mockExecute.mockImplementation(
+          () =>
+            new Promise((resolve) =>
+              resolve({
+                url: 'https://www.lotr.com/walkIntoMorder',
+                status: 400,
+                ok: false,
+              }),
+            ),
+        );
+        mockValidateResponse.mockImplementation(
+          () => new Promise((resolve) => resolve()),
+        );
+        mockValidateResponse.mockImplementation(
+          () =>
+            new Promise((resolve) => {
+              resolve();
+            }),
+        );
+        await expect(async () => {
+          await Positive.run(['http://urldoesnotmatter.com']);
+        }).rejects.toThrow('1 operation failed');
+      });
+    });
+
     it('generates requests for each endpoint in the spec', async () => {
       mockGetParameters.mockImplementation(
         () => new Promise((resolve) => resolve({})),
@@ -237,7 +270,9 @@ describe('Positive', () => {
         () => new Promise((resolve) => resolve()),
       );
 
-      await Positive.run(['http://urldoesnotmatter.com']);
+      await expect(async () => {
+        await Positive.run(['http://urldoesnotmatter.com']);
+      }).rejects.toThrow('2 operations failed');
 
       expect(result).toEqual([
         'walkIntoMordor: Failed\n',
