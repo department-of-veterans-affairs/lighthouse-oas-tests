@@ -86,11 +86,17 @@ export default class Positive extends ApiKeyCommand {
       ),
     );
 
+    const failingOperations: {
+      response: Response;
+      validationError?: Error;
+    }[] = [];
+
     Object.entries(operationIdToResponseAndValidation).forEach(
       ([operationId, { response, validationError }]) => {
         if (!validationError && response.ok) {
           this.log(`${operationId}: Succeeded`);
         } else {
+          failingOperations.push({ response, validationError });
           this.log(
             `${operationId}: Failed${
               validationError ? ` ${validationError.message}` : ''
@@ -98,12 +104,6 @@ export default class Positive extends ApiKeyCommand {
           );
         }
       },
-    );
-
-    const failingOperations = Object.values(
-      operationIdToResponseAndValidation,
-    ).filter(
-      ({ validationError, response }) => validationError || !response.ok,
     );
 
     if (failingOperations.length > 0) {
