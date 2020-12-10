@@ -13,7 +13,11 @@ import {
   ContentTypeMismatchError,
 } from '../errors';
 import OasSchema from './oas-schema';
-import { ITEMS_MISSING_ERROR, PROPERTIES_MISSING_ERROR } from './constants';
+import {
+  NULL_VALUE_ERROR,
+  ITEMS_MISSING_ERROR,
+  PROPERTIES_MISSING_ERROR,
+} from './constants';
 
 class OasValidator {
   private schema: OasSchema;
@@ -57,6 +61,15 @@ class OasValidator {
     expected: SchemaObject,
     path: string[],
   ): void {
+    // if the actual object is null check that null values are allowed
+    if (actual === null) {
+      if (expected.nullable) {
+        return;
+      }
+
+      throw new SchemaError(NULL_VALUE_ERROR, path);
+    }
+
     const enumValues = expected.enum;
 
     if (enumValues) {

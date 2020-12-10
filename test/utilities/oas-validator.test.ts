@@ -105,6 +105,65 @@ describe('OasValidator', () => {
       validateSpy.mockClear();
     });
 
+    describe('actual object is null', () => {
+      describe('schema object nullable field is not set', () => {
+        const schema: SchemaObject = {
+          type: 'string',
+          description: 'a string',
+        };
+
+        it('throws an error', () => {
+          expect(() =>
+            OasValidator.validateObjectAgainstSchema(null, schema, [
+              'body',
+              'facility',
+              'id',
+            ]),
+          ).toThrow(
+            'Actual value is null but schema does not allow null values. Path: body -> facility -> id',
+          );
+        });
+      });
+
+      describe('schema object nullable field is set to false', () => {
+        const schema: SchemaObject = {
+          type: 'string',
+          description: 'a string',
+          nullable: false,
+        };
+
+        it('throws an error', () => {
+          expect(() =>
+            OasValidator.validateObjectAgainstSchema(null, schema, [
+              'body',
+              'facility',
+              'id',
+            ]),
+          ).toThrow(
+            'Actual value is null but schema does not allow null values. Path: body -> facility -> id',
+          );
+        });
+      });
+
+      describe('schema object nullable field is set to true', () => {
+        const schema: SchemaObject = {
+          type: 'string',
+          description: 'a string',
+          nullable: true,
+        };
+
+        it('does nothing', () => {
+          expect(
+            OasValidator.validateObjectAgainstSchema(null, schema, [
+              'body',
+              'facility',
+              'id',
+            ]),
+          ).toBeFalsy();
+        });
+      });
+    });
+
     describe('schema expects a string', () => {
       const schema: SchemaObject = {
         type: 'string',
