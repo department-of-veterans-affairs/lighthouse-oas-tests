@@ -107,8 +107,8 @@ describe('Positive', () => {
             new Promise((resolve) =>
               resolve({
                 url: 'https://www.lotr.com/walkIntoMorder',
-                status: 400,
-                ok: false,
+                status: 200,
+                ok: true,
               }),
             ),
         );
@@ -125,6 +125,106 @@ describe('Positive', () => {
         expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
           guide: 'gollum',
         });
+      });
+    });
+
+    describe('one of the operations fails validation', () => {
+      it('throws an error', async () => {
+        mockGetParameters.mockImplementation(
+          () => new Promise((resolve) => resolve({})),
+        );
+        mockGetOperationIds.mockImplementation(
+          () => new Promise((resolve) => resolve(['walkIntoMordor'])),
+        );
+        mockExecute.mockImplementation(
+          () =>
+            new Promise((resolve) =>
+              resolve({
+                url: 'https://www.lotr.com/walkIntoMorder',
+                status: 400,
+                ok: false,
+              }),
+            ),
+        );
+        mockValidateResponse.mockImplementation(
+          () => new Promise((resolve) => resolve()),
+        );
+        mockValidateResponse.mockImplementation(
+          () =>
+            new Promise(() => {
+              throw new TypeError('woah there was an error');
+            }),
+        );
+        await expect(async () => {
+          await Positive.run(['http://urldoesnotmatter.com']);
+        }).rejects.toThrow('1 operation failed');
+      });
+    });
+
+    describe('more than one of the operations fails validation', () => {
+      it('throws an error', async () => {
+        mockGetParameters.mockImplementation(
+          () => new Promise((resolve) => resolve({})),
+        );
+        mockGetOperationIds.mockImplementation(
+          () =>
+            new Promise((resolve) => resolve(['walkIntoMordor', 'getHobbit'])),
+        );
+        mockExecute.mockImplementation(
+          () =>
+            new Promise((resolve) =>
+              resolve({
+                url: 'https://www.lotr.com/walkIntoMorder',
+                status: 400,
+                ok: false,
+              }),
+            ),
+        );
+        mockValidateResponse.mockImplementation(
+          () => new Promise((resolve) => resolve()),
+        );
+        mockValidateResponse.mockImplementation(
+          () =>
+            new Promise(() => {
+              throw new TypeError('woah there was an error');
+            }),
+        );
+        await expect(async () => {
+          await Positive.run(['http://urldoesnotmatter.com']);
+        }).rejects.toThrow('2 operations failed');
+      });
+    });
+
+    describe('one of the ressponses returns a non-ok status', () => {
+      it('throws an error', async () => {
+        mockGetParameters.mockImplementation(
+          () => new Promise((resolve) => resolve({})),
+        );
+        mockGetOperationIds.mockImplementation(
+          () => new Promise((resolve) => resolve(['walkIntoMordor'])),
+        );
+        mockExecute.mockImplementation(
+          () =>
+            new Promise((resolve) =>
+              resolve({
+                url: 'https://www.lotr.com/walkIntoMorder',
+                status: 400,
+                ok: false,
+              }),
+            ),
+        );
+        mockValidateResponse.mockImplementation(
+          () => new Promise((resolve) => resolve()),
+        );
+        mockValidateResponse.mockImplementation(
+          () =>
+            new Promise((resolve) => {
+              resolve();
+            }),
+        );
+        await expect(async () => {
+          await Positive.run(['http://urldoesnotmatter.com']);
+        }).rejects.toThrow('1 operation failed');
       });
     });
 
@@ -167,10 +267,12 @@ describe('Positive', () => {
           ),
         );
       mockValidateResponse.mockImplementation(
-        () => new Promise((resolve) => resolve(true)),
+        () => new Promise((resolve) => resolve()),
       );
 
-      await Positive.run(['http://urldoesnotmatter.com']);
+      await expect(async () => {
+        await Positive.run(['http://urldoesnotmatter.com']);
+      }).rejects.toThrow('2 operations failed');
 
       expect(result).toEqual([
         'walkIntoMordor: Failed\n',

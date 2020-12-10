@@ -36,7 +36,7 @@ export default class Positive extends ApiKeyCommand {
         const json = await loadJsonFile(args.path);
         oasSchemaOptions.spec = json;
       } catch (error) {
-        this.error('unable to load json file', { exit: 2 });
+        this.error('unable to load json file');
       }
     } else {
       oasSchemaOptions.url = args.path;
@@ -86,11 +86,17 @@ export default class Positive extends ApiKeyCommand {
       ),
     );
 
+    const failingOperations: {
+      response: Response;
+      validationError?: Error;
+    }[] = [];
+
     Object.entries(operationIdToResponseAndValidation).forEach(
       ([operationId, { response, validationError }]) => {
         if (!validationError && response.ok) {
           this.log(`${operationId}: Succeeded`);
         } else {
+          failingOperations.push({ response, validationError });
           this.log(
             `${operationId}: Failed${
               validationError ? ` ${validationError.message}` : ''
@@ -99,5 +105,13 @@ export default class Positive extends ApiKeyCommand {
         }
       },
     );
+
+    if (failingOperations.length > 0) {
+      this.error(
+        `${failingOperations.length} operation${
+          failingOperations.length > 1 ? 's' : ''
+        } failed`,
+      );
+    }
   }
 }
