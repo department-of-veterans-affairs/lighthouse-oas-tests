@@ -89,12 +89,19 @@ class OasValidator {
     const expectedType = expected.type;
     const actualType = typeof actual;
 
-    if (expectedType === 'array') {
-      // check that the actual object is an array
-      if (!Array.isArray(actual)) {
+    if (expectedType) {
+      if (expectedType === 'array') {
+        // check that the actual object is an array
+        if (!Array.isArray(actual)) {
+          throw new TypeMismatchError(path, expectedType, actualType);
+        }
+      } else if (actualType !== expectedType) {
+        // check that type matches for other types
         throw new TypeMismatchError(path, expectedType, actualType);
       }
+    }
 
+    if (Array.isArray(actual)) {
       // check that the expected object's items property is set
       const itemSchema = expected.items;
       if (!itemSchema) {
@@ -105,53 +112,45 @@ class OasValidator {
       actual.forEach((item) => {
         this.validateObjectAgainstSchema(item, itemSchema, path);
       });
-    } else {
-      // check that type matches
-      if (actualType !== expectedType) {
-        throw new TypeMismatchError(path, expectedType, actualType);
+    } else if (actualType === 'object') {
+      // check that the expected object's properties field is set
+      const properties = expected.properties;
+      if (!properties) {
+        throw new SchemaError(PROPERTIES_MISSING_ERROR, path);
       }
 
-      // if type is object
-      if (actualType === 'object') {
-        // check that the expected object's properties field is set
-        const properties = expected.properties;
-        if (!properties) {
-          throw new SchemaError(PROPERTIES_MISSING_ERROR, path);
-        }
+      const actualProperties = Object.keys(actual);
+      const expectedProperties = Object.keys(properties);
 
-        const actualProperties = Object.keys(actual);
-        const expectedProperties = Object.keys(properties);
-
-        // check that the actual object only contains properties present in expected object
-        if (
-          actualProperties.filter(
-            (property) => !expectedProperties.includes(property),
-          ).length > 0
-        ) {
-          throw new PropertiesMismatchError(
-            path,
-            expectedProperties,
-            actualProperties,
-          );
-        }
-
-        // check required values are present
-        expected.required?.forEach((requiredProperty) => {
-          if (!actualProperties.includes(requiredProperty)) {
-            throw new RequiredPropertyError(path, requiredProperty);
-          }
-        });
-
-        // re-un for each property
-        Object.entries(actual).forEach(([propertyName, propertyObject]) => {
-          path.push(propertyName);
-          this.validateObjectAgainstSchema(
-            propertyObject,
-            properties[propertyName],
-            path,
-          );
-        });
+      // check that the actual object only contains properties present in expected object
+      if (
+        actualProperties.filter(
+          (property) => !expectedProperties.includes(property),
+        ).length > 0
+      ) {
+        throw new PropertiesMismatchError(
+          path,
+          expectedProperties,
+          actualProperties,
+        );
       }
+
+      // check required values are present
+      expected.required?.forEach((requiredProperty) => {
+        if (!actualProperties.includes(requiredProperty)) {
+          throw new RequiredPropertyError(path, requiredProperty);
+        }
+      });
+
+      // re-un for each property
+      Object.entries(actual).forEach(([propertyName, propertyObject]) => {
+        path.push(propertyName);
+        this.validateObjectAgainstSchema(
+          propertyObject,
+          properties[propertyName],
+          path,
+        );
+      });
     }
 
     path.pop();
