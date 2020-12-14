@@ -1,5 +1,4 @@
 export const DEFAULT_PARAMETER_GROUP = 'default';
-export const SEPERATOR = '#';
 
 // error messages
 export const STATUS_CODE_MISMATCH_ERROR =

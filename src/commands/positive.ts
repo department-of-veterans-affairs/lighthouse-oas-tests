@@ -4,7 +4,7 @@ import { ApiKeyCommand } from '../baseCommands';
 import OasSchema, { ParameterExamples } from '../utilities/oas-schema';
 import { Response } from 'swagger-client';
 import OasValidator from '../utilities/oas-validator';
-import { SEPERATOR } from '../utilities/constants';
+import { DEFAULT_PARAMETER_GROUP } from '../utilities/constants';
 
 export default class Positive extends ApiKeyCommand {
   static description =
@@ -50,7 +50,12 @@ export default class Positive extends ApiKeyCommand {
     const operationIds = await schema.getOperationIds();
 
     const operationIdToResponseAndValidation: {
-      [id: string]: { response: Response; validationError?: Error };
+      [operationId: string]: {
+        [parameterGroupName: string]: {
+          response: Response;
+          validationError?: Error;
+        };
+      };
     } = {};
 
     await Promise.all(
@@ -66,9 +71,14 @@ export default class Positive extends ApiKeyCommand {
               operationId,
             ).then((response) => {
               const groupName = Object.keys(parameterExamples)[0];
-              operationIdToResponseAndValidation[
-                `${operationId}${SEPERATOR}${groupName}`
-              ] = { response };
+
+              if (!operationIdToResponseAndValidation[operationId]) {
+                operationIdToResponseAndValidation[operationId] = {};
+              }
+
+              operationIdToResponseAndValidation[operationId][groupName] = {
+                response,
+              };
             });
           });
         }
@@ -78,27 +88,33 @@ export default class Positive extends ApiKeyCommand {
           schema,
           operationId,
         ).then((response) => {
-          operationIdToResponseAndValidation[operationId] = { response };
+          if (!operationIdToResponseAndValidation[operationId]) {
+            operationIdToResponseAndValidation[operationId] = {};
+          }
+
+          operationIdToResponseAndValidation[operationId][
+            DEFAULT_PARAMETER_GROUP
+          ] = { response };
         });
       }),
     );
 
     await Promise.all(
       Object.entries(operationIdToResponseAndValidation).map(
-        ([operationIdAndGroupName, { response }]) => {
-          const seperatorIndex = operationIdAndGroupName.indexOf(SEPERATOR);
-          const operationId =
-            seperatorIndex === -1
-              ? operationIdAndGroupName
-              : operationIdAndGroupName.slice(0, seperatorIndex);
-
-          return validator
-            .validateResponse(operationId, response)
-            .catch((error) => {
-              operationIdToResponseAndValidation[
-                operationIdAndGroupName
-              ].validationError = error;
-            });
+        ([operationId, parameterGroups]) => {
+          return Promise.all(
+            Object.entries(parameterGroups).map(
+              ([parameterGroupName, { response }]) => {
+                return validator
+                  .validateResponse(operationId, response)
+                  .catch((error) => {
+                    operationIdToResponseAndValidation[operationId][
+                      parameterGroupName
+                    ].validationError = error;
+                  });
+              },
+            ),
+          );
         },
       ),
     );
@@ -109,17 +125,31 @@ export default class Positive extends ApiKeyCommand {
     }[] = [];
 
     Object.entries(operationIdToResponseAndValidation).forEach(
-      ([operationIdAndGroupName, { response, validationError }]) => {
-        if (!validationError && response.ok) {
-          this.log(`${operationIdAndGroupName}: Succeeded`);
-        } else {
-          failingOperations.push({ response, validationError });
-          this.log(
-            `${operationIdAndGroupName}: Failed${
-              validationError ? ` ${validationError.message}` : ''
-            }`,
-          );
-        }
+      ([operationId, parameterGroups]) => {
+        Object.entries(parameterGroups).forEach(
+          ([parameterGroupName, { response, validationError }]) => {
+            if (!validationError && response.ok) {
+              this.log(
+                `${operationId}${
+                  parameterGroupName === DEFAULT_PARAMETER_GROUP
+                    ? ''
+                    : ` - ${parameterGroupName}`
+                }: Succeeded`,
+              );
+            } else {
+              failingOperations.push({ response, validationError });
+              this.log(
+                `${operationId}${
+                  parameterGroupName === DEFAULT_PARAMETER_GROUP
+                    ? ''
+                    : ` - ${parameterGroupName}`
+                }: Failed${
+                  validationError ? ` - ${validationError.message}` : ''
+                }`,
+              );
+            }
+          },
+        );
       },
     );
 

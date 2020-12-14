@@ -83,7 +83,7 @@ describe('Positive', () => {
     });
 
     describe('operation has parameter groups', () => {
-      beforeEach(() => {
+      it('generates requests and validates responses for each parameter group', async () => {
         mockGetParameters.mockImplementation(
           () =>
             new Promise((resolve) =>
@@ -119,9 +119,7 @@ describe('Positive', () => {
         mockValidateResponse.mockImplementation(
           () => new Promise((resolve) => resolve()),
         );
-      });
 
-      it('generates requests for each parameter group', async () => {
         await Positive.run(['http://urldoesnotmatter.com']);
 
         expect(mockExecute).toHaveBeenCalledTimes(2);
@@ -131,14 +129,10 @@ describe('Positive', () => {
         expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
           guide: 'gollum',
         });
-      });
-
-      it('validates a response for each parameter group', async () => {
-        await Positive.run(['http://urldoesnotmatter.com']);
 
         expect(result).toEqual([
-          'walkIntoMordor#where: Succeeded\n',
-          'walkIntoMordor#who: Succeeded\n',
+          'walkIntoMordor - where: Succeeded\n',
+          'walkIntoMordor - who: Succeeded\n',
         ]);
       });
     });
@@ -205,6 +199,10 @@ describe('Positive', () => {
         await expect(async () => {
           await Positive.run(['http://urldoesnotmatter.com']);
         }).rejects.toThrow('1 operation failed');
+
+        expect(result).toEqual([
+          'walkIntoMordor: Failed - woah there was an error\n',
+        ]);
       });
     });
 
@@ -245,6 +243,11 @@ describe('Positive', () => {
         await expect(async () => {
           await Positive.run(['http://urldoesnotmatter.com']);
         }).rejects.toThrow('2 operations failed');
+
+        expect(result).toEqual([
+          'walkIntoMordor: Failed - woah there was an error\n',
+          'getHobbit: Failed - woah there was an error\n',
+        ]);
       });
     });
 
@@ -281,6 +284,8 @@ describe('Positive', () => {
         await expect(async () => {
           await Positive.run(['http://urldoesnotmatter.com']);
         }).rejects.toThrow('1 operation failed');
+
+        expect(result).toEqual(['walkIntoMordor: Failed\n']);
       });
     });
 
