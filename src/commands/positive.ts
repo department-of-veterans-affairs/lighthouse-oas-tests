@@ -52,23 +52,36 @@ export default class Positive extends ApiKeyCommand {
     const operationIdToResponseAndValidation: {
       [operationId: string]: {
         [parameterGroupName: string]: {
-          response: Response;
+          response?: Response;
           validationError?: Error;
         };
       };
     } = {};
 
     await Promise.all(
-      operationIds.map((operationId) =>
-        validator
-          .validateParameters(operationId, operationIdToParameters[operationId])
-          .catch((error) => {
-            operationIdToResponseAndValidation[operationId] = {
-              response: null,
-              validationError: error,
-            };
-          }),
-      ),
+      operationIds.flatMap((operationId) => {
+        const parameters = operationIdToParameters[operationId];
+
+        if (Array.isArray(parameters)) {
+          parameters.map((parameterGroup) => {
+            return validator
+              .validateParameters(operationId, parameterGroup)
+              .catch((error) => {
+                operationIdToResponseAndValidation[operationId] = {
+                  validationError: error,
+                };
+              });
+          });
+        } else {
+          return validator
+            .validateParameters(operationId, parameters)
+            .catch((error) => {
+              operationIdToResponseAndValidation[operationId] = {
+                validationError: error,
+              };
+            });
+        }
+      }),
     );
 
     await Promise.all(
@@ -121,8 +134,13 @@ export default class Positive extends ApiKeyCommand {
       Object.entries(operationIdToResponseAndValidation).map(
         ([operationId, parameterGroups]) => {
           return Promise.all(
-            Object.entries(parameterGroups).map(
-              ([parameterGroupName, { response }]) => {
+            Object.entries(parameterGroups)
+              .filter(
+                // This is a bit of wacky typescript to get the following functions to recognize response won't be undefined any more
+                (operation): operation is [string, { response: Response }] =>
+                  operation[1].response !== undefined,
+              )
+              .map(([parameterGroupName, { response }]) => {
                 return validator
                   .validateResponse(operationId, response)
                   .catch((error) => {
@@ -130,15 +148,14 @@ export default class Positive extends ApiKeyCommand {
                       parameterGroupName
                     ].validationError = error;
                   });
-              },
-            ),
+              }),
           );
         },
       ),
     );
 
     const failingOperations: {
-      response: Response;
+      response?: Response;
       validationError?: Error;
     }[] = [];
 
@@ -146,7 +163,7 @@ export default class Positive extends ApiKeyCommand {
       ([operationId, parameterGroups]) => {
         Object.entries(parameterGroups).forEach(
           ([parameterGroupName, { response, validationError }]) => {
-            if (!validationError && response.ok) {
+            if (!validationError && response?.ok) {
               this.log(
                 `${operationId}${
                   parameterGroupName === DEFAULT_PARAMETER_GROUP

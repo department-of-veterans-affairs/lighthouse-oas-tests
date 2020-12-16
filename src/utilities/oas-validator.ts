@@ -14,7 +14,7 @@ import {
   MissingRequiredParametersError,
   InvalidOperationIdError,
 } from '../errors';
-import OasSchema from './oas-schema';
+import OasSchema, { ParameterExamples } from './oas-schema';
 import {
   NULL_VALUE_ERROR,
   ITEMS_MISSING_ERROR,
@@ -30,7 +30,7 @@ class OasValidator {
 
   validateParameters = async (
     operationId: string,
-    parameters: Json,
+    parameters: ParameterExamples,
   ): Promise<void> => {
     const parameterSchema: {
       [parameterName: string]: Parameter;

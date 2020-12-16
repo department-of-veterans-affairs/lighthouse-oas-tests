@@ -101,7 +101,7 @@ describe('OasValidator', () => {
           type: 'string',
           description: 'blah blah blah',
         },
-        ['parameters', 'name'],
+        ['parameters', 'name', 'example'],
       );
       expect(OasValidator.validateObjectAgainstSchema).toHaveBeenCalledWith(
         2,
@@ -109,7 +109,7 @@ describe('OasValidator', () => {
           type: 'number',
           description: 'blah blah blah',
         },
-        ['parameters', 'id'],
+        ['parameters', 'id', 'example'],
       );
     });
 

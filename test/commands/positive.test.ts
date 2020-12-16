@@ -1,5 +1,5 @@
 import Positive from '../../src/commands/positive';
-import { InvalidOperationIdError, TypeMismatchError } from '../../src/errors';
+import { TypeMismatchError } from '../../src/errors';
 
 const mockGetParameters = jest.fn();
 const mockGetOperationIds = jest.fn();
@@ -61,8 +61,8 @@ describe('Positive', () => {
         new Promise((resolve) =>
           resolve({
             url: 'https://www.lotr.com/walkIntoMorder',
-            status: 400,
-            ok: false,
+            status: 200,
+            ok: true,
           }),
         ),
     );
@@ -167,17 +167,59 @@ describe('Positive', () => {
             }),
         );
 
-        await Positive.run(['http://urldoesnotmatter.com']);
+        await expect(async () => {
+          await Positive.run(['http://urldoesnotmatter.com']);
+        }).rejects.toThrow('1 operation failed');
 
         expect(result).toEqual([
-          'walkIntoMordor: Failed Actual type did not match schema. Path: parameters -> guide. Schema type: string. Actual type: number\n',
+          'walkIntoMordor: Failed Actual type did not match schema. Path: parameters -> guide -> example. Schema type: string. Actual type: number\n',
           'getHobbit: Succeeded\n',
-          'getTomBombadil: Failed\n',
+          'getTomBombadil: Succeeded\n',
         ]);
       });
     });
 
     describe('operation has parameter groups', () => {
+      it('validates the examples for each parameter group', async () => {
+        mockGetParameters.mockImplementation(
+          () =>
+            new Promise((resolve) =>
+              resolve({
+                walkIntoMordor: [
+                  {
+                    door: 'front',
+                  },
+                  {
+                    guide: 'gollum',
+                  },
+                ],
+                getHobbit: {
+                  name: 'Frodo',
+                },
+                getTomBombadil: {
+                  times: 2,
+                },
+              }),
+            ),
+        );
+
+        await Positive.run(['http://urldoesnotmatter.com']);
+
+        expect(mockValidateParameters).toHaveBeenCalledTimes(4);
+        expect(mockValidateParameters).toHaveBeenCalledWith('walkIntoMordor', {
+          door: 'front',
+        });
+        expect(mockValidateParameters).toHaveBeenCalledWith('walkIntoMordor', {
+          guide: 'gollum',
+        });
+        expect(mockValidateParameters).toHaveBeenCalledWith('getHobbit', {
+          name: 'Frodo',
+        });
+        expect(mockValidateParameters).toHaveBeenCalledWith('getTomBombadil', {
+          times: 2,
+        });
+      });
+
       it('generates requests and validates responses for each parameter group', async () => {
         mockGetParameters.mockImplementation(
           () =>
