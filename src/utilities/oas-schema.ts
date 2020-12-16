@@ -124,6 +124,12 @@ class OasSchema {
     }
     return this.operations;
   };
+
+  getOperation = async (operationId: string): Promise<Method | null> => {
+    const operations = await this.getOperations();
+
+    return operations[operationId] || null;
+  };
 }
 
 export default OasSchema;

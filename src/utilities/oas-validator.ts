@@ -1,4 +1,4 @@
-import { Json, Response, SchemaObject } from 'swagger-client';
+import { Json, Response, SchemaObject, Parameter } from 'swagger-client';
 import { parse } from 'content-type';
 import isEqual from 'lodash.isequal';
 import uniqWith from 'lodash.uniqwith';
@@ -11,6 +11,8 @@ import {
   RequiredPropertyError,
   StatusCodeMismatchError,
   ContentTypeMismatchError,
+  MissingRequiredParametersError,
+  InvalidOperationIdError,
 } from '../errors';
 import OasSchema from './oas-schema';
 import {
@@ -25,6 +27,45 @@ class OasValidator {
   constructor(schema: OasSchema) {
     this.schema = schema;
   }
+
+  validateParameters = async (
+    operationId: string,
+    parameters: Json,
+  ): Promise<void> => {
+    const parameterSchema: {
+      [parameterName: string]: Parameter;
+    } = {};
+    const operation = await this.schema.getOperation(operationId);
+    if (!operation) {
+      throw new InvalidOperationIdError(operationId);
+    }
+    const requiredParameters = operation.parameters
+      .filter((parameter) => parameter.required)
+      .map((parameter) => parameter.name);
+
+    const presentParameterNames = Object.keys(parameters);
+    const missingRequiredParameters = requiredParameters?.filter(
+      (parameterName) => !presentParameterNames.includes(parameterName),
+    );
+
+    if (missingRequiredParameters.length > 0) {
+      throw new MissingRequiredParametersError(missingRequiredParameters);
+    }
+
+    operation.parameters.forEach((parameter) => {
+      parameterSchema[parameter.name] = parameter;
+    });
+
+    Object.entries(parameters).forEach(([key, value]) => {
+      if (Object.keys(parameterSchema).includes(key)) {
+        OasValidator.validateObjectAgainstSchema(
+          value,
+          parameterSchema[key].schema,
+          ['parameters', key, 'example'],
+        );
+      }
+    });
+  };
 
   validateResponse = async (
     operationId: string,

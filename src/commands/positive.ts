@@ -59,44 +59,62 @@ export default class Positive extends ApiKeyCommand {
     } = {};
 
     await Promise.all(
-      operationIds.flatMap((operationId) => {
-        const operationParameters = operationIdToParameters[operationId];
+      operationIds.map((operationId) =>
+        validator
+          .validateParameters(operationId, operationIdToParameters[operationId])
+          .catch((error) => {
+            operationIdToResponseAndValidation[operationId] = {
+              response: null,
+              validationError: error,
+            };
+          }),
+      ),
+    );
 
-        // If multiple parameter sets are present (due to example groups), execute once for each
-        if (Array.isArray(operationParameters)) {
-          return operationParameters.map((parameterExamples) => {
-            return this.executeRequest(
-              parameterExamples,
-              schema,
-              operationId,
-            ).then((response) => {
-              const groupName = Object.keys(parameterExamples)[0];
+    await Promise.all(
+      operationIds
+        .filter(
+          (operationId) =>
+            !operationIdToResponseAndValidation[operationId]?.validationError,
+        )
+        .flatMap((operationId) => {
+          const operationParameters = operationIdToParameters[operationId];
 
-              if (!operationIdToResponseAndValidation[operationId]) {
-                operationIdToResponseAndValidation[operationId] = {};
-              }
+          // If multiple parameter sets are present (due to example groups), execute once for each
+          if (Array.isArray(operationParameters)) {
+            return operationParameters.map((parameterExamples) => {
+              return this.executeRequest(
+                parameterExamples,
+                schema,
+                operationId,
+              ).then((response) => {
+                const groupName = Object.keys(parameterExamples)[0];
 
-              operationIdToResponseAndValidation[operationId][groupName] = {
-                response,
-              };
+                if (!operationIdToResponseAndValidation[operationId]) {
+                  operationIdToResponseAndValidation[operationId] = {};
+                }
+
+                operationIdToResponseAndValidation[operationId][groupName] = {
+                  response,
+                };
+              });
             });
-          });
-        }
-
-        return this.executeRequest(
-          operationParameters,
-          schema,
-          operationId,
-        ).then((response) => {
-          if (!operationIdToResponseAndValidation[operationId]) {
-            operationIdToResponseAndValidation[operationId] = {};
           }
 
-          operationIdToResponseAndValidation[operationId][
-            DEFAULT_PARAMETER_GROUP
-          ] = { response };
-        });
-      }),
+          return this.executeRequest(
+            operationParameters,
+            schema,
+            operationId,
+          ).then((response) => {
+            if (!operationIdToResponseAndValidation[operationId]) {
+              operationIdToResponseAndValidation[operationId] = {};
+            }
+
+            operationIdToResponseAndValidation[operationId][
+              DEFAULT_PARAMETER_GROUP
+            ] = { response };
+          });
+        }),
     );
 
     await Promise.all(

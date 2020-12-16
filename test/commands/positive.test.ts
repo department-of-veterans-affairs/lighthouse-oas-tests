@@ -1,9 +1,11 @@
 import Positive from '../../src/commands/positive';
+import { InvalidOperationIdError, TypeMismatchError } from '../../src/errors';
 
 const mockGetParameters = jest.fn();
 const mockGetOperationIds = jest.fn();
 const mockExecute = jest.fn();
 const mockValidateResponse = jest.fn();
+const mockValidateParameters = jest.fn();
 
 jest.mock('../../src/utilities/oas-schema', () => {
   return function (): Record<string, jest.Mock> {
@@ -17,6 +19,7 @@ jest.mock('../../src/utilities/oas-schema', () => {
 jest.mock('../../src/utilities/oas-validator', () => {
   return function (): Record<string, jest.Mock> {
     return {
+      validateParameters: mockValidateParameters,
       validateResponse: mockValidateResponse,
     };
   };
@@ -35,6 +38,40 @@ describe('Positive', () => {
     mockGetOperationIds.mockReset();
     mockExecute.mockReset();
     mockValidateResponse.mockReset();
+    mockValidateParameters.mockReset();
+
+    mockGetParameters.mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          resolve({
+            walkIntoMordor: {},
+            getHobbit: {},
+            getTomBombadil: {},
+          }),
+        ),
+    );
+    mockGetOperationIds.mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          resolve(['walkIntoMordor', 'getHobbit', 'getTomBombadil']),
+        ),
+    );
+    mockExecute.mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          resolve({
+            url: 'https://www.lotr.com/walkIntoMorder',
+            status: 400,
+            ok: false,
+          }),
+        ),
+    );
+    mockValidateResponse.mockImplementation(
+      () => new Promise((resolve) => resolve()),
+    );
+    mockValidateParameters.mockImplementation(
+      () => new Promise((resolve) => resolve()),
+    );
   });
 
   describe('API key is not set', () => {
@@ -79,6 +116,64 @@ describe('Positive', () => {
             await Positive.run([...baseCommand, './fixtures/invalid.json']);
           }).rejects.toThrow('unable to load json file');
         });
+      });
+    });
+
+    it('validates the example parameters', async () => {
+      mockGetParameters.mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            resolve({
+              walkIntoMordor: {
+                guide: 'gollum',
+              },
+              getHobbit: {
+                name: 'Frodo',
+              },
+              getTomBombadil: {
+                times: 2,
+              },
+            }),
+          ),
+      );
+
+      await Positive.run(['http://urldoesnotmatter.com']);
+
+      expect(mockValidateParameters).toHaveBeenCalledTimes(3);
+      expect(mockValidateParameters).toHaveBeenCalledWith('walkIntoMordor', {
+        guide: 'gollum',
+      });
+      expect(mockValidateParameters).toHaveBeenCalledWith('getHobbit', {
+        name: 'Frodo',
+      });
+      expect(mockValidateParameters).toHaveBeenCalledWith('getTomBombadil', {
+        times: 2,
+      });
+    });
+
+    describe('parameter validation fails', () => {
+      it('outputs a failure for that operation', async () => {
+        mockValidateParameters.mockImplementation(
+          (operationId) =>
+            new Promise((resolve) => {
+              if (operationId === 'walkIntoMordor')
+                throw new TypeMismatchError(
+                  ['parameters', 'guide', 'example'],
+                  'string',
+                  'number',
+                );
+
+              resolve();
+            }),
+        );
+
+        await Positive.run(['http://urldoesnotmatter.com']);
+
+        expect(result).toEqual([
+          'walkIntoMordor: Failed Actual type did not match schema. Path: parameters -> guide. Schema type: string. Actual type: number\n',
+          'getHobbit: Succeeded\n',
+          'getTomBombadil: Failed\n',
+        ]);
       });
     });
 
