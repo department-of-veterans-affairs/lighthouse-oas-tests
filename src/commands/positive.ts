@@ -1,9 +1,10 @@
 import { flags } from '@oclif/command';
 import loadJsonFile from 'load-json-file';
 import { ApiKeyCommand } from '../baseCommands';
-import OasSchema from '../utilities/oas-schema';
+import OasSchema, { ParameterExamples } from '../utilities/oas-schema';
 import { Response } from 'swagger-client';
 import OasValidator from '../utilities/oas-validator';
+import { DEFAULT_PARAMETER_GROUP } from '../utilities/constants';
 
 export default class Positive extends ApiKeyCommand {
   static description =
@@ -49,7 +50,12 @@ export default class Positive extends ApiKeyCommand {
     const operationIds = await schema.getOperationIds();
 
     const operationIdToResponseAndValidation: {
-      [operationId: string]: { response: Response; validationError?: Error };
+      [operationId: string]: {
+        [parameterGroupName: string]: {
+          response: Response;
+          validationError?: Error;
+        };
+      };
     } = {};
 
     await Promise.all(
@@ -58,30 +64,57 @@ export default class Positive extends ApiKeyCommand {
 
         // If multiple parameter sets are present (due to example groups), execute once for each
         if (Array.isArray(operationParameters)) {
-          return operationParameters.map((parameters) =>
-            schema.execute(operationId, parameters).then((response) => {
-              operationIdToResponseAndValidation[operationId] = { response };
-            }),
-          );
-        }
-        return schema
-          .execute(operationId, operationParameters)
-          .then((response) => {
-            operationIdToResponseAndValidation[operationId] = { response };
+          return operationParameters.map((parameterExamples) => {
+            return this.executeRequest(
+              parameterExamples,
+              schema,
+              operationId,
+            ).then((response) => {
+              const groupName = Object.keys(parameterExamples)[0];
+
+              if (!operationIdToResponseAndValidation[operationId]) {
+                operationIdToResponseAndValidation[operationId] = {};
+              }
+
+              operationIdToResponseAndValidation[operationId][groupName] = {
+                response,
+              };
+            });
           });
+        }
+
+        return this.executeRequest(
+          operationParameters,
+          schema,
+          operationId,
+        ).then((response) => {
+          if (!operationIdToResponseAndValidation[operationId]) {
+            operationIdToResponseAndValidation[operationId] = {};
+          }
+
+          operationIdToResponseAndValidation[operationId][
+            DEFAULT_PARAMETER_GROUP
+          ] = { response };
+        });
       }),
     );
 
     await Promise.all(
       Object.entries(operationIdToResponseAndValidation).map(
-        ([operationId, { response }]) => {
-          return validator
-            .validateResponse(operationId, response)
-            .catch((error) => {
-              operationIdToResponseAndValidation[
-                operationId
-              ].validationError = error;
-            });
+        ([operationId, parameterGroups]) => {
+          return Promise.all(
+            Object.entries(parameterGroups).map(
+              ([parameterGroupName, { response }]) => {
+                return validator
+                  .validateResponse(operationId, response)
+                  .catch((error) => {
+                    operationIdToResponseAndValidation[operationId][
+                      parameterGroupName
+                    ].validationError = error;
+                  });
+              },
+            ),
+          );
         },
       ),
     );
@@ -92,17 +125,31 @@ export default class Positive extends ApiKeyCommand {
     }[] = [];
 
     Object.entries(operationIdToResponseAndValidation).forEach(
-      ([operationId, { response, validationError }]) => {
-        if (!validationError && response.ok) {
-          this.log(`${operationId}: Succeeded`);
-        } else {
-          failingOperations.push({ response, validationError });
-          this.log(
-            `${operationId}: Failed${
-              validationError ? ` ${validationError.message}` : ''
-            }`,
-          );
-        }
+      ([operationId, parameterGroups]) => {
+        Object.entries(parameterGroups).forEach(
+          ([parameterGroupName, { response, validationError }]) => {
+            if (!validationError && response.ok) {
+              this.log(
+                `${operationId}${
+                  parameterGroupName === DEFAULT_PARAMETER_GROUP
+                    ? ''
+                    : ` - ${parameterGroupName}`
+                }: Succeeded`,
+              );
+            } else {
+              failingOperations.push({ response, validationError });
+              this.log(
+                `${operationId}${
+                  parameterGroupName === DEFAULT_PARAMETER_GROUP
+                    ? ''
+                    : ` - ${parameterGroupName}`
+                }: Failed${
+                  validationError ? ` - ${validationError.message}` : ''
+                }`,
+              );
+            }
+          },
+        );
       },
     );
 
@@ -114,4 +161,18 @@ export default class Positive extends ApiKeyCommand {
       );
     }
   }
+
+  executeRequest = async (
+    parameterExamples: ParameterExamples,
+    schema: OasSchema,
+    operationId: string,
+  ): Promise<Response> => {
+    if (Object.keys(parameterExamples).length !== 1) {
+      throw new TypeError(
+        `Unexpected parameters format: ${JSON.stringify(parameterExamples)}`,
+      );
+    }
+    const parameters = Object.values(parameterExamples)[0];
+    return schema.execute(operationId, parameters);
+  };
 }

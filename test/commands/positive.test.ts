@@ -83,17 +83,21 @@ describe('Positive', () => {
     });
 
     describe('operation has parameter groups', () => {
-      it('generates requests for each parameter group', async () => {
+      it('generates requests and validates responses for each parameter group', async () => {
         mockGetParameters.mockImplementation(
           () =>
             new Promise((resolve) =>
               resolve({
                 walkIntoMordor: [
                   {
-                    door: 'front',
+                    where: {
+                      door: 'front',
+                    },
                   },
                   {
-                    guide: 'gollum',
+                    who: {
+                      guide: 'gollum',
+                    },
                   },
                 ],
               }),
@@ -125,13 +129,50 @@ describe('Positive', () => {
         expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
           guide: 'gollum',
         });
+
+        expect(result).toEqual([
+          'walkIntoMordor - where: Succeeded\n',
+          'walkIntoMordor - who: Succeeded\n',
+        ]);
+      });
+    });
+
+    describe('unexpected parameters format', () => {
+      it('throws an error', async () => {
+        const parameterExamples = {
+          where: {
+            door: 'front',
+          },
+          who: {
+            guide: 'gollum',
+          },
+        };
+
+        mockGetParameters.mockImplementation(
+          () =>
+            new Promise((resolve) =>
+              resolve({ walkIntoMordor: parameterExamples }),
+            ),
+        );
+        mockGetOperationIds.mockImplementation(
+          () => new Promise((resolve) => resolve(['walkIntoMordor'])),
+        );
+
+        await expect(async () => {
+          await Positive.run(['http://urldoesnotmatter.com']);
+        }).rejects.toThrow(
+          `Unexpected parameters format: ${JSON.stringify(parameterExamples)}`,
+        );
       });
     });
 
     describe('one of the operations fails validation', () => {
       it('throws an error', async () => {
         mockGetParameters.mockImplementation(
-          () => new Promise((resolve) => resolve({})),
+          () =>
+            new Promise((resolve) =>
+              resolve({ walkIntoMordor: { default: {} } }),
+            ),
         );
         mockGetOperationIds.mockImplementation(
           () => new Promise((resolve) => resolve(['walkIntoMordor'])),
@@ -158,13 +199,23 @@ describe('Positive', () => {
         await expect(async () => {
           await Positive.run(['http://urldoesnotmatter.com']);
         }).rejects.toThrow('1 operation failed');
+
+        expect(result).toEqual([
+          'walkIntoMordor: Failed - woah there was an error\n',
+        ]);
       });
     });
 
     describe('more than one of the operations fails validation', () => {
       it('throws an error', async () => {
         mockGetParameters.mockImplementation(
-          () => new Promise((resolve) => resolve({})),
+          () =>
+            new Promise((resolve) =>
+              resolve({
+                walkIntoMordor: { default: {} },
+                getHobbit: { default: {} },
+              }),
+            ),
         );
         mockGetOperationIds.mockImplementation(
           () =>
@@ -174,7 +225,7 @@ describe('Positive', () => {
           () =>
             new Promise((resolve) =>
               resolve({
-                url: 'https://www.lotr.com/walkIntoMorder',
+                url: 'https://www.lotr.com/walkIntoMordor',
                 status: 400,
                 ok: false,
               }),
@@ -192,13 +243,21 @@ describe('Positive', () => {
         await expect(async () => {
           await Positive.run(['http://urldoesnotmatter.com']);
         }).rejects.toThrow('2 operations failed');
+
+        expect(result).toEqual([
+          'walkIntoMordor: Failed - woah there was an error\n',
+          'getHobbit: Failed - woah there was an error\n',
+        ]);
       });
     });
 
-    describe('one of the ressponses returns a non-ok status', () => {
+    describe('one of the responses returns a non-ok status', () => {
       it('throws an error', async () => {
         mockGetParameters.mockImplementation(
-          () => new Promise((resolve) => resolve({})),
+          () =>
+            new Promise((resolve) =>
+              resolve({ walkIntoMordor: { default: {} } }),
+            ),
         );
         mockGetOperationIds.mockImplementation(
           () => new Promise((resolve) => resolve(['walkIntoMordor'])),
@@ -225,12 +284,21 @@ describe('Positive', () => {
         await expect(async () => {
           await Positive.run(['http://urldoesnotmatter.com']);
         }).rejects.toThrow('1 operation failed');
+
+        expect(result).toEqual(['walkIntoMordor: Failed\n']);
       });
     });
 
-    it('generates requests for each endpoint in the spec', async () => {
+    it('validates a response for each endpoint in the spec', async () => {
       mockGetParameters.mockImplementation(
-        () => new Promise((resolve) => resolve({})),
+        () =>
+          new Promise((resolve) =>
+            resolve({
+              walkIntoMordor: { default: {} },
+              getHobbit: { default: {} },
+              getTomBombadil: { default: {} },
+            }),
+          ),
       );
       mockGetOperationIds.mockImplementation(
         () =>

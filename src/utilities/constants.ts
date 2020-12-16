@@ -1,3 +1,5 @@
+export const DEFAULT_PARAMETER_GROUP = 'default';
+
 // error messages
 export const STATUS_CODE_MISMATCH_ERROR =
   'Response status code not present in schema';
