@@ -164,6 +164,56 @@ describe('OasValidator', () => {
       });
     });
 
+    describe('schema type is not set', () => {
+      const schema: SchemaObject = {
+        description: 'unknown',
+        items: {
+          type: 'number',
+          description: 'a number',
+        },
+        properties: {
+          value: {
+            type: 'string',
+            description: 'a string',
+          },
+        },
+      };
+
+      describe('actual object is a string', () => {
+        it('does nothing', () => {
+          expect(
+            OasValidator.validateObjectAgainstSchema(
+              'This is a string',
+              schema,
+              ['test'],
+            ),
+          ).toBeFalsy();
+        });
+      });
+
+      describe('actual object is an array', () => {
+        it('does nothing', () => {
+          expect(
+            OasValidator.validateObjectAgainstSchema([42, 58], schema, [
+              'test',
+            ]),
+          ).toBeFalsy();
+        });
+      });
+
+      describe('actual object is an object', () => {
+        it('does nothing', () => {
+          expect(
+            OasValidator.validateObjectAgainstSchema(
+              { value: 'this is a string' },
+              schema,
+              ['test'],
+            ),
+          ).toBeFalsy();
+        });
+      });
+    });
+
     describe('schema expects a string', () => {
       const schema: SchemaObject = {
         type: 'string',
