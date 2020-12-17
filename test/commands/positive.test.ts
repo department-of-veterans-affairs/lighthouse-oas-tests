@@ -44,9 +44,9 @@ describe('Positive', () => {
       () =>
         new Promise((resolve) =>
           resolve({
-            walkIntoMordor: {},
-            getHobbit: {},
-            getTomBombadil: {},
+            walkIntoMordor: { default: {} },
+            getHobbit: { default: {} },
+            getTomBombadil: { default: {} },
           }),
         ),
     );
@@ -172,7 +172,7 @@ describe('Positive', () => {
         }).rejects.toThrow('1 operation failed');
 
         expect(result).toEqual([
-          'walkIntoMordor: Failed Actual type did not match schema. Path: parameters -> guide -> example. Schema type: string. Actual type: number\n',
+          'walkIntoMordor: Failed - Actual type did not match schema. Path: parameters -> guide -> example. Schema type: string. Actual type: number\n',
           'getHobbit: Succeeded\n',
           'getTomBombadil: Succeeded\n',
         ]);
@@ -180,7 +180,7 @@ describe('Positive', () => {
     });
 
     describe('operation has parameter groups', () => {
-      it('validates the examples for each parameter group', async () => {
+      beforeEach(() => {
         mockGetParameters.mockImplementation(
           () =>
             new Promise((resolve) =>
@@ -202,7 +202,37 @@ describe('Positive', () => {
               }),
             ),
         );
+      });
 
+      describe('one of the paramter groups failes parameter validation', () => {
+        it('does not execute a request for that parameter group', async () => {
+          mockValidateParameters.mockImplementation(
+            (operationId, parameters) =>
+              new Promise((resolve) => {
+                if (
+                  operationId === 'walkIntoMordor' &&
+                  Object.keys(parameters)[0] === 'guide'
+                )
+                  throw new TypeMismatchError(
+                    ['parameters', 'guide', 'example'],
+                    'string',
+                    'number',
+                  );
+
+                resolve();
+              }),
+          );
+          await expect(async () => {
+            await Positive.run(['http://urldoesnotmatter.com']);
+          }).rejects.toThrow('1 operation failed');
+
+          expect(mockExecute).not.toHaveBeenCalledWith('walkIntoMordor', {
+            guide: 'gollum',
+          });
+        });
+      });
+
+      it('validates the examples for each parameter group', async () => {
         await Positive.run(['http://urldoesnotmatter.com']);
 
         expect(mockValidateParameters).toHaveBeenCalledTimes(4);
@@ -271,35 +301,6 @@ describe('Positive', () => {
           'walkIntoMordor - where: Succeeded\n',
           'walkIntoMordor - who: Succeeded\n',
         ]);
-      });
-    });
-
-    describe('unexpected parameters format', () => {
-      it('throws an error', async () => {
-        const parameterExamples = {
-          where: {
-            door: 'front',
-          },
-          who: {
-            guide: 'gollum',
-          },
-        };
-
-        mockGetParameters.mockImplementation(
-          () =>
-            new Promise((resolve) =>
-              resolve({ walkIntoMordor: parameterExamples }),
-            ),
-        );
-        mockGetOperationIds.mockImplementation(
-          () => new Promise((resolve) => resolve(['walkIntoMordor'])),
-        );
-
-        await expect(async () => {
-          await Positive.run(['http://urldoesnotmatter.com']);
-        }).rejects.toThrow(
-          `Unexpected parameters format: ${JSON.stringify(parameterExamples)}`,
-        );
       });
     });
 

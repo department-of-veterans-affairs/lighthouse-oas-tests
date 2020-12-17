@@ -52,11 +52,13 @@ describe('OasValidator', () => {
     });
 
     describe('operation does not exist', () => {
-      it('throws an error', () => {
+      it('throws an error', async () => {
         const schema = generateMockSchema();
         const validator = new OasValidator((schema as unknown) as OasSchema);
-        expect(async () => {
-          await validator.validateParameters('fakeOperationId', {});
+        await expect(async () => {
+          await validator.validateParameters('fakeOperationId', {
+            default: {},
+          });
         }).rejects.toThrow('Invalid operationId: fakeOperationId');
       });
     });
@@ -78,7 +80,7 @@ describe('OasValidator', () => {
 
         expect(async () => {
           await validator.validateParameters('operation1', {
-            name: 'jack',
+            default: { name: 'jack' },
           });
         }).rejects.toThrow('Missing required parameters: [fit]');
       });
@@ -89,9 +91,7 @@ describe('OasValidator', () => {
       const validator = new OasValidator((schema as unknown) as OasSchema);
 
       await validator.validateParameters('operation1', {
-        name: 'james',
-        id: 2,
-        not: 'real',
+        default: { name: 'james', id: 2, not: 'real' },
       });
 
       expect(OasValidator.validateObjectAgainstSchema).toHaveBeenCalledTimes(2);

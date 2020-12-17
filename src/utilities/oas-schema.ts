@@ -1,13 +1,13 @@
 import swaggerClient, { Method, Response, Swagger } from 'swagger-client';
 import uniq from 'lodash.uniq';
-import { DEFAULT_PARAMETER_GROUP } from './constants';
+import {
+  ParameterExamples,
+  WrappedParameterExamples,
+} from '../types/parameter-examples';
+import ParameterWrapper from './parameter-wrapper';
 
-export type ParameterExamples = {
-  [groupName: string]: { [name: string]: string };
-};
-
-type OasParameters = {
-  [operationId: string]: ParameterExamples | ParameterExamples[];
+export type OasParameters = {
+  [operationId: string]: WrappedParameterExamples | WrappedParameterExamples[];
 };
 
 type OasOperations = {
@@ -29,7 +29,7 @@ class OasSchema {
 
   execute = async (
     operationId: string,
-    parameters: { [name: string]: string },
+    parameters: ParameterExamples,
   ): Promise<Response> => {
     const schema = await this._client;
 
@@ -69,7 +69,7 @@ class OasSchema {
           .flatMap((parameter) => Object.keys(parameter.examples)),
       );
 
-      let parameters: ParameterExamples | ParameterExamples[];
+      let parameters: WrappedParameterExamples | WrappedParameterExamples[];
 
       // If example groups are present, create a parameter set for each one merged with the base parameters
       if (exampleGroups.length > 0) {
@@ -84,20 +84,19 @@ class OasSchema {
               return [name, examples[groupName]];
             });
 
-          return {
-            [groupName]: Object.assign(
+          return ParameterWrapper.wrapParameters(
+            Object.assign(
               {},
               Object.fromEntries(requiredParametersAndExamples),
               Object.fromEntries(groupParameters),
             ),
-          };
+            groupName,
+          );
         });
       } else {
-        parameters = {
-          [DEFAULT_PARAMETER_GROUP]: Object.fromEntries(
-            requiredParametersAndExamples,
-          ),
-        };
+        parameters = ParameterWrapper.wrapParameters(
+          Object.fromEntries(requiredParametersAndExamples),
+        );
       }
 
       return [method.operationId, parameters];

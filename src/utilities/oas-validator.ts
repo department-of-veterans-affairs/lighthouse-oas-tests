@@ -14,12 +14,14 @@ import {
   MissingRequiredParametersError,
   InvalidOperationIdError,
 } from '../errors';
-import OasSchema, { ParameterExamples } from './oas-schema';
+import OasSchema from './oas-schema';
 import {
   NULL_VALUE_ERROR,
   ITEMS_MISSING_ERROR,
   PROPERTIES_MISSING_ERROR,
 } from './constants';
+import ParameterWrapper from './parameter-wrapper';
+import { WrappedParameterExamples } from '../types/parameter-examples';
 
 class OasValidator {
   private schema: OasSchema;
@@ -30,8 +32,9 @@ class OasValidator {
 
   validateParameters = async (
     operationId: string,
-    parameters: ParameterExamples,
+    parameters: WrappedParameterExamples,
   ): Promise<void> => {
+    const unwrappedParameters = ParameterWrapper.unwrapParameters(parameters);
     const parameterSchema: {
       [parameterName: string]: Parameter;
     } = {};
@@ -43,7 +46,7 @@ class OasValidator {
       .filter((parameter) => parameter.required)
       .map((parameter) => parameter.name);
 
-    const presentParameterNames = Object.keys(parameters);
+    const presentParameterNames = Object.keys(unwrappedParameters);
     const missingRequiredParameters = requiredParameters?.filter(
       (parameterName) => !presentParameterNames.includes(parameterName),
     );
@@ -56,7 +59,7 @@ class OasValidator {
       parameterSchema[parameter.name] = parameter;
     });
 
-    Object.entries(parameters).forEach(([key, value]) => {
+    Object.entries(unwrappedParameters).forEach(([key, value]) => {
       if (Object.keys(parameterSchema).includes(key)) {
         OasValidator.validateObjectAgainstSchema(
           value,
