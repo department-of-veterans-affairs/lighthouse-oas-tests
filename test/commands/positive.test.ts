@@ -187,17 +187,21 @@ describe('Positive', () => {
               resolve({
                 walkIntoMordor: [
                   {
-                    door: 'front',
+                    door: {
+                      door: 'front',
+                    },
                   },
                   {
-                    guide: 'gollum',
+                    guided: {
+                      guide: 'gollum',
+                    },
                   },
                 ],
                 getHobbit: {
-                  name: 'Frodo',
+                  default: { name: 'Frodo' },
                 },
                 getTomBombadil: {
-                  times: 2,
+                  default: { times: 2 },
                 },
               }),
             ),
@@ -207,11 +211,11 @@ describe('Positive', () => {
       describe('one of the parameter groups fails parameter validation', () => {
         it('does not execute a request for that parameter group', async () => {
           mockValidateParameters.mockImplementation(
-            (operationId, parameters) =>
+            (operationId, wrappedParameters) =>
               new Promise((resolve) => {
                 if (
                   operationId === 'walkIntoMordor' &&
-                  Object.keys(parameters)[0] === 'guide'
+                  Object.keys(wrappedParameters)[0] === 'guided'
                 )
                   throw new TypeMismatchError(
                     ['parameters', 'guide', 'example'],
@@ -227,7 +231,15 @@ describe('Positive', () => {
           }).rejects.toThrow('1 operation failed');
 
           expect(mockExecute).not.toHaveBeenCalledWith('walkIntoMordor', {
-            guide: 'gollum',
+            door: {
+              door: 'front',
+            },
+          });
+
+          expect(mockExecute).not.toHaveBeenCalledWith('walkIntoMordor', {
+            guided: {
+              guide: 'gollum',
+            },
           });
         });
       });
@@ -237,16 +249,24 @@ describe('Positive', () => {
 
         expect(mockValidateParameters).toHaveBeenCalledTimes(4);
         expect(mockValidateParameters).toHaveBeenCalledWith('walkIntoMordor', {
-          door: 'front',
+          door: {
+            door: 'front',
+          },
         });
         expect(mockValidateParameters).toHaveBeenCalledWith('walkIntoMordor', {
-          guide: 'gollum',
+          guided: {
+            guide: 'gollum',
+          },
         });
         expect(mockValidateParameters).toHaveBeenCalledWith('getHobbit', {
-          name: 'Frodo',
+          default: {
+            name: 'Frodo',
+          },
         });
         expect(mockValidateParameters).toHaveBeenCalledWith('getTomBombadil', {
-          times: 2,
+          default: {
+            times: 2,
+          },
         });
       });
 
