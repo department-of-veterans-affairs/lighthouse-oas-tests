@@ -204,7 +204,7 @@ describe('Positive', () => {
         );
       });
 
-      describe('one of the paramter groups failes parameter validation', () => {
+      describe('one of the parameter groups fails parameter validation', () => {
         it('does not execute a request for that parameter group', async () => {
           mockValidateParameters.mockImplementation(
             (operationId, parameters) =>
