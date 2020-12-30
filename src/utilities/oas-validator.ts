@@ -3,17 +3,17 @@ import { parse } from 'content-type';
 import isEqual from 'lodash.isequal';
 import uniqWith from 'lodash.uniqwith';
 import {
-  SchemaError,
-  DuplicateEnumError,
-  EnumMismatchError,
-  TypeMismatchError,
-  PropertiesMismatchError,
-  RequiredPropertyError,
-  StatusCodeMismatchError,
-  ContentTypeMismatchError,
-  MissingRequiredParametersError,
-  InvalidOperationIdError,
-} from '../errors';
+  Schema,
+  DuplicateEnum,
+  EnumMismatch,
+  TypeMismatch,
+  PropertiesMismatch,
+  RequiredProperty,
+  StatusCodeMismatch,
+  ContentTypeMismatch,
+  MissingRequiredParameters,
+  InvalidOperationId,
+} from '../validation-failures';
 import OasSchema from './oas-schema';
 import {
   NULL_VALUE_ERROR,
@@ -22,6 +22,7 @@ import {
 } from './constants';
 import ParameterWrapper from './parameter-wrapper';
 import { WrappedParameterExamples } from '../types/parameter-examples';
+import ValidationFailure from '../validation-failures/validation-failure';
 
 class OasValidator {
   private schema: OasSchema;
@@ -33,14 +34,14 @@ class OasValidator {
   validateParameters = async (
     operationId: string,
     parameters: WrappedParameterExamples,
-  ): Promise<void> => {
+  ): Promise<ValidationFailure[]> => {
     const unwrappedParameters = ParameterWrapper.unwrapParameters(parameters);
     const parameterSchema: {
       [parameterName: string]: Parameter;
     } = {};
     const operation = await this.schema.getOperation(operationId);
     if (!operation) {
-      throw new InvalidOperationIdError(operationId);
+      return [new InvalidOperationId(operationId)];
     }
     const requiredParameters = operation.parameters
       .filter((parameter) => parameter.required)
@@ -52,28 +53,33 @@ class OasValidator {
     );
 
     if (missingRequiredParameters.length > 0) {
-      throw new MissingRequiredParametersError(missingRequiredParameters);
+      return [new MissingRequiredParameters(missingRequiredParameters)];
     }
 
     operation.parameters.forEach((parameter) => {
       parameterSchema[parameter.name] = parameter;
     });
 
+    let failures: ValidationFailure[] = [];
     Object.entries(unwrappedParameters).forEach(([key, value]) => {
       if (Object.keys(parameterSchema).includes(key)) {
-        OasValidator.validateObjectAgainstSchema(
-          value,
-          parameterSchema[key].schema,
-          ['parameters', key, 'example'],
-        );
+        failures = [
+          ...failures,
+          ...OasValidator.validateObjectAgainstSchema(
+            value,
+            parameterSchema[key].schema,
+            ['parameters', key, 'example'],
+          ),
+        ];
       }
     });
+    return failures;
   };
 
   validateResponse = async (
     operationId: string,
     response: Response,
-  ): Promise<void> => {
+  ): Promise<ValidationFailure[]> => {
     const operations = await this.schema.getOperations();
     const operation = operations[operationId];
 
@@ -82,7 +88,7 @@ class OasValidator {
         .map((statusCode) => parseInt(statusCode, 10))
         .includes(response.status)
     ) {
-      throw new StatusCodeMismatchError(response.status);
+      return [new StatusCodeMismatch(response.status)];
     }
 
     const contentType = parse(response.headers['content-type']).type;
@@ -90,10 +96,10 @@ class OasValidator {
       operation.responses[response.status].content[contentType];
 
     if (!contentTypeSchema) {
-      throw new ContentTypeMismatchError(contentType);
+      return [new ContentTypeMismatch(contentType)];
     }
 
-    OasValidator.validateObjectAgainstSchema(
+    return OasValidator.validateObjectAgainstSchema(
       response.body,
       contentTypeSchema.schema,
       ['body'],
@@ -104,14 +110,15 @@ class OasValidator {
     actual: Json,
     expected: SchemaObject,
     path: string[],
-  ): void {
+  ): ValidationFailure[] {
+    let failures: ValidationFailure[] = [];
     // if the actual object is null check that null values are allowed
     if (actual === null) {
       if (expected.nullable) {
-        return;
+        return [];
       }
 
-      throw new SchemaError(NULL_VALUE_ERROR, path);
+      return [new Schema(NULL_VALUE_ERROR, path)];
     }
 
     const enumValues = expected.enum;
@@ -120,13 +127,13 @@ class OasValidator {
       // check that expected enum does not contain duplicate values
       const uniqueEnumValues = uniqWith(enumValues, isEqual);
       if (uniqueEnumValues.length !== enumValues.length) {
-        throw new DuplicateEnumError(path, enumValues);
+        failures.push(new DuplicateEnum(path, enumValues));
       }
 
       // check that the actual object matches an element in the expected enum
       const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
       if (filteredEnum.length === 0) {
-        throw new EnumMismatchError(path, enumValues, actual);
+        failures.push(new EnumMismatch(path, enumValues, actual));
       }
     }
 
@@ -137,67 +144,74 @@ class OasValidator {
       if (expectedType === 'array') {
         // check that the actual object is an array
         if (!Array.isArray(actual)) {
-          throw new TypeMismatchError(path, expectedType, actualType);
+          failures.push(new TypeMismatch(path, expectedType, actualType));
         }
       } else if (actualType !== expectedType) {
         // check that type matches for other types
-        throw new TypeMismatchError(path, expectedType, actualType);
+        failures.push(new TypeMismatch(path, expectedType, actualType));
       }
     }
 
     if (Array.isArray(actual)) {
       // check that the expected object's items property is set
       const itemSchema = expected.items;
-      if (!itemSchema) {
-        throw new SchemaError(ITEMS_MISSING_ERROR, path);
+      if (itemSchema) {
+        // re-run for each item
+        actual.forEach((item) => {
+          failures = [
+            ...failures,
+            ...this.validateObjectAgainstSchema(item, itemSchema, path),
+          ];
+        });
+      } else {
+        failures.push(new Schema(ITEMS_MISSING_ERROR, path));
       }
-
-      // re-run for each item
-      actual.forEach((item) => {
-        this.validateObjectAgainstSchema(item, itemSchema, path);
-      });
     } else if (actualType === 'object') {
       // check that the expected object's properties field is set
       const properties = expected.properties;
-      if (!properties) {
-        throw new SchemaError(PROPERTIES_MISSING_ERROR, path);
-      }
+      if (properties) {
+        const actualProperties = Object.keys(actual);
+        const expectedProperties = Object.keys(properties);
 
-      const actualProperties = Object.keys(actual);
-      const expectedProperties = Object.keys(properties);
-
-      // check that the actual object only contains properties present in expected object
-      if (
-        actualProperties.filter(
-          (property) => !expectedProperties.includes(property),
-        ).length > 0
-      ) {
-        throw new PropertiesMismatchError(
-          path,
-          expectedProperties,
-          actualProperties,
-        );
-      }
-
-      // check required values are present
-      expected.required?.forEach((requiredProperty) => {
-        if (!actualProperties.includes(requiredProperty)) {
-          throw new RequiredPropertyError(path, requiredProperty);
+        // check that the actual object only contains properties present in expected object
+        if (
+          actualProperties.filter(
+            (property) => !expectedProperties.includes(property),
+          ).length > 0
+        ) {
+          failures.push(
+            new PropertiesMismatch(path, expectedProperties, actualProperties),
+          );
         }
-      });
 
-      // re-un for each property
-      Object.entries(actual).forEach(([propertyName, propertyObject]) => {
-        path.push(propertyName);
-        this.validateObjectAgainstSchema(
-          propertyObject,
-          properties[propertyName],
-          path,
-        );
-      });
+        // check required values are present
+        expected.required?.forEach((requiredProperty) => {
+          if (!actualProperties.includes(requiredProperty)) {
+            failures.push(new RequiredProperty(path, requiredProperty));
+          }
+        });
+
+        // re-un for each property that has a schema present
+        Object.entries(actual)
+          .filter(([propertyName]) => properties[propertyName])
+          .forEach(([propertyName, propertyObject]) => {
+            path.push(propertyName);
+            failures = [
+              ...failures,
+              ...this.validateObjectAgainstSchema(
+                propertyObject,
+                properties[propertyName],
+                path,
+              ),
+            ];
+          });
+      } else {
+        failures.push(new Schema(PROPERTIES_MISSING_ERROR, path));
+      }
     }
 
     path.pop();
+    return failures;
   }
 }
 
