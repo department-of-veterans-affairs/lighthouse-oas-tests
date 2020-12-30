@@ -55,9 +55,10 @@ describe('OasValidator', () => {
       it('returns a validation failure', async () => {
         const schema = generateMockSchema();
         const validator = new OasValidator((schema as unknown) as OasSchema);
-        const failures = await validator.validateParameters('fakeOperationId', {
-          default: {},
-        });
+        const failures = await validator.validateParameters(
+          'fakeOperationId',
+          {},
+        );
 
         expect(failures).toHaveLength(1);
         expect(failures).toContainValidationFailure(
@@ -82,7 +83,7 @@ describe('OasValidator', () => {
         const validator = new OasValidator((schema as unknown) as OasSchema);
 
         const failures = await validator.validateParameters('operation1', {
-          default: { name: 'jack' },
+          name: 'jack',
         });
         expect(failures).toHaveLength(1);
         expect(failures).toContainValidationFailure(
@@ -96,7 +97,9 @@ describe('OasValidator', () => {
       const validator = new OasValidator((schema as unknown) as OasSchema);
 
       await validator.validateParameters('operation1', {
-        default: { name: 'james', id: 2, not: 'real' },
+        name: 'james',
+        id: 2,
+        not: 'real',
       });
 
       expect(OasValidator.validateObjectAgainstSchema).toHaveBeenCalledTimes(2);

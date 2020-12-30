@@ -20,8 +20,7 @@ import {
   ITEMS_MISSING_ERROR,
   PROPERTIES_MISSING_ERROR,
 } from './constants';
-import ParameterWrapper from './parameter-wrapper';
-import { WrappedParameterExamples } from '../types/parameter-examples';
+import { ParameterExamples } from '../types/parameter-examples';
 import ValidationFailure from '../validation-failures/validation-failure';
 
 class OasValidator {
@@ -33,9 +32,8 @@ class OasValidator {
 
   validateParameters = async (
     operationId: string,
-    parameters: WrappedParameterExamples,
+    parameters: ParameterExamples,
   ): Promise<ValidationFailure[]> => {
-    const unwrappedParameters = ParameterWrapper.unwrapParameters(parameters);
     const parameterSchema: {
       [parameterName: string]: Parameter;
     } = {};
@@ -47,7 +45,7 @@ class OasValidator {
       .filter((parameter) => parameter.required)
       .map((parameter) => parameter.name);
 
-    const presentParameterNames = Object.keys(unwrappedParameters);
+    const presentParameterNames = Object.keys(parameters);
     const missingRequiredParameters = requiredParameters?.filter(
       (parameterName) => !presentParameterNames.includes(parameterName),
     );
@@ -61,7 +59,7 @@ class OasValidator {
     });
 
     let failures: ValidationFailure[] = [];
-    Object.entries(unwrappedParameters).forEach(([key, value]) => {
+    Object.entries(parameters).forEach(([key, value]) => {
       if (Object.keys(parameterSchema).includes(key)) {
         failures = [
           ...failures,

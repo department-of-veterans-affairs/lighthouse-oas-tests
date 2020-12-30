@@ -7,6 +7,7 @@ import OasValidator from '../utilities/oas-validator';
 import { DEFAULT_PARAMETER_GROUP } from '../utilities/constants';
 import { WrappedParameterExamples } from '../types/parameter-examples';
 import ParameterWrapper from '../utilities/parameter-wrapper';
+import ValidationFailure from '../validation-failures/validation-failure';
 
 export default class Positive extends ApiKeyCommand {
   static description =
@@ -28,8 +29,8 @@ export default class Positive extends ApiKeyCommand {
     },
   ];
 
-  // All of these will be overwritten in the run command
-  private schema: OasSchema = new OasSchema({});
+  // All of these will be overwritten in the run command. Url is here to prevent error from constructor
+  private schema: OasSchema = new OasSchema({ url: 'http://www.com' });
 
   private validator: OasValidator = new OasValidator(this.schema);
 
@@ -41,7 +42,7 @@ export default class Positive extends ApiKeyCommand {
     [operationId: string]: {
       [parameterGroupName: string]: {
         response?: Response;
-        validationError?: Error;
+        validationFailures?: ValidationFailure[];
       };
     };
   } = {};
@@ -84,29 +85,36 @@ export default class Positive extends ApiKeyCommand {
         (operationId) => !this.operationIdToResponseAndValidation[operationId],
       )
       .flatMap((operationId) => {
-        const parameters = this.operationIdToParameters[operationId];
-        if (Array.isArray(parameters)) {
-          return parameters.map((parameterGroup) => {
+        this.operationIdToResponseAndValidation[operationId] =
+          this.operationIdToResponseAndValidation[operationId] || {};
+        const wrappedParameters = this.operationIdToParameters[operationId];
+
+        if (Array.isArray(wrappedParameters)) {
+          return wrappedParameters.map((parameterGroup) => {
+            const unwrappedParameters = ParameterWrapper.unwrapParameters(
+              parameterGroup,
+            );
             return this.validator
-              .validateParameters(operationId, parameterGroup)
-              .catch((error) => {
-                this.operationIdToResponseAndValidation[operationId] = {};
+              .validateParameters(operationId, unwrappedParameters)
+              .then((failures) => {
                 this.operationIdToResponseAndValidation[operationId][
                   Object.keys(parameterGroup)[0]
                 ] = {
-                  validationError: error,
+                  validationFailures: failures,
                 };
               });
           });
         }
+        const unwrappedParameters = ParameterWrapper.unwrapParameters(
+          wrappedParameters,
+        );
         return this.validator
-          .validateParameters(operationId, parameters)
-          .catch((error) => {
-            this.operationIdToResponseAndValidation[operationId] = {};
+          .validateParameters(operationId, unwrappedParameters)
+          .then((failures) => {
             this.operationIdToResponseAndValidation[operationId][
               DEFAULT_PARAMETER_GROUP
             ] = {
-              validationError: error,
+              validationFailures: failures,
             };
           });
       });
@@ -124,10 +132,10 @@ export default class Positive extends ApiKeyCommand {
           .map(([parameterGroupName, { response }]) => {
             return this.validator
               .validateResponse(operationId, response)
-              .catch((error) => {
+              .then((failures) => {
                 this.operationIdToResponseAndValidation[operationId][
                   parameterGroupName
-                ].validationError = error;
+                ].validationFailures = failures;
               });
           });
       },
@@ -145,7 +153,8 @@ export default class Positive extends ApiKeyCommand {
         return (
           !existingValidations ||
           !existingValidations[DEFAULT_PARAMETER_GROUP] ||
-          !existingValidations[DEFAULT_PARAMETER_GROUP].validationError
+          existingValidations[DEFAULT_PARAMETER_GROUP].validationFailures
+            ?.length === 0
         );
       })
       .flatMap((operationId) => {
@@ -162,7 +171,7 @@ export default class Positive extends ApiKeyCommand {
               return (
                 !existingValidations ||
                 !existingValidations[groupName] ||
-                !existingValidations[groupName].validationError
+                existingValidations[groupName].validationFailures?.length === 0
               );
             })
             .map((parameterExamples) => {
@@ -208,16 +217,16 @@ export default class Positive extends ApiKeyCommand {
   };
 
   displayResults = (): void => {
-    const failingOperations: {
-      response?: Response;
-      validationError?: Error;
-    }[] = [];
+    const failingOperations: string[] = [];
 
     Object.entries(this.operationIdToResponseAndValidation).forEach(
       ([operationId, parameterGroups]) => {
         Object.entries(parameterGroups).forEach(
-          ([parameterGroupName, { response, validationError }]) => {
-            if (!validationError && response?.ok) {
+          ([parameterGroupName, { response, validationFailures }]) => {
+            const validationSucceeded =
+              !validationFailures || validationFailures.length === 0;
+
+            if (validationSucceeded && response?.ok) {
               this.log(
                 `${operationId}${
                   parameterGroupName === DEFAULT_PARAMETER_GROUP
@@ -226,16 +235,17 @@ export default class Positive extends ApiKeyCommand {
                 }: Succeeded`,
               );
             } else {
-              failingOperations.push({ response, validationError });
+              failingOperations.push(operationId);
               this.log(
                 `${operationId}${
                   parameterGroupName === DEFAULT_PARAMETER_GROUP
                     ? ''
                     : ` - ${parameterGroupName}`
-                }: Failed${
-                  validationError ? ` - ${validationError.message}` : ''
-                }`,
+                }: Failed`,
               );
+              validationFailures?.forEach((failure) => {
+                this.log(`  - ${failure.toString()}`);
+              });
             }
           },
         );
