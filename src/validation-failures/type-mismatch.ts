@@ -4,8 +4,9 @@ import {
   SCHEMA_TYPE_PREFIX,
   ACTUAL_TYPE_PREFIX,
 } from '../utilities/constants';
+import ValidationFailure from './validation-failure';
 
-class TypeMismatchError extends TypeError {
+class TypeMismatchError extends ValidationFailure {
   constructor(path: string[], schemaType: string, actualType: string) {
     super(
       `${TYPE_MISMATCH_ERROR}. ${PATH_PREFIX} ${path.join(
