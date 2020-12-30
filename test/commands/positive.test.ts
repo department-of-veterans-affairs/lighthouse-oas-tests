@@ -230,16 +230,12 @@ describe('Positive', () => {
             await Positive.run(['http://urldoesnotmatter.com']);
           }).rejects.toThrow('1 operation failed');
 
-          expect(mockExecute).not.toHaveBeenCalledWith('walkIntoMordor', {
-            door: {
-              door: 'front',
-            },
+          expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
+            door: 'front',
           });
 
           expect(mockExecute).not.toHaveBeenCalledWith('walkIntoMordor', {
-            guided: {
-              guide: 'gollum',
-            },
+            guide: 'gollum',
           });
         });
       });

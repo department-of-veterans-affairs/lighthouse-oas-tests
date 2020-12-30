@@ -85,7 +85,6 @@ export default class Positive extends ApiKeyCommand {
       )
       .flatMap((operationId) => {
         const parameters = this.operationIdToParameters[operationId];
-
         if (Array.isArray(parameters)) {
           return parameters.map((parameterGroup) => {
             return this.validator
@@ -145,8 +144,8 @@ export default class Positive extends ApiKeyCommand {
 
         return (
           !existingValidations ||
-          (existingValidations[DEFAULT_PARAMETER_GROUP] &&
-            !existingValidations[DEFAULT_PARAMETER_GROUP].validationError)
+          !existingValidations[DEFAULT_PARAMETER_GROUP] ||
+          !existingValidations[DEFAULT_PARAMETER_GROUP].validationError
         );
       })
       .flatMap((operationId) => {
@@ -162,8 +161,8 @@ export default class Positive extends ApiKeyCommand {
 
               return (
                 !existingValidations ||
-                (existingValidations[groupName] &&
-                  !existingValidations[groupName].validationError)
+                !existingValidations[groupName] ||
+                !existingValidations[groupName].validationError
               );
             })
             .map((parameterExamples) => {
