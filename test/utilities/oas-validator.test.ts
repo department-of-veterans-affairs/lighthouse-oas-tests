@@ -48,7 +48,7 @@ describe('OasValidator', () => {
     };
 
     beforeEach(() => {
-      OasValidator.validateObjectAgainstSchema = jest.fn();
+      OasValidator.validateObjectAgainstSchema = jest.fn(() => []);
     });
 
     describe('operation does not exist', () => {
@@ -67,7 +67,7 @@ describe('OasValidator', () => {
     });
 
     describe('input parameters is missing a required parameter', () => {
-      it('returns a validation failure', () => {
+      it('returns a validation failure', async () => {
         const schema = generateMockSchema([
           {
             name: 'fit',
