@@ -18,6 +18,8 @@ export const MISSING_REQUIRED_PROPERTY_ERROR =
   'Actual object missing required property';
 export const NULL_VALUE_ERROR =
   'Actual value is null but schema does not allow null values';
+export const MISSING_REQUIRED_PARAMETER_ERROR = 'Missing required parameters:';
+export const INVALID_OPERATION_ID_ERROR = 'Invalid operationId:';
 
 // error message context prefixes
 export const STATUS_CODE_PREFIX = 'Actual status code:';

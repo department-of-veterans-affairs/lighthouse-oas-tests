@@ -1,9 +1,11 @@
 import Positive from '../../src/commands/positive';
+import { TypeMismatchError } from '../../src/errors';
 
 const mockGetParameters = jest.fn();
 const mockGetOperationIds = jest.fn();
 const mockExecute = jest.fn();
 const mockValidateResponse = jest.fn();
+const mockValidateParameters = jest.fn();
 
 jest.mock('../../src/utilities/oas-schema', () => {
   return function (): Record<string, jest.Mock> {
@@ -17,6 +19,7 @@ jest.mock('../../src/utilities/oas-schema', () => {
 jest.mock('../../src/utilities/oas-validator', () => {
   return function (): Record<string, jest.Mock> {
     return {
+      validateParameters: mockValidateParameters,
       validateResponse: mockValidateResponse,
     };
   };
@@ -35,6 +38,40 @@ describe('Positive', () => {
     mockGetOperationIds.mockReset();
     mockExecute.mockReset();
     mockValidateResponse.mockReset();
+    mockValidateParameters.mockReset();
+
+    mockGetParameters.mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          resolve({
+            walkIntoMordor: { default: {} },
+            getHobbit: { default: {} },
+            getTomBombadil: { default: {} },
+          }),
+        ),
+    );
+    mockGetOperationIds.mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          resolve(['walkIntoMordor', 'getHobbit', 'getTomBombadil']),
+        ),
+    );
+    mockExecute.mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          resolve({
+            url: 'https://www.lotr.com/walkIntoMorder',
+            status: 200,
+            ok: true,
+          }),
+        ),
+    );
+    mockValidateResponse.mockImplementation(
+      () => new Promise((resolve) => resolve()),
+    );
+    mockValidateParameters.mockImplementation(
+      () => new Promise((resolve) => resolve()),
+    );
   });
 
   describe('API key is not set', () => {
@@ -82,7 +119,153 @@ describe('Positive', () => {
       });
     });
 
+    it('validates the example parameters', async () => {
+      mockGetParameters.mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            resolve({
+              walkIntoMordor: {
+                guide: 'gollum',
+              },
+              getHobbit: {
+                name: 'Frodo',
+              },
+              getTomBombadil: {
+                times: 2,
+              },
+            }),
+          ),
+      );
+
+      await Positive.run(['http://urldoesnotmatter.com']);
+
+      expect(mockValidateParameters).toHaveBeenCalledTimes(3);
+      expect(mockValidateParameters).toHaveBeenCalledWith('walkIntoMordor', {
+        guide: 'gollum',
+      });
+      expect(mockValidateParameters).toHaveBeenCalledWith('getHobbit', {
+        name: 'Frodo',
+      });
+      expect(mockValidateParameters).toHaveBeenCalledWith('getTomBombadil', {
+        times: 2,
+      });
+    });
+
+    describe('parameter validation fails', () => {
+      it('outputs a failure for that operation', async () => {
+        mockValidateParameters.mockImplementation(
+          (operationId) =>
+            new Promise((resolve) => {
+              if (operationId === 'walkIntoMordor')
+                throw new TypeMismatchError(
+                  ['parameters', 'guide', 'example'],
+                  'string',
+                  'number',
+                );
+
+              resolve();
+            }),
+        );
+
+        await expect(async () => {
+          await Positive.run(['http://urldoesnotmatter.com']);
+        }).rejects.toThrow('1 operation failed');
+
+        expect(result).toEqual([
+          'walkIntoMordor: Failed - Actual type did not match schema. Path: parameters -> guide -> example. Schema type: string. Actual type: number\n',
+          'getHobbit: Succeeded\n',
+          'getTomBombadil: Succeeded\n',
+        ]);
+      });
+    });
+
     describe('operation has parameter groups', () => {
+      beforeEach(() => {
+        mockGetParameters.mockImplementation(
+          () =>
+            new Promise((resolve) =>
+              resolve({
+                walkIntoMordor: [
+                  {
+                    door: {
+                      door: 'front',
+                    },
+                  },
+                  {
+                    guided: {
+                      guide: 'gollum',
+                    },
+                  },
+                ],
+                getHobbit: {
+                  default: { name: 'Frodo' },
+                },
+                getTomBombadil: {
+                  default: { times: 2 },
+                },
+              }),
+            ),
+        );
+      });
+
+      describe('one of the parameter groups fails parameter validation', () => {
+        it('does not execute a request for that parameter group', async () => {
+          mockValidateParameters.mockImplementation(
+            (operationId, wrappedParameters) =>
+              new Promise((resolve) => {
+                if (
+                  operationId === 'walkIntoMordor' &&
+                  Object.keys(wrappedParameters)[0] === 'guided'
+                )
+                  throw new TypeMismatchError(
+                    ['parameters', 'guide', 'example'],
+                    'string',
+                    'number',
+                  );
+
+                resolve();
+              }),
+          );
+          await expect(async () => {
+            await Positive.run(['http://urldoesnotmatter.com']);
+          }).rejects.toThrow('1 operation failed');
+
+          expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
+            door: 'front',
+          });
+
+          expect(mockExecute).not.toHaveBeenCalledWith('walkIntoMordor', {
+            guide: 'gollum',
+          });
+        });
+      });
+
+      it('validates the examples for each parameter group', async () => {
+        await Positive.run(['http://urldoesnotmatter.com']);
+
+        expect(mockValidateParameters).toHaveBeenCalledTimes(4);
+        expect(mockValidateParameters).toHaveBeenCalledWith('walkIntoMordor', {
+          door: {
+            door: 'front',
+          },
+        });
+        expect(mockValidateParameters).toHaveBeenCalledWith('walkIntoMordor', {
+          guided: {
+            guide: 'gollum',
+          },
+        });
+        expect(mockValidateParameters).toHaveBeenCalledWith('getHobbit', {
+          default: {
+            name: 'Frodo',
+          },
+        });
+        expect(mockValidateParameters).toHaveBeenCalledWith('getTomBombadil', {
+          default: {
+            times: 2,
+          },
+        });
+      });
+
       it('generates requests and validates responses for each parameter group', async () => {
         mockGetParameters.mockImplementation(
           () =>
@@ -134,35 +317,6 @@ describe('Positive', () => {
           'walkIntoMordor - where: Succeeded\n',
           'walkIntoMordor - who: Succeeded\n',
         ]);
-      });
-    });
-
-    describe('unexpected parameters format', () => {
-      it('throws an error', async () => {
-        const parameterExamples = {
-          where: {
-            door: 'front',
-          },
-          who: {
-            guide: 'gollum',
-          },
-        };
-
-        mockGetParameters.mockImplementation(
-          () =>
-            new Promise((resolve) =>
-              resolve({ walkIntoMordor: parameterExamples }),
-            ),
-        );
-        mockGetOperationIds.mockImplementation(
-          () => new Promise((resolve) => resolve(['walkIntoMordor'])),
-        );
-
-        await expect(async () => {
-          await Positive.run(['http://urldoesnotmatter.com']);
-        }).rejects.toThrow(
-          `Unexpected parameters format: ${JSON.stringify(parameterExamples)}`,
-        );
       });
     });
 

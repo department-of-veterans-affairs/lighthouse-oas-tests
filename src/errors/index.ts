@@ -6,3 +6,5 @@ export { default as RequiredPropertyError } from './required-property-error';
 export { default as SchemaError } from './schema-error';
 export { default as StatusCodeMismatchError } from './status-code-mismatch-error';
 export { default as TypeMismatchError } from './type-mismatch-error';
+export { default as MissingRequiredParametersError } from './missing-required-parameters-error';
+export { default as InvalidOperationIdError } from './invalid-operation-id-error';

@@ -1,4 +1,4 @@
-import { Json, Response, SchemaObject } from 'swagger-client';
+import { Json, Response, SchemaObject, Parameter } from 'swagger-client';
 import { parse } from 'content-type';
 import isEqual from 'lodash.isequal';
 import uniqWith from 'lodash.uniqwith';
@@ -11,6 +11,8 @@ import {
   RequiredPropertyError,
   StatusCodeMismatchError,
   ContentTypeMismatchError,
+  MissingRequiredParametersError,
+  InvalidOperationIdError,
 } from '../errors';
 import OasSchema from './oas-schema';
 import {
@@ -18,6 +20,8 @@ import {
   ITEMS_MISSING_ERROR,
   PROPERTIES_MISSING_ERROR,
 } from './constants';
+import ParameterWrapper from './parameter-wrapper';
+import { WrappedParameterExamples } from '../types/parameter-examples';
 
 class OasValidator {
   private schema: OasSchema;
@@ -25,6 +29,46 @@ class OasValidator {
   constructor(schema: OasSchema) {
     this.schema = schema;
   }
+
+  validateParameters = async (
+    operationId: string,
+    parameters: WrappedParameterExamples,
+  ): Promise<void> => {
+    const unwrappedParameters = ParameterWrapper.unwrapParameters(parameters);
+    const parameterSchema: {
+      [parameterName: string]: Parameter;
+    } = {};
+    const operation = await this.schema.getOperation(operationId);
+    if (!operation) {
+      throw new InvalidOperationIdError(operationId);
+    }
+    const requiredParameters = operation.parameters
+      .filter((parameter) => parameter.required)
+      .map((parameter) => parameter.name);
+
+    const presentParameterNames = Object.keys(unwrappedParameters);
+    const missingRequiredParameters = requiredParameters?.filter(
+      (parameterName) => !presentParameterNames.includes(parameterName),
+    );
+
+    if (missingRequiredParameters.length > 0) {
+      throw new MissingRequiredParametersError(missingRequiredParameters);
+    }
+
+    operation.parameters.forEach((parameter) => {
+      parameterSchema[parameter.name] = parameter;
+    });
+
+    Object.entries(unwrappedParameters).forEach(([key, value]) => {
+      if (Object.keys(parameterSchema).includes(key)) {
+        OasValidator.validateObjectAgainstSchema(
+          value,
+          parameterSchema[key].schema,
+          ['parameters', key, 'example'],
+        );
+      }
+    });
+  };
 
   validateResponse = async (
     operationId: string,

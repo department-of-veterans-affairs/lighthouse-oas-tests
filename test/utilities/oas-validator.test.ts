@@ -1,5 +1,5 @@
 import loadJsonFile from 'load-json-file';
-import { Response, SchemaObject } from 'swagger-client';
+import { Response, SchemaObject, Parameter } from 'swagger-client';
 import OasSchema from '../../src/utilities/oas-schema';
 import OasValidator from '../../src/utilities/oas-validator';
 
@@ -10,6 +10,114 @@ describe('OasValidator', () => {
       spec: json,
     });
   };
+
+  describe('validateParameters', () => {
+    const originalValidateObjectAgainstSchema =
+      OasValidator.validateObjectAgainstSchema;
+
+    const generateMockSchema = (
+      additionalParameters: Parameter[] = [],
+    ): OasSchema => {
+      return ({
+        getOperation: jest.fn((operationId) => {
+          if (operationId === 'operation1') {
+            return new Promise((resolve) =>
+              resolve({
+                parameters: [
+                  {
+                    name: 'name',
+                    schema: {
+                      type: 'string',
+                      description: 'blah blah blah',
+                    },
+                  },
+                  {
+                    name: 'id',
+                    schema: {
+                      type: 'number',
+                      description: 'blah blah blah',
+                    },
+                  },
+                  ...additionalParameters,
+                ],
+              }),
+            );
+          }
+        }),
+      } as unknown) as OasSchema;
+    };
+
+    beforeEach(() => {
+      OasValidator.validateObjectAgainstSchema = jest.fn();
+    });
+
+    describe('operation does not exist', () => {
+      it('throws an error', async () => {
+        const schema = generateMockSchema();
+        const validator = new OasValidator((schema as unknown) as OasSchema);
+        await expect(async () => {
+          await validator.validateParameters('fakeOperationId', {
+            default: {},
+          });
+        }).rejects.toThrow('Invalid operationId: fakeOperationId');
+      });
+    });
+
+    describe('input parameters is missing a required parameter', () => {
+      it('throws an error', () => {
+        const schema = generateMockSchema([
+          {
+            name: 'fit',
+            required: true,
+            example: 'tight',
+            schema: {
+              type: 'string',
+              description: 'blah blah blah',
+            },
+          },
+        ]);
+        const validator = new OasValidator((schema as unknown) as OasSchema);
+
+        expect(async () => {
+          await validator.validateParameters('operation1', {
+            default: { name: 'jack' },
+          });
+        }).rejects.toThrow('Missing required parameters: [fit]');
+      });
+    });
+
+    it('calls validateObjectAgainstSchema for each valid parameter', async () => {
+      const schema = generateMockSchema();
+      const validator = new OasValidator((schema as unknown) as OasSchema);
+
+      await validator.validateParameters('operation1', {
+        default: { name: 'james', id: 2, not: 'real' },
+      });
+
+      expect(OasValidator.validateObjectAgainstSchema).toHaveBeenCalledTimes(2);
+      expect(OasValidator.validateObjectAgainstSchema).toHaveBeenCalledWith(
+        'james',
+        {
+          type: 'string',
+          description: 'blah blah blah',
+        },
+        ['parameters', 'name', 'example'],
+      );
+      expect(OasValidator.validateObjectAgainstSchema).toHaveBeenCalledWith(
+        2,
+        {
+          type: 'number',
+          description: 'blah blah blah',
+        },
+        ['parameters', 'id', 'example'],
+      );
+    });
+
+    afterEach(() => {
+      OasValidator.validateObjectAgainstSchema = originalValidateObjectAgainstSchema;
+    });
+  });
+
   describe('validateResponse', () => {
     describe('response status code not in OAS', () => {
       it('throws an error', async () => {
@@ -59,13 +167,15 @@ describe('OasValidator', () => {
       });
 
       describe('Response content type is in the OAS', () => {
+        const originalValidateObjectAgainstSchema =
+          OasValidator.validateObjectAgainstSchema;
+        beforeEach(() => {
+          OasValidator.validateObjectAgainstSchema = jest.fn();
+        });
         it('calls validateObjectAgainstSchema with the response body', async () => {
           const filePath = 'test/fixtures/simple_forms_oas.json';
           const schema = await generateSchema(filePath);
           const validator = new OasValidator(schema);
-          const originalValidateObjectAgainstSchema =
-            OasValidator.validateObjectAgainstSchema;
-          OasValidator.validateObjectAgainstSchema = jest.fn();
 
           const response: Response = {
             ok: false,
@@ -93,6 +203,8 @@ describe('OasValidator', () => {
             },
             ['body'],
           );
+        });
+        afterEach(() => {
           OasValidator.validateObjectAgainstSchema = originalValidateObjectAgainstSchema;
         });
       });
@@ -100,8 +212,9 @@ describe('OasValidator', () => {
   });
 
   describe('validateObjectAgainstSchema', () => {
-    const validateSpy = jest.spyOn(OasValidator, 'validateObjectAgainstSchema');
+    let validateSpy;
     beforeEach(() => {
+      validateSpy = jest.spyOn(OasValidator, 'validateObjectAgainstSchema');
       validateSpy.mockClear();
     });
 
