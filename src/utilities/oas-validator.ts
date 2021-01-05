@@ -37,6 +37,8 @@ class OasValidator {
     const parameterSchema: {
       [parameterName: string]: Parameter;
     } = {};
+    let failures: ValidationFailure[] = [];
+
     const operation = await this.schema.getOperation(operationId);
     if (!operation) {
       return [new InvalidOperationId(operationId)];
@@ -51,14 +53,16 @@ class OasValidator {
     );
 
     if (missingRequiredParameters.length > 0) {
-      return [new MissingRequiredParameters(missingRequiredParameters)];
+      failures = [
+        ...failures,
+        new MissingRequiredParameters(missingRequiredParameters),
+      ];
     }
 
     operation.parameters.forEach((parameter) => {
       parameterSchema[parameter.name] = parameter;
     });
 
-    let failures: ValidationFailure[] = [];
     Object.entries(parameters).forEach(([key, value]) => {
       if (Object.keys(parameterSchema).includes(key)) {
         failures = [
@@ -142,11 +146,11 @@ class OasValidator {
       if (expectedType === 'array') {
         // check that the actual object is an array
         if (!Array.isArray(actual)) {
-          failures.push(new TypeMismatch(path, expectedType, actualType));
+          return [new TypeMismatch(path, expectedType, actualType)];
         }
       } else if (actualType !== expectedType) {
         // check that type matches for other types
-        failures.push(new TypeMismatch(path, expectedType, actualType));
+        return [new TypeMismatch(path, expectedType, actualType)];
       }
     }
 

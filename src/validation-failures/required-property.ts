@@ -5,7 +5,7 @@ import {
 } from '../utilities/constants';
 import ValidationFailure from './validation-failure';
 
-class RequiredPropertyError extends ValidationFailure {
+class RequiredProperty extends ValidationFailure {
   constructor(path: string[], requiredProperty: string) {
     super(
       `${MISSING_REQUIRED_PROPERTY_ERROR}. ${PATH_PREFIX} ${path.join(
@@ -15,4 +15,4 @@ class RequiredPropertyError extends ValidationFailure {
   }
 }
 
-export default RequiredPropertyError;
+export default RequiredProperty;

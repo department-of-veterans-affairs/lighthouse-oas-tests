@@ -7,7 +7,7 @@ import {
 import { Json } from 'swagger-client';
 import ValidationFailure from './validation-failure';
 
-class EnumMismatchError extends ValidationFailure {
+class EnumMismatch extends ValidationFailure {
   constructor(path: string[], enumValues: Json[], actualValue: Json) {
     super(
       `${ENUM_MISMATCH_ERROR}. ${PATH_PREFIX} ${path.join(
@@ -19,4 +19,4 @@ class EnumMismatchError extends ValidationFailure {
   }
 }
 
-export default EnumMismatchError;
+export default EnumMismatch;

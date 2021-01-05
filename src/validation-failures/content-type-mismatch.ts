@@ -4,7 +4,7 @@ import {
 } from '../utilities/constants';
 import ValidationFailure from './validation-failure';
 
-class ContentTypeMismatchError extends ValidationFailure {
+class ContentTypeMismatch extends ValidationFailure {
   constructor(contentType: string) {
     super(
       `${CONTENT_TYPE_MISMATCH_ERROR}. ${CONTENT_TYPE_PREFIX} ${contentType}`,
@@ -12,4 +12,4 @@ class ContentTypeMismatchError extends ValidationFailure {
   }
 }
 
-export default ContentTypeMismatchError;
+export default ContentTypeMismatch;

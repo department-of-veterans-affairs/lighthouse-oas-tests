@@ -6,7 +6,7 @@ import {
 } from '../utilities/constants';
 import ValidationFailure from './validation-failure';
 
-class PropertiesMismatchError extends ValidationFailure {
+class PropertiesMismatch extends ValidationFailure {
   constructor(
     path: string[],
     schemaProperties: string[],
@@ -22,4 +22,4 @@ class PropertiesMismatchError extends ValidationFailure {
   }
 }
 
-export default PropertiesMismatchError;
+export default PropertiesMismatch;

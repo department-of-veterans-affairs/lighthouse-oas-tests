@@ -2,6 +2,7 @@ import loadJsonFile from 'load-json-file';
 import { Response, SchemaObject, Parameter } from 'swagger-client';
 import OasSchema from '../../src/utilities/oas-schema';
 import OasValidator from '../../src/utilities/oas-validator';
+import ValidationFailure from '../../src/validation-failures/validation-failure';
 
 describe('OasValidator', () => {
   const generateSchema = async (filePath: string): Promise<OasSchema> => {
@@ -68,18 +69,18 @@ describe('OasValidator', () => {
     });
 
     describe('input parameters is missing a required parameter', () => {
-      it('returns a validation failure', async () => {
-        const schema = generateMockSchema([
-          {
-            name: 'fit',
-            required: true,
-            example: 'tight',
-            schema: {
-              type: 'string',
-              description: 'blah blah blah',
-            },
+      const schema = generateMockSchema([
+        {
+          name: 'fit',
+          required: true,
+          example: 'tight',
+          schema: {
+            type: 'string',
+            description: 'blah blah blah',
           },
-        ]);
+        },
+      ]);
+      it('returns a validation failure', async () => {
         const validator = new OasValidator((schema as unknown) as OasSchema);
 
         const failures = await validator.validateParameters('operation1', {
@@ -89,6 +90,25 @@ describe('OasValidator', () => {
         expect(failures).toContainValidationFailure(
           'Missing required parameters: [fit]',
         );
+      });
+
+      describe('other parameter validation failures are present', () => {
+        it('validates all parameters', async () => {
+          (OasValidator.validateObjectAgainstSchema as jest.Mock).mockImplementationOnce(
+            () => [new ValidationFailure('There was a failure')],
+          );
+          const validator = new OasValidator((schema as unknown) as OasSchema);
+
+          const failures = await validator.validateParameters('operation1', {
+            name: 'jack',
+            id: 'yes',
+          });
+          expect(failures).toHaveLength(2);
+          expect(failures).toContainValidationFailure(
+            'Missing required parameters: [fit]',
+          );
+          expect(failures).toContainValidationFailure('There was a failure');
+        });
       });
     });
 
@@ -439,6 +459,52 @@ describe('OasValidator', () => {
           ).toContainValidationFailure(
             'Actual type did not match schema. Path: body -> facility -> id. Schema type: string. Actual type: number',
           );
+        });
+
+        describe('object is an object', () => {
+          it('returns only the type mismatch failure and does not attempt to validate the actual object', () => {
+            const object = {
+              key: 'value',
+            };
+
+            const failures = OasValidator.validateObjectAgainstSchema(
+              object,
+              schema,
+              ['body', 'facility', 'id'],
+            );
+
+            // only called 1 time for the initial call
+            expect(
+              OasValidator.validateObjectAgainstSchema,
+            ).toHaveBeenCalledTimes(1);
+
+            expect(failures).toHaveLength(1);
+            expect(failures).toContainValidationFailure(
+              'Actual type did not match schema. Path: body -> facility -> id. Schema type: string. Actual type: object',
+            );
+          });
+        });
+
+        describe('object is an array', () => {
+          it('returns only the type mismatch failure and does not attempt to validate the actual object', () => {
+            const object = [2];
+
+            const failures = OasValidator.validateObjectAgainstSchema(
+              object,
+              schema,
+              ['body', 'facility', 'id'],
+            );
+
+            // only called 1 time for the initial call
+            expect(
+              OasValidator.validateObjectAgainstSchema,
+            ).toHaveBeenCalledTimes(1);
+
+            expect(failures).toHaveLength(1);
+            expect(failures).toContainValidationFailure(
+              'Actual type did not match schema. Path: body -> facility -> id. Schema type: string. Actual type: object',
+            );
+          });
         });
       });
     });

@@ -6,7 +6,7 @@ import {
 import { Json } from 'swagger-client';
 import ValidationFailure from './validation-failure';
 
-class DuplicateEnumError extends ValidationFailure {
+class DuplicateEnum extends ValidationFailure {
   constructor(path: string[], enumValues: Json[]) {
     super(
       `${DUPLICATE_ENUMS_ERROR}. ${PATH_PREFIX} ${path.join(
@@ -16,4 +16,4 @@ class DuplicateEnumError extends ValidationFailure {
   }
 }
 
-export default DuplicateEnumError;
+export default DuplicateEnum;
