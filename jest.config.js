@@ -12,7 +12,8 @@ module.exports = {
       statements: 80,
     },
   },
-  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  testPathIgnorePatterns: ['/node_modules/', '/lib/'],
   testEnvironment: 'node',
-  testRegex: '(/__tests__/.*|(\\.|/)(test|spec|integration))\\.[jt]sx?$',
+  testRegex: '(/__tests__/.*|(\\.|/)(test|spec|integration))\\.[jt]s?$',
+  setupFilesAfterEnv: ['<rootDir>/test/setup-tests.ts']
 };

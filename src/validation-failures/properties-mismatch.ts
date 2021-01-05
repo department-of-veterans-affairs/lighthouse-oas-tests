@@ -4,8 +4,9 @@ import {
   SCHEMA_PROPERTIES_PREFIX,
   ACTUAL_PROPERTIES_PREFIX,
 } from '../utilities/constants';
+import ValidationFailure from './validation-failure';
 
-class PropertiesMismatchError extends TypeError {
+class PropertiesMismatch extends ValidationFailure {
   constructor(
     path: string[],
     schemaProperties: string[],
@@ -18,9 +19,7 @@ class PropertiesMismatchError extends TypeError {
         ', ',
       )}. ${ACTUAL_PROPERTIES_PREFIX} ${actualProperties.join(', ')}`,
     );
-
-    Object.setPrototypeOf(this, PropertiesMismatchError.prototype);
   }
 }
 
-export default PropertiesMismatchError;
+export default PropertiesMismatch;

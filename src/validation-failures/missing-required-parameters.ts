@@ -1,11 +1,10 @@
 import { MISSING_REQUIRED_PARAMETER_ERROR } from '../utilities/constants';
+import ValidationFailure from './validation-failure';
 
-class MissingRequiredParametersError extends TypeError {
+class MissingRequiredParameters extends ValidationFailure {
   constructor(missingParams: string[]) {
     super(`${MISSING_REQUIRED_PARAMETER_ERROR} [${missingParams}]`);
-
-    Object.setPrototypeOf(this, MissingRequiredParametersError.prototype);
   }
 }
 
-export default MissingRequiredParametersError;
+export default MissingRequiredParameters;

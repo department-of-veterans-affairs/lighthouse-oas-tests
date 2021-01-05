@@ -5,8 +5,9 @@ import {
   ACTUAL_VALUE_PREFIX,
 } from '../utilities/constants';
 import { Json } from 'swagger-client';
+import ValidationFailure from './validation-failure';
 
-class EnumMismatchError extends TypeError {
+class EnumMismatch extends ValidationFailure {
   constructor(path: string[], enumValues: Json[], actualValue: Json) {
     super(
       `${ENUM_MISMATCH_ERROR}. ${PATH_PREFIX} ${path.join(
@@ -15,9 +16,7 @@ class EnumMismatchError extends TypeError {
         enumValues,
       )}. ${ACTUAL_VALUE_PREFIX} ${JSON.stringify(actualValue)}`,
     );
-
-    Object.setPrototypeOf(this, EnumMismatchError.prototype);
   }
 }
 
-export default EnumMismatchError;
+export default EnumMismatch;

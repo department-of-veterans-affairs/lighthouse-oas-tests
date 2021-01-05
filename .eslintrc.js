@@ -5,7 +5,6 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: ["./tsconfig.eslint.json"],
   },
-  plugins: ["@typescript-eslint", "mocha", "prettier"],
   extends: [
     "eslint:recommended",
     "oclif",
