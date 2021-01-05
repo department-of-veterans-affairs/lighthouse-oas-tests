@@ -148,7 +148,7 @@ describe('OasValidator', () => {
 
   describe('validateResponse', () => {
     describe('response status code not in OAS', () => {
-      it('returns a validation failures', async () => {
+      it('returns a validation failure', async () => {
         const filePath = 'test/fixtures/forms_oas.json';
         const schema = await generateSchema(filePath);
         const validator = new OasValidator(schema);
@@ -263,7 +263,7 @@ describe('OasValidator', () => {
           description: 'a string',
         };
 
-        it('returns a validation error', () => {
+        it('returns a validation failure', () => {
           const failures = OasValidator.validateObjectAgainstSchema(
             null,
             schema,
@@ -283,7 +283,7 @@ describe('OasValidator', () => {
           nullable: false,
         };
 
-        it('returns a validation error', () => {
+        it('returns a validation failure', () => {
           const failures = OasValidator.validateObjectAgainstSchema(
             null,
             schema,
@@ -303,7 +303,7 @@ describe('OasValidator', () => {
           nullable: true,
         };
 
-        it('does not return a validation error', () => {
+        it('does not return a validation failure', () => {
           const failures = OasValidator.validateObjectAgainstSchema(
             null,
             schema,
@@ -330,7 +330,7 @@ describe('OasValidator', () => {
       };
 
       describe('actual object is a string', () => {
-        it('does not return a validation error', () => {
+        it('does not return a validation failure', () => {
           expect(
             OasValidator.validateObjectAgainstSchema(
               'This is a string',
@@ -342,7 +342,7 @@ describe('OasValidator', () => {
       });
 
       describe('actual object is an array', () => {
-        it('does not return a validation error', () => {
+        it('does not return a validation failure', () => {
           expect(
             OasValidator.validateObjectAgainstSchema([42, 58], schema, [
               'test',
@@ -352,7 +352,7 @@ describe('OasValidator', () => {
       });
 
       describe('actual object is an object', () => {
-        it('does not return a validation error', () => {
+        it('does not return a validation failure', () => {
           expect(
             OasValidator.validateObjectAgainstSchema(
               { value: 'this is a string' },
@@ -371,7 +371,7 @@ describe('OasValidator', () => {
       };
 
       describe('object is a string', () => {
-        it('does not return a validation error', () => {
+        it('does not return a validation failure', () => {
           expect(
             OasValidator.validateObjectAgainstSchema(
               'This is a string',

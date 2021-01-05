@@ -124,21 +124,6 @@ class OasValidator {
     }
 
     const enumValues = expected.enum;
-
-    if (enumValues) {
-      // check that expected enum does not contain duplicate values
-      const uniqueEnumValues = uniqWith(enumValues, isEqual);
-      if (uniqueEnumValues.length !== enumValues.length) {
-        failures.push(new DuplicateEnum(path, enumValues));
-      }
-
-      // check that the actual object matches an element in the expected enum
-      const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
-      if (filteredEnum.length === 0) {
-        failures.push(new EnumMismatch(path, enumValues, actual));
-      }
-    }
-
     const expectedType = expected.type;
     const actualType = typeof actual;
 
@@ -151,6 +136,20 @@ class OasValidator {
       } else if (actualType !== expectedType) {
         // check that type matches for other types
         return [new TypeMismatch(path, expectedType, actualType)];
+      }
+    }
+
+    if (enumValues) {
+      // check that expected enum does not contain duplicate values
+      const uniqueEnumValues = uniqWith(enumValues, isEqual);
+      if (uniqueEnumValues.length !== enumValues.length) {
+        failures.push(new DuplicateEnum(path, enumValues));
+      }
+
+      // check that the actual object matches an element in the expected enum
+      const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
+      if (filteredEnum.length === 0) {
+        failures.push(new EnumMismatch(path, enumValues, actual));
       }
     }
 
