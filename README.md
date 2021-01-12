@@ -80,6 +80,37 @@ Create an `examples` object on each parameter that needs to go into a group in t
 ```
 `loast` will go through and execute a test against the endpoint for each grouping it finds, including any required parameters in each request. 
 
+# Validation Failures
+The sections below contain details about validation failures that can be produced by loast and how to fix them. Failures will include a path to the place in the schema where the failure occured.
+## Parameter Validation Failures
+If a parameter validation failure occurs the positive command will not attempt to send a request that includes the parameter that failed.
+Parameter validation failures include the following as well as the schema failures listed below.
+
+| Failure                     | Description                                               | Fix                                                                                                   |
+| --------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Missing required parameters | No example is provided for a parameter marked as required | Add examples for all required parameters or remove the required flag if the parameter is not required |
+
+## Response Validation Failures
+If one of these validation failures occur the rest of the response will not be validated.
+
+| Failure               | Description                                                        | Fix                          |
+| --------------------- | ------------------------------------------------------------------ | ---------------------------- |
+| Status code mismatch  | Actual response has a status code that is not included in the OAS  | Add the missing status code  |
+| Content type mismatch | Actual response has a content type that is not included in the OAS | Add the missing content type |
+
+## Schema Validation Failures
+These failures can occur for parameters and responses.
+
+| Failure                   | Description                                                                | Fix                                                                                           |
+| ------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Unexpected null value     | Actual object is null, but the schema does not allow null values           | If null values should be allowed for this object set the nullable field to true in the schema |
+| Type mismatch             | Actual object type does not match type defined in the schema               | Update the schema so type is set correctly                                                    |
+| Duplicate enum values     | Schema enum contains duplicate values                                      | Remove duplicate values from the enum                                                         |
+| Enum mismatch             | Actual object does not match a value in the schema enum                    | Update the enum to contain all valid values                                                   |
+| Missing items field       | Schemas for arrays must include the items field                            | Set the items field on array schemas                                                          |
+| Missing properties field  | Schemas for objects must include the properties field                      | Set the properties field on object schemas                                                    |
+| Properties mismatch       | Actual object contains properties not present in the schema                | Update the schema so all valid properties are included                                        |
+| Missing required property | Actual object does not contain a property marked as required in the schema | Update the schema so that only required properties are marked as required                     |
 
 # Local Development
 
