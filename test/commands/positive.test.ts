@@ -342,7 +342,7 @@ describe('Positive', () => {
             new Promise((resolve) => resolve(['walkIntoMordor', 'getHobbit'])),
         );
         mockValidateResponse.mockImplementation(
-          () => new Promise((resolve) => resolve()),
+          () => new Promise((resolve) => resolve([])),
         );
         mockValidateResponse.mockImplementation(
           () =>
@@ -450,7 +450,7 @@ describe('Positive', () => {
           ),
         );
       mockValidateResponse.mockImplementation(
-        () => new Promise((resolve) => resolve()),
+        () => new Promise((resolve) => resolve([])),
       );
 
       await expect(async () => {

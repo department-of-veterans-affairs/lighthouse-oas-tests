@@ -14,7 +14,7 @@ type OasOperations = {
   [operationId: string]: Method;
 };
 
-class OasSchema {
+class OASSchema {
   private _client: Promise<Swagger>;
 
   private operations: OasOperations = {};
@@ -131,4 +131,4 @@ class OasSchema {
   };
 }
 
-export default OasSchema;
+export default OASSchema;

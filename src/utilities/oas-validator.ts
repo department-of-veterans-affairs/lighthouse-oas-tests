@@ -23,7 +23,7 @@ import {
 import { ParameterExamples } from '../types/parameter-examples';
 import ValidationFailure from '../validation-failures/validation-failure';
 
-class OasValidator {
+class OASValidator {
   private schema: OasSchema;
 
   constructor(schema: OasSchema) {
@@ -67,7 +67,7 @@ class OasValidator {
       if (Object.keys(parameterSchema).includes(key)) {
         failures = [
           ...failures,
-          ...OasValidator.validateObjectAgainstSchema(
+          ...OASValidator.validateObjectAgainstSchema(
             value,
             parameterSchema[key].schema,
             ['parameters', key, 'example'],
@@ -101,7 +101,7 @@ class OasValidator {
       return [new ContentTypeMismatch(contentType)];
     }
 
-    return OasValidator.validateObjectAgainstSchema(
+    return OASValidator.validateObjectAgainstSchema(
       response.body,
       contentTypeSchema.schema,
       ['body'],
@@ -216,4 +216,4 @@ class OasValidator {
   }
 }
 
-export default OasValidator;
+export default OASValidator;
