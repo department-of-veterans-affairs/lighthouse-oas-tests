@@ -2,8 +2,8 @@ import { flags } from '@oclif/command';
 import loadJsonFile from 'load-json-file';
 import { ApiKeyCommand } from '../baseCommands';
 import { Response } from 'swagger-client';
-import OasSchema, { OasParameters } from '../utilities/oas-schema';
-import OasValidator from '../utilities/oas-validator';
+import OASSchema, { OasParameters } from '../utilities/oas-schema';
+import OASValidator from '../utilities/oas-validator';
 import { DEFAULT_PARAMETER_GROUP } from '../utilities/constants';
 import { WrappedParameterExamples } from '../types/parameter-examples';
 import ParameterWrapper from '../utilities/parameter-wrapper';
@@ -29,14 +29,13 @@ export default class Positive extends ApiKeyCommand {
     },
   ];
 
-  // All of these will be overwritten in the run command. Url is here to prevent error from constructor
-  private schema: OasSchema = new OasSchema({ url: 'http://www.com' });
+  private schema!: OASSchema;
 
-  private validator: OasValidator = new OasValidator(this.schema);
+  private validator!: OASValidator;
 
-  private operationIds: string[] = [];
+  private operationIds!: string[];
 
-  private operationIdToParameters: OasParameters = {};
+  private operationIdToParameters!: OasParameters;
 
   private operationIdToResponseAndValidation: {
     [operationId: string]: {
@@ -49,7 +48,7 @@ export default class Positive extends ApiKeyCommand {
 
   async run(): Promise<void> {
     const { args, flags } = this.parse(Positive);
-    const oasSchemaOptions: ConstructorParameters<typeof OasSchema>[0] = {
+    const oasSchemaOptions: ConstructorParameters<typeof OASSchema>[0] = {
       authorizations: { apikey: { value: this.apiKey } },
     };
 
@@ -64,8 +63,8 @@ export default class Positive extends ApiKeyCommand {
       oasSchemaOptions.url = args.path;
     }
 
-    this.schema = new OasSchema(oasSchemaOptions);
-    this.validator = new OasValidator(this.schema);
+    this.schema = new OASSchema(oasSchemaOptions);
+    this.validator = new OASValidator(this.schema);
 
     this.operationIdToParameters = await this.schema.getParameters();
     this.operationIds = await this.schema.getOperationIds();
@@ -90,19 +89,20 @@ export default class Positive extends ApiKeyCommand {
         const wrappedParameters = this.operationIdToParameters[operationId];
 
         if (Array.isArray(wrappedParameters)) {
-          return wrappedParameters.map((parameterGroup) => {
+          return wrappedParameters.map(async (parameterGroup) => {
             const unwrappedParameters = ParameterWrapper.unwrapParameters(
               parameterGroup,
             );
-            return this.validator
-              .validateParameters(operationId, unwrappedParameters)
-              .then((failures) => {
-                this.operationIdToResponseAndValidation[operationId][
-                  Object.keys(parameterGroup)[0]
-                ] = {
-                  validationFailures: failures,
-                };
-              });
+            const failures = await this.validator.validateParameters(
+              operationId,
+              unwrappedParameters,
+            );
+
+            this.operationIdToResponseAndValidation[operationId][
+              Object.keys(parameterGroup)[0]
+            ] = {
+              validationFailures: failures,
+            };
           });
         }
         const unwrappedParameters = ParameterWrapper.unwrapParameters(
@@ -129,14 +129,14 @@ export default class Positive extends ApiKeyCommand {
             (operation): operation is [string, { response: Response }] =>
               operation[1].response !== undefined,
           )
-          .map(([parameterGroupName, { response }]) => {
-            return this.validator
-              .validateResponse(operationId, response)
-              .then((failures) => {
-                this.operationIdToResponseAndValidation[operationId][
-                  parameterGroupName
-                ].validationFailures = failures;
-              });
+          .map(async ([parameterGroupName, { response }]) => {
+            const failures = await this.validator.validateResponse(
+              operationId,
+              response,
+            );
+            this.operationIdToResponseAndValidation[operationId][
+              parameterGroupName
+            ].validationFailures = failures;
           });
       },
     );
@@ -150,12 +150,7 @@ export default class Positive extends ApiKeyCommand {
           operationId
         ];
 
-        return (
-          !existingValidations ||
-          !existingValidations[DEFAULT_PARAMETER_GROUP] ||
-          existingValidations[DEFAULT_PARAMETER_GROUP].validationFailures
-            ?.length === 0
-        );
+        return this.failedValidationGuard(existingValidations);
       })
       .flatMap((operationId) => {
         const operationParameters = this.operationIdToParameters[operationId];
@@ -168,28 +163,24 @@ export default class Positive extends ApiKeyCommand {
               const existingValidations = this
                 .operationIdToResponseAndValidation[operationId];
 
-              return (
-                !existingValidations ||
-                !existingValidations[groupName] ||
-                existingValidations[groupName].validationFailures?.length === 0
-              );
+              return this.failedValidationGuard(existingValidations, groupName);
             })
-            .map((parameterExamples) => {
-              return this.executeRequest(parameterExamples, operationId).then(
-                (response) => {
-                  const groupName = Object.keys(parameterExamples)[0];
-
-                  if (!this.operationIdToResponseAndValidation[operationId]) {
-                    this.operationIdToResponseAndValidation[operationId] = {};
-                  }
-
-                  this.operationIdToResponseAndValidation[operationId][
-                    groupName
-                  ] = {
-                    response,
-                  };
-                },
+            .map(async (parameterExamples) => {
+              const response = await this.executeRequest(
+                parameterExamples,
+                operationId,
               );
+              const groupName = Object.keys(parameterExamples)[0];
+
+              if (!this.operationIdToResponseAndValidation[operationId]) {
+                this.operationIdToResponseAndValidation[operationId] = {};
+              }
+
+              this.operationIdToResponseAndValidation[operationId][
+                groupName
+              ] = {
+                response,
+              };
             });
         }
 
@@ -259,5 +250,16 @@ export default class Positive extends ApiKeyCommand {
         } failed`,
       );
     }
+  };
+
+  failedValidationGuard = (
+    existingValidations,
+    groupName = DEFAULT_PARAMETER_GROUP,
+  ): boolean => {
+    return (
+      !existingValidations ||
+      !existingValidations[groupName] ||
+      existingValidations[groupName].validationFailures?.length === 0
+    );
   };
 }
