@@ -133,6 +133,11 @@ class OASValidator {
         if (!Array.isArray(actual)) {
           return [new TypeMismatch(path, expectedType, actualType)];
         }
+      } else if (expectedType === 'integer') {
+        // check that the actual value is an integer
+        if (actual % 1 !== 0) {
+          return [new TypeMismatch(path, expectedType, actualType)];
+        }
       } else if (actualType !== expectedType) {
         // check that type matches for other types
         return [new TypeMismatch(path, expectedType, actualType)];
