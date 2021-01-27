@@ -64,6 +64,7 @@
     "test": "jest",
     "test-ci": "jest --coverage",
     "test:clear": "jest --clearCache",
+    "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
     "test:watch": "jest --watchAll",
     "version": "oclif-dev readme && git add README.md",
     "lint": "eslint . --ext .ts --config .eslintrc.js",
