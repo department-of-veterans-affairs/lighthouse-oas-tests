@@ -608,6 +608,104 @@ describe('OasValidator', () => {
       });
     });
 
+    describe('schema expects an integer', () => {
+      const schema: SchemaObject = {
+        type: 'integer',
+        description: 'an integer',
+      };
+      describe('object is an integer', () => {
+        it('does not return a validation failure', () => {
+          expect(
+            OasValidator.validateObjectAgainstSchema(42, schema, [
+              'body',
+              'facility',
+              'lat',
+            ]),
+          ).toHaveLength(0);
+        });
+
+        describe('schema expects an enum', () => {
+          beforeAll(() => {
+            schema.enum = [42, 56];
+          });
+
+          describe('object matches enum', () => {
+            it('does not return a validation failure', () => {
+              expect(
+                OasValidator.validateObjectAgainstSchema(42, schema, [
+                  'body',
+                  'facility',
+                  'lat',
+                ]),
+              ).toHaveLength(0);
+            });
+          });
+
+          describe('object does not match enum', () => {
+            it('returns a validation failure', () => {
+              const object = 100;
+              expect(
+                OasValidator.validateObjectAgainstSchema(object, schema, [
+                  'body',
+                  'facility',
+                  'lat',
+                ]),
+              ).toContainValidationFailure(
+                `Actual value does not match schema enum. Path: body -> facility -> lat. Enum values: ${JSON.stringify(
+                  schema.enum,
+                )}. Actual value: ${JSON.stringify(object)}`,
+              );
+            });
+          });
+
+          describe('enum contains duplicate values', () => {
+            let originalEnum;
+            beforeAll(() => {
+              originalEnum = schema.enum;
+              schema.enum = [42, 42, 56];
+            });
+
+            it('returns a validation failure', () => {
+              expect(
+                OasValidator.validateObjectAgainstSchema(100, schema, [
+                  'body',
+                  'facility',
+                  'lat',
+                ]),
+              ).toContainValidationFailure(
+                `Schema enum contains duplicate values. Path: body -> facility -> lat. Enum values: ${JSON.stringify(
+                  schema.enum,
+                )}`,
+              );
+            });
+
+            afterAll(() => {
+              schema.enum = originalEnum;
+            });
+          });
+
+          afterAll(() => {
+            schema.enum = undefined;
+          });
+        });
+      });
+
+      describe('object is not an integer', () => {
+        it('returns a validation failure', () => {
+          const object = 'this is a string';
+          expect(
+            OasValidator.validateObjectAgainstSchema(object, schema, [
+              'body',
+              'facility',
+              'lat',
+            ]),
+          ).toContainValidationFailure(
+            'Actual type did not match schema. Path: body -> facility -> lat. Schema type: integer. Actual type: string',
+          );
+        });
+      });
+    });
+
     describe('schema expects an array', () => {
       const schema: SchemaObject = {
         type: 'array',
