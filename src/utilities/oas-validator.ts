@@ -186,7 +186,7 @@ class OASValidator {
       }
     } else if (expected.type === 'integer') {
       // check that the actual value is an integer
-      if (Number.isInteger(actual)) {
+      if (!Number.isInteger(actual)) {
         return new TypeMismatch([...path], expected.type, actualType);
       }
     } else if (actualType !== expected.type) {
@@ -200,19 +200,22 @@ class OASValidator {
     expected: SchemaObject,
     path: string[],
   ): ValidationFailure[] {
-    const failures: ValidationFailure[] = [];
+    let failures: ValidationFailure[] = [];
     const enumValues = expected.enum;
     if (enumValues) {
       // check that expected enum does not contain duplicate values
       const uniqueEnumValues = uniqWith(enumValues, isEqual);
       if (uniqueEnumValues.length !== enumValues.length) {
-        failures.push(new DuplicateEnum([...path], enumValues));
+        failures = [new DuplicateEnum([...path], enumValues)];
       }
 
       // check that the actual object matches an element in the expected enum
       const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
       if (filteredEnum.length === 0) {
-        failures.push(new EnumMismatch([...path], enumValues, actual));
+        failures = [
+          ...failures,
+          new EnumMismatch([...path], enumValues, actual),
+        ];
       }
     }
     return failures;
