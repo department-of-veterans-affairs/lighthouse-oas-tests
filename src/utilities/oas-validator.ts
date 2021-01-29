@@ -186,7 +186,7 @@ class OASValidator {
       }
     } else if (expected.type === 'integer') {
       // check that the actual value is an integer
-      if (actual % 1 !== 0) {
+      if (Number.isInteger(actual)) {
         return new TypeMismatch([...path], expected.type, actualType);
       }
     } else if (actualType !== expected.type) {
@@ -253,10 +253,7 @@ class OASValidator {
 
     // check that the expected object's properties field is set
     if (!properties) {
-      failures = [
-        ...failures,
-        new InvalidSchema(PROPERTIES_MISSING_ERROR, [...path]),
-      ];
+      failures = [new InvalidSchema(PROPERTIES_MISSING_ERROR, [...path])];
       return failures;
     }
 
@@ -270,7 +267,6 @@ class OASValidator {
       ).length > 0
     ) {
       failures = [
-        ...failures,
         new PropertiesMismatch([...path], expectedProperties, actualProperties),
       ];
     }
