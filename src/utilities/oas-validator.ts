@@ -235,10 +235,7 @@ class OASValidator {
         ];
       });
     } else {
-      failures = [
-        ...failures,
-        new InvalidSchema(ITEMS_MISSING_ERROR, [...path]),
-      ];
+      failures = [new InvalidSchema(ITEMS_MISSING_ERROR, [...path])];
     }
     return failures;
   }
