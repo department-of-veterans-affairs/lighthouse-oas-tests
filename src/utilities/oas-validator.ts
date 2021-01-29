@@ -116,56 +116,47 @@ class OASValidator {
     let failures: ValidationFailure[] = [];
     const actualType = typeof actual;
 
-    const invalidSchemaErrors = this.checkInvalidSchemaErrors(
-      actual,
-      expected,
-      path,
-    );
+    const invalidSchemaErrors = this.checkInvalidSchema(actual, expected, [
+      ...path,
+    ]);
     if (invalidSchemaErrors) {
       failures = [...failures, ...invalidSchemaErrors];
       return failures;
     }
 
-    const expectedTypeError = this.checkExpectedTypeError(
-      actual,
-      expected,
-      path,
-    );
+    const expectedTypeError = this.checkExpectedType(actual, expected, [
+      ...path,
+    ]);
 
     if (expectedTypeError) {
       failures = [...failures, expectedTypeError];
       return failures;
     }
 
-    const enumValueErrors = this.checkEnumValueError(actual, expected, path);
+    const enumValueErrors = this.checkEnumValue(actual, expected, [...path]);
     if (enumValueErrors.length > 0) {
       failures = [...failures, ...enumValueErrors];
     }
 
     if (Array.isArray(actual)) {
-      const itemSchemaErrors = this.checkItemSchemaErrors(
-        actual,
-        expected,
-        path,
-      );
+      const itemSchemaErrors = this.checkArrayItemSchema(actual, expected, [
+        ...path,
+      ]);
       if (itemSchemaErrors) {
         failures = [...failures, ...itemSchemaErrors];
       }
     } else if (actualType === 'object') {
-      const propertiesErrors = this.checkObjectPropertiesErrors(
-        actual,
-        expected,
-        path,
-      );
+      const propertiesErrors = this.checkObjectProperties(actual, expected, [
+        ...path,
+      ]);
       if (propertiesErrors) {
         failures = [...failures, ...propertiesErrors];
       }
     }
-
     return failures;
   }
 
-  private static checkInvalidSchemaErrors(
+  private static checkInvalidSchema(
     actual: Json,
     expected: SchemaObject,
     path: string[],
@@ -175,11 +166,11 @@ class OASValidator {
       if (expected.nullable) {
         return [];
       }
-      return [new InvalidSchema(NULL_VALUE_ERROR, path)];
+      return [new InvalidSchema(NULL_VALUE_ERROR, [...path])];
     }
   }
 
-  private static checkExpectedTypeError(
+  private static checkExpectedType(
     actual: Json,
     expected: SchemaObject,
     path: string[],
@@ -191,20 +182,20 @@ class OASValidator {
     if (expected.type === 'array') {
       // check that the actual object is an array
       if (!Array.isArray(actual)) {
-        return new TypeMismatch(path, expected.type, actualType);
+        return new TypeMismatch([...path], expected.type, actualType);
       }
     } else if (expected.type === 'integer') {
       // check that the actual value is an integer
       if (actual % 1 !== 0) {
-        return new TypeMismatch(path, expected.type, actualType);
+        return new TypeMismatch([...path], expected.type, actualType);
       }
     } else if (actualType !== expected.type) {
       // check that type matches for other types
-      return new TypeMismatch(path, expected.type, actualType);
+      return new TypeMismatch([...path], expected.type, actualType);
     }
   }
 
-  private static checkEnumValueError(
+  private static checkEnumValue(
     actual: Json,
     expected: SchemaObject,
     path: string[],
@@ -215,19 +206,19 @@ class OASValidator {
       // check that expected enum does not contain duplicate values
       const uniqueEnumValues = uniqWith(enumValues, isEqual);
       if (uniqueEnumValues.length !== enumValues.length) {
-        failures.push(new DuplicateEnum(path, enumValues));
+        failures.push(new DuplicateEnum([...path], enumValues));
       }
 
       // check that the actual object matches an element in the expected enum
       const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
       if (filteredEnum.length === 0) {
-        failures.push(new EnumMismatch(path, enumValues, actual));
+        failures.push(new EnumMismatch([...path], enumValues, actual));
       }
     }
     return failures;
   }
 
-  private static checkItemSchemaErrors(
+  private static checkArrayItemSchema(
     actual: Json,
     expected: SchemaObject,
     path: string[],
@@ -240,16 +231,19 @@ class OASValidator {
       actual.forEach((item) => {
         failures = [
           ...failures,
-          ...this.validateObjectAgainstSchema(item, itemSchema, path),
+          ...this.validateObjectAgainstSchema(item, itemSchema, [...path]),
         ];
       });
     } else {
-      failures = [...failures, new InvalidSchema(ITEMS_MISSING_ERROR, path)];
+      failures = [
+        ...failures,
+        new InvalidSchema(ITEMS_MISSING_ERROR, [...path]),
+      ];
     }
     return failures;
   }
 
-  private static checkObjectPropertiesErrors(
+  private static checkObjectProperties(
     actual: Json,
     expected: SchemaObject,
     path: string[],
@@ -261,7 +255,7 @@ class OASValidator {
     if (!properties) {
       failures = [
         ...failures,
-        new InvalidSchema(PROPERTIES_MISSING_ERROR, path),
+        new InvalidSchema(PROPERTIES_MISSING_ERROR, [...path]),
       ];
       return failures;
     }
@@ -277,14 +271,17 @@ class OASValidator {
     ) {
       failures = [
         ...failures,
-        new PropertiesMismatch(path, expectedProperties, actualProperties),
+        new PropertiesMismatch([...path], expectedProperties, actualProperties),
       ];
     }
 
     // check required values are present
     expected.required?.forEach((requiredProperty) => {
       if (!actualProperties.includes(requiredProperty)) {
-        failures = [...failures, new RequiredProperty(path, requiredProperty)];
+        failures = [
+          ...failures,
+          new RequiredProperty([...path], requiredProperty),
+        ];
       }
     });
 
@@ -292,13 +289,12 @@ class OASValidator {
     Object.entries(actual)
       .filter(([propertyName]) => properties[propertyName])
       .forEach(([propertyName, propertyObject]) => {
-        path = [...path, propertyName];
         failures = [
           ...failures,
           ...this.validateObjectAgainstSchema(
             propertyObject,
             properties[propertyName],
-            path,
+            [...path, propertyName],
           ),
         ];
       });
