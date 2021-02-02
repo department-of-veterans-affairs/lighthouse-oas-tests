@@ -3,7 +3,7 @@ import { parse } from 'content-type';
 import isEqual from 'lodash.isequal';
 import uniqWith from 'lodash.uniqwith';
 import {
-  Schema,
+  InvalidSchema,
   DuplicateEnum,
   EnumMismatch,
   TypeMismatch,
@@ -114,104 +114,186 @@ class OASValidator {
     path: string[],
   ): ValidationFailure[] {
     let failures: ValidationFailure[] = [];
+    const actualType = typeof actual;
+
+    const invalidSchemaErrors = this.checkInvalidSchema(actual, expected, [
+      ...path,
+    ]);
+    if (invalidSchemaErrors) {
+      failures = [...failures, ...invalidSchemaErrors];
+      return failures;
+    }
+
+    const expectedTypeError = this.checkExpectedType(actual, expected, [
+      ...path,
+    ]);
+
+    if (expectedTypeError) {
+      failures = [...failures, expectedTypeError];
+      return failures;
+    }
+
+    const enumValueErrors = this.checkEnumValue(actual, expected, [...path]);
+    if (enumValueErrors.length > 0) {
+      failures = [...failures, ...enumValueErrors];
+    }
+
+    if (Array.isArray(actual)) {
+      const itemSchemaErrors = this.checkArrayItemSchema(actual, expected, [
+        ...path,
+      ]);
+      if (itemSchemaErrors) {
+        failures = [...failures, ...itemSchemaErrors];
+      }
+    } else if (actualType === 'object') {
+      const propertiesErrors = this.checkObjectProperties(actual, expected, [
+        ...path,
+      ]);
+      if (propertiesErrors) {
+        failures = [...failures, ...propertiesErrors];
+      }
+    }
+    return failures;
+  }
+
+  private static checkInvalidSchema(
+    actual: Json,
+    expected: SchemaObject,
+    path: string[],
+  ): Array<InvalidSchema> | undefined {
     // if the actual object is null check that null values are allowed
     if (actual === null) {
       if (expected.nullable) {
         return [];
       }
-
-      return [new Schema(NULL_VALUE_ERROR, path)];
+      return [new InvalidSchema(NULL_VALUE_ERROR, [...path])];
     }
+  }
 
-    const enumValues = expected.enum;
-    const expectedType = expected.type;
+  private static checkExpectedType(
+    actual: Json,
+    expected: SchemaObject,
+    path: string[],
+  ): TypeMismatch | undefined {
     const actualType = typeof actual;
-
-    if (expectedType) {
-      if (expectedType === 'array') {
-        // check that the actual object is an array
-        if (!Array.isArray(actual)) {
-          return [new TypeMismatch(path, expectedType, actualType)];
-        }
-      } else if (actualType !== expectedType) {
-        // check that type matches for other types
-        return [new TypeMismatch(path, expectedType, actualType)];
-      }
+    if (!expected.type) {
+      return;
     }
+    if (expected.type === 'array') {
+      // check that the actual object is an array
+      if (!Array.isArray(actual)) {
+        return new TypeMismatch([...path], expected.type, actualType);
+      }
+    } else if (expected.type === 'integer') {
+      // check that the actual value is an integer
+      if (!Number.isInteger(actual)) {
+        return new TypeMismatch([...path], expected.type, actualType);
+      }
+    } else if (actualType !== expected.type) {
+      // check that type matches for other types
+      return new TypeMismatch([...path], expected.type, actualType);
+    }
+  }
 
+  private static checkEnumValue(
+    actual: Json,
+    expected: SchemaObject,
+    path: string[],
+  ): ValidationFailure[] {
+    let failures: ValidationFailure[] = [];
+    const enumValues = expected.enum;
     if (enumValues) {
       // check that expected enum does not contain duplicate values
       const uniqueEnumValues = uniqWith(enumValues, isEqual);
       if (uniqueEnumValues.length !== enumValues.length) {
-        failures.push(new DuplicateEnum(path, enumValues));
+        failures = [new DuplicateEnum([...path], enumValues)];
       }
 
       // check that the actual object matches an element in the expected enum
       const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
       if (filteredEnum.length === 0) {
-        failures.push(new EnumMismatch(path, enumValues, actual));
+        failures = [
+          ...failures,
+          new EnumMismatch([...path], enumValues, actual),
+        ];
       }
     }
+    return failures;
+  }
 
-    if (Array.isArray(actual)) {
-      // check that the expected object's items property is set
-      const itemSchema = expected.items;
-      if (itemSchema) {
-        // re-run for each item
-        actual.forEach((item) => {
-          failures = [
-            ...failures,
-            ...this.validateObjectAgainstSchema(item, itemSchema, path),
-          ];
-        });
-      } else {
-        failures.push(new Schema(ITEMS_MISSING_ERROR, path));
-      }
-    } else if (actualType === 'object') {
-      // check that the expected object's properties field is set
-      const properties = expected.properties;
-      if (properties) {
-        const actualProperties = Object.keys(actual);
-        const expectedProperties = Object.keys(properties);
+  private static checkArrayItemSchema(
+    actual: Json,
+    expected: SchemaObject,
+    path: string[],
+  ): ValidationFailure[] {
+    let failures: ValidationFailure[] = [];
+    // check that the expected object's items property is set
+    const itemSchema = expected.items;
+    if (itemSchema) {
+      // re-run for each item
+      actual.forEach((item) => {
+        failures = [
+          ...failures,
+          ...this.validateObjectAgainstSchema(item, itemSchema, [...path]),
+        ];
+      });
+    } else {
+      failures = [new InvalidSchema(ITEMS_MISSING_ERROR, [...path])];
+    }
+    return failures;
+  }
 
-        // check that the actual object only contains properties present in expected object
-        if (
-          actualProperties.filter(
-            (property) => !expectedProperties.includes(property),
-          ).length > 0
-        ) {
-          failures.push(
-            new PropertiesMismatch(path, expectedProperties, actualProperties),
-          );
-        }
+  private static checkObjectProperties(
+    actual: Json,
+    expected: SchemaObject,
+    path: string[],
+  ): ValidationFailure[] {
+    let failures: ValidationFailure[] = [];
+    const properties = expected.properties;
 
-        // check required values are present
-        expected.required?.forEach((requiredProperty) => {
-          if (!actualProperties.includes(requiredProperty)) {
-            failures.push(new RequiredProperty(path, requiredProperty));
-          }
-        });
-
-        // re-un for each property that has a schema present
-        Object.entries(actual)
-          .filter(([propertyName]) => properties[propertyName])
-          .forEach(([propertyName, propertyObject]) => {
-            path.push(propertyName);
-            failures = [
-              ...failures,
-              ...this.validateObjectAgainstSchema(
-                propertyObject,
-                properties[propertyName],
-                path,
-              ),
-            ];
-          });
-      } else {
-        failures.push(new Schema(PROPERTIES_MISSING_ERROR, path));
-      }
+    // check that the expected object's properties field is set
+    if (!properties) {
+      failures = [new InvalidSchema(PROPERTIES_MISSING_ERROR, [...path])];
+      return failures;
     }
 
-    path.pop();
+    const actualProperties = Object.keys(actual);
+    const expectedProperties = Object.keys(properties);
+
+    // check that the actual object only contains properties present in expected object
+    if (
+      actualProperties.filter(
+        (property) => !expectedProperties.includes(property),
+      ).length > 0
+    ) {
+      failures = [
+        new PropertiesMismatch([...path], expectedProperties, actualProperties),
+      ];
+    }
+
+    // check required values are present
+    expected.required?.forEach((requiredProperty) => {
+      if (!actualProperties.includes(requiredProperty)) {
+        failures = [
+          ...failures,
+          new RequiredProperty([...path], requiredProperty),
+        ];
+      }
+    });
+
+    // re-un for each property that has a schema present
+    Object.entries(actual)
+      .filter(([propertyName]) => properties[propertyName])
+      .forEach(([propertyName, propertyObject]) => {
+        failures = [
+          ...failures,
+          ...this.validateObjectAgainstSchema(
+            propertyObject,
+            properties[propertyName],
+            [...path, propertyName],
+          ),
+        ];
+      });
     return failures;
   }
 }

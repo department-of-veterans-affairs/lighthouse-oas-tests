@@ -65,7 +65,7 @@ declare module 'swagger-client' {
   }
 
   export interface SchemaObject {
-    type?: 'number' | 'string' | 'object' | 'array';
+    type?: 'number' | 'string' | 'object' | 'array' | 'integer';
     required?: string[];
     items?: SchemaObject;
     properties?: { [property: string]: SchemaObject };
