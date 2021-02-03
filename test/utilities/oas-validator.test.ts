@@ -932,7 +932,7 @@ describe('OasValidator', () => {
                 ['body', 'form'],
               ),
             ).toContainValidationFailure(
-              'Actual object contains a property not present in schema. Path: body -> form. Schema properties: value. Actual properties: fake',
+              'Actual object contains a property not present in schema. Path: body -> form. Schema properties: value. Actual properties: fake, value',
             );
           });
         });
