@@ -754,6 +754,35 @@ describe('OasValidator', () => {
           });
         });
 
+        describe('object has no errors', () => {
+          let tempSchema;
+          beforeAll(() => {
+            tempSchema = { ...schema };
+            tempSchema.items = { ...schema.items };
+          });
+          it('returns a validation failure', () => {
+            tempSchema.items = {
+              type: 'object',
+              required: ['value'],
+              properties: {
+                value: {
+                  type: 'string',
+                  description: 'a string',
+                },
+              },
+              description: 'schema for an object',
+            };
+            expect(
+              OasValidator.validateObjectAgainstSchema([{}], tempSchema, [
+                'body',
+                'numbers',
+              ]),
+            ).toContainValidationFailure(
+              'Actual object missing required property. Path: body -> numbers. Required property: value',
+            );
+          });
+        });
+
         it('calls validateObjectAgainstSchema once for each child', () => {
           OasValidator.validateObjectAgainstSchema([42, 56], schema, [
             'body',
@@ -888,15 +917,22 @@ describe('OasValidator', () => {
         });
 
         describe('object has a property not listed in schema', () => {
+          let tempSchema;
+          beforeAll(() => {
+            tempSchema = { ...schema };
+            tempSchema.properties = { ...schema.properties };
+            tempSchema.required = ['value'];
+          });
+
           it('returns a validation failure', () => {
             expect(
               OasValidator.validateObjectAgainstSchema(
-                { fake: 'property' },
-                schema,
+                { fake: 'property', value: 'potato' },
+                tempSchema,
                 ['body', 'form'],
               ),
             ).toContainValidationFailure(
-              'Actual object contains a property not present in schema. Path: body -> form. Schema properties: value. Actual properties: fake',
+              'Actual object contains a property not present in schema. Path: body -> form. Schema properties: value. Actual properties: fake, value',
             );
           });
         });

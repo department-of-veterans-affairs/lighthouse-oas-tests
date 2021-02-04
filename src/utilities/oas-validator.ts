@@ -142,14 +142,14 @@ class OASValidator {
       const itemSchemaErrors = this.checkArrayItemSchema(actual, expected, [
         ...path,
       ]);
-      if (itemSchemaErrors) {
+      if (itemSchemaErrors.length > 0) {
         failures = [...failures, ...itemSchemaErrors];
       }
     } else if (actualType === 'object') {
       const propertiesErrors = this.checkObjectProperties(actual, expected, [
         ...path,
       ]);
-      if (propertiesErrors) {
+      if (propertiesErrors.length > 0) {
         failures = [...failures, ...propertiesErrors];
       }
     }
