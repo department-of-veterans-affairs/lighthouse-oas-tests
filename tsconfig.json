@@ -12,7 +12,8 @@
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
     "resolveJsonModule": true,
-    "typeRoots": ["./@types", "./node_modules/@types"]
+    "typeRoots": ["./@types", "./node_modules/@types"],
+    "types": ["jest"]
   },
   "include": ["src/**/*"],
 }
