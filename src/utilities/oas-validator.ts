@@ -1,4 +1,10 @@
-import { Json, Response, SchemaObject, Parameter } from 'swagger-client';
+import {
+  Json,
+  Response,
+  SchemaObject,
+  Parameter,
+  Method,
+} from 'swagger-client';
 import { parse } from 'content-type';
 import isEqual from 'lodash.isequal';
 import uniqWith from 'lodash.uniqwith';
@@ -40,20 +46,12 @@ class OASValidator {
     if (!operation) {
       return [new InvalidOperationId(operationId)];
     }
-    const requiredParameters = operation.parameters
-      .filter((parameter) => parameter.required)
-      .map((parameter) => parameter.name);
-
-    const presentParameterNames = Object.keys(parameters);
-    const missingRequiredParameters = requiredParameters?.filter(
-      (parameterName) => !presentParameterNames.includes(parameterName),
+    const missingParametersError = this.checkMissingParameters(
+      operation,
+      parameters,
     );
-
-    if (missingRequiredParameters.length > 0) {
-      failures = [
-        ...failures,
-        new MissingRequiredParameters(missingRequiredParameters),
-      ];
+    if (missingParametersError) {
+      failures = [...failures, missingParametersError];
     }
 
     operation.parameters.forEach((parameter) => {
@@ -62,14 +60,21 @@ class OASValidator {
 
     Object.entries(parameters).forEach(([key, value]) => {
       if (Object.keys(parameterSchema).includes(key)) {
-        failures = [
-          ...failures,
-          ...OASValidator.validateObjectAgainstSchema(
-            value,
-            parameterSchema[key].schema,
-            ['parameters', key, 'example'],
-          ),
-        ];
+        const { schema, parameterObjectFailure } = this.checkParameterObject(
+          parameterSchema[key],
+        );
+        if (parameterObjectFailure) {
+          failures = [...failures, parameterObjectFailure];
+        } else if (schema) {
+          failures = [
+            ...failures,
+            ...OASValidator.validateObjectAgainstSchema(value, schema, [
+              'parameters',
+              key,
+              'example',
+            ]),
+          ];
+        }
       }
     });
     return failures;
@@ -238,6 +243,60 @@ class OASValidator {
       failures = [new ItemSchemaMissing([...path])];
     }
     return failures;
+  }
+
+  private checkMissingParameters(
+    operation: Method | null,
+    parameters: ParameterExamples,
+  ): ValidationFailure | undefined {
+    const requiredParameters = operation?.parameters
+      .filter((parameter) => parameter.required)
+      .map((parameter) => parameter.name);
+
+    const presentParameterNames = Object.keys(parameters);
+    const missingRequiredParameters = requiredParameters?.filter(
+      (parameterName) => !presentParameterNames.includes(parameterName),
+    );
+
+    if (missingRequiredParameters && missingRequiredParameters.length > 0) {
+      return new MissingRequiredParameters(missingRequiredParameters);
+    }
+  }
+
+  private checkParameterObject(
+    parameterObject,
+  ): {
+    schema: SchemaObject | null;
+    parameterObjectFailure: ValidationFailure | null;
+  } {
+    const checkObject = { schema: null, parameterObjectFailure: null };
+    if (parameterObject.schema && !parameterObject.content) {
+      checkObject.schema = parameterObject.schema;
+      return checkObject;
+    }
+
+    if (parameterObject.content) {
+      if (parameterObject.schema) {
+        checkObject.parameterObjectFailure = new ParameterPropertyConflict();
+        return checkObject;
+      }
+
+      const parameterKeys = Object.keys(parameterObject.content);
+      if (parameterKeys.length !== 1) {
+        checkObject.parameterObjectFailure = new ParameterContentNotOne();
+
+        return checkObject;
+      }
+
+      if (parameterObject.content[parameterKeys[0]].schema) {
+        checkObject.schema = parameterObject.content[parameterKeys[0]].schema;
+        return checkObject;
+      }
+
+      checkObject.parameterObjectFailure = new MissingSchemaObject();
+    }
+
+    return checkObject;
   }
 
   private static checkObjectProperties(
