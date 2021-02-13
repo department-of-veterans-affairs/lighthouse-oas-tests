@@ -21,10 +21,18 @@ import {
   NullValueNotAllowed,
   ItemSchemaMissing,
   PropertySchemaMissing,
+  InvalidParameterObject,
+  InvalidParameterContent,
+  MissingSchemaObject,
 } from '../validation-failures';
 import OasSchema from './oas-schema';
 import { ParameterExamples } from '../types/parameter-examples';
 import ValidationFailure from '../validation-failures/validation-failure';
+
+type CheckParameterObject = {
+  schema: SchemaObject | null;
+  parameterObjectFailure: ValidationFailure | null;
+};
 
 class OASValidator {
   private schema: OasSchema;
@@ -35,11 +43,8 @@ class OASValidator {
 
   validateParameters = async (
     operationId: string,
-    parameters: ParameterExamples,
+    parameterExamples: ParameterExamples,
   ): Promise<ValidationFailure[]> => {
-    const parameterSchema: {
-      [parameterName: string]: Parameter;
-    } = {};
     let failures: ValidationFailure[] = [];
 
     const operation = await this.schema.getOperation(operationId);
@@ -48,31 +53,32 @@ class OASValidator {
     }
     const missingParametersError = this.checkMissingParameters(
       operation,
-      parameters,
+      parameterExamples,
     );
     if (missingParametersError) {
       failures = [...failures, missingParametersError];
     }
 
+    const oasParameters: {
+      [parameterName: string]: Parameter;
+    } = {};
     operation.parameters.forEach((parameter) => {
-      parameterSchema[parameter.name] = parameter;
+      oasParameters[parameter.name] = parameter;
     });
 
-    Object.entries(parameters).forEach(([key, value]) => {
-      if (Object.keys(parameterSchema).includes(key)) {
+    Object.entries(parameterExamples).forEach(([name, example]) => {
+      if (Object.keys(oasParameters).includes(name)) {
+        const path = ['parameters', name, 'example'];
         const { schema, parameterObjectFailure } = this.checkParameterObject(
-          parameterSchema[key],
+          oasParameters[name],
+          path,
         );
         if (parameterObjectFailure) {
           failures = [...failures, parameterObjectFailure];
         } else if (schema) {
           failures = [
             ...failures,
-            ...OASValidator.validateObjectAgainstSchema(value, schema, [
-              'parameters',
-              key,
-              'example',
-            ]),
+            ...OASValidator.validateObjectAgainstSchema(example, schema, path),
           ];
         }
       }
@@ -265,11 +271,12 @@ class OASValidator {
 
   private checkParameterObject(
     parameterObject,
-  ): {
-    schema: SchemaObject | null;
-    parameterObjectFailure: ValidationFailure | null;
-  } {
-    const checkObject = { schema: null, parameterObjectFailure: null };
+    path: string[],
+  ): CheckParameterObject {
+    const checkObject: CheckParameterObject = {
+      schema: null,
+      parameterObjectFailure: null,
+    };
     if (parameterObject.schema && !parameterObject.content) {
       checkObject.schema = parameterObject.schema;
       return checkObject;
@@ -277,13 +284,13 @@ class OASValidator {
 
     if (parameterObject.content) {
       if (parameterObject.schema) {
-        checkObject.parameterObjectFailure = new ParameterPropertyConflict();
+        checkObject.parameterObjectFailure = new InvalidParameterObject(path);
         return checkObject;
       }
 
       const parameterKeys = Object.keys(parameterObject.content);
       if (parameterKeys.length !== 1) {
-        checkObject.parameterObjectFailure = new ParameterContentNotOne();
+        checkObject.parameterObjectFailure = new InvalidParameterContent(path);
 
         return checkObject;
       }
@@ -293,7 +300,7 @@ class OASValidator {
         return checkObject;
       }
 
-      checkObject.parameterObjectFailure = new MissingSchemaObject();
+      checkObject.parameterObjectFailure = new MissingSchemaObject(path);
     }
 
     return checkObject;
