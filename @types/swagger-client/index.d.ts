@@ -40,8 +40,13 @@ declare module 'swagger-client' {
   export interface Parameter {
     name: string;
     example: Json;
-    required: boolean;
+    required?: boolean;
     schema: SchemaObject;
+    content: {
+      [name: string]: {
+        schema: SchemaObject;
+      };
+    };
   }
 
   type Api = {

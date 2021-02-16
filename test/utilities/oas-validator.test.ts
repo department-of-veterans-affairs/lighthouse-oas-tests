@@ -112,6 +112,129 @@ describe('OasValidator', () => {
       });
     });
 
+    describe('both content and schema exist on parameter', () => {
+      it('returns a validation failure', async () => {
+        const schema = generateMockSchema([
+          {
+            name: 'gryffindor',
+            example: 'ginny weasly',
+            schema: {
+              type: 'string',
+              description: 'founded by Godric Gryffindor',
+            },
+            content: {
+              'document/howler': {
+                schema: {
+                  type: 'string',
+                  example: 'ron weasly',
+                },
+              },
+            },
+          },
+        ]);
+
+        const validator = new OasValidator((schema as unknown) as OasSchema);
+
+        const failures = await validator.validateParameters('operation1', {
+          gryffindor: 'luna lovegood',
+        });
+
+        expect(failures).toHaveLength(1);
+        expect(failures).toContainValidationFailure(
+          'Parameter object must have either schema or content set, but not both. Path: parameters -> gryffindor',
+        );
+      });
+    });
+
+    describe('content contains more than one entry', () => {
+      it('returns a validation failure', async () => {
+        const schema = generateMockSchema([
+          {
+            name: 'magical deliveries',
+            example: 'the daily prophet',
+            content: {
+              'document/howler': {
+                schema: {
+                  type: 'string',
+                  example: 'petunia dursley',
+                },
+              },
+              'owl/package': {
+                schema: {
+                  type: 'string',
+                  example: 'nimbus 2000',
+                },
+              },
+            },
+          },
+        ]);
+
+        const validator = new OasValidator((schema as unknown) as OasSchema);
+
+        const failures = await validator.validateParameters('operation1', {
+          'magical deliveries': 'firebolt',
+        });
+
+        expect(failures).toHaveLength(1);
+        expect(failures).toContainValidationFailure(
+          'Parameter content object should only have one key. Path: parameters -> magical deliveries -> content',
+        );
+      });
+    });
+
+    describe('content does not contain a schema object', () => {
+      it('returns a validation failure', async () => {
+        const schema = generateMockSchema([
+          {
+            name: 'magical deliveries',
+            example: 'the daily prophet',
+            content: {
+              'document/howler': {
+                properties: {
+                  'magical deliveries': {
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          },
+        ]);
+
+        const validator = new OasValidator((schema as unknown) as OasSchema);
+
+        const failures = await validator.validateParameters('operation1', {
+          'magical deliveries': "weasley's wizard wheezes",
+        });
+
+        expect(failures).toHaveLength(1);
+        expect(failures).toContainValidationFailure(
+          'Parameter is missing a schema object. Path: parameters -> magical deliveries -> content -> document/howler',
+        );
+      });
+    });
+
+    describe('neither content nor schema exist on parameter', () => {
+      it('returns a validation failure', async () => {
+        const schema = generateMockSchema([
+          {
+            name: 'horcrux',
+            example: "tom riddle's diary",
+          },
+        ]);
+
+        const validator = new OasValidator((schema as unknown) as OasSchema);
+
+        const failures = await validator.validateParameters('operation1', {
+          horcrux: 'nagini',
+        });
+
+        expect(failures).toHaveLength(1);
+        expect(failures).toContainValidationFailure(
+          'Parameter object must have either schema or content set, but not both. Path: parameters -> horcrux',
+        );
+      });
+    });
+
     it('calls validateObjectAgainstSchema for each valid parameter', async () => {
       const schema = generateMockSchema();
       const validator = new OasValidator((schema as unknown) as OasSchema);

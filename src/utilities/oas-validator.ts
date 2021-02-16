@@ -34,6 +34,10 @@ type CheckParameterObject = {
   parameterObjectFailure: ValidationFailure | null;
 };
 
+type OperationParameters = {
+  [parameterName: string]: Parameter;
+};
+
 class OASValidator {
   private schema: OasSchema;
 
@@ -51,26 +55,24 @@ class OASValidator {
     if (!operation) {
       return [new InvalidOperationId(operationId)];
     }
-    const missingParametersError = this.checkMissingParameters(
+    const missingRequiredParametersError = this.checkMissingRequiredParameters(
       operation,
       parameterExamples,
     );
-    if (missingParametersError) {
-      failures = [...failures, missingParametersError];
+    if (missingRequiredParametersError) {
+      failures = [...failures, missingRequiredParametersError];
     }
 
-    const oasParameters: {
-      [parameterName: string]: Parameter;
-    } = {};
+    const operationParameters: OperationParameters = {};
     operation.parameters.forEach((parameter) => {
-      oasParameters[parameter.name] = parameter;
+      operationParameters[parameter.name] = parameter;
     });
 
     Object.entries(parameterExamples).forEach(([name, example]) => {
-      if (Object.keys(oasParameters).includes(name)) {
-        const path = ['parameters', name, 'example'];
+      if (Object.keys(operationParameters).includes(name)) {
+        const path = ['parameters', name];
         const { schema, parameterObjectFailure } = this.checkParameterObject(
-          oasParameters[name],
+          operationParameters[name],
           path,
         );
         if (parameterObjectFailure) {
@@ -78,7 +80,10 @@ class OASValidator {
         } else if (schema) {
           failures = [
             ...failures,
-            ...OASValidator.validateObjectAgainstSchema(example, schema, path),
+            ...OASValidator.validateObjectAgainstSchema(example, schema, [
+              ...path,
+              'example',
+            ]),
           ];
         }
       }
@@ -251,7 +256,7 @@ class OASValidator {
     return failures;
   }
 
-  private checkMissingParameters(
+  private checkMissingRequiredParameters(
     operation: Method | null,
     parameters: ParameterExamples,
   ): ValidationFailure | undefined {
@@ -288,21 +293,32 @@ class OASValidator {
         return checkObject;
       }
 
-      const parameterKeys = Object.keys(parameterObject.content);
-      if (parameterKeys.length !== 1) {
-        checkObject.parameterObjectFailure = new InvalidParameterContent(path);
+      const [contentObjectKey, ...invalidKeys] = Object.keys(
+        parameterObject.content,
+      );
+      if (invalidKeys.length > 0) {
+        checkObject.parameterObjectFailure = new InvalidParameterContent([
+          ...path,
+          'content',
+        ]);
 
         return checkObject;
       }
 
-      if (parameterObject.content[parameterKeys[0]].schema) {
-        checkObject.schema = parameterObject.content[parameterKeys[0]].schema;
+      if (parameterObject.content[contentObjectKey].schema) {
+        checkObject.schema = parameterObject.content[contentObjectKey].schema;
         return checkObject;
       }
 
-      checkObject.parameterObjectFailure = new MissingSchemaObject(path);
+      checkObject.parameterObjectFailure = new MissingSchemaObject([
+        ...path,
+        'content',
+        contentObjectKey,
+      ]);
+      return checkObject;
     }
 
+    checkObject.parameterObjectFailure = new InvalidParameterObject(path);
     return checkObject;
   }
 
