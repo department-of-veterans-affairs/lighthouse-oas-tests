@@ -41,6 +41,7 @@ declare module 'swagger-client' {
 
   interface ParameterBase {
     name: string;
+    in: 'query' | 'header' | 'path' | 'cookie';
     example: Json;
     required?: boolean;
   }
