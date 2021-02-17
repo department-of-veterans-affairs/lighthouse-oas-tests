@@ -37,11 +37,19 @@ declare module 'swagger-client' {
     responses: { [responseStatus: string]: Json };
   }
 
-  export interface Parameter {
+  export type Parameter = ParameterWithSchema | ParameterWithContent;
+
+  interface ParameterBase {
     name: string;
     example: Json;
     required?: boolean;
+  }
+
+  interface ParameterWithSchema extends ParameterBase {
     schema: SchemaObject;
+  }
+
+  interface ParameterWithContent extends ParameterBase {
     content: {
       [name: string]: {
         schema: SchemaObject;
