@@ -235,6 +235,33 @@ describe('OasValidator', () => {
       });
     });
 
+    describe('content is shaped correctly', () => {
+      it('does not return a validation failure', async () => {
+        const schema = generateMockSchema([
+          {
+            name: 'diagon alley shops',
+            example: '2nd hand brooms',
+            content: {
+              'document/map': {
+                schema: {
+                  type: 'string',
+                  example: 'flourish and blotts',
+                },
+              },
+            },
+          },
+        ]);
+
+        const validator = new OasValidator((schema as unknown) as OasSchema);
+
+        const failures = await validator.validateParameters('operation1', {
+          'diagon alley shops': 'ollivanders',
+        });
+
+        expect(failures).toHaveLength(0);
+      });
+    });
+
     it('calls validateObjectAgainstSchema for each valid parameter', async () => {
       const schema = generateMockSchema();
       const validator = new OasValidator((schema as unknown) as OasSchema);
