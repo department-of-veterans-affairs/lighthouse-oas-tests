@@ -190,7 +190,7 @@ describe('OasValidator', () => {
             example: 'the daily prophet',
             content: {
               'document/howler': {
-                properties: {
+                hogwarts: {
                   'magical deliveries': {
                     type: 'string',
                   },

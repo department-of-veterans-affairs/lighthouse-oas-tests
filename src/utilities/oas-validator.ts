@@ -70,22 +70,14 @@ class OASValidator {
 
     Object.entries(parameterExamples).forEach(([name, example]) => {
       if (Object.keys(operationParameters).includes(name)) {
-        const path = ['parameters', name];
-        const { schema, parameterObjectFailure } = this.checkParameterObject(
-          operationParameters[name],
-          path,
-        );
-        if (parameterObjectFailure) {
-          failures = [...failures, parameterObjectFailure];
-        } else if (schema) {
-          failures = [
-            ...failures,
-            ...OASValidator.validateObjectAgainstSchema(example, schema, [
-              ...path,
-              'example',
-            ]),
-          ];
-        }
+        failures = [
+          ...failures,
+          ...this.checkParameterExample(
+            name,
+            example,
+            operationParameters[name],
+          ),
+        ];
       }
     });
     return failures;
@@ -256,6 +248,34 @@ class OASValidator {
     return failures;
   }
 
+  private checkParameterExample(
+    name: string,
+    example: string | number,
+    parameter: Parameter,
+  ): ValidationFailure[] {
+    let failures: ValidationFailure[] = [];
+    const path = ['parameters', name];
+
+    const { schema, parameterObjectFailure } = this.checkParameterObject(
+      parameter,
+      path,
+    );
+
+    if (parameterObjectFailure) {
+      failures = [...failures, parameterObjectFailure];
+    } else if (schema) {
+      failures = [
+        ...failures,
+        ...OASValidator.validateObjectAgainstSchema(example, schema, [
+          ...path,
+          'example',
+        ]),
+      ];
+    }
+
+    return failures;
+  }
+
   private checkMissingRequiredParameters(
     operation: Method | null,
     parameters: ParameterExamples,
@@ -275,51 +295,63 @@ class OASValidator {
   }
 
   private checkParameterObject(
-    parameterObject,
+    parameter: Parameter,
     path: string[],
   ): CheckParameterObject {
-    const checkObject: CheckParameterObject = {
-      schema: null,
-      parameterObjectFailure: null,
-    };
-    if (parameterObject.schema && !parameterObject.content) {
-      checkObject.schema = parameterObject.schema;
-      return checkObject;
+    if (parameter.schema && !parameter.content) {
+      // Parameter Object conatains field: schema; does not contain field: content
+      return {
+        schema: parameter.schema,
+        parameterObjectFailure: null,
+      };
     }
 
-    if (parameterObject.content) {
-      if (parameterObject.schema) {
-        checkObject.parameterObjectFailure = new InvalidParameterObject(path);
-        return checkObject;
+    if (parameter.content) {
+      // Parameter Object contains field: content
+      if (parameter.schema) {
+        // ERROR: Parameter Object also contains field: schema.
+        return {
+          schema: null,
+          parameterObjectFailure: new InvalidParameterObject(path),
+        };
       }
 
-      const [contentObjectKey, ...invalidKeys] = Object.keys(
-        parameterObject.content,
-      );
+      const [contentObjectKey, ...invalidKeys] = Object.keys(parameter.content);
       if (invalidKeys.length > 0) {
-        checkObject.parameterObjectFailure = new InvalidParameterContent([
+        // ERROR: Content Object contains more than one entry.
+        return {
+          schema: null,
+          parameterObjectFailure: new InvalidParameterContent([
+            ...path,
+            'content',
+          ]),
+        };
+      }
+
+      if (parameter.content[contentObjectKey].schema) {
+        // Content Object contains one entry and a Schema Object.
+        return {
+          schema: parameter.content[contentObjectKey].schema,
+          parameterObjectFailure: null,
+        };
+      }
+
+      // ERROR: Content Object does not contain a Schema Object.
+      return {
+        schema: null,
+        parameterObjectFailure: new MissingSchemaObject([
           ...path,
           'content',
-        ]);
-
-        return checkObject;
-      }
-
-      if (parameterObject.content[contentObjectKey].schema) {
-        checkObject.schema = parameterObject.content[contentObjectKey].schema;
-        return checkObject;
-      }
-
-      checkObject.parameterObjectFailure = new MissingSchemaObject([
-        ...path,
-        'content',
-        contentObjectKey,
-      ]);
-      return checkObject;
+          contentObjectKey,
+        ]),
+      };
     }
 
-    checkObject.parameterObjectFailure = new InvalidParameterObject(path);
-    return checkObject;
+    // ERROR: Parameter Object must contain one of the following: schema, or content.
+    return {
+      schema: null,
+      parameterObjectFailure: new InvalidParameterObject(path),
+    };
   }
 
   private static checkObjectProperties(

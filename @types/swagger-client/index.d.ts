@@ -37,20 +37,19 @@ declare module 'swagger-client' {
     responses: { [responseStatus: string]: Json };
   }
 
-  export type Parameter = ParameterWithSchema | ParameterWithContent;
-
   interface ParameterBase {
     name: string;
-    in: 'query' | 'header' | 'path' | 'cookie';
-    example: Json;
+    in: 'path' | 'query' | 'header' | 'cookie';
+    description?: string;
     required?: boolean;
+    example: Json;
   }
 
-  interface ParameterWithSchema extends ParameterBase {
+  export interface Parameter extends ParameterBase {
     schema: SchemaObject;
   }
 
-  interface ParameterWithContent extends ParameterBase {
+  export interface Parameter extends ParameterBase {
     content: {
       [name: string]: {
         schema: SchemaObject;
@@ -76,6 +75,44 @@ declare module 'swagger-client' {
     authorizations?: Authorized;
     spec?: Json;
     url?: string;
+  }
+
+  export interface ContentObject {
+    [name: string]: MediaTypeObject;
+  }
+
+  export interface MediaTypeObject {
+    schema: SchemaObject;
+    example?: any;
+    examples?: { [name: string]: ExampleObject };
+    encoding?: { [name: string]: EncodingObject };
+  }
+
+  export interface EncodingObject {
+    contentType?: string;
+    headers?: { [name: string]: HeaderObject };
+    style?: string;
+    explode?: boolean;
+    allowReserved: boolean;
+  }
+
+  export interface ExampleObject {
+    summary?: string;
+    description?: string;
+    value?: any;
+    externalValue?: string;
+  }
+
+  export interface HeaderObject {
+    description?: string;
+    required?: boolean;
+    example?: Json;
+    schema?: SchemaObject;
+    content?: {
+      [name: string]: {
+        schema: SchemaObject;
+      };
+    };
   }
 
   export interface SchemaObject {
