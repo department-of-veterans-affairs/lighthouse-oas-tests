@@ -33,28 +33,8 @@ declare module 'swagger-client' {
 
   export interface Method {
     operationId: string;
-    parameters: Parameter[];
+    parameters: ParameterObject[];
     responses: { [responseStatus: string]: Json };
-  }
-
-  interface ParameterBase {
-    name: string;
-    in: 'path' | 'query' | 'header' | 'cookie';
-    description?: string;
-    required?: boolean;
-    example: Json;
-  }
-
-  export interface Parameter extends ParameterBase {
-    schema: SchemaObject;
-  }
-
-  export interface Parameter extends ParameterBase {
-    content: {
-      [name: string]: {
-        schema: SchemaObject;
-      };
-    };
   }
 
   type Api = {
@@ -77,9 +57,26 @@ declare module 'swagger-client' {
     url?: string;
   }
 
-  export interface ContentObject {
-    [name: string]: MediaTypeObject;
+  interface ParameterAndHeaderBase {
+    description?: string;
+    required?: boolean;
+    example?: Json;
   }
+
+  interface ParameterBase extends ParameterAndHeaderBase {
+    name: string;
+    in: 'path' | 'query' | 'header' | 'cookie';
+  }
+
+  export interface ParameterWithSchema extends ParameterBase {
+    schema: SchemaObject;
+  }
+
+  export interface ParameterWithContent extends ParameterBase {
+    content: { [name: string]: MediaTypeObject };
+  }
+
+  export type ParameterObject = ParameterWithContent | ParameterWithSchema;
 
   export interface MediaTypeObject {
     schema: SchemaObject;
@@ -103,16 +100,9 @@ declare module 'swagger-client' {
     externalValue?: string;
   }
 
-  export interface HeaderObject {
-    description?: string;
-    required?: boolean;
-    example?: Json;
+  export interface HeaderObject extends ParameterAndHeaderBase {
     schema?: SchemaObject;
-    content?: {
-      [name: string]: {
-        schema: SchemaObject;
-      };
-    };
+    content?: { [name: string]: MediaTypeObject };
   }
 
   export interface SchemaObject {

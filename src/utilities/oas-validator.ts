@@ -2,8 +2,10 @@ import {
   Json,
   Response,
   SchemaObject,
-  Parameter,
   Method,
+  ParameterObject,
+  ParameterWithContent,
+  ParameterWithSchema,
 } from 'swagger-client';
 import { parse } from 'content-type';
 import isEqual from 'lodash.isequal';
@@ -35,7 +37,7 @@ type CheckParameterObject = {
 };
 
 type OperationParameters = {
-  [parameterName: string]: Parameter;
+  [parameterName: string]: ParameterObject;
 };
 
 class OASValidator {
@@ -251,7 +253,7 @@ class OASValidator {
   private checkParameterExample(
     name: string,
     example: string | number,
-    parameter: Parameter,
+    parameter: ParameterObject,
   ): ValidationFailure[] {
     let failures: ValidationFailure[] = [];
     const path = ['parameters', name];
@@ -294,11 +296,28 @@ class OASValidator {
     }
   }
 
+  private isParameterWithContent(parameter): parameter is ParameterWithContent {
+    if (parameter.content) {
+      return true;
+    }
+    return false;
+  }
+
+  private isParameterWithSchema(parameter): parameter is ParameterWithSchema {
+    if (parameter.schema) {
+      return true;
+    }
+    return false;
+  }
+
   private checkParameterObject(
-    parameter: Parameter,
+    parameter: ParameterObject,
     path: string[],
   ): CheckParameterObject {
-    if (parameter.schema && !parameter.content) {
+    if (
+      this.isParameterWithSchema(parameter) &&
+      !this.isParameterWithContent(parameter)
+    ) {
       // Parameter Object conatains field: schema; does not contain field: content
       return {
         schema: parameter.schema,
@@ -306,9 +325,9 @@ class OASValidator {
       };
     }
 
-    if (parameter.content) {
+    if (this.isParameterWithContent(parameter)) {
       // Parameter Object contains field: content
-      if (parameter.schema) {
+      if (this.isParameterWithSchema(parameter)) {
         // ERROR: Parameter Object also contains field: schema.
         return {
           schema: null,

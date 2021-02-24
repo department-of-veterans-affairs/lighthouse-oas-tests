@@ -1,5 +1,5 @@
 import loadJsonFile from 'load-json-file';
-import { Response, SchemaObject, Parameter } from 'swagger-client';
+import { Response, SchemaObject, ParameterObject } from 'swagger-client';
 import OasSchema from '../../src/utilities/oas-schema';
 import OasValidator from '../../src/utilities/oas-validator';
 import ValidationFailure from '../../src/validation-failures/validation-failure';
@@ -17,7 +17,7 @@ describe('OasValidator', () => {
       OasValidator.validateObjectAgainstSchema;
 
     const generateMockSchema = (
-      additionalParameters: Parameter[] = [],
+      additionalParameters: ParameterObject[] = [],
     ): OasSchema => {
       return ({
         getOperation: jest.fn((operationId) => {
