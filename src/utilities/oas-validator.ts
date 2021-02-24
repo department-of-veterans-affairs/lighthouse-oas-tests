@@ -157,7 +157,7 @@ class OASValidator {
     actual: Json,
     expected: SchemaObject,
     path: string[],
-  ): Array<InvalidSchema> | undefined {
+  ): Array<ValidationFailure> | undefined {
     // if the actual object is null check that null values are allowed
     if (actual === null) {
       if (expected.nullable) {
