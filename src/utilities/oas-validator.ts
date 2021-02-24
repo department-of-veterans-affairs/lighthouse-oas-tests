@@ -13,13 +13,11 @@ import {
   ContentTypeMismatch,
   MissingRequiredParameters,
   InvalidOperationId,
+  NullValueNotAllowed,
+  ItemSchemaMissing,
+  PropertySchemaMissing,
 } from '../validation-failures';
 import OasSchema from './oas-schema';
-import {
-  NULL_VALUE_ERROR,
-  ITEMS_MISSING_ERROR,
-  PROPERTIES_MISSING_ERROR,
-} from './constants';
 import { ParameterExamples } from '../types/parameter-examples';
 import ValidationFailure from '../validation-failures/validation-failure';
 
@@ -166,7 +164,7 @@ class OASValidator {
       if (expected.nullable) {
         return [];
       }
-      return [new InvalidSchema(NULL_VALUE_ERROR, [...path])];
+      return [new NullValueNotAllowed([...path])];
     }
   }
 
@@ -238,7 +236,7 @@ class OASValidator {
         ];
       });
     } else {
-      failures = [new InvalidSchema(ITEMS_MISSING_ERROR, [...path])];
+      failures = [new ItemSchemaMissing([...path])];
     }
     return failures;
   }
@@ -253,7 +251,7 @@ class OASValidator {
 
     // check that the expected object's properties field is set
     if (!properties) {
-      failures = [new InvalidSchema(PROPERTIES_MISSING_ERROR, [...path])];
+      failures = [new PropertySchemaMissing([...path])];
       return failures;
     }
 
