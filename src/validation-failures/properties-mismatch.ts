@@ -1,9 +1,3 @@
-import {
-  PROPERTIES_MISMATCH_ERROR,
-  PATH_PREFIX,
-  SCHEMA_PROPERTIES_PREFIX,
-  ACTUAL_PROPERTIES_PREFIX,
-} from '../utilities/constants';
 import ValidationFailure from './validation-failure';
 
 class PropertiesMismatch extends ValidationFailure {
@@ -13,11 +7,10 @@ class PropertiesMismatch extends ValidationFailure {
     actualProperties: string[],
   ) {
     super(
-      `${PROPERTIES_MISMATCH_ERROR}. ${PATH_PREFIX} ${path.join(
-        ' -> ',
-      )}. ${SCHEMA_PROPERTIES_PREFIX} ${schemaProperties.join(
+      `Actual object contains a property not present in schema. Schema properties: ${schemaProperties.join(
         ', ',
-      )}. ${ACTUAL_PROPERTIES_PREFIX} ${actualProperties.join(', ')}`,
+      )}. Actual properties: ${actualProperties.join(', ')}.`,
+      path,
     );
   }
 }

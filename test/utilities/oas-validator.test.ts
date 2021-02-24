@@ -95,7 +95,7 @@ describe('OasValidator', () => {
       describe('other parameter validation failures are present', () => {
         it('validates all parameters', async () => {
           (OasValidator.validateObjectAgainstSchema as jest.Mock).mockImplementationOnce(
-            () => [new ValidationFailure('There was a failure')],
+            () => [new ValidationFailure('There was a failure', [])],
           );
           const validator = new OasValidator((schema as unknown) as OasSchema);
 
@@ -401,9 +401,7 @@ describe('OasValidator', () => {
                   ['body', 'facility', 'id'],
                 ),
               ).toContainValidationFailure(
-                `Schema enum contains duplicate values. Path: body -> facility -> id. Enum values: ${JSON.stringify(
-                  schema.enum,
-                )}`,
+                'Schema enum contains duplicate values. Enum values: ["test","test","anything"]. Path: body -> facility -> id',
               );
             });
 
@@ -434,9 +432,7 @@ describe('OasValidator', () => {
                   'id',
                 ]),
               ).toContainValidationFailure(
-                `Actual value does not match schema enum. Path: body -> facility -> id. Enum values: ${JSON.stringify(
-                  schema.enum,
-                )}. Actual value: ${JSON.stringify(object)}`,
+                'Actual value does not match schema enum. Enum values: ["test","anything"]. Actual value: "does not match". Path: body -> facility -> id',
               );
             });
           });
@@ -457,7 +453,7 @@ describe('OasValidator', () => {
               'id',
             ]),
           ).toContainValidationFailure(
-            'Actual type did not match schema. Path: body -> facility -> id. Schema type: string. Actual type: number',
+            'Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> facility -> id',
           );
         });
 
@@ -480,7 +476,7 @@ describe('OasValidator', () => {
 
             expect(failures).toHaveLength(1);
             expect(failures).toContainValidationFailure(
-              'Actual type did not match schema. Path: body -> facility -> id. Schema type: string. Actual type: object',
+              'Actual type did not match schema. Schema type: string. Actual type: object. Path: body -> facility -> id',
             );
           });
         });
@@ -502,7 +498,7 @@ describe('OasValidator', () => {
 
             expect(failures).toHaveLength(1);
             expect(failures).toContainValidationFailure(
-              'Actual type did not match schema. Path: body -> facility -> id. Schema type: string. Actual type: object',
+              'Actual type did not match schema. Schema type: string. Actual type: object. Path: body -> facility -> id',
             );
           });
         });
@@ -553,9 +549,7 @@ describe('OasValidator', () => {
                   'lat',
                 ]),
               ).toContainValidationFailure(
-                `Actual value does not match schema enum. Path: body -> facility -> lat. Enum values: ${JSON.stringify(
-                  schema.enum,
-                )}. Actual value: ${JSON.stringify(object)}`,
+                'Actual value does not match schema enum. Enum values: [42,56]. Actual value: 100. Path: body -> facility -> lat',
               );
             });
           });
@@ -575,9 +569,7 @@ describe('OasValidator', () => {
                   'lat',
                 ]),
               ).toContainValidationFailure(
-                `Schema enum contains duplicate values. Path: body -> facility -> lat. Enum values: ${JSON.stringify(
-                  schema.enum,
-                )}`,
+                `Schema enum contains duplicate values. Enum values: [42,42,56]. Path: body -> facility -> lat`,
               );
             });
 
@@ -602,7 +594,7 @@ describe('OasValidator', () => {
               'lat',
             ]),
           ).toContainValidationFailure(
-            'Actual type did not match schema. Path: body -> facility -> lat. Schema type: number. Actual type: string',
+            'Actual type did not match schema. Schema type: number. Actual type: string. Path: body -> facility -> lat',
           );
         });
       });
@@ -651,9 +643,7 @@ describe('OasValidator', () => {
                   'lat',
                 ]),
               ).toContainValidationFailure(
-                `Actual value does not match schema enum. Path: body -> facility -> lat. Enum values: ${JSON.stringify(
-                  schema.enum,
-                )}. Actual value: ${JSON.stringify(object)}`,
+                'Actual value does not match schema enum. Enum values: [42,56]. Actual value: 100. Path: body -> facility -> lat',
               );
             });
           });
@@ -673,9 +663,7 @@ describe('OasValidator', () => {
                   'lat',
                 ]),
               ).toContainValidationFailure(
-                `Schema enum contains duplicate values. Path: body -> facility -> lat. Enum values: ${JSON.stringify(
-                  schema.enum,
-                )}`,
+                'Schema enum contains duplicate values. Enum values: [42,42,56]. Path: body -> facility -> lat',
               );
             });
 
@@ -700,7 +688,7 @@ describe('OasValidator', () => {
               'lat',
             ]),
           ).toContainValidationFailure(
-            'Actual type did not match schema. Path: body -> facility -> lat. Schema type: integer. Actual type: string',
+            'Actual type did not match schema. Schema type: integer. Actual type: string. Path: body -> facility -> lat',
           );
         });
       });
@@ -725,7 +713,7 @@ describe('OasValidator', () => {
               'numbers',
             ]),
           ).toContainValidationFailure(
-            'Actual type did not match schema. Path: body -> numbers. Schema type: array. Actual type: string',
+            'Actual type did not match schema. Schema type: array. Actual type: string. Path: body -> numbers',
           );
         });
       });
@@ -778,7 +766,7 @@ describe('OasValidator', () => {
                 'numbers',
               ]),
             ).toContainValidationFailure(
-              'Actual object missing required property. Path: body -> numbers. Required property: value',
+              'Actual object missing required property. Required property: value. Path: body -> numbers',
             );
           });
         });
@@ -821,9 +809,7 @@ describe('OasValidator', () => {
                   'numbers',
                 ]),
               ).toContainValidationFailure(
-                `Actual value does not match schema enum. Path: body -> numbers. Enum values: ${JSON.stringify(
-                  schema.enum,
-                )}. Actual value: ${JSON.stringify(object)}`,
+                'Actual value does not match schema enum. Enum values: [[42,56],[100,200]]. Actual value: [42,100]. Path: body -> numbers',
               );
             });
           });
@@ -846,9 +832,7 @@ describe('OasValidator', () => {
                   'numbers',
                 ]),
               ).toContainValidationFailure(
-                `Schema enum contains duplicate values. Path: body -> numbers. Enum values: ${JSON.stringify(
-                  schema.enum,
-                )}`,
+                'Schema enum contains duplicate values. Enum values: [[42,56],[100,200],[42,56]]. Path: body -> numbers',
               );
             });
 
@@ -886,7 +870,7 @@ describe('OasValidator', () => {
               'form',
             ]),
           ).toContainValidationFailure(
-            'Actual type did not match schema. Path: body -> form. Schema type: object. Actual type: string',
+            'Actual type did not match schema. Schema type: object. Actual type: string. Path: body -> form',
           );
         });
       });
@@ -932,7 +916,7 @@ describe('OasValidator', () => {
                 ['body', 'form'],
               ),
             ).toContainValidationFailure(
-              'Actual object contains a property not present in schema. Path: body -> form. Schema properties: value. Actual properties: fake, value',
+              'Actual object contains a property not present in schema. Schema properties: value. Actual properties: fake, value. Path: body -> form',
             );
           });
         });
@@ -950,7 +934,7 @@ describe('OasValidator', () => {
                 'form',
               ]),
             ).toContainValidationFailure(
-              'Actual object missing required property. Path: body -> form. Required property: value',
+              'Actual object missing required property. Required property: value. Path: body -> form',
             );
           });
 
@@ -1000,9 +984,7 @@ describe('OasValidator', () => {
                   'form',
                 ]),
               ).toContainValidationFailure(
-                `Actual value does not match schema enum. Path: body -> form. Enum values: ${JSON.stringify(
-                  schema.enum,
-                )}. Actual value: ${JSON.stringify(object)}`,
+                'Actual value does not match schema enum. Enum values: [{"value":"test"},{"value":"anything"}]. Actual value: {"value":"does not match"}. Path: body -> form',
               );
             });
           });
@@ -1026,9 +1008,7 @@ describe('OasValidator', () => {
                   ['body', 'form'],
                 ),
               ).toContainValidationFailure(
-                `Schema enum contains duplicate values. Path: body -> form. Enum values: ${JSON.stringify(
-                  schema.enum,
-                )}`,
+                'Schema enum contains duplicate values. Enum values: [{"value":"test"},{"value":"anything"},{"value":"test"}]. Path: body -> form',
               );
             });
 

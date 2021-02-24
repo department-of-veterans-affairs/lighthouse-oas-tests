@@ -3,7 +3,6 @@ import { parse } from 'content-type';
 import isEqual from 'lodash.isequal';
 import uniqWith from 'lodash.uniqwith';
 import {
-  InvalidSchema,
   DuplicateEnum,
   EnumMismatch,
   TypeMismatch,
