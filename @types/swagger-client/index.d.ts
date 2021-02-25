@@ -1,4 +1,9 @@
+/// <reference path="./schema.d.ts" />
+
 declare module 'swagger-client' {
+  import * as schema from 'swagger-client/schema';
+  export * from 'swagger-client/schema';
+
   export type Json = ReturnType<JSON['parse']>;
 
   export interface Swagger {
@@ -15,7 +20,7 @@ declare module 'swagger-client' {
     paths: { [path: string]: Path };
   }
 
-  interface Response {
+  export interface Response {
     ok: boolean;
     status: number;
     url: string;
@@ -33,7 +38,7 @@ declare module 'swagger-client' {
 
   export interface Method {
     operationId: string;
-    parameters: ParameterObject[];
+    parameters: schema.ParameterObject[];
     responses: { [responseStatus: string]: Json };
   }
 
@@ -55,64 +60,6 @@ declare module 'swagger-client' {
     authorizations?: Authorized;
     spec?: Json;
     url?: string;
-  }
-
-  interface ParameterAndHeaderBase {
-    description?: string;
-    required?: boolean;
-    example?: Json;
-  }
-
-  interface ParameterBase extends ParameterAndHeaderBase {
-    name: string;
-    in: 'path' | 'query' | 'header' | 'cookie';
-  }
-
-  export interface ParameterWithSchema extends ParameterBase {
-    schema: SchemaObject;
-  }
-
-  export interface ParameterWithContent extends ParameterBase {
-    content: { [name: string]: MediaTypeObject };
-  }
-
-  export type ParameterObject = ParameterWithContent | ParameterWithSchema;
-
-  export interface MediaTypeObject {
-    schema: SchemaObject;
-    example?: any;
-    examples?: { [name: string]: ExampleObject };
-    encoding?: { [name: string]: EncodingObject };
-  }
-
-  export interface EncodingObject {
-    contentType?: string;
-    headers?: { [name: string]: HeaderObject };
-    style?: string;
-    explode?: boolean;
-    allowReserved: boolean;
-  }
-
-  export interface ExampleObject {
-    summary?: string;
-    description?: string;
-    value?: any;
-    externalValue?: string;
-  }
-
-  export interface HeaderObject extends ParameterAndHeaderBase {
-    schema?: SchemaObject;
-    content?: { [name: string]: MediaTypeObject };
-  }
-
-  export interface SchemaObject {
-    type?: 'number' | 'string' | 'object' | 'array' | 'integer';
-    required?: string[];
-    items?: SchemaObject;
-    properties?: { [property: string]: SchemaObject };
-    description: string;
-    enum?: Json[];
-    nullable?: boolean;
   }
 
   export default function swaggerClient(opts: Opts): Promise<Swagger>;

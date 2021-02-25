@@ -26,19 +26,11 @@ import {
   InvalidParameterObject,
   InvalidParameterContent,
   MissingSchemaObject,
-} from '../validation-failures';
-import OasSchema from './oas-schema';
-import { ParameterExamples } from '../types/parameter-examples';
-import ValidationFailure from '../validation-failures/validation-failure';
-
-type CheckParameterObject = {
-  schema: SchemaObject | null;
-  parameterObjectFailure: ValidationFailure | null;
-};
-
-type OperationParameters = {
-  [parameterName: string]: ParameterObject;
-};
+} from '../../validation-failures';
+import OasSchema from '../oas-schema';
+import { ParameterExamples } from '../parameter-wrapper/types';
+import ValidationFailure from '../../validation-failures/validation-failure';
+import { CheckParameterObject, OperationParameters } from './types';
 
 class OASValidator {
   private schema: OasSchema;

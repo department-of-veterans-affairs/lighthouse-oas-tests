@@ -1,8 +1,5 @@
-import {
-  ParameterExamples,
-  WrappedParameterExamples,
-} from '../types/parameter-examples';
-import { DEFAULT_PARAMETER_GROUP } from './constants';
+import { ParameterExamples, WrappedParameterExamples } from './types';
+import { DEFAULT_PARAMETER_GROUP } from '../constants';
 
 const wrapParameters = (
   parameters: ParameterExamples,
