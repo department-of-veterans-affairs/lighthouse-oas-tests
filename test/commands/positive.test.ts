@@ -182,7 +182,7 @@ describe('Positive', () => {
 
         expect(result).toEqual([
           'walkIntoMordor: Failed\n',
-          '  - Actual type did not match schema. Path: parameters -> guide -> example. Schema type: string. Actual type: number\n',
+          '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: parameters -> guide -> example\n',
           'getHobbit: Succeeded\n',
           'getTomBombadil: Succeeded\n',
         ]);
@@ -223,7 +223,7 @@ describe('Positive', () => {
           mockValidateParameters.mockImplementationOnce(
             () =>
               new Promise((resolve) => {
-                resolve([new ValidationFailure('Failure')]);
+                resolve([new ValidationFailure('Failure', [])]);
               }),
           );
 
@@ -312,7 +312,7 @@ describe('Positive', () => {
         mockValidateResponse.mockImplementation(
           () =>
             new Promise((resolve) => {
-              resolve([new ValidationFailure('woah there was an error')]);
+              resolve([new ValidationFailure('woah there was an error', [])]);
             }),
         );
         await expect(async () => {
@@ -347,7 +347,7 @@ describe('Positive', () => {
         mockValidateResponse.mockImplementation(
           () =>
             new Promise((resolve) => {
-              resolve([new ValidationFailure('woah there was an error')]);
+              resolve([new ValidationFailure('woah there was an error', [])]);
             }),
         );
         await expect(async () => {
@@ -402,8 +402,8 @@ describe('Positive', () => {
           () =>
             new Promise((resolve) => {
               resolve([
-                new ValidationFailure('Failure 1'),
-                new ValidationFailure('Failure 2'),
+                new ValidationFailure('Failure 1', []),
+                new ValidationFailure('Failure 2', []),
               ]);
             }),
         );

@@ -1,8 +1,19 @@
 class ValidationFailure {
   private message: string;
 
-  constructor(message) {
-    this.message = message;
+  private path: string[];
+
+  constructor(message, path) {
+    this.path = path;
+    this.message = `${message}${this.generatePath(this.path)}`;
+  }
+
+  private generatePath(path: string[]): string {
+    if (path.length > 0) {
+      return ` Path: ${path.join(' -> ')}`;
+    }
+
+    return '';
   }
 
   toString = (): string => {
