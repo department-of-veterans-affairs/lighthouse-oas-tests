@@ -103,7 +103,7 @@ These failures can occur for parameters and responses.
 
 | Failure                   | Description                                                                | Fix                                                                                           |
 | ------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Unexpected null value     | Actual object is null, but the schema does not allow null values           | If null values should be allowed for this object set the nullable field to true in the schema |
+| Null value not allowed    | Actual object is null, but the schema does not allow null values           | If null values should be allowed for this object set the nullable field to true in the schema |
 | Type mismatch             | Actual object type does not match type defined in the schema               | Update the schema to correctly set the type                                                    |
 | Duplicate enum values     | Schema enum contains duplicate values                                      | Remove duplicate values from the enum                                                         |
 | Enum mismatch             | Actual object does not match a value in the schema enum                    | Update the enum to contain all valid values                                                   |
@@ -111,6 +111,7 @@ These failures can occur for parameters and responses.
 | Missing `properties` field| Schemas for objects must include the `properties` field                    | Set the `properties` field on object schemas                                                  |
 | Properties mismatch       | Actual object contains properties not present in the schema                | Update the schema so all valid properties are included                                        |
 | Missing required property | Actual object does not contain a property marked as required in the schema | Update the schema so that only required properties are marked as required                     |
+| Invalid `operationId` | There is no operation with that id | Check for misspellings or add the missing `operationId` to the schema |
 
 # Local Development
 
