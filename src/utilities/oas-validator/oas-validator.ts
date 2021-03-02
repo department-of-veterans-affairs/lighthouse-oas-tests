@@ -25,7 +25,7 @@ import {
   PropertySchemaMissing,
   InvalidParameterObject,
   InvalidParameterContent,
-  MissingSchemaObject,
+  MissingContentSchemaObject,
 } from '../../validation-failures';
 import OasSchema from '../oas-schema';
 import { ParameterExamples } from '../parameter-wrapper/types';
@@ -350,7 +350,7 @@ class OASValidator {
       // ERROR: Content Object does not contain a Schema Object.
       return {
         schema: null,
-        parameterObjectFailure: new MissingSchemaObject([
+        parameterObjectFailure: new MissingContentSchemaObject([
           ...path,
           'content',
           contentObjectKey,

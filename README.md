@@ -86,9 +86,12 @@ The sections below contain details about validation failures that can be produce
 If a parameter validation failure occurs the positive command will not attempt to send a request that includes the parameter that failed.
 Parameter validation failures include the following as well as the schema failures listed below.
 
-| Failure                     | Description                                               | Fix                                                                                                   |
-| --------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Missing required parameters | No example is provided for a parameter marked as required | Add examples for all required parameters or remove the required flag if the parameter is not required |
+| Failure                       | Description                                                                                     | Fix                                                                                                       |
+| ---------------------------   | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Missing required parameters   | No example is provided for a parameter marked as required                                       | Add examples for all required parameters or remove the required flag if the parameter is not required     |
+| Invalid parameter object      | The parameter object does not contain either a schema or content field, or contains both fields | Add either a schema or content field to the parameter, but not both                                       |
+| Invalid parameter content     | The parameter object's content field contains zero or more than one keys                        | Ensure the content field contains only one key specifying the media type                                  |
+| Missing content schema object | A valid schema object is missing from the media object in the content field                     | Add the missing schema object to the media type object associated with the content field of the parameter |
 
 ## Response Validation Failures
 If one of these validation failures occur the rest of the response will not be validated.

@@ -208,7 +208,7 @@ describe('OasValidator', () => {
 
         expect(failures).toHaveLength(1);
         expect(failures).toContainValidationFailure(
-          'Parameter is missing a schema object. Path: parameters -> magical deliveries -> content -> document/howler',
+          'The media type obejct in the content field is missing a schema object. Path: parameters -> magical deliveries -> content -> document/howler',
         );
       });
     });

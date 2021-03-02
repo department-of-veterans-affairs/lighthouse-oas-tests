@@ -12,4 +12,4 @@ export { default as ItemSchemaMissing } from './item-schema-missing';
 export { default as PropertySchemaMissing } from './property-schema-missing';
 export { default as InvalidParameterObject } from './invalid-parameter-object';
 export { default as InvalidParameterContent } from './invalid-parameter-content';
-export { default as MissingSchemaObject } from './missing-schema-object';
+export { default as MissingContentSchemaObject } from './missing-content-schema-object';
