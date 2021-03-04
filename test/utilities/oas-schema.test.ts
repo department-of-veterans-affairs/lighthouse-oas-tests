@@ -139,7 +139,7 @@ describe('OASSchema', () => {
   describe('execute', () => {
     it('calls the provided operation with the provided parameters', async () => {
       const executeMock = jest.fn(
-        (_arg) => new Promise((resolve) => resolve()),
+        (_arg) => new Promise((resolve) => resolve(_arg)),
       );
       const filePath = 'test/fixtures/facilities_oas.json';
       const schema = await generateSchema(filePath);

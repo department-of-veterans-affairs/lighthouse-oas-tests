@@ -1,4 +1,12 @@
-import { Json, Response, SchemaObject, Parameter } from 'swagger-client';
+import {
+  Json,
+  Response,
+  SchemaObject,
+  Method,
+  ParameterObject,
+  ParameterWithContent,
+  ParameterWithSchema,
+} from 'swagger-client';
 import { parse } from 'content-type';
 import isEqual from 'lodash.isequal';
 import uniqWith from 'lodash.uniqwith';
@@ -15,10 +23,14 @@ import {
   NullValueNotAllowed,
   ItemSchemaMissing,
   PropertySchemaMissing,
-} from '../validation-failures';
-import OasSchema from './oas-schema';
-import { ParameterExamples } from '../types/parameter-examples';
-import ValidationFailure from '../validation-failures/validation-failure';
+  InvalidParameterObject,
+  InvalidParameterContent,
+  MissingContentSchemaObject,
+} from '../../validation-failures';
+import OasSchema from '../oas-schema';
+import { ParameterExamples } from '../parameter-wrapper/types';
+import ValidationFailure from '../../validation-failures/validation-failure';
+import { CheckParameterObject, OperationParameters } from './types';
 
 class OASValidator {
   private schema: OasSchema;
@@ -29,45 +41,35 @@ class OASValidator {
 
   validateParameters = async (
     operationId: string,
-    parameters: ParameterExamples,
+    parameterExamples: ParameterExamples,
   ): Promise<ValidationFailure[]> => {
-    const parameterSchema: {
-      [parameterName: string]: Parameter;
-    } = {};
     let failures: ValidationFailure[] = [];
 
     const operation = await this.schema.getOperation(operationId);
     if (!operation) {
       return [new InvalidOperationId(operationId)];
     }
-    const requiredParameters = operation.parameters
-      .filter((parameter) => parameter.required)
-      .map((parameter) => parameter.name);
-
-    const presentParameterNames = Object.keys(parameters);
-    const missingRequiredParameters = requiredParameters?.filter(
-      (parameterName) => !presentParameterNames.includes(parameterName),
+    const missingRequiredParametersError = this.checkMissingRequiredParameters(
+      operation,
+      parameterExamples,
     );
-
-    if (missingRequiredParameters.length > 0) {
-      failures = [
-        ...failures,
-        new MissingRequiredParameters(missingRequiredParameters),
-      ];
+    if (missingRequiredParametersError) {
+      failures = [...failures, missingRequiredParametersError];
     }
 
+    const operationParameters: OperationParameters = {};
     operation.parameters.forEach((parameter) => {
-      parameterSchema[parameter.name] = parameter;
+      operationParameters[parameter.name] = parameter;
     });
 
-    Object.entries(parameters).forEach(([key, value]) => {
-      if (Object.keys(parameterSchema).includes(key)) {
+    Object.entries(parameterExamples).forEach(([name, example]) => {
+      if (Object.keys(operationParameters).includes(name)) {
         failures = [
           ...failures,
-          ...OASValidator.validateObjectAgainstSchema(
-            value,
-            parameterSchema[key].schema,
-            ['parameters', key, 'example'],
+          ...this.checkParameterExample(
+            name,
+            example,
+            operationParameters[name],
           ),
         ];
       }
@@ -238,6 +240,129 @@ class OASValidator {
       failures = [new ItemSchemaMissing([...path])];
     }
     return failures;
+  }
+
+  private checkParameterExample(
+    name: string,
+    example: string | number,
+    parameter: ParameterObject,
+  ): ValidationFailure[] {
+    let failures: ValidationFailure[] = [];
+    const path = ['parameters', name];
+
+    const { schema, parameterObjectFailure } = this.checkParameterObject(
+      parameter,
+      path,
+    );
+
+    if (parameterObjectFailure) {
+      failures = [...failures, parameterObjectFailure];
+    } else if (schema) {
+      failures = [
+        ...failures,
+        ...OASValidator.validateObjectAgainstSchema(example, schema, [
+          ...path,
+          'example',
+        ]),
+      ];
+    }
+
+    return failures;
+  }
+
+  private checkMissingRequiredParameters(
+    operation: Method | null,
+    parameters: ParameterExamples,
+  ): ValidationFailure | undefined {
+    const requiredParameters = operation?.parameters
+      .filter((parameter) => parameter.required)
+      .map((parameter) => parameter.name);
+
+    const presentParameterNames = Object.keys(parameters);
+    const missingRequiredParameters = requiredParameters?.filter(
+      (parameterName) => !presentParameterNames.includes(parameterName),
+    );
+
+    if (missingRequiredParameters && missingRequiredParameters.length > 0) {
+      return new MissingRequiredParameters(missingRequiredParameters);
+    }
+  }
+
+  private isParameterWithContent(parameter): parameter is ParameterWithContent {
+    if (parameter.content) {
+      return true;
+    }
+    return false;
+  }
+
+  private isParameterWithSchema(parameter): parameter is ParameterWithSchema {
+    if (parameter.schema) {
+      return true;
+    }
+    return false;
+  }
+
+  private checkParameterObject(
+    parameter: ParameterObject,
+    path: string[],
+  ): CheckParameterObject {
+    if (
+      this.isParameterWithSchema(parameter) &&
+      !this.isParameterWithContent(parameter)
+    ) {
+      // Parameter Object conatains field: schema; does not contain field: content
+      return {
+        schema: parameter.schema,
+        parameterObjectFailure: null,
+      };
+    }
+
+    if (this.isParameterWithContent(parameter)) {
+      // Parameter Object contains field: content
+      if (this.isParameterWithSchema(parameter)) {
+        // ERROR: Parameter Object also contains field: schema.
+        return {
+          schema: null,
+          parameterObjectFailure: new InvalidParameterObject(path),
+        };
+      }
+
+      const [contentObjectKey, ...invalidKeys] = Object.keys(parameter.content);
+      if (invalidKeys.length > 0) {
+        // ERROR: Content Object contains more than one entry.
+        return {
+          schema: null,
+          parameterObjectFailure: new InvalidParameterContent([
+            ...path,
+            'content',
+          ]),
+        };
+      }
+
+      if (parameter.content[contentObjectKey].schema) {
+        // Content Object contains one entry and a Schema Object.
+        return {
+          schema: parameter.content[contentObjectKey].schema,
+          parameterObjectFailure: null,
+        };
+      }
+
+      // ERROR: Content Object does not contain a Schema Object.
+      return {
+        schema: null,
+        parameterObjectFailure: new MissingContentSchemaObject([
+          ...path,
+          'content',
+          contentObjectKey,
+        ]),
+      };
+    }
+
+    // ERROR: Parameter Object must contain one of the following: schema, or content.
+    return {
+      schema: null,
+      parameterObjectFailure: new InvalidParameterObject(path),
+    };
   }
 
   private static checkObjectProperties(

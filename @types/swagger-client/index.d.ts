@@ -1,4 +1,9 @@
+/// <reference path="./schema.d.ts" />
+
 declare module 'swagger-client' {
+  import * as schema from 'swagger-client/schema';
+  export * from 'swagger-client/schema';
+
   export type Json = ReturnType<JSON['parse']>;
 
   export interface Swagger {
@@ -33,15 +38,8 @@ declare module 'swagger-client' {
 
   export interface Method {
     operationId: string;
-    parameters: Parameter[];
+    parameters: schema.ParameterObject[];
     responses: { [responseStatus: string]: Json };
-  }
-
-  export interface Parameter {
-    name: string;
-    example: Json;
-    required: boolean;
-    schema: SchemaObject;
   }
 
   type Api = {
@@ -62,16 +60,6 @@ declare module 'swagger-client' {
     authorizations?: Authorized;
     spec?: Json;
     url?: string;
-  }
-
-  export interface SchemaObject {
-    type?: 'number' | 'string' | 'object' | 'array' | 'integer';
-    required?: string[];
-    items?: SchemaObject;
-    properties?: { [property: string]: SchemaObject };
-    description: string;
-    enum?: Json[];
-    nullable?: boolean;
   }
 
   export default function swaggerClient(opts: Opts): Promise<Swagger>;

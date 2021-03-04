@@ -3,16 +3,9 @@ import uniq from 'lodash.uniq';
 import {
   ParameterExamples,
   WrappedParameterExamples,
-} from '../types/parameter-examples';
-import ParameterWrapper from './parameter-wrapper';
-
-export type OasParameters = {
-  [operationId: string]: WrappedParameterExamples | WrappedParameterExamples[];
-};
-
-type OasOperations = {
-  [operationId: string]: Method;
-};
+} from '../parameter-wrapper/types';
+import ParameterWrapper from '../parameter-wrapper';
+import { OasOperations, OasParameters } from './types';
 
 class OASSchema {
   private _client: Promise<Swagger>;

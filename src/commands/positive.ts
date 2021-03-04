@@ -2,11 +2,12 @@ import { flags } from '@oclif/command';
 import loadJsonFile from 'load-json-file';
 import { ApiKeyCommand } from '../baseCommands';
 import { Response } from 'swagger-client';
-import OASSchema, { OasParameters } from '../utilities/oas-schema';
-import OASValidator from '../utilities/oas-validator';
 import { DEFAULT_PARAMETER_GROUP } from '../utilities/constants';
-import { WrappedParameterExamples } from '../types/parameter-examples';
+import OASSchema from '../utilities/oas-schema';
+import { OasParameters } from '../utilities/oas-schema/types';
+import OASValidator from '../utilities/oas-validator';
 import ParameterWrapper from '../utilities/parameter-wrapper';
+import { WrappedParameterExamples } from '../utilities/parameter-wrapper/types';
 import ValidationFailure from '../validation-failures/validation-failure';
 
 export default class Positive extends ApiKeyCommand {
