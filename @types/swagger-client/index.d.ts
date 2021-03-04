@@ -15,7 +15,7 @@ declare module 'swagger-client' {
     paths: { [path: string]: Path };
   }
 
-  interface Response {
+  export interface Response {
     ok: boolean;
     status: number;
     url: string;
