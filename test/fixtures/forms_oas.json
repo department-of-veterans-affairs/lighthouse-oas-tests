@@ -108,7 +108,9 @@
                         "in": "path",
                         "description": "The VA form_name of the form being requested",
                         "required": true,
-                        "type": "string",
+                        "schema": {
+                            "type": "string"
+                        },
                         "example": "VA10192"
                     }
                 ],
