@@ -1,7 +1,7 @@
 {
   "name": "loast",
   "description": "CLI for testing Lighthouse APIs using OpenAPI specs",
-  "version": "0.2.0",
+  "version": "0.0.0-development",
   "bin": {
     "loast": "./bin/run"
   },
@@ -32,7 +32,8 @@
     "jest-junit-reporter": "^1.1.0",
     "prettier": "^2.1.2",
     "ts-jest": "^26.4.4",
-    "typescript": "^3.9.7"
+    "typescript": "^3.9.7",
+    "semantic-release": "^17.4.1"
   },
   "engines": {
     "node": ">=8.0.0"
@@ -68,7 +69,8 @@
     "test:watch": "jest --watchAll",
     "version": "oclif-dev readme && git add README.md",
     "lint": "eslint . --ext .ts --config .eslintrc.js",
-    "lint:fix": "eslint . --ext .ts --config .eslintrc.js --fix"
+    "lint:fix": "eslint . --ext .ts --config .eslintrc.js --fix",
+    "release": "semantic-release"
   },
   "types": "lib/index.d.ts"
 }
