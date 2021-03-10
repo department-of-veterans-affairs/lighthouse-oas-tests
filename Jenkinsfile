@@ -5,6 +5,7 @@ pipeline {
     }
   }
   environment {
+    NPM_TOKEN = credentials('LIGHTHOUSE_NPM_REGISTRY_PROXY_NEXUS_TOKEN')
     NPM_CONFIG_REGISTRY = 'https://tools.health.dev-developer.va.gov/nexus/repository/lighthouse-npm-registry-proxy/'
   }
 
@@ -35,10 +36,7 @@ pipeline {
           usernamePassword(
             credentialsId: 'GITHUB_USERNAME_TOKEN',
             usernameVariable: 'GITHUB_USERNAME',
-            passwordVariable: 'GITHUB_TOKEN'), 
-          string(
-            credentialsId: 'LIGHTHOUSE_NPM_REGISTRY_PROXY_NEXUS_TOKEN',
-            variable: 'NPM_TOKEN')
+            passwordVariable: 'GITHUB_TOKEN')
         ]) {
           sh 'npm run release'
         }
