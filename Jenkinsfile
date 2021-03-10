@@ -12,10 +12,10 @@ pipeline {
   stages {
     stage('Setup') {
       steps {
-        sh 'cat > .npmrc << EOL
+        sh 'echo """
         registry = $NPM_CONFIG_REGISTRY
-        _auth = $NPM_TOKEN 
-        EOL > .npmrc'
+        _auth = $NPM_TOKEN
+        """ > .npmrc'
         sh 'npm install'
       }
     }
