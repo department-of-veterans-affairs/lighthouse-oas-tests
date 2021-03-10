@@ -58,7 +58,9 @@
                         "in": "query",
                         "description": "Query the form number as well as title",
                         "required": false,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -73,7 +75,10 @@
                                     ],
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/components/schemas/FormsIndex"
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/FormsIndex"
+                                            }
                                         }
                                     }
                                 }
@@ -108,7 +113,9 @@
                         "in": "path",
                         "description": "The VA form_name of the form being requested",
                         "required": true,
-                        "type": "string",
+                        "schema": {
+                            "type": "string"
+                        },
                         "example": "VA10192"
                     }
                 ],
@@ -177,9 +184,10 @@
                                 "description": "The date the form first became available",
                                 "type": "string",
                                 "example": "2012-01-01",
-                                "format": "date"
+                                "format": "date",
+                                "nullable": true
                             },
-                            "last_revised_on": {
+                            "last_revision_on": {
                                 "description": "The date the form was last updated",
                                 "type": "string",
                                 "example": "2012-01-01",
@@ -202,35 +210,42 @@
                             },
                             "form_usage": {
                                 "description": "A description of how the form is to be used",
-                                "type": "string"
+                                "type": "string",
+                                "nullable": true
                             },
                             "form_tool_intro": {
                                 "description": "Introductionary text describing the VA online tool for this form",
-                                "type": "string"
+                                "type": "string",
+                                "nullable": true
                             },
                             "form_tool_url": {
                                 "description": "Location of the online tool for this form",
-                                "type": "string"
+                                "type": "string",
+                                "nullable": true
                             },
                             "form_details_url": {
                                 "description": "Location on www.va.gov of the info page for this form",
-                                "type": "string"
+                                "type": "string",
+                                "nullable": true
                             },
                             "form_type": {
                                 "description": "VA Type of the form",
                                 "type": "string",
-                                "example": "VHA"
+                                "example": "VHA",
+                                "nullable": true
                             },
                             "language": {
                                 "description": "Language code of the form",
                                 "type": "string",
-                                "example": "en"
+                                "example": "en",
+                                "nullable": true
                             },
                             "deleted_at": {
                                 "description": "The timestamp at which the form was deleted",
                                 "type": "string",
                                 "example": "2018-07-30T17:31:15.958Z",
-                                "format": "date-time"
+                                "format": "date-time",
+                                "nullable": true
                             },
                             "related_forms": {
                                 "description": "A listing of other forms that relate to current form",
@@ -238,7 +253,8 @@
                                 "items": {
                                     "type": "string",
                                     "example": "21-22A"
-                                }
+                                },
+                                "nullable": true
                             },
                             "benefit_categories": {
                                 "description": "Listing of categories and match",
@@ -256,7 +272,8 @@
                                             "example": "VA pension benefits"
                                         }
                                     }
-                                }
+                                },
+                                "nullable": true
                             }
                         }
                     }
