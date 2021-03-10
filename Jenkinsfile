@@ -4,6 +4,9 @@ pipeline {
       image 'vasdvp/lighthouse-node-application-base:node12'
     }
   }
+  environment {
+    NPM_CONFIG_REGISTRY = 'https://tools.health.dev-developer.va.gov/nexus/repository/lighthouse-npm-registry-proxy/'
+  }
 
   stages {
     stage('Setup') {
@@ -31,6 +34,7 @@ pipeline {
         withCredentials([
           usernamePassword(
             credentialsId: 'GITHUB_USERNAME_TOKEN',
+            usernameVariable: 'GITHUB_USERNAME'
             passwordVariable: 'GITHUB_TOKEN'), 
           string(
             credentialsId: 'LIGHTHOUSE_NPM_REGISTRY_PROXY_NEXUS_TOKEN',
