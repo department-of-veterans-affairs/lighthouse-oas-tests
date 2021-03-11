@@ -1,198 +1,222 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-      "title": "VA Facilities",
-      "description": "## Background\n\nThis RESTful API provides information about physical VA facilities. Information available includes\ngeographic location, address, phone, hours of operation, and available services.\n\nVA operates several different types of facilities, the types represented in this API include:\n- Health Facilities (vha)\n- Benefits Facilities (vba)\n- Cemeteries (nca)\n- Vet Centers (vc)\n\nTo read an FAQ on how wait times are calculated, click the \"For more information\" link on [this page](https://www.accesstocare.va.gov/PWT/SearchWaitTimes).\n\n## Getting Started\n\n### Base URLs\n\nThe base URLs for the VA Facilities API in the various environments are:\n- Sandbox: `https://sandbox-api.va.gov/services/va_facilities/v0`\n- Production: `https://api.va.gov/services/va_facilities/v0`\n\n### Authorization\n\nAPI requests are authorized through a symmetric API token, provided in an HTTP header with name `apikey`.\n\n### Response Formats\n\nClients may request several response formats by setting the `Accept` header.\n- `application/json` - The default JSON response format complies with JSON API. This media type is *not* available for bulk requests using the `/facilities/all` endpoint. It will return `406 Not Acceptable`.\n- `application/geo+json` - GeoJSON-compliant format, representing each facility as a feature with a point geometry.\n- `application/vnd.geo+json` - Deprecated. Prefer application/geo+json.\n- `text/csv` - Available for the bulk download operation only. Some structured fields are omitted from the CSV response.\n\n### Response Elements\n\nSome data elements within the response are only present for facilities of a given type:\n- The patient satisfaction scores contained in the `satisfaction` element are only applicable\n  to VA health facilities.\n- The patient wait time values contained in the `wait_times` element are only applicable to\n  VA health facilities.\n- The list of available services in the `services` element is only applicable to VA health and\n  benefits facilities.\n\n### Facility ID Formats and Constraints\n\nA facility ID has the format `prefix_stationNumber`. The prefix is one of nca, vc, vba, or vha. Cemeteries may be national (VA) or non-national; non-national cemeteries have the station number prefixed with an `s`. There are no other constraints on the format. Examples:\n- Health: `vha_402GA`\n- Benefits: `vba_539GB`\n- National cemetery: `nca_063`\n- Non-national cemetery: `nca_s1082`\n- Vet center: `vc_0872MVC`\n\n\n### Mobile Facilities\n\nThe mobile health facilities move regularly within a region. If a facility comes back from this API with `\"mobile\": \"true\"`, the latitude/longitude and address could be inaccurate. To get the exact current location, please call the number listed.\n\n## Deprecations\n\n- `active_status` field is deprecated and replaced with `operating_status`.\n- `application/vnd.geo+json` media type is deprecated and replaced by `application/geo+json`\n\n\n## Reference\n\n- [Raw VA Facilities Open API Spec](https://api.va.gov/services/va_facilities/docs/v0/api)\n- [GeoJSON Format](https://tools.ietf.org/html/rfc7946)\n- [JSON API Format](https://jsonapi.org/format/)",
-      "contact": {
-          "name": "developer.va.gov"
-      },
-      "version": "0.0.1"
-  },
-  "servers": [
-      {
-          "url": "https://sandbox-api.va.gov/services/va_facilities/{version}",
-          "description": "Sandbox",
-          "variables": {
-              "version": {
-                  "default": "v0"
-              }
-          }
-      }
-  ],
-  "tags": [
-      {
-          "name": "facilities",
-          "description": "VA Facilities API"
-      }
-  ],
-  "paths": {
-      "/nearby": {
-          "get": {
-              "tags": [
-                  "facilities"
-              ],
-              "summary": "Retrieve all VA health facilities reachable by driving within the specified time period",
-              "description": "Retrieve all VA health facilities that are located within a specified drive time from a specified location based on address (`street_address`, `city`, `state`, and `zip`) or coordinates (`lat` and `lng`). Optional filter parameters include `drive_time` and `services[]`. \n\nResults of this operation are paginated. Responses include pagination information in the standard JSON API \"links\" and \"meta\" elements. \n\nThe \"attributes\" element has information about the drive-time band that contains the requested location for each facility in the response. The values of `min_time` and `max_time` are in minutes. For example, a facility returned with a matched `min_time` of 10 and `max_time` of 20 is a 10 to 20 minute drive from the requested location.\n\nTo retrieve full details for nearby facilities, see the documentation for `/facilities?ids`.",
-              "operationId": "getNearbyFacilities",
-              "parameters": [
-                  {
-                      "name": "street_address",
-                      "in": "query",
-                      "description": "Street address of the location from which drive time will be calculated.",
-                      "schema": {
-                          "type": "string"
-                      },
-                      "examples": {"address": "1350 I St. NW"}
-                  },
-                  {
-                      "name": "city",
-                      "in": "query",
-                      "description": "City of the location from which drive time will be calculated.",
-                      "schema": {
-                          "type": "string"
-                      },
-                      "examples": {"address": "Washington"}
-                  },
-                  {
-                      "name": "state",
-                      "in": "query",
-                      "description": "Two character state code of the location from which drive time will be calculated.",
-                      "schema": {
-                          "type": "string"
-                      },
-                      "examples": {"address": "DC"}
-                  },
-                  {
-                      "name": "zip",
-                      "in": "query",
-                      "description": "Zip code of the location from which drive time will be calculated.",
-                      "schema": {
-                          "type": "string",
-                          "description": "##### or #####-####"
-                      },
-                      "examples": {"address": "20005"}
-                  },
-                  {
-                      "name": "lat",
-                      "in": "query",
-                      "description": "Latitude of the location from which drive time will be calculated.",
-                      "schema": {
-                          "type": "number",
-                          "format": "float"
-                      },
-                      "examples": { "coordinates": 123.4 }
-                  },
-                  {
-                      "name": "lng",
-                      "in": "query",
-                      "description": "Longitude of the location from which drive time will be calculated.",
-                      "style": "form",
-                      "schema": {
-                          "type": "number",
-                          "format": "float"
-                      },
-                      "examples": { "coordinates": 456.7 }
-                  },
-                  {
-                      "name": "page",
-                      "in": "query",
-                      "description": "Page of results to return per paginated response.",
-                      "schema": {
-                          "type": "integer",
-                          "format": "int32",
-                          "default": 1
-                      },
-                      "example": 1,
-                      "required": true
-                  },
-                  {
-                      "name": "per_page",
-                      "in": "query",
-                      "description": "Number of results to return per paginated response.",
-                      "schema": {
-                          "type": "integer",
-                          "format": "int32",
-                          "default": 20
-                      },
-                      "example": 20,
-                      "required": true
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Success",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/NearbyResponse"
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      }
-  },
-  "components": {
-      "schemas": {
-          "Nearby": {
-              "required": [
-                  "attributes",
-                  "id",
-                  "type"
-              ],
-              "type": "object",
-              "properties": {
-                  "id": {
-                      "type": "string",
-                      "example": "vha_688"
-                  },
-                  "type": {
-                      "type": "string",
-                      "example": "nearby_facility",
-                      "enum": [
-                          "NearbyFacility"
-                      ]
-                  },
-                  "attributes": {
-                      "$ref": "#/components/schemas/NearbyAttributes"
-                  }
-              },
-              "description": "JSON API-compliant object describing a nearby VA facility"
-          },
-          "NearbyAttributes": {
-              "required": [
-                  "max_time",
-                  "min_time"
-              ],
-              "type": "object",
-              "properties": {
-                  "min_time": {
-                      "type": "integer",
-                      "format": "int32",
-                      "example": 10
-                  },
-                  "max_time": {
-                      "type": "integer",
-                      "format": "int32",
-                      "example": 20
-                  }
-              }
-          },
-          "NearbyResponse": {
-              "required": [
-                  "data"
-              ],
-              "type": "object",
-              "properties": {
-                  "data": {
-                      "type": "array",
-                      "items": {
-                          "$ref": "#/components/schemas/Nearby"
-                      }
-                  }
-              }
-          }
-      }
-  }
+    "openapi": "3.0.1",
+    "info": {
+        "title": "VA Facilities",
+        "description": "## Background\n\nThis RESTful API provides information about physical VA facilities. Information available includes\ngeographic location, address, phone, hours of operation, and available services.\n\nVA operates several different types of facilities, the types represented in this API include:\n- Health Facilities (vha)\n- Benefits Facilities (vba)\n- Cemeteries (nca)\n- Vet Centers (vc)\n\nTo read an FAQ on how wait times are calculated, click the \"For more information\" link on [this page](https://www.accesstocare.va.gov/PWT/SearchWaitTimes).\n\n## Getting Started\n\n### Base URLs\n\nThe base URLs for the VA Facilities API in the various environments are:\n- Sandbox: `https://sandbox-api.va.gov/services/va_facilities/v0`\n- Production: `https://api.va.gov/services/va_facilities/v0`\n\n### Authorization\n\nAPI requests are authorized through a symmetric API token, provided in an HTTP header with name `apikey`.\n\n### Response Formats\n\nClients may request several response formats by setting the `Accept` header.\n- `application/json` - The default JSON response format complies with JSON API. This media type is *not* available for bulk requests using the `/facilities/all` endpoint. It will return `406 Not Acceptable`.\n- `application/geo+json` - GeoJSON-compliant format, representing each facility as a feature with a point geometry.\n- `application/vnd.geo+json` - Deprecated. Prefer application/geo+json.\n- `text/csv` - Available for the bulk download operation only. Some structured fields are omitted from the CSV response.\n\n### Response Elements\n\nSome data elements within the response are only present for facilities of a given type:\n- The patient satisfaction scores contained in the `satisfaction` element are only applicable\n  to VA health facilities.\n- The patient wait time values contained in the `wait_times` element are only applicable to\n  VA health facilities.\n- The list of available services in the `services` element is only applicable to VA health and\n  benefits facilities.\n\n### Facility ID Formats and Constraints\n\nA facility ID has the format `prefix_stationNumber`. The prefix is one of nca, vc, vba, or vha. Cemeteries may be national (VA) or non-national; non-national cemeteries have the station number prefixed with an `s`. There are no other constraints on the format. Examples:\n- Health: `vha_402GA`\n- Benefits: `vba_539GB`\n- National cemetery: `nca_063`\n- Non-national cemetery: `nca_s1082`\n- Vet center: `vc_0872MVC`\n\n\n### Mobile Facilities\n\nThe mobile health facilities move regularly within a region. If a facility comes back from this API with `\"mobile\": \"true\"`, the latitude/longitude and address could be inaccurate. To get the exact current location, please call the number listed.\n\n## Deprecations\n\n- `active_status` field is deprecated and replaced with `operating_status`.\n- `application/vnd.geo+json` media type is deprecated and replaced by `application/geo+json`\n\n\n## Reference\n\n- [Raw VA Facilities Open API Spec](https://api.va.gov/services/va_facilities/docs/v0/api)\n- [GeoJSON Format](https://tools.ietf.org/html/rfc7946)\n- [JSON API Format](https://jsonapi.org/format/)",
+        "contact": {
+            "name": "developer.va.gov"
+        },
+        "version": "0.0.1"
+    },
+    "servers": [
+        {
+            "url": "https://sandbox-api.va.gov/services/va_facilities/{version}",
+            "description": "Sandbox",
+            "variables": {
+                "version": {
+                    "default": "v0"
+                }
+            }
+        }
+    ],
+    "tags": [
+        {
+            "name": "facilities",
+            "description": "VA Facilities API"
+        }
+    ],
+    "paths": {
+        "/nearby": {
+            "get": {
+                "tags": [
+                    "facilities"
+                ],
+                "summary": "Retrieve all VA health facilities reachable by driving within the specified time period",
+                "description": "Retrieve all VA health facilities that are located within a specified drive time from a specified location based on address (`street_address`, `city`, `state`, and `zip`) or coordinates (`lat` and `lng`). Optional filter parameters include `drive_time` and `services[]`. \n\nResults of this operation are paginated. Responses include pagination information in the standard JSON API \"links\" and \"meta\" elements. \n\nThe \"attributes\" element has information about the drive-time band that contains the requested location for each facility in the response. The values of `min_time` and `max_time` are in minutes. For example, a facility returned with a matched `min_time` of 10 and `max_time` of 20 is a 10 to 20 minute drive from the requested location.\n\nTo retrieve full details for nearby facilities, see the documentation for `/facilities?ids`.",
+                "operationId": "getNearbyFacilities",
+                "parameters": [
+                    {
+                        "name": "street_address",
+                        "in": "query",
+                        "description": "Street address of the location from which drive time will be calculated.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "address": {
+                                "value": "1350 I St. NW"
+                            }
+                        }
+                    },
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "description": "City of the location from which drive time will be calculated.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "address": {
+                                "value": "Washington"
+                            }
+                        }
+                    },
+                    {
+                        "name": "state",
+                        "in": "query",
+                        "description": "Two character state code of the location from which drive time will be calculated.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "address": {
+                                "value": "DC"
+                            }
+                        }
+                    },
+                    {
+                        "name": "zip",
+                        "in": "query",
+                        "description": "Zip code of the location from which drive time will be calculated.",
+                        "schema": {
+                            "type": "string",
+                            "description": "##### or #####-####"
+                        },
+                        "examples": {
+                            "address": {
+                                "value": "20005"
+                            }
+                        }
+                    },
+                    {
+                        "name": "lat",
+                        "in": "query",
+                        "description": "Latitude of the location from which drive time will be calculated.",
+                        "schema": {
+                            "type": "number",
+                            "format": "float"
+                        },
+                        "examples": {
+                            "coordinates": {
+                                "value": 123.4
+                            }
+                        }
+                    },
+                    {
+                        "name": "lng",
+                        "in": "query",
+                        "description": "Longitude of the location from which drive time will be calculated.",
+                        "style": "form",
+                        "schema": {
+                            "type": "number",
+                            "format": "float"
+                        },
+                        "examples": {
+                            "coordinates": {
+                                "value": 456.7
+                            }
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page of results to return per paginated response.",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 1
+                        },
+                        "example": 1,
+                        "required": true
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of results to return per paginated response.",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 20
+                        },
+                        "example": 20,
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NearbyResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Nearby": {
+                "required": [
+                    "attributes",
+                    "id",
+                    "type"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "vha_688"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "nearby_facility",
+                        "enum": [
+                            "NearbyFacility"
+                        ]
+                    },
+                    "attributes": {
+                        "$ref": "#/components/schemas/NearbyAttributes"
+                    }
+                },
+                "description": "JSON API-compliant object describing a nearby VA facility"
+            },
+            "NearbyAttributes": {
+                "required": [
+                    "max_time",
+                    "min_time"
+                ],
+                "type": "object",
+                "properties": {
+                    "min_time": {
+                        "type": "integer",
+                        "format": "int32",
+                        "example": 10
+                    },
+                    "max_time": {
+                        "type": "integer",
+                        "format": "int32",
+                        "example": 20
+                    }
+                }
+            },
+            "NearbyResponse": {
+                "required": [
+                    "data"
+                ],
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Nearby"
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
