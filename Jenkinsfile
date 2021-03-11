@@ -44,4 +44,10 @@ pipeline {
       }
     }
   }
+  post {
+    always {
+      // Clean up file containing secrets
+      sh 'rm -rf .npmrc'
+    }
+  }
 }
