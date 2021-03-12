@@ -48,10 +48,10 @@ class OASSchema {
       // transforms each OAS parameter into an object that contains the parameter name and example value
       const requiredParametersAndExamples = method.parameters
         .filter((parameter) => parameter.required)
-        .reduce((requiredExampls, parameter) => {
+        .reduce((requiredExamples, parameter) => {
           const { name, example } = parameter;
           return {
-            ...requiredExampls,
+            ...requiredExamples,
             [name]: example,
           };
         }, {});
