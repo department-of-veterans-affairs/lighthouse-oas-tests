@@ -75,7 +75,9 @@ If your endpoint supports different groupings of parameters (such as taking eith
 Create an `examples` object on each parameter that needs to go into a group in the form:
 ```json
 "examples": {
-  "group name": "example value"
+  "group name": {
+    "value": "example value"
+  }
 }
 ```
 `loast` will go through and execute a test against the endpoint for each grouping it finds, including any required parameters in each request. 

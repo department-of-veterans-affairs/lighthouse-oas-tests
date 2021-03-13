@@ -44,17 +44,17 @@ class OASSchema {
       Object.values(path),
     );
 
-    // transforms each OAS method into a tuple that contains the operation id and an object containing parameter names and example values
-    // e.g. [ 'findFormByFormName', { form_name: 'VA10192' } ]
-    const operationIdToParameters = methods.map((method) => {
-      // transforms each OAS parameter into a tuple that contains the parameter name and example value
-      // e.g. [form_name: 'VA10192']
+    return methods.reduce((parameterExamples, method) => {
+      // transforms each OAS parameter into an object that contains the parameter name and example value
       const requiredParametersAndExamples = method.parameters
         .filter((parameter) => parameter.required)
-        .map((parameter) => {
+        .reduce((requiredExamples, parameter) => {
           const { name, example } = parameter;
-          return [name, example];
-        });
+          return {
+            ...requiredExamples,
+            [name]: example,
+          };
+        }, {});
 
       const exampleGroups: string[] = uniq(
         method.parameters
@@ -72,30 +72,30 @@ class OASSchema {
               (parameter) =>
                 parameter.examples && parameter.examples[groupName],
             )
-            .map((parameter) => {
+            .reduce((groups, parameter) => {
               const { name, examples } = parameter;
-              return [name, examples[groupName]];
-            });
+              return {
+                ...groups,
+                [name]: examples[groupName].value,
+              };
+            }, {});
 
           return ParameterWrapper.wrapParameters(
-            Object.assign(
-              {},
-              Object.fromEntries(requiredParametersAndExamples),
-              Object.fromEntries(groupParameters),
-            ),
+            Object.assign({}, requiredParametersAndExamples, groupParameters),
             groupName,
           );
         });
       } else {
         parameters = ParameterWrapper.wrapParameters(
-          Object.fromEntries(requiredParametersAndExamples),
+          requiredParametersAndExamples,
         );
       }
 
-      return [method.operationId, parameters];
-    });
-
-    return Object.fromEntries(operationIdToParameters);
+      return {
+        ...parameterExamples,
+        [method.operationId]: parameters,
+      };
+    }, {});
   };
 
   getOperationIds = async (): Promise<string[]> => {
