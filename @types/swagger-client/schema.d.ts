@@ -5,11 +5,17 @@ declare module 'swagger-client/schema' {
     description?: string;
     required?: boolean;
     example?: Json;
+    examples?: { [name: string]: ExampleObject };
   }
 
   interface ParameterBase extends ParameterAndHeaderBase {
     name: string;
     in: 'path' | 'query' | 'header' | 'cookie';
+  }
+
+  export interface ResponseObject {
+    description: string;
+    content: {[contentType: string]: MediaTypeObject}
   }
 
   export interface ParameterWithSchema extends ParameterBase {
@@ -24,7 +30,7 @@ declare module 'swagger-client/schema' {
 
   export interface MediaTypeObject {
     schema: SchemaObject;
-    example?: any;
+    example?: Json;
     examples?: { [name: string]: ExampleObject };
     encoding?: { [name: string]: EncodingObject };
   }
@@ -54,7 +60,7 @@ declare module 'swagger-client/schema' {
     required?: string[];
     items?: SchemaObject;
     properties?: { [property: string]: SchemaObject };
-    description: string;
+    description?: string;
     enum?: Json[];
     nullable?: boolean;
   }

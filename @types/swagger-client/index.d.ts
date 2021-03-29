@@ -16,8 +16,10 @@ declare module 'swagger-client' {
     }) => Promise<Response>;
   }
 
+  export interface PathObject { [path: string]: Path }
+
   interface Spec {
-    paths: { [path: string]: Path };
+    paths: PathObject ;
   }
 
   export interface Response {
@@ -29,17 +31,17 @@ declare module 'swagger-client' {
   }
 
   interface Path {
-    get?: Method;
-    post?: Method;
-    put?: Method;
-    delete?: Method;
-    patch?: Method;
+    get?: Operation;
+    post?: Operation;
+    put?: Operation;
+    delete?: Operation;
+    patch?: Operation;
   }
 
-  export interface Method {
+  export interface Operation {
     operationId: string;
     parameters: schema.ParameterObject[];
-    responses: { [responseStatus: string]: Json };
+    responses: { [responseStatus: string]: schema.ResponseObject };
   }
 
   type Api = {
