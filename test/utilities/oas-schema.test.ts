@@ -1,6 +1,5 @@
 import loadJsonFile from 'load-json-file';
 import { Swagger } from 'swagger-client';
-import ExampleGroup from '../../src/utilities/example-group';
 import OASOperation from '../../src/utilities/oas-operation';
 import OasSchema from '../../src/utilities/oas-schema';
 
