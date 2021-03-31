@@ -7,7 +7,7 @@ declare module 'swagger-client' {
   export type Json = ReturnType<JSON['parse']>;
 
   export interface Swagger {
-    spec: Spec;
+    spec: schema.OpenAPIObject;
     apis: { [name: string]: Api };
     execute: (options: {
       parameters: { [name: string]: Json };
@@ -15,33 +15,12 @@ declare module 'swagger-client' {
       requestInterceptor?: (request: string) => string;
     }) => Promise<Response>;
   }
-
-  export interface PathObject { [path: string]: Path }
-
-  interface Spec {
-    paths: PathObject ;
-  }
-
   export interface Response {
     ok: boolean;
     status: number;
     url: string;
     headers: { [header: string]: string };
     body: Json;
-  }
-
-  interface Path {
-    get?: Operation;
-    post?: Operation;
-    put?: Operation;
-    delete?: Operation;
-    patch?: Operation;
-  }
-
-  export interface Operation {
-    operationId: string;
-    parameters: schema.ParameterObject[];
-    responses: { [responseStatus: string]: schema.ResponseObject };
   }
 
   type Api = {

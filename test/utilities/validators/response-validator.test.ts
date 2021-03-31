@@ -97,7 +97,7 @@ describe('ResponseValidator', () => {
       );
     });
 
-    it('calls validateObjectAgainstSchema with the response body', () => {
+    it('returns no validation failures when response is valid', () => {
       const validator = new ResponseValidator(operation, {
         ok: false,
         status: 200,
@@ -114,6 +114,35 @@ describe('ResponseValidator', () => {
       const failures = validator.getFailures();
 
       expect(failures).toHaveLength(0);
+    });
+
+    it('is idempotent', () => {
+      const validator = new ResponseValidator(operation, {
+        ok: false,
+        status: 500,
+        url: 'http://anything.com',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: {},
+      });
+
+      validator.validate();
+      let failures = validator.getFailures();
+
+      expect(failures).toHaveLength(1);
+      expect(failures).toContainValidationFailure(
+        'Response status code not present in schema. Actual status code: 500',
+      );
+
+      // call valdiate again to check for idempotency
+      validator.validate();
+      failures = validator.getFailures();
+
+      expect(failures).toHaveLength(1);
+      expect(failures).toContainValidationFailure(
+        'Response status code not present in schema. Actual status code: 500',
+      );
     });
   });
 });

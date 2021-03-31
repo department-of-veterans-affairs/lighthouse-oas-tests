@@ -1,6 +1,24 @@
 declare module 'swagger-client/schema' {
   type Json = ReturnType<JSON['parse']>;
 
+  interface OpenAPIObject {
+    paths: PathsObject;
+  }
+
+  export interface PathsObject { [path: string]: PathItemObject }
+  export interface Operation {
+    operationId: string;
+    parameters: ParameterObject[];
+    responses: { [responseStatus: string]: ResponseObject };
+  }
+  interface PathItemObject {
+    get?: Operation;
+    post?: Operation;
+    put?: Operation;
+    delete?: Operation;
+    patch?: Operation;
+  }
+
   interface ParameterAndHeaderBase {
     description?: string;
     required?: boolean;

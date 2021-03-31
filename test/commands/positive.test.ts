@@ -107,7 +107,7 @@ describe('Positive', () => {
       });
     });
 
-    it('outputs a failure for an operation if parameter validation fails', async () => {
+    it.only('outputs a failure for an operation if parameter validation fails', async () => {
       mockGetOperations.mockResolvedValue([
         new OASOperation({
           operationId: 'walkIntoMordor',

@@ -234,5 +234,41 @@ describe('ParameterValidator', () => {
 
       expect(failures).toHaveLength(0);
     });
+
+    it('is idempotent', () => {
+      const operation = new OASOperation({
+        name: 'hobbits or something',
+        parameters: [
+          {
+            name: 'fit',
+            required: true,
+            example: 'tight',
+            schema: {
+              type: 'string',
+              description: 'blah blah blah',
+            },
+          },
+        ],
+      });
+      const exampleGroup = new ExampleGroup(operation, 'default', {});
+      const validator = new ParameterValidator(exampleGroup);
+
+      validator.validate();
+
+      let failures = validator.getFailures();
+      expect(failures).toHaveLength(1);
+      expect(failures).toContainValidationFailure(
+        'Missing required parameters: [fit]',
+      );
+
+      // call valdiate again to check for idempotency
+      validator.validate();
+
+      failures = validator.getFailures();
+      expect(failures).toHaveLength(1);
+      expect(failures).toContainValidationFailure(
+        'Missing required parameters: [fit]',
+      );
+    });
   });
 });

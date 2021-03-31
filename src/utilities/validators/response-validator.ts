@@ -18,11 +18,7 @@ class ResponseValidator extends BaseValidator {
     this.response = response;
   }
 
-  validate = (): void => {
-    if (this.validated) {
-      return;
-    }
-
+  performValidation = (): void => {
     const responseSchema = this.operation.getResponseSchema(
       this.response.status,
     );

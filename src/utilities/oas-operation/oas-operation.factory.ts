@@ -1,4 +1,4 @@
-import { Operation, PathObject } from 'swagger-client';
+import { Operation, PathsObject } from 'swagger-client';
 import OASOperation from './oas-operation';
 
 const OPERATION_KEYS = [
@@ -13,8 +13,9 @@ const OPERATION_KEYS = [
 ];
 
 class OASOperationFactory {
-  public static buildFromPaths(paths: PathObject): OASOperation[] {
+  public static buildFromPaths(paths: PathsObject): OASOperation[] {
     const pathObjects = Object.values(paths);
+
     const operationObjects = pathObjects.flatMap((path) => {
       return Object.entries(path).reduce<Operation[]>(
         (operations, [key, object]) => {

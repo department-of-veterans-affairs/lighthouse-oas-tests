@@ -12,7 +12,7 @@ import {
 } from '../../validation-failures';
 import ValidationFailure from '../../validation-failures/validation-failure';
 
-class BaseValidator {
+abstract class BaseValidator {
   protected failures: ValidationFailure[];
 
   protected validated: boolean;
@@ -25,6 +25,16 @@ class BaseValidator {
   public getFailures(): ValidationFailure[] {
     return this.failures;
   }
+
+  public validate = (): void => {
+    if (this.validated) {
+      return;
+    }
+
+    this.performValidation();
+
+    this.validated = true;
+  };
 
   public validateObjectAgainstSchema(
     actual: Json,
@@ -61,6 +71,8 @@ class BaseValidator {
       this.checkObjectProperties(actual, expected, [...path]);
     }
   }
+
+  abstract performValidation(): void;
 
   private checkInvalidSchema(
     actual: Json,

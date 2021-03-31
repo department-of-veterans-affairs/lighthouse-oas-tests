@@ -1,3 +1,4 @@
+export { default as ValidationFailure } from './validation-failure';
 export { default as ContentTypeMismatch } from './content-type-mismatch';
 export { default as DuplicateEnum } from './duplicate-enum';
 export { default as EnumMismatch } from './enum-mismatch';

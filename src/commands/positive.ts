@@ -4,9 +4,12 @@ import { ApiKeyCommand } from '../baseCommands';
 import { DEFAULT_PARAMETER_GROUP } from '../utilities/constants';
 import OASSchema from '../utilities/oas-schema';
 import ValidationFailure from '../validation-failures/validation-failure';
-import OASOperation from '../utilities/oas-operation';
 import { ParameterValidator, ResponseValidator } from '../utilities/validators';
-import { OperationResponse } from './types';
+import {
+  OperationExample,
+  OperationFailures,
+  OperationResponse,
+} from './types';
 
 export default class Positive extends ApiKeyCommand {
   static description =
@@ -30,11 +33,9 @@ export default class Positive extends ApiKeyCommand {
 
   private schema!: OASSchema;
 
-  private operations!: OASOperation[];
+  private operationExamples!: OperationExample[];
 
-  private operationFailures!: {
-    [operationExampleId: string]: ValidationFailure[];
-  };
+  private operationFailures!: OperationFailures;
 
   async run(): Promise<void> {
     const { args, flags } = this.parse(Positive);
@@ -54,7 +55,7 @@ export default class Positive extends ApiKeyCommand {
     }
 
     this.schema = new OASSchema(oasSchemaOptions);
-    this.operations = await this.schema.getOperations();
+    await this.buildOperationExamples();
 
     this.operationFailures = {};
 
@@ -71,42 +72,49 @@ export default class Positive extends ApiKeyCommand {
     this.displayResults();
   }
 
-  validateParameters = (): void => {
-    for (const operation of this.operations) {
+  buildOperationExamples = async (): Promise<void> => {
+    this.operationExamples = [];
+    const operations = await this.schema.getOperations();
+
+    for (const operation of operations) {
       const exampleGroups = operation.getExampleGroups();
 
       for (const exampleGroup of exampleGroups) {
         const operationExampleId = `${operation.getOperationId()}:${exampleGroup.getName()}`;
-        const validator = new ParameterValidator(exampleGroup);
-        validator.validate();
-
-        this.operationFailures[operationExampleId] = validator.getFailures();
+        this.operationExamples.push({
+          id: operationExampleId,
+          operation,
+          exampleGroup,
+        });
       }
     }
   };
 
+  validateParameters = (): void => {
+    for (const { id, exampleGroup } of this.operationExamples) {
+      const validator = new ParameterValidator(exampleGroup);
+      validator.validate();
+
+      this.operationFailures[id] = validator.getFailures();
+    }
+  };
+
   validateResponses = (responses: OperationResponse): void => {
-    for (const operation of this.operations) {
-      for (const exampleGroup of operation.getExampleGroups()) {
-        const operationExampleId = `${operation.getOperationId()}:${exampleGroup.getName()}`;
+    for (const { id, operation } of this.operationExamples) {
+      const response = responses[id];
+      if (response) {
+        if (response.ok) {
+          const validator = new ResponseValidator(operation, response);
+          validator.validate();
 
-        const response = responses[operationExampleId];
-        if (response) {
-          if (response.ok) {
-            const validator = new ResponseValidator(operation, response);
-            validator.validate();
-
-            this.operationFailures[
-              operationExampleId
-            ] = validator.getFailures();
-          } else {
-            this.operationFailures[operationExampleId] = [
-              new ValidationFailure(
-                'Response status code was a non 2XX value',
-                [],
-              ),
-            ];
-          }
+          this.operationFailures[id] = validator.getFailures();
+        } else {
+          this.operationFailures[id] = [
+            new ValidationFailure(
+              'Response status code was a non 2XX value',
+              [],
+            ),
+          ];
         }
       }
     }
@@ -114,18 +122,15 @@ export default class Positive extends ApiKeyCommand {
 
   executeRequests = (): Promise<OperationResponse>[] => {
     const responses: Promise<OperationResponse>[] = [];
-    for (const operation of this.operations) {
-      for (const exampleGroup of operation.getExampleGroups()) {
-        const operationExampleId = `${operation.getOperationId()}:${exampleGroup.getName()}`;
-        if (this.operationFailures[operationExampleId].length === 0) {
-          responses.push(
-            this.schema.execute(operation, exampleGroup).then((response) => {
-              return {
-                [operationExampleId]: response,
-              };
-            }),
-          );
-        }
+    for (const { id, exampleGroup, operation } of this.operationExamples) {
+      if (this.operationFailures[id].length === 0) {
+        responses.push(
+          this.schema.execute(operation, exampleGroup).then((response) => {
+            return {
+              [id]: response,
+            };
+          }),
+        );
       }
     }
 
@@ -134,37 +139,31 @@ export default class Positive extends ApiKeyCommand {
 
   displayResults = (): void => {
     const failingOperations: string[] = [];
+    for (const { id, exampleGroup, operation } of this.operationExamples) {
+      const exampleGroupName = exampleGroup.getName();
+      const failures = this.operationFailures[id];
 
-    for (const operation of this.operations) {
-      const operationId = operation.getOperationId();
+      if (failures.length > 0) {
+        failingOperations.push(id);
+        this.log(
+          `${operation.getOperationId()}${
+            exampleGroupName === DEFAULT_PARAMETER_GROUP
+              ? ''
+              : ` - ${exampleGroupName}`
+          }: Failed`,
+        );
 
-      for (const exampleGroup of operation.getExampleGroups()) {
-        const exampleGroupName = exampleGroup.getName();
-        const operationExampleId = `${operationId}:${exampleGroupName}`;
-        const failures = this.operationFailures[operationExampleId];
-
-        if (failures.length > 0) {
-          failingOperations.push(operationExampleId);
-          this.log(
-            `${operationId}${
-              exampleGroupName === DEFAULT_PARAMETER_GROUP
-                ? ''
-                : ` - ${exampleGroupName}`
-            }: Failed`,
-          );
-
-          failures.forEach((failure) => {
-            this.log(`  - ${failure.toString()}`);
-          });
-        } else {
-          this.log(
-            `${operationId}${
-              exampleGroupName === DEFAULT_PARAMETER_GROUP
-                ? ''
-                : ` - ${exampleGroupName}`
-            }: Succeeded`,
-          );
-        }
+        failures.forEach((failure) => {
+          this.log(`  - ${failure.toString()}`);
+        });
+      } else {
+        this.log(
+          `${operation.getOperationId()}${
+            exampleGroupName === DEFAULT_PARAMETER_GROUP
+              ? ''
+              : ` - ${exampleGroupName}`
+          }: Succeeded`,
+        );
       }
     }
 

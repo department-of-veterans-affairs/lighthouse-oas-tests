@@ -24,11 +24,7 @@ class ParameterValidator extends BaseValidator {
     this.operation = exampleGroup.getOperation();
   }
 
-  validate = (): void => {
-    if (this.validated) {
-      return;
-    }
-
+  performValidation = (): void => {
     this.checkMissingRequiredParameters();
     const examples = this.exampleGroup.getExamples();
 
