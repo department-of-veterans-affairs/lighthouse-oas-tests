@@ -1,5 +1,6 @@
-loast
-=====
+![Logo](images/loast-logo.png)
+
+# LOAST
 
 CLI for testing Lighthouse APIs using OpenAPI specs
 
