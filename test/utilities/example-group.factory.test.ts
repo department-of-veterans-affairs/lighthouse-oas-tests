@@ -5,7 +5,7 @@ describe('ExampleGroupFactory', () => {
   describe('getExampleGroups', () => {
     it('returns examples in the default group when no groups are present', () => {
       const operation = new OASOperation({
-        opeartionId: '123',
+        operationId: '123',
         responses: {},
         parameters: [
           {
@@ -34,8 +34,8 @@ describe('ExampleGroupFactory', () => {
 
       expect(groups).toHaveLength(1);
       const defaultGroup = groups[0];
-      expect(defaultGroup.getName()).toEqual('default');
-      expect(defaultGroup.getExamples()).toEqual({
+      expect(defaultGroup.name).toEqual('default');
+      expect(defaultGroup.examples).toEqual({
         age: 111,
         family: 'baggins',
       });
@@ -43,7 +43,7 @@ describe('ExampleGroupFactory', () => {
 
     it('does not return non-required values', () => {
       const operation = new OASOperation({
-        opeartionId: '123',
+        operationId: '123',
         responses: {},
         parameters: [
           {
@@ -72,14 +72,14 @@ describe('ExampleGroupFactory', () => {
 
       expect(groups).toHaveLength(1);
       const defaultGroup = groups[0];
-      expect(defaultGroup.getExamples()).toEqual({
+      expect(defaultGroup.examples).toEqual({
         age: 111,
       });
     });
 
     it('returns grouped parameters', () => {
       const operation = new OASOperation({
-        opeartionId: '123',
+        operationId: '123',
         responses: {},
         parameters: [
           {
@@ -114,8 +114,8 @@ describe('ExampleGroupFactory', () => {
 
       expect(groups).toHaveLength(1);
       const group = groups[0];
-      expect(group.getName()).toEqual('personal');
-      expect(group.getExamples()).toEqual({
+      expect(group.name).toEqual('personal');
+      expect(group.examples).toEqual({
         age: 111,
         family: 'baggins',
       });
@@ -123,7 +123,7 @@ describe('ExampleGroupFactory', () => {
 
     it('includes all required examples in any groups', () => {
       const operation = new OASOperation({
-        opeartionId: '123',
+        operationId: '123',
         responses: {},
         parameters: [
           {
@@ -156,8 +156,8 @@ describe('ExampleGroupFactory', () => {
 
       expect(groups).toHaveLength(1);
       const group = groups[0];
-      expect(group.getName()).toEqual('personal');
-      expect(group.getExamples()).toEqual({
+      expect(group.name).toEqual('personal');
+      expect(group.examples).toEqual({
         age: 111,
         family: 'baggins',
       });
@@ -165,7 +165,7 @@ describe('ExampleGroupFactory', () => {
 
     it('returns all groups present', () => {
       const operation = new OASOperation({
-        opeartionId: '123',
+        operationId: '123',
         responses: {},
         parameters: [
           {
@@ -201,14 +201,14 @@ describe('ExampleGroupFactory', () => {
 
       expect(groups).toHaveLength(2);
       const firstGroup = groups[0];
-      expect(firstGroup.getName()).toEqual('personal');
-      expect(firstGroup.getExamples()).toEqual({
+      expect(firstGroup.name).toEqual('personal');
+      expect(firstGroup.examples).toEqual({
         age: 111,
         family: 'baggins',
       });
       const secondGroup = groups[1];
-      expect(secondGroup.getName()).toEqual('temporary');
-      expect(secondGroup.getExamples()).toEqual({
+      expect(secondGroup.name).toEqual('temporary');
+      expect(secondGroup.examples).toEqual({
         age: 111,
         family: 'underhill',
       });

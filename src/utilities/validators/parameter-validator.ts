@@ -21,12 +21,12 @@ class ParameterValidator extends BaseValidator {
   constructor(exampleGroup: ExampleGroup) {
     super();
     this.exampleGroup = exampleGroup;
-    this.operation = exampleGroup.getOperation();
+    this.operation = exampleGroup.operation;
   }
 
   performValidation = (): void => {
     this.checkMissingRequiredParameters();
-    const examples = this.exampleGroup.getExamples();
+    const examples = this.exampleGroup.examples;
 
     Object.entries(examples).forEach(([name, example]) => {
       this.checkExample(name, example);
@@ -34,16 +34,16 @@ class ParameterValidator extends BaseValidator {
   };
 
   private checkMissingRequiredParameters(): void {
-    const requiredParameters = this.operation.getRequiredParameterNames();
+    const requiredParameters = this.operation.requiredParameterNames;
 
-    const presentParameterNames = Object.keys(this.exampleGroup.getExamples());
+    const presentParameterNames = Object.keys(this.exampleGroup.examples);
     const missingRequiredParameters = requiredParameters.filter(
       (parameterName) => !presentParameterNames.includes(parameterName),
     );
 
-    if (missingRequiredParameters && missingRequiredParameters.length > 0) {
-      this.failures = [
-        ...this.failures,
+    if (missingRequiredParameters.length > 0) {
+      this._failures = [
+        ...this._failures,
         new MissingRequiredParameters(missingRequiredParameters),
       ];
     }
@@ -74,14 +74,14 @@ class ParameterValidator extends BaseValidator {
       // Parameter Object contains field: content
       if (parameterHasSchema(parameter)) {
         // ERROR: Parameter Object also contains field: schema.
-        this.failures = [...this.failures, new InvalidParameterObject(path)];
+        this._failures = [...this._failures, new InvalidParameterObject(path)];
       }
 
       const [contentObjectKey, ...invalidKeys] = Object.keys(parameter.content);
       if (invalidKeys.length > 0) {
         // ERROR: Content Object contains more than one entry.
-        this.failures = [
-          ...this.failures,
+        this._failures = [
+          ...this._failures,
           new InvalidParameterContent([...path, 'content']),
         ];
       }
@@ -95,8 +95,8 @@ class ParameterValidator extends BaseValidator {
         );
       } else {
         // ERROR: Content Object does not contain a Schema Object.
-        this.failures = [
-          ...this.failures,
+        this._failures = [
+          ...this._failures,
           new MissingContentSchemaObject([
             ...path,
             'content',
@@ -106,7 +106,7 @@ class ParameterValidator extends BaseValidator {
       }
     } else {
       // ERROR: Parameter Object must contain one of the following: schema, or content.
-      this.failures = [...this.failures, new InvalidParameterObject(path)];
+      this._failures = [...this._failures, new InvalidParameterObject(path)];
     }
   }
 }

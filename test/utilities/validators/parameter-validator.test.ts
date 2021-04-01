@@ -11,6 +11,7 @@ describe('ParameterValidator', () => {
           parameters: [
             {
               name: 'fit',
+              in: 'query',
               required: true,
               example: 'tight',
               schema: {
@@ -25,7 +26,7 @@ describe('ParameterValidator', () => {
 
         validator.validate();
 
-        const failures = validator.getFailures();
+        const failures = validator.failures;
         expect(failures).toHaveLength(1);
         expect(failures).toContainValidationFailure(
           'Missing required parameters: [fit]',
@@ -63,7 +64,7 @@ describe('ParameterValidator', () => {
           const validator = new ParameterValidator(exampleGroup);
           validator.validate();
 
-          const failures = validator.getFailures();
+          const failures = validator.failures;
           expect(failures).toHaveLength(2);
           expect(failures).toContainValidationFailure(
             'Missing required parameters: [fit]',
@@ -103,7 +104,7 @@ describe('ParameterValidator', () => {
       const validator = new ParameterValidator(exampleGroup);
       validator.validate();
 
-      const failures = validator.getFailures();
+      const failures = validator.failures;
 
       expect(failures).toHaveLength(1);
       expect(failures).toContainValidationFailure(
@@ -141,7 +142,7 @@ describe('ParameterValidator', () => {
       const validator = new ParameterValidator(exampleGroup);
       validator.validate();
 
-      const failures = validator.getFailures();
+      const failures = validator.failures;
 
       expect(failures).toHaveLength(1);
       expect(failures).toContainValidationFailure(
@@ -174,7 +175,7 @@ describe('ParameterValidator', () => {
       const validator = new ParameterValidator(exampleGroup);
       validator.validate();
 
-      const failures = validator.getFailures();
+      const failures = validator.failures;
 
       expect(failures).toHaveLength(1);
       expect(failures).toContainValidationFailure(
@@ -198,7 +199,7 @@ describe('ParameterValidator', () => {
       const validator = new ParameterValidator(exampleGroup);
       validator.validate();
 
-      const failures = validator.getFailures();
+      const failures = validator.failures;
 
       expect(failures).toHaveLength(1);
       expect(failures).toContainValidationFailure(
@@ -230,7 +231,7 @@ describe('ParameterValidator', () => {
       const validator = new ParameterValidator(exampleGroup);
       validator.validate();
 
-      const failures = validator.getFailures();
+      const failures = validator.failures;
 
       expect(failures).toHaveLength(0);
     });
@@ -241,6 +242,7 @@ describe('ParameterValidator', () => {
         parameters: [
           {
             name: 'fit',
+            in: 'query',
             required: true,
             example: 'tight',
             schema: {
@@ -255,7 +257,7 @@ describe('ParameterValidator', () => {
 
       validator.validate();
 
-      let failures = validator.getFailures();
+      let failures = validator.failures;
       expect(failures).toHaveLength(1);
       expect(failures).toContainValidationFailure(
         'Missing required parameters: [fit]',
@@ -264,7 +266,7 @@ describe('ParameterValidator', () => {
       // call valdiate again to check for idempotency
       validator.validate();
 
-      failures = validator.getFailures();
+      failures = validator.failures;
       expect(failures).toHaveLength(1);
       expect(failures).toContainValidationFailure(
         'Missing required parameters: [fit]',

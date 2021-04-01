@@ -6,17 +6,17 @@ declare module 'swagger-client/schema' {
   }
 
   export interface PathsObject { [path: string]: PathItemObject }
-  export interface Operation {
+  export interface OperationObject {
     operationId: string;
     parameters: ParameterObject[];
     responses: { [responseStatus: string]: ResponseObject };
   }
   interface PathItemObject {
-    get?: Operation;
-    post?: Operation;
-    put?: Operation;
-    delete?: Operation;
-    patch?: Operation;
+    get?: OperationObject;
+    post?: OperationObject;
+    put?: OperationObject;
+    delete?: OperationObject;
+    patch?: OperationObject;
   }
 
   interface ParameterAndHeaderBase {

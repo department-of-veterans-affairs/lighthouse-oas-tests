@@ -51,27 +51,27 @@ describe('OASOperation', () => {
 
   describe('getOperationId', () => {
     it('returns the operation ID', () => {
-      expect(operation.getOperationId()).toEqual('getHobbits');
+      expect(operation.operationId).toEqual('getHobbits');
     });
   });
 
   describe('getExampleGroups', () => {
     it('returns the example groups', () => {
-      const exampleGroups = operation.getExampleGroups();
+      const exampleGroups = operation.exampleGroups;
       expect(exampleGroups).toHaveLength(1);
-      expect(exampleGroups[0].getName()).toEqual('baggins');
+      expect(exampleGroups[0].name).toEqual('baggins');
     });
   });
 
   describe('getRequiredParameters', () => {
     it('returns the names of all required parameters', () => {
-      expect(operation.getRequiredParameterNames()).toEqual(['family']);
+      expect(operation.requiredParameterNames).toEqual(['family']);
     });
   });
 
   describe('getParameters', () => {
     it('returns the underlying parameters schema', () => {
-      expect(operation.getParameters()).toEqual(
+      expect(operation.parameters).toEqual(
         expect.arrayContaining([
           {
             name: 'family',

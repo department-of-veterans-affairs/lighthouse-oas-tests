@@ -25,8 +25,8 @@ describe('OASSchema', () => {
       const operations = await callGetOperations(filePath);
 
       expect(operations).toHaveLength(2);
-      expect(operations[0].getOperationId()).toEqual('findForms');
-      expect(operations[1].getOperationId()).toEqual('findFormByFormName');
+      expect(operations[0].operationId).toEqual('findForms');
+      expect(operations[1].operationId).toEqual('findFormByFormName');
     });
 
     it('gets parameters from facitilities_oas.json', async () => {
@@ -35,11 +35,11 @@ describe('OASSchema', () => {
       const operations = await callGetOperations(filePath);
 
       expect(operations).toHaveLength(5);
-      expect(operations[0].getOperationId()).toEqual('getAllFacilities');
-      expect(operations[1].getOperationId()).toEqual('getFacilityById');
-      expect(operations[2].getOperationId()).toEqual('getFacilitiesByLocation');
-      expect(operations[3].getOperationId()).toEqual('getFacilityIds');
-      expect(operations[4].getOperationId()).toEqual('getNearbyFacilities');
+      expect(operations[0].operationId).toEqual('getAllFacilities');
+      expect(operations[1].operationId).toEqual('getFacilityById');
+      expect(operations[2].operationId).toEqual('getFacilitiesByLocation');
+      expect(operations[3].operationId).toEqual('getFacilityIds');
+      expect(operations[4].operationId).toEqual('getNearbyFacilities');
     });
   });
 
@@ -74,7 +74,7 @@ describe('OASSchema', () => {
         ],
       });
 
-      const exampleGroup = operation.getExampleGroups()[0];
+      const exampleGroup = operation.exampleGroups[0];
 
       await schema.execute(operation, exampleGroup);
 

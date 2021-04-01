@@ -1,40 +1,39 @@
-import { Operation, ParameterObject } from 'swagger-client';
+import { OperationObject, ParameterObject } from 'swagger-client';
 import { ResponseObject } from 'swagger-client/schema';
 import ExampleGroup, { ExampleGroupFactory } from '../example-group';
 
 class OASOperation {
-  private operationId: string;
+  readonly operationId: string;
 
-  private _schema: Operation;
+  private _schema: OperationObject;
 
-  private exampleGroups: ExampleGroup[];
+  private _exampleGroups: ExampleGroup[];
 
-  constructor(schema: Operation) {
+  readonly test: string[];
+
+  constructor(schema: OperationObject) {
+    this.test = [];
     this._schema = schema;
     this.operationId = schema.operationId;
-    this.exampleGroups = ExampleGroupFactory.buildFromOperation(this);
+    this._exampleGroups = ExampleGroupFactory.buildFromOperation(this);
   }
 
-  getOperationId(): string {
-    return this.operationId;
+  get exampleGroups(): ExampleGroup[] {
+    return [...this._exampleGroups];
   }
 
-  getExampleGroups(): ExampleGroup[] {
-    return [...this.exampleGroups];
+  get parameters(): ParameterObject[] {
+    return this._schema.parameters;
   }
 
-  getRequiredParameterNames(): string[] {
+  get requiredParameterNames(): string[] {
     return this._schema.parameters
       .filter((parameter) => parameter.required)
       .map((parameter) => parameter.name);
   }
 
-  getParameters(): ParameterObject[] {
-    return this._schema.parameters;
-  }
-
   getParameter(name): ParameterObject | null {
-    const parameter = this.getParameters().find(
+    const parameter = this.parameters.find(
       (parameter) => parameter.name === name,
     );
     return parameter ?? null;

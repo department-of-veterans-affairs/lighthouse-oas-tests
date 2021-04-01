@@ -69,7 +69,7 @@ describe('ResponseValidator', () => {
       });
 
       validator.validate();
-      const failures = validator.getFailures();
+      const failures = validator.failures;
 
       expect(failures).toHaveLength(1);
       expect(failures).toContainValidationFailure(
@@ -89,7 +89,7 @@ describe('ResponseValidator', () => {
       });
 
       validator.validate();
-      const failures = validator.getFailures();
+      const failures = validator.failures;
 
       expect(failures).toHaveLength(1);
       expect(failures).toContainValidationFailure(
@@ -111,7 +111,7 @@ describe('ResponseValidator', () => {
       });
 
       validator.validate();
-      const failures = validator.getFailures();
+      const failures = validator.failures;
 
       expect(failures).toHaveLength(0);
     });
@@ -128,7 +128,7 @@ describe('ResponseValidator', () => {
       });
 
       validator.validate();
-      let failures = validator.getFailures();
+      let failures = validator.failures;
 
       expect(failures).toHaveLength(1);
       expect(failures).toContainValidationFailure(
@@ -137,7 +137,7 @@ describe('ResponseValidator', () => {
 
       // call valdiate again to check for idempotency
       validator.validate();
-      failures = validator.getFailures();
+      failures = validator.failures;
 
       expect(failures).toHaveLength(1);
       expect(failures).toContainValidationFailure(

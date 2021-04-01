@@ -1,12 +1,11 @@
 import swaggerClient, { Response, Swagger } from 'swagger-client';
-import OasOperation, { OASOperationFactory } from '../oas-operation';
-import OASOperation from '../oas-operation';
+import OASOperation, { OASOperationFactory } from '../oas-operation';
 import ExampleGroup from '../example-group';
 
 class OASSchema {
   private _client: Promise<Swagger>;
 
-  private operations: OasOperation[];
+  private operations: OASOperation[];
 
   constructor(options: Parameters<typeof swaggerClient>[0]) {
     this._client = swaggerClient(options);
@@ -25,15 +24,15 @@ class OASSchema {
 
     return schema
       .execute({
-        operationId: operation.getOperationId(),
-        parameters: exampleGroup.getExamples(),
+        operationId: operation.operationId,
+        parameters: exampleGroup.examples,
       })
       .catch((error) => {
         return error.response;
       });
   };
 
-  getOperations = async (): Promise<OasOperation[]> => {
+  getOperations = async (): Promise<OASOperation[]> => {
     const schema = await this._client;
     if (this.operations.length === 0) {
       this.operations = OASOperationFactory.buildFromPaths(schema.spec.paths);

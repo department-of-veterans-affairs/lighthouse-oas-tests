@@ -107,7 +107,7 @@ describe('Positive', () => {
       });
     });
 
-    it.only('outputs a failure for an operation if parameter validation fails', async () => {
+    it('outputs a failure for an operation if parameter validation fails', async () => {
       mockGetOperations.mockResolvedValue([
         new OASOperation({
           operationId: 'walkIntoMordor',
@@ -208,22 +208,22 @@ describe('Positive', () => {
 
         expect(mockExecute).not.toHaveBeenCalledWith(
           operation1,
-          operation1.getExampleGroups()[0],
+          operation1.exampleGroups[0],
         );
 
         expect(mockExecute).toHaveBeenCalledWith(
           operation1,
-          operation1.getExampleGroups()[1],
+          operation1.exampleGroups[1],
         );
 
         expect(mockExecute).toHaveBeenCalledWith(
           operation2,
-          operation2.getExampleGroups()[0],
+          operation2.exampleGroups[0],
         );
 
         expect(mockExecute).toHaveBeenCalledWith(
           operation3,
-          operation3.getExampleGroups()[0],
+          operation3.exampleGroups[0],
         );
       });
 

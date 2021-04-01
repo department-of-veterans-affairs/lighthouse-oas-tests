@@ -6,17 +6,17 @@ describe('ExampleGroup', () => {
     it('returns the name', () => {
       const group = new ExampleGroup({} as OASOperation, 'test', {});
 
-      expect(group.getName()).toEqual('test');
+      expect(group.name).toEqual('test');
     });
   });
 
   describe('getExamples', () => {
     it('returns the examples', () => {
       const group = new ExampleGroup({} as OASOperation, 'test', {
-        hello: 'world',
+        hello: 'arda',
       });
 
-      expect(group.getExamples()).toEqual({ hello: 'world' });
+      expect(group.examples).toEqual({ hello: 'arda' });
     });
   });
 });

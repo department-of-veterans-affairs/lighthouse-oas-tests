@@ -1,3 +1,4 @@
+import { SchemaObject } from 'swagger-client';
 import BaseValidator from '../../../src/utilities/validators/base-validator';
 
 describe('BaseValidator', () => {
@@ -20,7 +21,7 @@ describe('BaseValidator', () => {
             'id',
           ]);
 
-          const failures = validator.getFailures();
+          const failures = validator.failures;
           expect(failures).toHaveLength(1);
           expect(failures).toContainValidationFailure(
             'Actual value is null but schema does not allow null values. Path: body -> facility -> id',
@@ -42,7 +43,7 @@ describe('BaseValidator', () => {
             'id',
           ]);
 
-          const failures = validator.getFailures();
+          const failures = validator.failures;
           expect(failures).toHaveLength(1);
           expect(failures).toContainValidationFailure(
             'Actual value is null but schema does not allow null values. Path: body -> facility -> id',
@@ -64,7 +65,7 @@ describe('BaseValidator', () => {
             'id',
           ]);
 
-          const failures = validator.getFailures();
+          const failures = validator.failures;
           expect(failures).toHaveLength(0);
         });
       });
@@ -90,14 +91,14 @@ describe('BaseValidator', () => {
           validator.validateObjectAgainstSchema('This is a string', schema, [
             'test',
           ]);
-          expect(validator.getFailures()).toHaveLength(0);
+          expect(validator.failures).toHaveLength(0);
         });
       });
 
       describe('actual object is an array', () => {
         it('does not add a validation failure', () => {
           validator.validateObjectAgainstSchema([42, 58], schema, ['test']);
-          expect(validator.getFailures()).toHaveLength(0);
+          expect(validator.failures).toHaveLength(0);
         });
       });
 
@@ -108,7 +109,7 @@ describe('BaseValidator', () => {
             schema,
             ['test'],
           );
-          expect(validator.getFailures()).toHaveLength(0);
+          expect(validator.failures).toHaveLength(0);
         });
       });
     });
@@ -124,7 +125,7 @@ describe('BaseValidator', () => {
           validator.validateObjectAgainstSchema('This is a string', schema, [
             'test',
           ]);
-          expect(validator.getFailures()).toHaveLength(0);
+          expect(validator.failures).toHaveLength(0);
         });
 
         describe('schema expects an enum', () => {
@@ -146,7 +147,7 @@ describe('BaseValidator', () => {
                 'id',
               ]);
 
-              expect(validator.getFailures()).toContainValidationFailure(
+              expect(validator.failures).toContainValidationFailure(
                 'Schema enum contains duplicate values. Enum values: ["test","test","anything"]. Path: body -> facility -> id',
               );
             });
@@ -163,7 +164,7 @@ describe('BaseValidator', () => {
                 'facility',
                 'id',
               ]);
-              expect(validator.getFailures()).toHaveLength(0);
+              expect(validator.failures).toHaveLength(0);
             });
           });
 
@@ -175,7 +176,7 @@ describe('BaseValidator', () => {
                 'facility',
                 'id',
               ]);
-              expect(validator.getFailures()).toContainValidationFailure(
+              expect(validator.failures).toContainValidationFailure(
                 'Actual value does not match schema enum. Enum values: ["test","anything"]. Actual value: "does not match". Path: body -> facility -> id',
               );
             });
@@ -195,7 +196,7 @@ describe('BaseValidator', () => {
             'facility',
             'id',
           ]);
-          expect(validator.getFailures()).toContainValidationFailure(
+          expect(validator.failures).toContainValidationFailure(
             'Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> facility -> id',
           );
         });
@@ -212,7 +213,7 @@ describe('BaseValidator', () => {
               'id',
             ]);
 
-            const failures = validator.getFailures();
+            const failures = validator.failures;
             expect(failures).toHaveLength(1);
             expect(failures).toContainValidationFailure(
               'Actual type did not match schema. Schema type: string. Actual type: object. Path: body -> facility -> id',
@@ -230,7 +231,7 @@ describe('BaseValidator', () => {
               'id',
             ]);
 
-            const failures = validator.getFailures();
+            const failures = validator.failures;
             expect(failures).toHaveLength(1);
             expect(failures).toContainValidationFailure(
               'Actual type did not match schema. Schema type: string. Actual type: object. Path: body -> facility -> id',
@@ -253,7 +254,7 @@ describe('BaseValidator', () => {
             'facility',
             'lat',
           ]);
-          expect(validator.getFailures()).toHaveLength(0);
+          expect(validator.failures).toHaveLength(0);
         });
 
         describe('schema expects an enum', () => {
@@ -268,7 +269,7 @@ describe('BaseValidator', () => {
                 'facility',
                 'lat',
               ]);
-              expect(validator.getFailures()).toHaveLength(0);
+              expect(validator.failures).toHaveLength(0);
             });
           });
 
@@ -280,7 +281,7 @@ describe('BaseValidator', () => {
                 'facility',
                 'lat',
               ]);
-              expect(validator.getFailures()).toContainValidationFailure(
+              expect(validator.failures).toContainValidationFailure(
                 'Actual value does not match schema enum. Enum values: [42,56]. Actual value: 100. Path: body -> facility -> lat',
               );
             });
@@ -299,7 +300,7 @@ describe('BaseValidator', () => {
                 'facility',
                 'lat',
               ]);
-              expect(validator.getFailures()).toContainValidationFailure(
+              expect(validator.failures).toContainValidationFailure(
                 `Schema enum contains duplicate values. Enum values: [42,42,56]. Path: body -> facility -> lat`,
               );
             });
@@ -323,7 +324,7 @@ describe('BaseValidator', () => {
             'facility',
             'lat',
           ]);
-          expect(validator.getFailures()).toContainValidationFailure(
+          expect(validator.failures).toContainValidationFailure(
             'Actual type did not match schema. Schema type: number. Actual type: string. Path: body -> facility -> lat',
           );
         });
@@ -342,7 +343,7 @@ describe('BaseValidator', () => {
             'facility',
             'lat',
           ]);
-          expect(validator.getFailures()).toHaveLength(0);
+          expect(validator.failures).toHaveLength(0);
         });
 
         describe('schema expects an enum', () => {
@@ -357,7 +358,7 @@ describe('BaseValidator', () => {
                 'facility',
                 'lat',
               ]);
-              expect(validator.getFailures()).toHaveLength(0);
+              expect(validator.failures).toHaveLength(0);
             });
           });
 
@@ -369,7 +370,7 @@ describe('BaseValidator', () => {
                 'facility',
                 'lat',
               ]);
-              expect(validator.getFailures()).toContainValidationFailure(
+              expect(validator.failures).toContainValidationFailure(
                 'Actual value does not match schema enum. Enum values: [42,56]. Actual value: 100. Path: body -> facility -> lat',
               );
             });
@@ -388,7 +389,7 @@ describe('BaseValidator', () => {
                 'facility',
                 'lat',
               ]);
-              expect(validator.getFailures()).toContainValidationFailure(
+              expect(validator.failures).toContainValidationFailure(
                 'Schema enum contains duplicate values. Enum values: [42,42,56]. Path: body -> facility -> lat',
               );
             });
@@ -412,7 +413,7 @@ describe('BaseValidator', () => {
             'facility',
             'lat',
           ]);
-          expect(validator.getFailures()).toContainValidationFailure(
+          expect(validator.failures).toContainValidationFailure(
             'Actual type did not match schema. Schema type: integer. Actual type: string. Path: body -> facility -> lat',
           );
         });
@@ -436,7 +437,7 @@ describe('BaseValidator', () => {
             'body',
             'numbers',
           ]);
-          expect(validator.getFailures()).toContainValidationFailure(
+          expect(validator.failures).toContainValidationFailure(
             'Actual type did not match schema. Schema type: array. Actual type: string. Path: body -> numbers',
           );
         });
@@ -455,7 +456,7 @@ describe('BaseValidator', () => {
               'body',
               'numbers',
             ]);
-            expect(validator.getFailures()).toContainValidationFailure(
+            expect(validator.failures).toContainValidationFailure(
               'The items property is required for array schemas. Path: body -> numbers',
             );
           });
@@ -487,7 +488,7 @@ describe('BaseValidator', () => {
               'body',
               'numbers',
             ]);
-            expect(validator.getFailures()).toContainValidationFailure(
+            expect(validator.failures).toContainValidationFailure(
               'Actual object missing required property. Required property: value. Path: body -> numbers',
             );
           });
@@ -507,7 +508,7 @@ describe('BaseValidator', () => {
                 'body',
                 'numbers',
               ]);
-              expect(validator.getFailures()).toHaveLength(0);
+              expect(validator.failures).toHaveLength(0);
             });
           });
 
@@ -518,7 +519,7 @@ describe('BaseValidator', () => {
                 'body',
                 'numbers',
               ]);
-              expect(validator.getFailures()).toContainValidationFailure(
+              expect(validator.failures).toContainValidationFailure(
                 'Actual value does not match schema enum. Enum values: [[42,56],[100,200]]. Actual value: [42,100]. Path: body -> numbers',
               );
             });
@@ -540,7 +541,7 @@ describe('BaseValidator', () => {
                 'body',
                 'numbers',
               ]);
-              expect(validator.getFailures()).toContainValidationFailure(
+              expect(validator.failures).toContainValidationFailure(
                 'Schema enum contains duplicate values. Enum values: [[42,56],[100,200],[42,56]]. Path: body -> numbers',
               );
             });
@@ -577,7 +578,7 @@ describe('BaseValidator', () => {
             'body',
             'form',
           ]);
-          expect(validator.getFailures()).toContainValidationFailure(
+          expect(validator.failures).toContainValidationFailure(
             'Actual type did not match schema. Schema type: object. Actual type: string. Path: body -> form',
           );
         });
@@ -596,7 +597,7 @@ describe('BaseValidator', () => {
               'body',
               'form',
             ]);
-            expect(validator.getFailures()).toContainValidationFailure(
+            expect(validator.failures).toContainValidationFailure(
               'The properties property is required for object schemas. Path: body -> form',
             );
           });
@@ -620,7 +621,7 @@ describe('BaseValidator', () => {
               tempSchema,
               ['body', 'form'],
             );
-            expect(validator.getFailures()).toContainValidationFailure(
+            expect(validator.failures).toContainValidationFailure(
               'Actual object contains a property not present in schema. Schema properties: value. Actual properties: fake, value. Path: body -> form',
             );
           });
@@ -637,7 +638,7 @@ describe('BaseValidator', () => {
               'body',
               'form',
             ]);
-            expect(validator.getFailures()).toContainValidationFailure(
+            expect(validator.failures).toContainValidationFailure(
               'Actual object missing required property. Required property: value. Path: body -> form',
             );
           });
@@ -657,9 +658,9 @@ describe('BaseValidator', () => {
               ['body', 'form'],
             );
 
-            const failures = validator.getFailures();
+            const failures = validator.failures;
             expect(failures).toHaveLength(1);
-            expect(validator.getFailures()).toContainValidationFailure(
+            expect(validator.failures).toContainValidationFailure(
               'Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> form -> value',
             );
           });
@@ -676,7 +677,7 @@ describe('BaseValidator', () => {
                 'body',
                 'form',
               ]);
-              expect(validator.getFailures()).toHaveLength(0);
+              expect(validator.failures).toHaveLength(0);
             });
           });
 
@@ -687,7 +688,7 @@ describe('BaseValidator', () => {
                 'body',
                 'form',
               ]);
-              expect(validator.getFailures()).toContainValidationFailure(
+              expect(validator.failures).toContainValidationFailure(
                 'Actual value does not match schema enum. Enum values: [{"value":"test"},{"value":"anything"}]. Actual value: {"value":"does not match"}. Path: body -> form',
               );
             });
@@ -710,7 +711,7 @@ describe('BaseValidator', () => {
                 schema,
                 ['body', 'form'],
               );
-              expect(validator.getFailures()).toContainValidationFailure(
+              expect(validator.failures).toContainValidationFailure(
                 'Schema enum contains duplicate values. Enum values: [{"value":"test"},{"value":"anything"},{"value":"test"}]. Path: body -> form',
               );
             });

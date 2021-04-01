@@ -14,7 +14,7 @@ describe('OASOperationFactory', () => {
       });
 
       expect(result).toHaveLength(1);
-      expect(result[0].getOperationId()).toEqual('getAllHobbits');
+      expect(result[0].operationId).toEqual('getAllHobbits');
     });
 
     it('returns all operations when a path contains multiple operations', () => {
@@ -34,8 +34,8 @@ describe('OASOperationFactory', () => {
       });
 
       expect(result).toHaveLength(2);
-      expect(result[0].getOperationId()).toEqual('getAHobbit');
-      expect(result[1].getOperationId()).toEqual('postAHobbit');
+      expect(result[0].operationId).toEqual('getAHobbit');
+      expect(result[1].operationId).toEqual('postAHobbit');
     });
 
     it('returns all operations when there are multiple paths', () => {
@@ -62,9 +62,9 @@ describe('OASOperationFactory', () => {
       });
 
       expect(result).toHaveLength(3);
-      expect(result[0].getOperationId()).toEqual('getAHobbit');
-      expect(result[1].getOperationId()).toEqual('postAHobbit');
-      expect(result[2].getOperationId()).toEqual('getAllHobbits');
+      expect(result[0].operationId).toEqual('getAHobbit');
+      expect(result[1].operationId).toEqual('postAHobbit');
+      expect(result[2].operationId).toEqual('getAllHobbits');
     });
   });
 });

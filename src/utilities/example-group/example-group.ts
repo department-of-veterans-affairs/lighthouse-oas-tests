@@ -2,11 +2,11 @@ import OASOperation from '../oas-operation';
 import { ParameterExamples } from './types';
 
 class ExampleGroup {
-  private operation: OASOperation;
+  readonly operation: OASOperation;
 
-  private name: string;
+  readonly name: string;
 
-  private examples: ParameterExamples;
+  readonly examples: ParameterExamples;
 
   constructor(
     operation: OASOperation,
@@ -16,18 +16,6 @@ class ExampleGroup {
     this.operation = operation;
     this.name = name;
     this.examples = examples;
-  }
-
-  getName(): string {
-    return this.name;
-  }
-
-  getExamples(): ParameterExamples {
-    return this.examples;
-  }
-
-  getOperation(): OASOperation {
-    return this.operation;
   }
 }
 

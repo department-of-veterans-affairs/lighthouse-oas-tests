@@ -28,8 +28,8 @@ class ResponseValidator extends BaseValidator {
       const contentTypeSchema = responseSchema.content[contentType];
 
       if (!contentTypeSchema) {
-        this.failures = [
-          ...this.failures,
+        this._failures = [
+          ...this._failures,
           new ContentTypeMismatch(contentType),
         ];
         return;
@@ -41,8 +41,8 @@ class ResponseValidator extends BaseValidator {
         ['body'],
       );
     } else {
-      this.failures = [
-        ...this.failures,
+      this._failures = [
+        ...this._failures,
         new StatusCodeMismatch(this.response.status),
       ];
     }

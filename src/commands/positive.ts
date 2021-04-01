@@ -33,9 +33,9 @@ export default class Positive extends ApiKeyCommand {
 
   private schema!: OASSchema;
 
-  private operationExamples!: OperationExample[];
+  private operationExamples: OperationExample[] = [];
 
-  private operationFailures!: OperationFailures;
+  private operationFailures: OperationFailures = {};
 
   async run(): Promise<void> {
     const { args, flags } = this.parse(Positive);
@@ -57,8 +57,6 @@ export default class Positive extends ApiKeyCommand {
     this.schema = new OASSchema(oasSchemaOptions);
     await this.buildOperationExamples();
 
-    this.operationFailures = {};
-
     this.validateParameters();
 
     const responses = await Promise.all(this.executeRequests());
@@ -73,14 +71,13 @@ export default class Positive extends ApiKeyCommand {
   }
 
   buildOperationExamples = async (): Promise<void> => {
-    this.operationExamples = [];
     const operations = await this.schema.getOperations();
 
     for (const operation of operations) {
-      const exampleGroups = operation.getExampleGroups();
+      const exampleGroups = operation.exampleGroups;
 
       for (const exampleGroup of exampleGroups) {
-        const operationExampleId = `${operation.getOperationId()}:${exampleGroup.getName()}`;
+        const operationExampleId = `${operation.operationId}:${exampleGroup.name}`;
         this.operationExamples.push({
           id: operationExampleId,
           operation,
@@ -95,7 +92,7 @@ export default class Positive extends ApiKeyCommand {
       const validator = new ParameterValidator(exampleGroup);
       validator.validate();
 
-      this.operationFailures[id] = validator.getFailures();
+      this.operationFailures[id] = validator.failures;
     }
   };
 
@@ -107,7 +104,7 @@ export default class Positive extends ApiKeyCommand {
           const validator = new ResponseValidator(operation, response);
           validator.validate();
 
-          this.operationFailures[id] = validator.getFailures();
+          this.operationFailures[id] = validator.failures;
         } else {
           this.operationFailures[id] = [
             new ValidationFailure(
@@ -140,13 +137,13 @@ export default class Positive extends ApiKeyCommand {
   displayResults = (): void => {
     const failingOperations: string[] = [];
     for (const { id, exampleGroup, operation } of this.operationExamples) {
-      const exampleGroupName = exampleGroup.getName();
+      const exampleGroupName = exampleGroup.name;
       const failures = this.operationFailures[id];
 
       if (failures.length > 0) {
         failingOperations.push(id);
         this.log(
-          `${operation.getOperationId()}${
+          `${operation.operationId}${
             exampleGroupName === DEFAULT_PARAMETER_GROUP
               ? ''
               : ` - ${exampleGroupName}`
@@ -158,7 +155,7 @@ export default class Positive extends ApiKeyCommand {
         });
       } else {
         this.log(
-          `${operation.getOperationId()}${
+          `${operation.operationId}${
             exampleGroupName === DEFAULT_PARAMETER_GROUP
               ? ''
               : ` - ${exampleGroupName}`

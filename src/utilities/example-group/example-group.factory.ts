@@ -1,4 +1,3 @@
-import { uniq } from 'lodash';
 import { ExampleObject, ParameterObject } from 'swagger-client';
 import { DEFAULT_PARAMETER_GROUP } from '../constants';
 import OASOperation from '../oas-operation';
@@ -6,7 +5,7 @@ import ExampleGroup from './example-group';
 
 class ExampleGroupFactory {
   static buildFromOperation(operation: OASOperation): ExampleGroup[] {
-    const parameters = operation.getParameters();
+    const parameters = operation.parameters;
     const groupNames = this.getGroupNames(parameters);
 
     const requiredExamples = parameters
@@ -49,7 +48,7 @@ class ExampleGroupFactory {
       .filter((parameter) => parameter.examples)
       .flatMap((parameter) => Object.keys(parameter.examples ?? {}));
 
-    return uniq(groupNames);
+    return [...new Set(groupNames)];
   }
 
   private static findExamplesForGroup(
@@ -60,7 +59,7 @@ class ExampleGroupFactory {
   ): ExampleGroup {
     const examples = {};
     for (const parameter of parameters) {
-      if (parameter.examples && parameter.examples[groupName]) {
+      if (parameter.examples?.[groupName]) {
         examples[parameter.name] = parameter.examples[groupName].value;
       }
     }

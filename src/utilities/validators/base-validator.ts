@@ -13,17 +13,17 @@ import {
 import ValidationFailure from '../../validation-failures/validation-failure';
 
 abstract class BaseValidator {
-  protected failures: ValidationFailure[];
+  protected _failures: ValidationFailure[];
 
   protected validated: boolean;
 
   constructor() {
     this.validated = false;
-    this.failures = [];
+    this._failures = [];
   }
 
-  public getFailures(): ValidationFailure[] {
-    return this.failures;
+  public get failures(): ValidationFailure[] {
+    return this._failures;
   }
 
   public validate = (): void => {
@@ -42,28 +42,21 @@ abstract class BaseValidator {
     path: string[],
   ): void {
     const actualType = typeof actual;
+    let returnEarly = false;
 
-    const invalidSchemaErrors = this.checkInvalidSchema(actual, expected, [
-      ...path,
-    ]);
-    if (invalidSchemaErrors) {
-      this.failures = [...this.failures, ...invalidSchemaErrors];
+    returnEarly = this.checkInvalidSchema(actual, expected, [...path]);
+
+    if (returnEarly || actual === null) {
       return;
     }
 
-    const expectedTypeError = this.checkExpectedType(actual, expected, [
-      ...path,
-    ]);
+    returnEarly = this.checkExpectedType(actual, expected, [...path]);
 
-    if (expectedTypeError) {
-      this.failures = [...this.failures, expectedTypeError];
+    if (returnEarly) {
       return;
     }
 
-    const enumValueErrors = this.checkEnumValue(actual, expected, [...path]);
-    if (enumValueErrors.length > 0) {
-      this.failures = [...this.failures, ...enumValueErrors];
-    }
+    this.checkEnumValue(actual, expected, [...path]);
 
     if (Array.isArray(actual)) {
       this.checkArrayItemSchema(actual, expected, [...path]);
@@ -78,65 +71,84 @@ abstract class BaseValidator {
     actual: Json,
     expected: SchemaObject,
     path: string[],
-  ): Array<ValidationFailure> | undefined {
+  ): boolean {
     // if the actual object is null check that null values are allowed
     if (actual === null) {
-      if (expected.nullable) {
-        return [];
+      if (!expected.nullable) {
+        this._failures = [
+          ...this._failures,
+          new NullValueNotAllowed([...path]),
+        ];
+        return true;
       }
-      return [new NullValueNotAllowed([...path])];
     }
+    return false;
   }
 
   private checkExpectedType(
     actual: Json,
     expected: SchemaObject,
     path: string[],
-  ): TypeMismatch | undefined {
+  ): boolean {
     const actualType = typeof actual;
     if (!expected.type) {
-      return;
+      return false;
     }
     if (expected.type === 'array') {
       // check that the actual object is an array
       if (!Array.isArray(actual)) {
-        return new TypeMismatch([...path], expected.type, actualType);
+        this._failures = [
+          ...this._failures,
+          new TypeMismatch([...path], expected.type, actualType),
+        ];
+        return true;
       }
     } else if (expected.type === 'integer') {
       // check that the actual value is an integer
       if (!Number.isInteger(actual)) {
-        return new TypeMismatch([...path], expected.type, actualType);
+        this._failures = [
+          ...this._failures,
+          new TypeMismatch([...path], expected.type, actualType),
+        ];
+        return true;
       }
     } else if (actualType !== expected.type) {
       // check that type matches for other types
-      return new TypeMismatch([...path], expected.type, actualType);
+      this._failures = [
+        ...this._failures,
+        new TypeMismatch([...path], expected.type, actualType),
+      ];
+      return true;
     }
+
+    return false;
   }
 
   private checkEnumValue(
     actual: Json,
     expected: SchemaObject,
     path: string[],
-  ): ValidationFailure[] {
-    let failures: ValidationFailure[] = [];
+  ): void {
     const enumValues = expected.enum;
     if (enumValues) {
       // check that expected enum does not contain duplicate values
       const uniqueEnumValues = uniqWith(enumValues, isEqual);
       if (uniqueEnumValues.length !== enumValues.length) {
-        failures = [new DuplicateEnum([...path], enumValues)];
+        this._failures = [
+          ...this._failures,
+          new DuplicateEnum([...path], enumValues),
+        ];
       }
 
       // check that the actual object matches an element in the expected enum
       const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
       if (filteredEnum.length === 0) {
-        failures = [
-          ...failures,
+        this._failures = [
+          ...this._failures,
           new EnumMismatch([...path], enumValues, actual),
         ];
       }
     }
-    return failures;
   }
 
   private checkArrayItemSchema(
@@ -152,7 +164,7 @@ abstract class BaseValidator {
         this.validateObjectAgainstSchema(item, itemSchema, [...path]);
       });
     } else {
-      this.failures = [...this.failures, new ItemSchemaMissing([...path])];
+      this._failures = [...this._failures, new ItemSchemaMissing([...path])];
     }
   }
 
@@ -165,7 +177,10 @@ abstract class BaseValidator {
 
     // check that the expected object's properties field is set
     if (!properties) {
-      this.failures = [...this.failures, new PropertySchemaMissing([...path])];
+      this._failures = [
+        ...this._failures,
+        new PropertySchemaMissing([...path]),
+      ];
       return;
     }
 
@@ -178,8 +193,8 @@ abstract class BaseValidator {
         (property) => !expectedProperties.includes(property),
       ).length > 0
     ) {
-      this.failures = [
-        ...this.failures,
+      this._failures = [
+        ...this._failures,
         new PropertiesMismatch([...path], expectedProperties, actualProperties),
       ];
     }
@@ -187,8 +202,8 @@ abstract class BaseValidator {
     // check required values are present
     expected.required?.forEach((requiredProperty) => {
       if (!actualProperties.includes(requiredProperty)) {
-        this.failures = [
-          ...this.failures,
+        this._failures = [
+          ...this._failures,
           new RequiredProperty([...path], requiredProperty),
         ];
       }
