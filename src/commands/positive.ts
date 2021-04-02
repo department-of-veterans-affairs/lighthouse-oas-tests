@@ -1,14 +1,15 @@
 import { flags } from '@oclif/command';
 import loadJsonFile from 'load-json-file';
 import { ApiKeyCommand } from '../baseCommands';
-import { Response } from 'swagger-client';
 import { DEFAULT_PARAMETER_GROUP } from '../utilities/constants';
 import OASSchema from '../utilities/oas-schema';
-import { OasParameters } from '../utilities/oas-schema/types';
-import OASValidator from '../utilities/oas-validator';
-import ParameterWrapper from '../utilities/parameter-wrapper';
-import { WrappedParameterExamples } from '../utilities/parameter-wrapper/types';
 import ValidationFailure from '../validation-failures/validation-failure';
+import { ParameterValidator, ResponseValidator } from '../utilities/validators';
+import {
+  OperationExample,
+  OperationFailures,
+  OperationResponse,
+} from './types';
 
 export default class Positive extends ApiKeyCommand {
   static description =
@@ -32,20 +33,9 @@ export default class Positive extends ApiKeyCommand {
 
   private schema!: OASSchema;
 
-  private validator!: OASValidator;
+  private operationExamples: OperationExample[] = [];
 
-  private operationIds!: string[];
-
-  private operationIdToParameters!: OasParameters;
-
-  private operationIdToResponseAndValidation: {
-    [operationId: string]: {
-      [parameterGroupName: string]: {
-        response?: Response;
-        validationFailures?: ValidationFailure[];
-      };
-    };
-  } = {};
+  private operationFailures: OperationFailures = {};
 
   async run(): Promise<void> {
     const { args, flags } = this.parse(Positive);
@@ -65,184 +55,109 @@ export default class Positive extends ApiKeyCommand {
     }
 
     this.schema = new OASSchema(oasSchemaOptions);
-    this.validator = new OASValidator(this.schema);
+    await this.buildOperationExamples();
 
-    this.operationIdToParameters = await this.schema.getParameters();
-    this.operationIds = await this.schema.getOperationIds();
+    this.validateParameters();
 
-    await Promise.all(this.validateParameters());
+    const responses = await Promise.all(this.executeRequests());
 
-    await Promise.all(this.executeRequests());
+    const mergedResponses = responses.reduce((merged, response) => {
+      return Object.assign(merged, response);
+    }, {});
 
-    await Promise.all(this.validateResponses());
+    this.validateResponses(mergedResponses);
 
     this.displayResults();
   }
 
-  validateParameters = (): Promise<void>[] => {
-    return this.operationIds
-      .filter(
-        (operationId) => !this.operationIdToResponseAndValidation[operationId],
-      )
-      .flatMap((operationId) => {
-        this.operationIdToResponseAndValidation[operationId] =
-          this.operationIdToResponseAndValidation[operationId] || {};
-        const wrappedParameters = this.operationIdToParameters[operationId];
+  buildOperationExamples = async (): Promise<void> => {
+    const operations = await this.schema.getOperations();
 
-        if (Array.isArray(wrappedParameters)) {
-          return wrappedParameters.map(async (parameterGroup) => {
-            const unwrappedParameters = ParameterWrapper.unwrapParameters(
-              parameterGroup,
-            );
-            const failures = await this.validator.validateParameters(
-              operationId,
-              unwrappedParameters,
-            );
+    for (const operation of operations) {
+      const exampleGroups = operation.exampleGroups;
 
-            this.operationIdToResponseAndValidation[operationId][
-              Object.keys(parameterGroup)[0]
-            ] = {
-              validationFailures: failures,
-            };
-          });
-        }
-        const unwrappedParameters = ParameterWrapper.unwrapParameters(
-          wrappedParameters,
-        );
-        return this.validator
-          .validateParameters(operationId, unwrappedParameters)
-          .then((failures) => {
-            this.operationIdToResponseAndValidation[operationId][
-              DEFAULT_PARAMETER_GROUP
-            ] = {
-              validationFailures: failures,
-            };
-          });
-      });
+      for (const exampleGroup of exampleGroups) {
+        const operationExampleId = `${operation.operationId}:${exampleGroup.name}`;
+        this.operationExamples.push({
+          id: operationExampleId,
+          operation,
+          exampleGroup,
+        });
+      }
+    }
   };
 
-  validateResponses = (): Promise<void>[] => {
-    return Object.entries(this.operationIdToResponseAndValidation).flatMap(
-      ([operationId, parameterGroups]) => {
-        return Object.entries(parameterGroups)
-          .filter(
-            // This is a bit of wacky typescript to get the following functions to recognize response won't be undefined any more
-            (operation): operation is [string, { response: Response }] =>
-              operation[1].response !== undefined,
-          )
-          .map(async ([parameterGroupName, { response }]) => {
-            const failures = await this.validator.validateResponse(
-              operationId,
-              response,
-            );
-            this.operationIdToResponseAndValidation[operationId][
-              parameterGroupName
-            ].validationFailures = failures;
-          });
-      },
-    );
+  validateParameters = (): void => {
+    for (const { id, exampleGroup } of this.operationExamples) {
+      const validator = new ParameterValidator(exampleGroup);
+      validator.validate();
+
+      this.operationFailures[id] = validator.failures;
+    }
   };
 
-  executeRequests = (): Promise<void>[] =>
-    this.operationIds
-      .filter((operationId) => {
-        // filter out all the requests that failed parameter validation
-        const existingValidations = this.operationIdToResponseAndValidation[
-          operationId
+  validateResponses = (responses: OperationResponse): void => {
+    for (const { id, operation } of this.operationExamples) {
+      const response = responses[id];
+      if (response?.ok) {
+        const validator = new ResponseValidator(operation, response);
+        validator.validate();
+
+        this.operationFailures[id] = validator.failures;
+      } else if (response) {
+        this.operationFailures[id] = [
+          new ValidationFailure('Response status code was a non 2XX value', []),
         ];
+      }
+    }
+  };
 
-        return this.failedValidationGuard(existingValidations);
-      })
-      .flatMap((operationId) => {
-        const operationParameters = this.operationIdToParameters[operationId];
-
-        // If multiple parameter sets are present (due to example groups), execute once for each
-        if (Array.isArray(operationParameters)) {
-          return operationParameters
-            .filter((parameterExamples) => {
-              const groupName = Object.keys(parameterExamples)[0];
-              const existingValidations = this
-                .operationIdToResponseAndValidation[operationId];
-
-              return this.failedValidationGuard(existingValidations, groupName);
-            })
-            .map(async (parameterExamples) => {
-              const response = await this.executeRequest(
-                parameterExamples,
-                operationId,
-              );
-              const groupName = Object.keys(parameterExamples)[0];
-
-              if (!this.operationIdToResponseAndValidation[operationId]) {
-                this.operationIdToResponseAndValidation[operationId] = {};
-              }
-
-              this.operationIdToResponseAndValidation[operationId][
-                groupName
-              ] = {
-                response,
-              };
-            });
-        }
-
-        return this.executeRequest(operationParameters, operationId).then(
-          (response) => {
-            if (!this.operationIdToResponseAndValidation[operationId]) {
-              this.operationIdToResponseAndValidation[operationId] = {};
-            }
-
-            this.operationIdToResponseAndValidation[operationId][
-              DEFAULT_PARAMETER_GROUP
-            ] = { response };
-          },
+  executeRequests = (): Promise<OperationResponse>[] => {
+    const responses: Promise<OperationResponse>[] = [];
+    for (const { id, exampleGroup, operation } of this.operationExamples) {
+      if (this.operationFailures[id].length === 0) {
+        responses.push(
+          this.schema.execute(operation, exampleGroup).then((response) => {
+            return {
+              [id]: response,
+            };
+          }),
         );
-      });
+      }
+    }
 
-  executeRequest = (
-    parameterExamples: WrappedParameterExamples,
-    operationId: string,
-  ): Promise<Response> => {
-    const unwrappedParameters = ParameterWrapper.unwrapParameters(
-      parameterExamples,
-    );
-    return this.schema.execute(operationId, unwrappedParameters);
+    return responses;
   };
 
   displayResults = (): void => {
     const failingOperations: string[] = [];
+    for (const { id, exampleGroup, operation } of this.operationExamples) {
+      const exampleGroupName = exampleGroup.name;
+      const failures = this.operationFailures[id];
 
-    Object.entries(this.operationIdToResponseAndValidation).forEach(
-      ([operationId, parameterGroups]) => {
-        Object.entries(parameterGroups).forEach(
-          ([parameterGroupName, { response, validationFailures }]) => {
-            const validationSucceeded =
-              !validationFailures || validationFailures.length === 0;
-
-            if (validationSucceeded && response?.ok) {
-              this.log(
-                `${operationId}${
-                  parameterGroupName === DEFAULT_PARAMETER_GROUP
-                    ? ''
-                    : ` - ${parameterGroupName}`
-                }: Succeeded`,
-              );
-            } else {
-              failingOperations.push(operationId);
-              this.log(
-                `${operationId}${
-                  parameterGroupName === DEFAULT_PARAMETER_GROUP
-                    ? ''
-                    : ` - ${parameterGroupName}`
-                }: Failed`,
-              );
-              validationFailures?.forEach((failure) => {
-                this.log(`  - ${failure.toString()}`);
-              });
-            }
-          },
+      if (failures.length > 0) {
+        failingOperations.push(id);
+        this.log(
+          `${operation.operationId}${
+            exampleGroupName === DEFAULT_PARAMETER_GROUP
+              ? ''
+              : ` - ${exampleGroupName}`
+          }: Failed`,
         );
-      },
-    );
+
+        failures.forEach((failure) => {
+          this.log(`  - ${failure.toString()}`);
+        });
+      } else {
+        this.log(
+          `${operation.operationId}${
+            exampleGroupName === DEFAULT_PARAMETER_GROUP
+              ? ''
+              : ` - ${exampleGroupName}`
+          }: Succeeded`,
+        );
+      }
+    }
 
     if (failingOperations.length > 0) {
       this.error(
@@ -251,16 +166,5 @@ export default class Positive extends ApiKeyCommand {
         } failed`,
       );
     }
-  };
-
-  failedValidationGuard = (
-    existingValidations,
-    groupName = DEFAULT_PARAMETER_GROUP,
-  ): boolean => {
-    return (
-      !existingValidations ||
-      !existingValidations[groupName] ||
-      existingValidations[groupName].validationFailures?.length === 0
-    );
   };
 }

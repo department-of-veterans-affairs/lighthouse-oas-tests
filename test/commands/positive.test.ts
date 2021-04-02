@@ -1,33 +1,41 @@
+import { ResponseObject } from 'swagger-client';
 import Positive from '../../src/commands/positive';
-import { TypeMismatch } from '../../src/validation-failures';
-import ValidationFailure from '../../src/validation-failures/validation-failure';
+import OASOperation from '../../src/utilities/oas-operation';
 
-const mockGetParameters = jest.fn();
-const mockGetOperationIds = jest.fn();
+const mockGetOperations = jest.fn();
 const mockExecute = jest.fn();
-const mockValidateResponse = jest.fn();
-const mockValidateParameters = jest.fn();
 
 jest.mock('../../src/utilities/oas-schema', () => {
   return function (): Record<string, jest.Mock> {
     return {
-      getParameters: mockGetParameters,
-      getOperationIds: mockGetOperationIds,
+      getOperations: mockGetOperations,
       execute: mockExecute,
-    };
-  };
-});
-jest.mock('../../src/utilities/oas-validator', () => {
-  return function (): Record<string, jest.Mock> {
-    return {
-      validateParameters: mockValidateParameters,
-      validateResponse: mockValidateResponse,
     };
   };
 });
 
 describe('Positive', () => {
   let result;
+  const defaultResponses: { [responseCode: string]: ResponseObject } = {
+    '200': {
+      description: '',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              data: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  };
 
   beforeEach(() => {
     result = [];
@@ -35,44 +43,23 @@ describe('Positive', () => {
       .spyOn(process.stdout, 'write')
       .mockImplementation((val) => result.push(val));
 
-    mockGetParameters.mockReset();
-    mockGetOperationIds.mockReset();
-    mockExecute.mockReset();
-    mockValidateResponse.mockReset();
-    mockValidateParameters.mockReset();
+    mockGetOperations.mockReset();
+    mockGetOperations.mockResolvedValue([
+      'walkIntoMordor',
+      'getHobbit',
+      'getTomBombadil',
+    ]);
 
-    mockGetParameters.mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          resolve({
-            walkIntoMordor: { default: {} },
-            getHobbit: { default: {} },
-            getTomBombadil: { default: {} },
-          }),
-        ),
-    );
-    mockGetOperationIds.mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          resolve(['walkIntoMordor', 'getHobbit', 'getTomBombadil']),
-        ),
-    );
-    mockExecute.mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          resolve({
-            url: 'https://www.lotr.com/walkIntoMorder',
-            status: 200,
-            ok: true,
-          }),
-        ),
-    );
-    mockValidateResponse.mockImplementation(
-      () => new Promise((resolve) => resolve([])),
-    );
-    mockValidateParameters.mockImplementation(
-      () => new Promise((resolve) => resolve([])),
-    );
+    mockExecute.mockReset();
+    mockExecute.mockResolvedValue({
+      url: 'https://www.lotr.com/walkIntoMorder',
+      status: 200,
+      ok: true,
+      body: {},
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
   });
 
   describe('API key is not set', () => {
@@ -120,347 +107,388 @@ describe('Positive', () => {
       });
     });
 
-    it('validates the example parameters', async () => {
-      mockGetParameters.mockImplementation(
-        () =>
-          new Promise((resolve) =>
-            resolve({
-              walkIntoMordor: {
-                default: {
-                  guide: 'gollum',
-                },
+    it('outputs a failure for an operation if parameter validation fails', async () => {
+      mockGetOperations.mockResolvedValue([
+        new OASOperation({
+          operationId: 'walkIntoMordor',
+          parameters: [
+            {
+              name: 'guide',
+              in: 'query',
+              schema: {
+                type: 'string',
               },
-              getHobbit: {
-                default: {
-                  name: 'Frodo',
-                },
-              },
-              getTomBombadil: {
-                default: {
-                  times: 2,
-                },
-              },
-            }),
-          ),
-      );
+              required: true,
+              example: 42,
+            },
+          ],
+          responses: defaultResponses,
+        }),
+      ]);
 
-      await Positive.run(['http://urldoesnotmatter.com']);
+      await expect(async () => {
+        await Positive.run(['http://urldoesnotmatter.com']);
+      }).rejects.toThrow('1 operation failed');
 
-      expect(mockValidateParameters).toHaveBeenCalledTimes(3);
-      expect(mockValidateParameters).toHaveBeenCalledWith('walkIntoMordor', {
-        guide: 'gollum',
-      });
-      expect(mockValidateParameters).toHaveBeenCalledWith('getHobbit', {
-        name: 'Frodo',
-      });
-      expect(mockValidateParameters).toHaveBeenCalledWith('getTomBombadil', {
-        times: 2,
-      });
+      expect(result).toEqual([
+        'walkIntoMordor: Failed\n',
+        '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: parameters -> guide -> example\n',
+      ]);
     });
 
-    describe('parameter validation fails', () => {
-      it('outputs a failure for that operation', async () => {
-        mockValidateParameters.mockImplementation(
-          (operationId) =>
-            new Promise((resolve) => {
-              if (operationId === 'walkIntoMordor')
-                resolve([
-                  new TypeMismatch(
-                    ['parameters', 'guide', 'example'],
-                    'string',
-                    'number',
-                  ),
-                ]);
+    describe('operation has parameter groups', () => {
+      it('does not execute a request for a parameter group that fails parameter validation', async () => {
+        const operation1 = new OASOperation({
+          operationId: 'walkIntoMordor',
+          responses: defaultResponses,
+          parameters: [
+            {
+              name: 'door',
+              in: 'query',
+              schema: {
+                type: 'string',
+              },
+              examples: {
+                door: {
+                  value: 2,
+                },
+              },
+            },
+            {
+              name: 'guide',
+              in: 'query',
+              schema: {
+                type: 'string',
+              },
+              examples: {
+                guided: {
+                  value: 'gollum',
+                },
+              },
+            },
+          ],
+        });
+        const operation2 = new OASOperation({
+          operationId: 'getHobbit',
+          responses: defaultResponses,
+          parameters: [
+            {
+              name: 'name',
+              in: 'query',
+              schema: {
+                type: 'string',
+              },
+              example: 'Frodo',
+            },
+          ],
+        });
+        const operation3 = new OASOperation({
+          operationId: 'getTomBombadil',
+          responses: defaultResponses,
+          parameters: [
+            {
+              name: 'times',
+              in: 'query',
+              example: 2,
+              schema: {
+                type: 'number',
+              },
+            },
+          ],
+        });
+        mockGetOperations.mockResolvedValue([
+          operation1,
+          operation2,
+          operation3,
+        ]);
 
-              resolve([]);
-            }),
+        await expect(async () => {
+          await Positive.run(['http://urldoesnotmatter.com']);
+        }).rejects.toThrow('1 operation failed');
+
+        expect(mockExecute).not.toHaveBeenCalledWith(
+          operation1,
+          operation1.exampleGroups[0],
         );
+
+        expect(mockExecute).toHaveBeenCalledWith(
+          operation1,
+          operation1.exampleGroups[1],
+        );
+
+        expect(mockExecute).toHaveBeenCalledWith(
+          operation2,
+          operation2.exampleGroups[0],
+        );
+
+        expect(mockExecute).toHaveBeenCalledWith(
+          operation3,
+          operation3.exampleGroups[0],
+        );
+      });
+
+      it('validates the responses for each parameter group', async () => {
+        const operation1 = new OASOperation({
+          operationId: 'walkIntoMordor',
+          responses: defaultResponses,
+          parameters: [
+            {
+              name: 'door',
+              in: 'query',
+              schema: {
+                type: 'string',
+              },
+              examples: {
+                door: {
+                  value: 'front',
+                },
+              },
+            },
+            {
+              name: 'guide',
+              in: 'query',
+              schema: {
+                type: 'string',
+              },
+              examples: {
+                guided: {
+                  value: 'gollum',
+                },
+              },
+            },
+          ],
+        });
+        const operation2 = new OASOperation({
+          operationId: 'getHobbit',
+          responses: defaultResponses,
+          parameters: [
+            {
+              name: 'name',
+              in: 'query',
+              schema: {
+                type: 'string',
+              },
+              example: 'Frodo',
+            },
+          ],
+        });
+        const operation3 = new OASOperation({
+          operationId: 'getTomBombadil',
+          responses: defaultResponses,
+          parameters: [
+            {
+              name: 'times',
+              in: 'query',
+              example: 2,
+              schema: {
+                type: 'number',
+              },
+            },
+          ],
+        });
+        mockGetOperations.mockResolvedValue([
+          operation1,
+          operation2,
+          operation3,
+        ]);
+
+        mockExecute.mockResolvedValueOnce({
+          url: 'https://www.lotr.com/walkIntoMorder',
+          status: 200,
+          ok: true,
+          body: {
+            data: [42],
+          },
+          headers: {
+            'content-type': 'application/json',
+          },
+        });
 
         await expect(async () => {
           await Positive.run(['http://urldoesnotmatter.com']);
         }).rejects.toThrow('1 operation failed');
 
         expect(result).toEqual([
-          'walkIntoMordor: Failed\n',
-          '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: parameters -> guide -> example\n',
+          'walkIntoMordor - door: Failed\n',
+          '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data\n',
+          'walkIntoMordor - guided: Succeeded\n',
           'getHobbit: Succeeded\n',
           'getTomBombadil: Succeeded\n',
         ]);
       });
     });
 
-    describe('operation has parameter groups', () => {
-      beforeEach(() => {
-        mockGetParameters.mockImplementation(
-          () =>
-            new Promise((resolve) =>
-              resolve({
-                walkIntoMordor: [
-                  {
-                    door: {
-                      door: 'front',
-                    },
-                  },
-                  {
-                    guided: {
-                      guide: 'gollum',
-                    },
-                  },
-                ],
-                getHobbit: {
-                  default: { name: 'Frodo' },
-                },
-                getTomBombadil: {
-                  default: { times: 2 },
-                },
-              }),
-            ),
-        );
+    it('outputs the failures and throws an error when more than one of the operations fails validation', async () => {
+      const operation2 = new OASOperation({
+        operationId: 'getHobbit',
+        responses: defaultResponses,
+        parameters: [
+          {
+            name: 'name',
+            in: 'query',
+            schema: {
+              type: 'string',
+            },
+            example: 'Frodo',
+          },
+        ],
       });
-
-      describe('one of the parameter groups fails parameter validation', () => {
-        it('does not execute a request for that parameter group', async () => {
-          mockValidateParameters.mockImplementationOnce(
-            () =>
-              new Promise((resolve) => {
-                resolve([new ValidationFailure('Failure', [])]);
-              }),
-          );
-
-          await expect(async () => {
-            await Positive.run(['http://urldoesnotmatter.com']);
-          }).rejects.toThrow('1 operation failed');
-
-          expect(mockExecute).not.toHaveBeenCalledWith('walkIntoMordor', {
-            door: 'front',
-          });
-
-          expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
-            guide: 'gollum',
-          });
-
-          expect(mockExecute).toHaveBeenCalledWith('getHobbit', {
-            name: 'Frodo',
-          });
-
-          expect(mockExecute).toHaveBeenCalledWith('getTomBombadil', {
-            times: 2,
-          });
-        });
+      const operation3 = new OASOperation({
+        operationId: 'getTomBombadil',
+        responses: defaultResponses,
+        parameters: [
+          {
+            name: 'times',
+            in: 'query',
+            example: 2,
+            schema: {
+              type: 'number',
+            },
+          },
+        ],
       });
+      mockGetOperations.mockResolvedValue([operation2, operation3]);
 
-      it('validates the examples for each parameter group', async () => {
-        await Positive.run(['http://urldoesnotmatter.com']);
-
-        expect(mockValidateParameters).toHaveBeenCalledTimes(4);
-        expect(mockValidateParameters).toHaveBeenCalledWith('walkIntoMordor', {
-          door: 'front',
-        });
-        expect(mockValidateParameters).toHaveBeenCalledWith('walkIntoMordor', {
-          guide: 'gollum',
-        });
-        expect(mockValidateParameters).toHaveBeenCalledWith('getHobbit', {
-          name: 'Frodo',
-        });
-        expect(mockValidateParameters).toHaveBeenCalledWith('getTomBombadil', {
-          times: 2,
-        });
+      mockExecute.mockResolvedValue({
+        url: 'https://www.lotr.com/walkIntoMorder',
+        status: 200,
+        ok: true,
+        body: {
+          data: [42],
+        },
+        headers: {
+          'content-type': 'application/json',
+        },
       });
-
-      it('generates requests and validates responses for each parameter group', async () => {
-        mockGetOperationIds.mockImplementation(
-          () => new Promise((resolve) => resolve(['walkIntoMordor'])),
-        );
-        mockValidateResponse.mockImplementation(
-          () => new Promise((resolve) => resolve([])),
-        );
-
-        await Positive.run(['http://urldoesnotmatter.com']);
-
-        expect(mockExecute).toHaveBeenCalledTimes(2);
-        expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
-          door: 'front',
-        });
-        expect(mockExecute).toHaveBeenCalledWith('walkIntoMordor', {
-          guide: 'gollum',
-        });
-
-        expect(result).toEqual(
-          expect.arrayContaining([
-            'walkIntoMordor - guided: Succeeded\n',
-            'walkIntoMordor - door: Succeeded\n',
-          ]),
-        );
-      });
-    });
-
-    describe('one of the operations fails validation', () => {
-      it('throws an error', async () => {
-        mockGetOperationIds.mockImplementation(
-          () => new Promise((resolve) => resolve(['walkIntoMordor'])),
-        );
-        mockExecute.mockImplementation(
-          () =>
-            new Promise((resolve) =>
-              resolve({
-                url: 'https://www.lotr.com/walkIntoMorder',
-                status: 400,
-                ok: false,
-              }),
-            ),
-        );
-        mockValidateResponse.mockImplementation(
-          () =>
-            new Promise((resolve) => {
-              resolve([new ValidationFailure('woah there was an error', [])]);
-            }),
-        );
-        await expect(async () => {
-          await Positive.run(['http://urldoesnotmatter.com']);
-        }).rejects.toThrow('1 operation failed');
-
-        expect(result).toEqual([
-          'walkIntoMordor: Failed\n',
-          '  - woah there was an error\n',
-        ]);
-      });
-    });
-
-    describe('more than one of the operations fails validation', () => {
-      it('throws an error', async () => {
-        mockGetParameters.mockImplementation(
-          () =>
-            new Promise((resolve) =>
-              resolve({
-                walkIntoMordor: { default: {} },
-                getHobbit: { default: {} },
-              }),
-            ),
-        );
-        mockGetOperationIds.mockImplementation(
-          () =>
-            new Promise((resolve) => resolve(['walkIntoMordor', 'getHobbit'])),
-        );
-        mockValidateResponse.mockImplementation(
-          () => new Promise((resolve) => resolve([])),
-        );
-        mockValidateResponse.mockImplementation(
-          () =>
-            new Promise((resolve) => {
-              resolve([new ValidationFailure('woah there was an error', [])]);
-            }),
-        );
-        await expect(async () => {
-          await Positive.run(['http://urldoesnotmatter.com']);
-        }).rejects.toThrow('2 operations failed');
-
-        expect(result).toEqual([
-          'walkIntoMordor: Failed\n',
-          '  - woah there was an error\n',
-          'getHobbit: Failed\n',
-          '  - woah there was an error\n',
-        ]);
-      });
-    });
-
-    describe('one of the responses returns a non-ok status', () => {
-      it('throws an error', async () => {
-        mockGetParameters.mockImplementation(
-          () =>
-            new Promise((resolve) =>
-              resolve({ walkIntoMordor: { default: {} } }),
-            ),
-        );
-        mockGetOperationIds.mockImplementation(
-          () => new Promise((resolve) => resolve(['walkIntoMordor'])),
-        );
-        mockExecute.mockImplementation(
-          () =>
-            new Promise((resolve) =>
-              resolve({
-                url: 'https://www.lotr.com/walkIntoMorder',
-                status: 404,
-                ok: false,
-              }),
-            ),
-        );
-
-        await expect(async () => {
-          await Positive.run(['http://urldoesnotmatter.com']);
-        }).rejects.toThrow('1 operation failed');
-
-        expect(result).toEqual(['walkIntoMordor: Failed\n']);
-      });
-    });
-
-    describe('one of the operations returns more than one validation failure', () => {
-      it('outputs all the failures', async () => {
-        mockGetOperationIds.mockImplementation(
-          () => new Promise((resolve) => resolve(['walkIntoMordor'])),
-        );
-        mockValidateResponse.mockImplementation(
-          () =>
-            new Promise((resolve) => {
-              resolve([
-                new ValidationFailure('Failure 1', []),
-                new ValidationFailure('Failure 2', []),
-              ]);
-            }),
-        );
-
-        await expect(async () => {
-          await Positive.run(['http://urldoesnotmatter.com']);
-        }).rejects.toThrow('1 operation failed');
-
-        expect(result).toEqual([
-          'walkIntoMordor: Failed\n',
-          '  - Failure 1\n',
-          '  - Failure 2\n',
-        ]);
-      });
-    });
-
-    it('validates a response for each endpoint in the spec', async () => {
-      mockExecute
-        .mockReturnValueOnce(
-          new Promise((resolve) =>
-            resolve({
-              url: 'https://www.lotr.com/walkIntoMorder',
-              status: 400,
-              ok: false,
-            }),
-          ),
-        )
-        .mockReturnValueOnce(
-          new Promise((resolve) =>
-            resolve({
-              url: 'https://www.lotr.com/getHobbit',
-              status: 200,
-              ok: true,
-            }),
-          ),
-        )
-        .mockReturnValueOnce(
-          new Promise((resolve) =>
-            resolve({
-              url: 'https://www.lotr.com/getTomBombadil',
-              status: 404,
-              ok: false,
-            }),
-          ),
-        );
-      mockValidateResponse.mockImplementation(
-        () => new Promise((resolve) => resolve([])),
-      );
 
       await expect(async () => {
         await Positive.run(['http://urldoesnotmatter.com']);
       }).rejects.toThrow('2 operations failed');
 
       expect(result).toEqual([
-        'walkIntoMordor: Failed\n',
-        'getHobbit: Succeeded\n',
+        'getHobbit: Failed\n',
+        '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data\n',
         'getTomBombadil: Failed\n',
+        '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data\n',
+      ]);
+    });
+
+    it('outputs the failure and throws an error when one of the responses returns a non-ok status', async () => {
+      const operation2 = new OASOperation({
+        operationId: 'getHobbit',
+        responses: defaultResponses,
+        parameters: [
+          {
+            name: 'name',
+            in: 'query',
+            schema: {
+              type: 'string',
+            },
+            example: 'Frodo',
+          },
+        ],
+      });
+      const operation3 = new OASOperation({
+        operationId: 'getTomBombadil',
+        responses: defaultResponses,
+        parameters: [
+          {
+            name: 'times',
+            in: 'query',
+            example: 2,
+            schema: {
+              type: 'number',
+            },
+          },
+        ],
+      });
+      mockGetOperations.mockResolvedValue([operation2, operation3]);
+
+      mockExecute.mockResolvedValueOnce({
+        url: 'https://www.lotr.com/walkIntoMorder',
+        status: 404,
+        ok: false,
+        body: {},
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
+
+      await expect(async () => {
+        await Positive.run(['http://urldoesnotmatter.com']);
+      }).rejects.toThrow('1 operation failed');
+
+      expect(result).toEqual([
+        'getHobbit: Failed\n',
+        '  - Response status code was a non 2XX value\n',
+        'getTomBombadil: Succeeded\n',
+      ]);
+    });
+
+    it('outputs all the failures when one of the operations returns more than one validation failure', async () => {
+      const operation = new OASOperation({
+        operationId: 'getHobbit',
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: {
+                      type: 'object',
+                      properties: {
+                        one: {
+                          type: 'number',
+                        },
+                        two: {
+                          type: 'string',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        parameters: [
+          {
+            name: 'name',
+            in: 'query',
+            schema: {
+              type: 'string',
+            },
+            example: 'Frodo',
+          },
+        ],
+      });
+      mockGetOperations.mockResolvedValue([operation]);
+
+      mockExecute.mockResolvedValueOnce({
+        url: 'https://www.lotr.com/walkIntoMorder',
+        status: 200,
+        ok: true,
+        body: {
+          data: {
+            one: 'number',
+            two: 42,
+          },
+        },
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
+
+      await expect(async () => {
+        await Positive.run(['http://urldoesnotmatter.com']);
+      }).rejects.toThrow('1 operation failed');
+
+      expect(result).toEqual([
+        'getHobbit: Failed\n',
+        '  - Actual type did not match schema. Schema type: number. Actual type: string. Path: body -> data -> one\n',
+        '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data -> two\n',
       ]);
     });
   });
