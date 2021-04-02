@@ -99,20 +99,15 @@ export default class Positive extends ApiKeyCommand {
   validateResponses = (responses: OperationResponse): void => {
     for (const { id, operation } of this.operationExamples) {
       const response = responses[id];
-      if (response) {
-        if (response.ok) {
-          const validator = new ResponseValidator(operation, response);
-          validator.validate();
+      if (response?.ok) {
+        const validator = new ResponseValidator(operation, response);
+        validator.validate();
 
-          this.operationFailures[id] = validator.failures;
-        } else {
-          this.operationFailures[id] = [
-            new ValidationFailure(
-              'Response status code was a non 2XX value',
-              [],
-            ),
-          ];
-        }
+        this.operationFailures[id] = validator.failures;
+      } else if (response) {
+        this.operationFailures[id] = [
+          new ValidationFailure('Response status code was a non 2XX value', []),
+        ];
       }
     }
   };
