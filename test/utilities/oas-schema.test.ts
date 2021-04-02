@@ -74,7 +74,7 @@ describe('OASSchema', () => {
         ],
       });
 
-      const exampleGroup = operation.exampleGroups[0];
+      const [exampleGroup] = operation.exampleGroups;
 
       await schema.execute(operation, exampleGroup);
 
