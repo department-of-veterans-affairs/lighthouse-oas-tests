@@ -1,3 +1,4 @@
+import { ParameterObject, OperationObject } from 'swagger-client';
 import ExampleGroup from '../../../src/utilities/example-group';
 import OASOperation from '../../../src/utilities/oas-operation';
 import { ParameterValidator } from '../../../src/utilities/validators';
@@ -7,7 +8,7 @@ describe('ParameterValidator', () => {
     describe('input parameters is missing a required parameter', () => {
       it('adds a validation failure', () => {
         const operation = new OASOperation({
-          name: 'hobbits or something',
+          operationId: 'hobbits or something',
           parameters: [
             {
               name: 'fit',
@@ -20,6 +21,7 @@ describe('ParameterValidator', () => {
               },
             },
           ],
+          responses: {},
         });
         const exampleGroup = new ExampleGroup(operation, 'default', {});
         const validator = new ParameterValidator(exampleGroup);
@@ -36,10 +38,11 @@ describe('ParameterValidator', () => {
       describe('other parameter validation failures are present', () => {
         it('validates all parameters', () => {
           const operation = new OASOperation({
-            name: 'hobbits or something',
+            operationId: 'hobbits or something',
             parameters: [
               {
                 name: 'fit',
+                in: 'query',
                 required: true,
                 example: 'tight',
                 schema: {
@@ -49,6 +52,7 @@ describe('ParameterValidator', () => {
               },
               {
                 name: 'family',
+                in: 'query',
                 required: true,
                 example: 'tight',
                 schema: {
@@ -57,6 +61,7 @@ describe('ParameterValidator', () => {
                 },
               },
             ],
+            responses: {},
           });
           const exampleGroup = new ExampleGroup(operation, 'default', {
             family: 1,
@@ -78,10 +83,11 @@ describe('ParameterValidator', () => {
 
     it('it adds a validation failure if both content and schema exist on parameter', () => {
       const operation = new OASOperation({
-        name: 'hobbits or something',
+        operationId: 'hobbits or something',
         parameters: [
           {
             name: 'gryffindor',
+            in: 'query',
             example: 'ginny weasly',
             schema: {
               type: 'string',
@@ -91,12 +97,13 @@ describe('ParameterValidator', () => {
               'document/howler': {
                 schema: {
                   type: 'string',
-                  example: 'ron weasly',
                 },
+                example: 'ron weasly',
               },
             },
           },
         ],
+        responses: {},
       });
       const exampleGroup = new ExampleGroup(operation, 'default', {
         gryffindor: 'luna lovegood',
@@ -114,27 +121,29 @@ describe('ParameterValidator', () => {
 
     it('registers a validation failure if content contains more than one entry', () => {
       const operation = new OASOperation({
-        name: 'hobbits or something',
+        operationId: 'hobbits or something',
         parameters: [
           {
             name: 'magical deliveries',
+            in: 'query',
             example: 'the daily prophet',
             content: {
               'document/howler': {
                 schema: {
                   type: 'string',
-                  example: 'petunia dursley',
                 },
+                example: 'petunia dursley',
               },
               'owl/package': {
                 schema: {
                   type: 'string',
-                  example: 'nimbus 2000',
                 },
+                example: 'nimbus 2000',
               },
             },
           },
         ],
+        responses: {},
       });
       const exampleGroup = new ExampleGroup(operation, 'default', {
         'magical deliveries': 'firebolt',
@@ -152,10 +161,11 @@ describe('ParameterValidator', () => {
 
     it('adds a validation failure if content does not contain a schema object', () => {
       const operation = new OASOperation({
-        name: 'hobbits or something',
+        operationId: 'hobbits or something',
         parameters: [
-          {
+          ({
             name: 'magical deliveries',
+            in: 'query',
             example: 'the daily prophet',
             content: {
               'document/howler': {
@@ -166,8 +176,9 @@ describe('ParameterValidator', () => {
                 },
               },
             },
-          },
+          } as unknown) as ParameterObject,
         ],
+        responses: {},
       });
       const exampleGroup = new ExampleGroup(operation, 'default', {
         'magical deliveries': "weasley's wizard wheezes",
@@ -185,13 +196,15 @@ describe('ParameterValidator', () => {
 
     it('adds a validation failure if neither content nor schema exist on parameter', () => {
       const operation = new OASOperation({
-        name: 'hobbits or something',
+        operationId: 'hobbits or something',
         parameters: [
-          {
+          ({
             name: 'horcrux',
+            in: 'query',
             example: "tom riddle's diary",
-          },
+          } as unknown) as ParameterObject,
         ],
+        responses: {},
       });
       const exampleGroup = new ExampleGroup(operation, 'default', {
         horcrux: 'nagini',
@@ -209,21 +222,23 @@ describe('ParameterValidator', () => {
 
     it('does not register a validation failure if content is shaped correctly', () => {
       const operation = new OASOperation({
-        name: 'hobbits or something',
+        operationId: 'hobbits or something',
         parameters: [
           {
             name: 'diagon alley shops',
+            in: 'query',
             example: '2nd hand brooms',
             content: {
               'document/map': {
                 schema: {
                   type: 'string',
-                  example: 'flourish and blotts',
                 },
+                example: 'flourish and blotts',
               },
             },
           },
         ],
+        responses: {},
       });
       const exampleGroup = new ExampleGroup(operation, 'default', {
         'diagon alley shops': 'ollivanders',
@@ -238,7 +253,7 @@ describe('ParameterValidator', () => {
 
     it('is idempotent', () => {
       const operation = new OASOperation({
-        name: 'hobbits or something',
+        operationId: 'hobbits or something',
         parameters: [
           {
             name: 'fit',
@@ -251,6 +266,7 @@ describe('ParameterValidator', () => {
             },
           },
         ],
+        responses: {},
       });
       const exampleGroup = new ExampleGroup(operation, 'default', {});
       const validator = new ParameterValidator(exampleGroup);
