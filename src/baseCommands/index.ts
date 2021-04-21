@@ -1,1 +1,1 @@
-export { default as ApiKeyCommand } from './api-key-command';
+export { default as ApiCommand } from './api-command';

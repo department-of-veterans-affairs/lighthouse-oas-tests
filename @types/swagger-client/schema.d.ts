@@ -3,9 +3,17 @@ declare module 'swagger-client/schema' {
 
   interface OpenAPIObject {
     paths: PathsObject;
+    components: ComponentsObject;
   }
 
   export interface PathsObject { [path: string]: PathItemObject }
+
+  interface ComponentsObject {
+    securitySchemes: SecuritySchemesObject;
+  }
+
+  export interface SecuritySchemesObject { [securityScheme: string]: SecuritySchemeItemObject }
+
   export interface OperationObject {
     operationId: string;
     parameters: ParameterObject[];
@@ -17,6 +25,13 @@ declare module 'swagger-client/schema' {
     put?: OperationObject;
     delete?: OperationObject;
     patch?: OperationObject;
+  }
+
+  interface SecuritySchemeItemObject {
+    type: 'apiKey' | 'http' | 'mutualTLS' | 'oauth2' | 'openIdConnect';
+    description?: string;
+    name?: string;
+    in?: 'query' | 'header' | 'cookie';
   }
 
   interface ParameterAndHeaderBase {
