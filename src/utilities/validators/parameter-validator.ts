@@ -8,7 +8,7 @@ import {
   InvalidParameterObject,
   MissingContentSchemaObject,
   MissingRequiredParameters,
-} from '../../validation-failures';
+} from '../../validation-messages/failures';
 import ExampleGroup from '../example-group';
 import OASOperation from '../oas-operation';
 import BaseValidator from './base-validator';
