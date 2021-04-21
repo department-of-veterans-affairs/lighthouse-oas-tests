@@ -312,6 +312,7 @@ describe('Positive', () => {
           'walkIntoMordor - door: Failed\n',
           '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data\n',
           'walkIntoMordor - guided: Succeeded\n',
+          'walkIntoMordor: Succeeded\n',
           'getHobbit: Succeeded\n',
           'getTomBombadil: Succeeded\n',
         ]);

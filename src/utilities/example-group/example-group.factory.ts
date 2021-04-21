@@ -33,13 +33,11 @@ class ExampleGroupFactory {
           ];
         },
         [],
-      );
-    } else {
-      exampleGroups = [
-        new ExampleGroup(operation, DEFAULT_PARAMETER_GROUP, requiredExamples),
-      ];
+      ); 
     }
-
+    const defaultGroup = new ExampleGroup(operation, DEFAULT_PARAMETER_GROUP, requiredExamples);
+    exampleGroups.push(defaultGroup);
+    
     return exampleGroups;
   }
 

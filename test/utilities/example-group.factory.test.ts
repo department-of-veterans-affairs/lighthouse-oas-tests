@@ -112,7 +112,7 @@ describe('ExampleGroupFactory', () => {
       });
       const groups = ExampleGroupFactory.buildFromOperation(operation);
 
-      expect(groups).toHaveLength(1);
+      expect(groups).toHaveLength(2);
       const group = groups[0];
       expect(group.name).toEqual('personal');
       expect(group.examples).toEqual({
@@ -154,7 +154,7 @@ describe('ExampleGroupFactory', () => {
       });
       const groups = ExampleGroupFactory.buildFromOperation(operation);
 
-      expect(groups).toHaveLength(1);
+      expect(groups).toHaveLength(2);
       const group = groups[0];
       expect(group.name).toEqual('personal');
       expect(group.examples).toEqual({
@@ -199,7 +199,7 @@ describe('ExampleGroupFactory', () => {
       });
       const groups = ExampleGroupFactory.buildFromOperation(operation);
 
-      expect(groups).toHaveLength(2);
+      expect(groups).toHaveLength(3);
       const firstGroup = groups[0];
       expect(firstGroup.name).toEqual('personal');
       expect(firstGroup.examples).toEqual({
