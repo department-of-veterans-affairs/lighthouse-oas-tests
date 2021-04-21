@@ -12,7 +12,7 @@ import {
   OperationResponse,
   SecurityFailures,
 } from './types';
-import { OASSecurityType } from '../utilities/oas-security/oas-security-scheme';
+import OASSecurityScheme, { OASSecurityType } from '../utilities/oas-security/oas-security-scheme';
 import MissingAPIKey from '../security-failures/missing-apikey';
 
 export default class Positive extends ApiCommand {
@@ -60,6 +60,8 @@ export default class Positive extends ApiCommand {
 
     this.schema = new OASSchema(oasSchemaOptions);
 
+    await this.setSecurity(flags);
+
     await this.validateSecurity(flags.apiKey);
 
     if (this.securityFailures[OASSecurityType.APIKEY]) {
@@ -99,6 +101,40 @@ export default class Positive extends ApiCommand {
         });
       }
     }
+  };
+
+  setSecurity = async (flags: {
+    apiKey: string | undefined;
+  }): Promise<void> => {
+    const securitySchemes = await this.schema.getSecuritySchemes();
+    const securityTypes = {};
+    for (const scheme of securitySchemes) {
+      securityTypes[OASSecurityType.APIKEY] =
+        this.checkForAPISecurity(scheme, flags) ??
+        securityTypes[OASSecurityType.APIKEY];
+    }
+    if (this.securityFailures[OASSecurityType.APIKEY]) {
+      flags.apiKey = (await cli.prompt('What is your apiKey?', {
+        type: 'mask',
+      })) as string;
+      delete this.securityFailures[OASSecurityType.APIKEY];
+    }
+    if (securityTypes[OASSecurityType.APIKEY]) {
+      this.schema.setAPISecurity(flags.apiKey as string);
+    }
+  };
+
+  checkForAPISecurity = (
+    scheme: OASSecurityScheme,
+    flags: { apiKey: string | undefined },
+  ): boolean | undefined => {
+    if (scheme.securityType !== OASSecurityType.APIKEY) {
+      return;
+    }
+    if (!flags.apiKey) {
+      this.securityFailures[OASSecurityType.APIKEY] = [new MissingAPIKey()];
+    }
+    return true;
   };
 
   validateSecurity = async (apiKey?: string): Promise<void> => {

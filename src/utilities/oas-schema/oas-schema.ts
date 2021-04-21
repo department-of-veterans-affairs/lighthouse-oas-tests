@@ -3,7 +3,6 @@ import OASOperation, { OASOperationFactory } from '../oas-operation';
 import ExampleGroup from '../example-group';
 import OASSecurityScheme from '../oas-security/oas-security-scheme';
 import OASSecurityFactory from '../oas-security/oas-security.factory';
-import { abort } from 'process';
 
 class OASSchema {
   private _client: Promise<Swagger>;
