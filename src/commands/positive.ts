@@ -3,7 +3,7 @@ import loadJsonFile from 'load-json-file';
 import { ApiKeyCommand } from '../baseCommands';
 import { DEFAULT_PARAMETER_GROUP } from '../utilities/constants';
 import OASSchema from '../utilities/oas-schema';
-import { InvalidRespone } from '../validation-messages/failures';
+import { InvalidResponse } from '../validation-messages/failures';
 import { ParameterValidator, ResponseValidator } from '../utilities/validators';
 import {
   OperationExample,
@@ -111,7 +111,7 @@ export default class Positive extends ApiKeyCommand {
         this.operationFailures[id] = validator.failures;
         this.operationWarnings[id] = validator.warnings;
       } else if (response) {
-        this.operationFailures[id] = [new InvalidRespone([])];
+        this.operationFailures[id] = [new InvalidResponse([])];
       }
     }
   };
