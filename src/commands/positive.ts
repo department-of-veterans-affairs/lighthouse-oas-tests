@@ -111,7 +111,7 @@ export default class Positive extends ApiKeyCommand {
         this.operationFailures[id] = validator.failures;
         this.operationWarnings[id] = validator.warnings;
       } else if (response) {
-        this.operationFailures[id] = [new InvalidResponse([])];
+        this.operationFailures[id] = [new InvalidResponse()];
       }
     }
   };
