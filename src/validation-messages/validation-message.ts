@@ -1,5 +1,5 @@
-class ValidationFailure {
-  private message: string;
+abstract class ValidationMessage {
+  protected message: string;
 
   private path: string[];
 
@@ -21,4 +21,4 @@ class ValidationFailure {
   };
 }
 
-export default ValidationFailure;
+export default ValidationMessage;
