@@ -3,7 +3,7 @@ import { Response } from 'swagger-client';
 import {
   ContentTypeMismatch,
   StatusCodeMismatch,
-} from '../../validation-failures';
+} from '../../validation-messages/failures';
 import OASOperation from '../oas-operation';
 import BaseValidator from './base-validator';
 

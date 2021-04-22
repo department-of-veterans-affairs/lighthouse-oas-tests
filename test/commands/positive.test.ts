@@ -492,5 +492,69 @@ describe('Positive', () => {
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data -> two\n',
       ]);
     });
+
+    it('outputs a warning when present', async () => {
+      const operation = new OASOperation({
+        operationId: 'getHobbit',
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          one: {
+                            type: 'number',
+                          },
+                          two: {
+                            type: 'string',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        parameters: [
+          {
+            name: 'name',
+            in: 'query',
+            schema: {
+              type: 'string',
+            },
+            example: 'Frodo',
+          },
+        ],
+      });
+      mockGetOperations.mockResolvedValue([operation]);
+
+      mockExecute.mockResolvedValueOnce({
+        url: 'https://www.lotr.com/walkIntoMorder',
+        status: 200,
+        ok: true,
+        body: {
+          data: [],
+        },
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
+
+      await Positive.run(['http://urldoesnotmatter.com']);
+
+      expect(result).toEqual([
+        'getHobbit: Succeeded\n',
+        '  - Warning: This array was found to be empty and therefore the items within it were not validated. Path: body -> data\n',
+      ]);
+    });
   });
 });

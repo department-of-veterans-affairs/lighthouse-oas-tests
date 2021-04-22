@@ -555,6 +555,16 @@ describe('BaseValidator', () => {
             schema.enum = undefined;
           });
         });
+
+        it('adds a validation warning when the array is empty', () => {
+          validator.validateObjectAgainstSchema([], schema, [
+            'body',
+            'numbers',
+          ]);
+          expect(validator.warnings).toContainValidationWarning(
+            'Warning: This array was found to be empty and therefore the items within it were not validated. Path: body -> numbers',
+          );
+        });
       });
     });
 
