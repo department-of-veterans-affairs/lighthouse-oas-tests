@@ -621,19 +621,40 @@ describe('BaseValidator', () => {
           let tempSchema;
           beforeAll(() => {
             tempSchema = { ...schema };
-            tempSchema.properties = { ...schema.properties };
+            tempSchema.properties = {
+              ...schema.properties,
+              house: {
+                type: 'string',
+                description: 'gryffindor, hufflepuff, slytherin, ravenclaw',
+              },
+            };
             tempSchema.required = ['value'];
           });
 
-          it('adds a validation failure', () => {
-            validator.validateObjectAgainstSchema(
-              { fake: 'property', value: 'potato' },
-              tempSchema,
-              ['body', 'form'],
-            );
-            expect(validator.failures).toContainValidationFailure(
-              'Actual object contains a property not present in schema. Schema properties: value. Actual properties: fake, value. Path: body -> form',
-            );
+          describe('all schema properties are present', () => {
+            it('failure message contains only actual properties that were not expected', () => {
+              validator.validateObjectAgainstSchema(
+                { fake: 'property', value: 'potato', house: 'slytherin' },
+                tempSchema,
+                ['body', 'form'],
+              );
+              expect(validator.failures).toContainValidationFailure(
+                'Actual object contains a property not present in schema. Actual properties not expected: fake. Path: body -> form',
+              );
+            });
+          });
+
+          describe('not all schema properties are present', () => {
+            it('failure message contains all properties that did not match', () => {
+              validator.validateObjectAgainstSchema(
+                { fake: 'property', value: 'potato' },
+                tempSchema,
+                ['body', 'form'],
+              );
+              expect(validator.failures).toContainValidationFailure(
+                'Actual object contains a property not present in schema. Actual properties not expected: fake. Schema properties not found: house. Path: body -> form',
+              );
+            });
           });
         });
 

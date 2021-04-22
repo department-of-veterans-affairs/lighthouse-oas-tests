@@ -201,16 +201,23 @@ abstract class BaseValidator {
 
     const actualProperties = Object.keys(actual);
     const expectedProperties = Object.keys(properties);
+    const unexpectedActualProperties = actualProperties.filter(
+      (property) => !expectedProperties.includes(property),
+    );
 
     // check that the actual object only contains properties present in expected object
-    if (
-      actualProperties.filter(
-        (property) => !expectedProperties.includes(property),
-      ).length > 0
-    ) {
+    if (unexpectedActualProperties.length > 0) {
+      const expectedPropertiesNotFound = expectedProperties.filter(
+        (property) => !actualProperties.includes(property),
+      );
+
       this._failures = [
         ...this._failures,
-        new PropertiesMismatch([...path], expectedProperties, actualProperties),
+        new PropertiesMismatch(
+          [...path],
+          expectedPropertiesNotFound,
+          unexpectedActualProperties,
+        ),
       ];
     }
 

@@ -6,12 +6,17 @@ class PropertiesMismatch extends ValidationFailure {
     schemaProperties: string[],
     actualProperties: string[],
   ) {
-    super(
-      `Actual object contains a property not present in schema. Schema properties: ${schemaProperties.join(
-        ', ',
-      )}. Actual properties: ${actualProperties.join(', ')}.`,
-      path,
-    );
+    let message = `Actual object contains a property not present in schema. Actual properties not expected: ${actualProperties.join(
+      ', ',
+    )}.`;
+
+    if (schemaProperties.length > 0) {
+      message = message.concat(
+        ` Schema properties not found: ${schemaProperties.join(', ')}.`,
+      );
+    }
+
+    super(message, path);
   }
 }
 
