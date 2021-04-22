@@ -62,8 +62,6 @@ export default class Positive extends ApiCommand {
 
     await this.setSecurity(flags);
 
-    await this.validateSecurity(flags.apiKey);
-
     if (this.securityFailures[OASSecurityType.APIKEY]) {
       flags.apiKey = (await cli.prompt('What is your apiKey?', {
         type: 'mask',
@@ -135,15 +133,6 @@ export default class Positive extends ApiCommand {
       this.securityFailures[OASSecurityType.APIKEY] = [new MissingAPIKey()];
     }
     return true;
-  };
-
-  validateSecurity = async (apiKey?: string): Promise<void> => {
-    const securitySchemes = await this.schema.getSecuritySchemes();
-    for (const scheme of securitySchemes) {
-      if (scheme.securityType === OASSecurityType.APIKEY && !apiKey) {
-        this.securityFailures[OASSecurityType.APIKEY] = [new MissingAPIKey()];
-      }
-    }
   };
 
   validateParameters = (): void => {
