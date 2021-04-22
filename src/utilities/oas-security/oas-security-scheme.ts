@@ -14,7 +14,7 @@ enum In {
   COOKIE = 'cookie',
 }
 
-class OASSecurityScheme {
+export class OASSecurityScheme {
   private _type: OASSecurityType;
 
   private _description: string | undefined;

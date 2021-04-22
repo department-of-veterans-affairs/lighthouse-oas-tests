@@ -1,16 +1,29 @@
+const mockPrompt = jest.fn();
 import { ResponseObject } from 'swagger-client';
 import Positive from '../../src/commands/positive';
 import OASOperation from '../../src/utilities/oas-operation';
 
 const mockGetOperations = jest.fn();
+const mockGetSecuritySchemes = jest.fn();
+const mockSetAPISecurity = jest.fn();
 const mockExecute = jest.fn();
 
 jest.mock('../../src/utilities/oas-schema', () => {
   return function (): Record<string, jest.Mock> {
     return {
       getOperations: mockGetOperations,
+      getSecuritySchemes: mockGetSecuritySchemes,
+      setAPISecurity: mockSetAPISecurity,
       execute: mockExecute,
     };
+  };
+});
+
+jest.mock('cli-ux', () => {
+  return {
+    cli: {
+      prompt: mockPrompt,
+    },
   };
 });
 
@@ -42,14 +55,23 @@ describe('Positive', () => {
     jest
       .spyOn(process.stdout, 'write')
       .mockImplementation((val) => result.push(val));
-
+    mockPrompt.mockReset();
     mockGetOperations.mockReset();
     mockGetOperations.mockResolvedValue([
       'walkIntoMordor',
       'getHobbit',
       'getTomBombadil',
     ]);
-
+    mockGetSecuritySchemes.mockReset();
+    mockGetSecuritySchemes.mockResolvedValue([
+      {
+        securityType: 'apiKey',
+        description: 'one does simply walk into VA APIs',
+        name: 'boromir-security',
+        in: 'header',
+      },
+    ]);
+    mockSetAPISecurity.mockReset();
     mockExecute.mockReset();
     mockExecute.mockResolvedValue({
       url: 'https://www.lotr.com/walkIntoMorder',
@@ -65,13 +87,29 @@ describe('Positive', () => {
   describe('API key is not set', () => {
     beforeEach(() => {
       process.env.API_KEY = '';
+      mockGetOperations.mockReset();
+      mockGetOperations.mockResolvedValue([
+        {
+          operationId: 'walkIntoMordor',
+          exampleGroups: [],
+        },
+      ]);
     });
-    it('throws an error', async () => {
-      await expect(async () => {
-        await Positive.run(['asdf']);
-      }).rejects.toThrow(
-        'apiKey flag should be provided or the API_KEY environment variable should be set',
-      );
+    it('requests an apiKey when apiKey scheme exists', async () => {
+      await Positive.run(['http://isengard.com']);
+      expect(mockPrompt).toHaveBeenCalled();
+    });
+    it("does not request an apiKey when apiKey scheme doesn't exist", async () => {
+      mockGetSecuritySchemes.mockReset();
+      mockGetSecuritySchemes.mockResolvedValue([
+        {
+          securityType: 'http',
+          description: 'one does simply walk into VA APIs',
+          name: 'boromir-security',
+        },
+      ]);
+      await Positive.run(['http://isengard.com']);
+      expect(mockPrompt).not.toHaveBeenCalled();
     });
   });
 

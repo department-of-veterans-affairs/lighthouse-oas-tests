@@ -12,7 +12,10 @@ import {
   OperationResponse,
   SecurityFailures,
 } from './types';
-import OASSecurityScheme, { OASSecurityType } from '../utilities/oas-security/oas-security-scheme';
+import {
+  OASSecurityScheme,
+  OASSecurityType,
+} from '../utilities/oas-security/oas-security-scheme';
 import MissingAPIKey from '../security-failures/missing-apikey';
 
 export default class Positive extends ApiCommand {
@@ -61,14 +64,6 @@ export default class Positive extends ApiCommand {
     this.schema = new OASSchema(oasSchemaOptions);
 
     await this.setSecurity(flags);
-
-    if (this.securityFailures[OASSecurityType.APIKEY]) {
-      flags.apiKey = (await cli.prompt('What is your apiKey?', {
-        type: 'mask',
-      })) as string;
-      delete this.securityFailures[OASSecurityType.APIKEY];
-      this.schema.setAPISecurity(flags.apiKey);
-    }
 
     await this.buildOperationExamples();
 
