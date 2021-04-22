@@ -658,22 +658,30 @@ describe('BaseValidator', () => {
           });
         });
 
-        describe('object has properties', () => {
-          it('validates the properties', () => {
-            validator.validateObjectAgainstSchema(
-              {
-                value: 42,
-              },
-              schema,
-              ['body', 'form'],
-            );
+        it('validates the properties when object has properties', () => {
+          validator.validateObjectAgainstSchema(
+            {
+              value: 42,
+            },
+            schema,
+            ['body', 'form'],
+          );
 
-            const failures = validator.failures;
-            expect(failures).toHaveLength(1);
-            expect(validator.failures).toContainValidationFailure(
-              'Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> form -> value',
-            );
-          });
+          const failures = validator.failures;
+          expect(failures).toHaveLength(1);
+          expect(failures).toContainValidationFailure(
+            'Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> form -> value',
+          );
+        });
+
+        it('adds a warning when a property cannot be validated', () => {
+          validator.validateObjectAgainstSchema({}, schema, ['body', 'form']);
+
+          const warnings = validator.warnings;
+          expect(warnings).toHaveLength(1);
+          expect(warnings).toContainValidationWarning(
+            'Warning: This object is missing non-required parameters that were unable to be validated, including value. Path: body -> form',
+          );
         });
 
         describe('schema expects an enum', () => {

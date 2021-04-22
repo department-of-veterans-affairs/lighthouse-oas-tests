@@ -13,6 +13,7 @@ import {
 } from '../../validation-messages/failures';
 import {
   EmptyArray,
+  MissingProperties,
   ValidationWarning,
 } from '../../validation-messages/warnings';
 
@@ -223,6 +224,17 @@ abstract class BaseValidator {
         ];
       }
     });
+
+    const missingOptionalProperties = expectedProperties.filter(
+      (property) => !actualProperties.includes(property),
+    );
+
+    if (missingOptionalProperties.length > 0) {
+      this._warnings = [
+        ...this._warnings,
+        new MissingProperties(missingOptionalProperties, path),
+      ];
+    }
 
     // re-un for each property that has a schema present
     Object.entries(actual)

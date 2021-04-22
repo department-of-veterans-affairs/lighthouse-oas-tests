@@ -55,7 +55,9 @@ describe('Positive', () => {
       url: 'https://www.lotr.com/walkIntoMorder',
       status: 200,
       ok: true,
-      body: {},
+      body: {
+        data: ['test'],
+      },
       headers: {
         'content-type': 'application/json',
       },
@@ -492,7 +494,7 @@ describe('Positive', () => {
       ]);
     });
 
-    it('outputs a warning when present', async () => {
+    it('outputs any present warnings', async () => {
       const operation = new OASOperation({
         operationId: 'getHobbit',
         responses: {
