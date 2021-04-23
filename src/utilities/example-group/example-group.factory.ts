@@ -6,6 +6,12 @@ import ExampleGroup from './example-group';
 class ExampleGroupFactory {
   static buildFromOperation(operation: OASOperation): ExampleGroup[] {
     const parameters = operation.parameters;
+    parameters.map((parameterKey) => {
+      parameterKey.required &&
+        (parameterKey.name = `${parameterKey.name}-default`);
+      return parameterKey.name;
+    });
+    
     const groupNames = this.getGroupNames(parameters);
 
     const requiredExamples = parameters
@@ -33,11 +39,14 @@ class ExampleGroupFactory {
           ];
         },
         [],
-      ); 
+      );
     }
-    const defaultGroup = new ExampleGroup(operation, DEFAULT_PARAMETER_GROUP, requiredExamples);
+    const defaultGroup = new ExampleGroup(
+      operation,
+      DEFAULT_PARAMETER_GROUP,
+      requiredExamples,
+    );
     exampleGroups.push(defaultGroup);
-    
     return exampleGroups;
   }
 
@@ -61,7 +70,6 @@ class ExampleGroupFactory {
         examples[parameter.name] = parameter.examples[groupName].value;
       }
     }
-
     return new ExampleGroup(operation, groupName, {
       ...requiredExamples,
       ...examples,
