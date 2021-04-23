@@ -562,7 +562,7 @@ describe('BaseValidator', () => {
             'numbers',
           ]);
           expect(validator.warnings).toContainValidationWarning(
-            'Warning: This array was found to be empty and therefore the items within it were not validated. Path: body -> numbers',
+            'Warning: This array was found to be empty and therefore could not be validated. Path: body -> numbers',
           );
         });
       });
