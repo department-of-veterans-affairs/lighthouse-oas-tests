@@ -6,12 +6,6 @@ import ExampleGroup from './example-group';
 class ExampleGroupFactory {
   static buildFromOperation(operation: OASOperation): ExampleGroup[] {
     const parameters = operation.parameters;
-    parameters.map((parameterKey) => {
-      parameterKey.required &&
-        (parameterKey.name = `${parameterKey.name}-default`);
-      return parameterKey.name;
-    });
-    
     const groupNames = this.getGroupNames(parameters);
 
     const requiredExamples = parameters

@@ -131,7 +131,7 @@ describe('Positive', () => {
       }).rejects.toThrow('1 operation failed');
 
       expect(result).toEqual([
-        'walkIntoMordor: Failed\n',
+        'walkIntoMordor - default: Failed\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: parameters -> guide -> example\n',
       ]);
     });
@@ -312,9 +312,9 @@ describe('Positive', () => {
           'walkIntoMordor - door: Failed\n',
           '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data\n',
           'walkIntoMordor - guided: Succeeded\n',
-          'walkIntoMordor: Succeeded\n',
-          'getHobbit: Succeeded\n',
-          'getTomBombadil: Succeeded\n',
+          'walkIntoMordor - default: Succeeded\n',
+          'getHobbit - default: Succeeded\n',
+          'getTomBombadil - default: Succeeded\n',
         ]);
       });
     });
@@ -367,9 +367,9 @@ describe('Positive', () => {
       }).rejects.toThrow('2 operations failed');
 
       expect(result).toEqual([
-        'getHobbit: Failed\n',
+        'getHobbit - default: Failed\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data\n',
-        'getTomBombadil: Failed\n',
+        'getTomBombadil - default: Failed\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data\n',
       ]);
     });
@@ -420,9 +420,9 @@ describe('Positive', () => {
       }).rejects.toThrow('1 operation failed');
 
       expect(result).toEqual([
-        'getHobbit: Failed\n',
+        'getHobbit - default: Failed\n',
         '  - Response status code was a non 2XX value\n',
-        'getTomBombadil: Succeeded\n',
+        'getTomBombadil - default: Succeeded\n',
       ]);
     });
 
@@ -487,7 +487,7 @@ describe('Positive', () => {
       }).rejects.toThrow('1 operation failed');
 
       expect(result).toEqual([
-        'getHobbit: Failed\n',
+        'getHobbit - default: Failed\n',
         '  - Actual type did not match schema. Schema type: number. Actual type: string. Path: body -> data -> one\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data -> two\n',
       ]);
@@ -552,7 +552,7 @@ describe('Positive', () => {
       await Positive.run(['http://urldoesnotmatter.com']);
 
       expect(result).toEqual([
-        'getHobbit: Succeeded\n',
+        'getHobbit - default: Succeeded\n',
         '  - Warning: This array was found to be empty and therefore the items within it were not validated. Path: body -> data\n',
       ]);
     });

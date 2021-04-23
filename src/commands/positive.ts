@@ -142,25 +142,13 @@ export default class Positive extends ApiKeyCommand {
 
       if (failures.length > 0) {
         failingOperations.push(id);
-        this.log(
-          `${operation.operationId}${
-            exampleGroupName === DEFAULT_PARAMETER_GROUP
-              ? ''
-              : ` - ${exampleGroupName}`
-          }: Failed`,
-        );
+        this.log(`${operation.operationId} - ${exampleGroupName}: Failed`);
 
         failures.forEach((failure) => {
           this.log(`  - ${failure.toString()}`);
         });
       } else {
-        this.log(
-          `${operation.operationId}${
-            exampleGroupName === DEFAULT_PARAMETER_GROUP
-              ? ''
-              : ` - ${exampleGroupName}`
-          }: Succeeded`,
-        );
+        this.log(`${operation.operationId} - ${exampleGroupName}: Succeeded`);
       }
 
       warnings.forEach((failure) => {
