@@ -1,8 +1,11 @@
 import swaggerClient, { Response, Swagger } from 'swagger-client';
 import OASOperation, { OASOperationFactory } from '../oas-operation';
 import ExampleGroup from '../example-group';
-import OASSecurityScheme from '../oas-security/oas-security-scheme';
-import OASSecurityFactory from '../oas-security/oas-security.factory';
+import {
+  OASSecurityScheme,
+  OASSecurityFactory,
+  OASSecurity,
+} from '../oas-security';
 
 class OASSchema {
   private _client: Promise<Swagger>;
@@ -11,12 +14,15 @@ class OASSchema {
 
   private operations: OASOperation[];
 
+  private topSecurities: OASSecurity[];
+
   private securitySchemes: OASSecurityScheme[];
 
   constructor(options: Parameters<typeof swaggerClient>[0]) {
     this._client = swaggerClient(options);
     this._swaggerOptions = options;
     this.operations = [];
+    this.topSecurities = [];
     this.securitySchemes = [];
   }
 
@@ -56,9 +62,19 @@ class OASSchema {
     return this.operations;
   };
 
+  getTopSecurities = async (): Promise<OASSecurity[]> => {
+    const schema = await this._client;
+    if (this.topSecurities.length === 0 && schema.spec.security) {
+      this.topSecurities = OASSecurityFactory.getSecurities(
+        schema.spec.security,
+      );
+    }
+    return this.topSecurities;
+  };
+
   getSecuritySchemes = async (): Promise<OASSecurityScheme[]> => {
     const schema = await this._client;
-    if (this.securitySchemes.length === 0) {
+    if (this.securitySchemes.length === 0 && schema.spec.components) {
       this.securitySchemes = OASSecurityFactory.getSecuritySchemes(
         schema.spec.components.securitySchemes,
       );

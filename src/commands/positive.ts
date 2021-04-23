@@ -17,6 +17,7 @@ import {
   OASSecurityType,
 } from '../utilities/oas-security/oas-security-scheme';
 import MissingAPIKey from '../security-failures/missing-apikey';
+import { OASSecurityFactory } from '../utilities/oas-security';
 
 export default class Positive extends ApiCommand {
   static description =
@@ -63,7 +64,7 @@ export default class Positive extends ApiCommand {
 
     this.schema = new OASSchema(oasSchemaOptions);
 
-    await this.setSecurity(flags);
+    await this.setTopSecurity(flags);
 
     await this.buildOperationExamples();
 
@@ -96,14 +97,15 @@ export default class Positive extends ApiCommand {
     }
   };
 
-  setSecurity = async (flags: {
+  setTopSecurity = async (flags: {
     apiKey: string | undefined;
   }): Promise<void> => {
     const securitySchemes = await this.schema.getSecuritySchemes();
+    const topSecurities = await this.schema.getTopSecurities();
     const securityTypes = {};
     for (const scheme of securitySchemes) {
       securityTypes[OASSecurityType.APIKEY] =
-        this.checkForAPISecurity(scheme, flags) ??
+        this.getAPISecurityKey(scheme, flags) ??
         securityTypes[OASSecurityType.APIKEY];
     }
     if (this.securityFailures[OASSecurityType.APIKEY]) {
@@ -112,22 +114,25 @@ export default class Positive extends ApiCommand {
       })) as string;
       delete this.securityFailures[OASSecurityType.APIKEY];
     }
-    if (securityTypes[OASSecurityType.APIKEY]) {
+    if (
+      securityTypes[OASSecurityType.APIKEY] &&
+      topSecurities[securityTypes[OASSecurityType.APIKEY]]
+    ) {
       this.schema.setAPISecurity(flags.apiKey as string);
     }
   };
 
-  checkForAPISecurity = (
+  getAPISecurityKey = (
     scheme: OASSecurityScheme,
     flags: { apiKey: string | undefined },
-  ): boolean | undefined => {
+  ): string | undefined => {
     if (scheme.securityType !== OASSecurityType.APIKEY) {
       return;
     }
     if (!flags.apiKey) {
       this.securityFailures[OASSecurityType.APIKEY] = [new MissingAPIKey()];
     }
-    return true;
+    return scheme.name;
   };
 
   validateParameters = (): void => {

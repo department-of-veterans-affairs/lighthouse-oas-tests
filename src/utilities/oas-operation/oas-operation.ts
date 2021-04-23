@@ -1,6 +1,7 @@
 import { OperationObject, ParameterObject } from 'swagger-client';
 import { ResponseObject } from 'swagger-client/schema';
 import ExampleGroup, { ExampleGroupFactory } from '../example-group';
+import { OASSecurity, OASSecurityFactory } from '../oas-security';
 
 class OASOperation {
   readonly operationId: string;
@@ -9,6 +10,8 @@ class OASOperation {
 
   private _exampleGroups: ExampleGroup[];
 
+  private _security: OASSecurity[];
+
   readonly test: string[];
 
   constructor(schema: OperationObject) {
@@ -16,10 +19,15 @@ class OASOperation {
     this._schema = schema;
     this.operationId = schema.operationId;
     this._exampleGroups = ExampleGroupFactory.buildFromOperation(this);
+    this._security = OASSecurityFactory.getSecurities(schema.security);
   }
 
   get exampleGroups(): ExampleGroup[] {
     return [...this._exampleGroups];
+  }
+
+  get security(): OASSecurity[] {
+    return [...this._security];
   }
 
   get parameters(): ParameterObject[] {

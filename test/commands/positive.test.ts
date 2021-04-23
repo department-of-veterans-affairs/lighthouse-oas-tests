@@ -5,6 +5,7 @@ import OASOperation from '../../src/utilities/oas-operation';
 
 const mockGetOperations = jest.fn();
 const mockGetSecuritySchemes = jest.fn();
+const mockGetTopSecurities = jest.fn();
 const mockSetAPISecurity = jest.fn();
 const mockExecute = jest.fn();
 
@@ -13,6 +14,7 @@ jest.mock('../../src/utilities/oas-schema', () => {
     return {
       getOperations: mockGetOperations,
       getSecuritySchemes: mockGetSecuritySchemes,
+      getTopSecurities: mockGetTopSecurities,
       setAPISecurity: mockSetAPISecurity,
       execute: mockExecute,
     };
@@ -69,6 +71,12 @@ describe('Positive', () => {
         description: 'one does simply walk into VA APIs',
         name: 'boromir-security',
         in: 'header',
+      },
+    ]);
+    mockGetTopSecurities.mockReset();
+    mockGetTopSecurities.mockResolvedValue([
+      {
+        'boromir-security': [],
       },
     ]);
     mockSetAPISecurity.mockReset();

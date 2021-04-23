@@ -1,4 +1,6 @@
 import { SecuritySchemesObject } from 'swagger-client';
+import { SecurityRequirementObject } from 'swagger-client/schema';
+import OASSecurity from './oas-security';
 import OASSecurityScheme from './oas-security-scheme';
 
 class OASSecurityFactory {
@@ -9,6 +11,18 @@ class OASSecurityFactory {
 
     return securitySchemeObjects.map(
       (securityScheme) => new OASSecurityScheme(securityScheme),
+    );
+  }
+
+  public static getSecurities(
+    securityRequirement: SecurityRequirementObject | undefined,
+  ): OASSecurity[] {
+    if (!securityRequirement) {
+      return [];
+    }
+
+    return Object.keys(securityRequirement).map(
+      (key) => new OASSecurity(key, securityRequirement[key]),
     );
   }
 }
