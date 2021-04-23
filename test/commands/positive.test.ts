@@ -553,7 +553,7 @@ describe('Positive', () => {
 
       expect(result).toEqual([
         'getHobbit - default: Succeeded\n',
-        '  - Warning: This array was found to be empty and therefore the items within it were not validated. Path: body -> data\n',
+        '  - Warning: This array was found to be empty and therefore could not be validated. Path: body -> data\n',
       ]);
     });
   });
