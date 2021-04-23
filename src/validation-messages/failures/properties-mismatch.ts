@@ -3,16 +3,16 @@ import ValidationFailure from './validation-failure';
 class PropertiesMismatch extends ValidationFailure {
   constructor(
     path: string[],
-    schemaProperties: string[],
-    actualProperties: string[],
+    schemaPropertiesNotFound: string[],
+    unexpectedActualProperties: string[],
   ) {
-    let message = `Actual object contains a property not present in schema. Actual properties not expected: ${actualProperties.join(
+    let message = `Actual object contains a property not present in schema. Actual properties not expected: ${unexpectedActualProperties.join(
       ', ',
     )}.`;
 
-    if (schemaProperties.length > 0) {
+    if (schemaPropertiesNotFound.length > 0) {
       message = message.concat(
-        ` Schema properties not found: ${schemaProperties.join(', ')}.`,
+        ` Schema properties not found: ${schemaPropertiesNotFound.join(', ')}.`,
       );
     }
 
