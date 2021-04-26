@@ -85,7 +85,9 @@ describe('Positive', () => {
       url: 'https://www.lotr.com/walkIntoMorder',
       status: 200,
       ok: true,
-      body: {},
+      body: {
+        data: ['test'],
+      },
       headers: {
         'content-type': 'application/json',
       },
@@ -178,7 +180,7 @@ describe('Positive', () => {
       }).rejects.toThrow('1 operation failed');
 
       expect(result).toEqual([
-        'walkIntoMordor: Failed\n',
+        'walkIntoMordor - default: Failed\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: parameters -> guide -> example\n',
       ]);
     });
@@ -363,8 +365,9 @@ describe('Positive', () => {
           'walkIntoMordor - door: Failed\n',
           '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data\n',
           'walkIntoMordor - guided: Succeeded\n',
-          'getHobbit: Succeeded\n',
-          'getTomBombadil: Succeeded\n',
+          'walkIntoMordor - default: Succeeded\n',
+          'getHobbit - default: Succeeded\n',
+          'getTomBombadil - default: Succeeded\n',
         ]);
       });
     });
@@ -417,9 +420,9 @@ describe('Positive', () => {
       }).rejects.toThrow('2 operations failed');
 
       expect(result).toEqual([
-        'getHobbit: Failed\n',
+        'getHobbit - default: Failed\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data\n',
-        'getTomBombadil: Failed\n',
+        'getTomBombadil - default: Failed\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data\n',
       ]);
     });
@@ -470,9 +473,9 @@ describe('Positive', () => {
       }).rejects.toThrow('1 operation failed');
 
       expect(result).toEqual([
-        'getHobbit: Failed\n',
+        'getHobbit - default: Failed\n',
         '  - Response status code was a non 2XX value\n',
-        'getTomBombadil: Succeeded\n',
+        'getTomBombadil - default: Succeeded\n',
       ]);
     });
 
@@ -537,9 +540,73 @@ describe('Positive', () => {
       }).rejects.toThrow('1 operation failed');
 
       expect(result).toEqual([
-        'getHobbit: Failed\n',
+        'getHobbit - default: Failed\n',
         '  - Actual type did not match schema. Schema type: number. Actual type: string. Path: body -> data -> one\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data -> two\n',
+      ]);
+    });
+
+    it('outputs any present warnings', async () => {
+      const operation = new OASOperation({
+        operationId: 'getHobbit',
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          one: {
+                            type: 'number',
+                          },
+                          two: {
+                            type: 'string',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        parameters: [
+          {
+            name: 'name',
+            in: 'query',
+            schema: {
+              type: 'string',
+            },
+            example: 'Frodo',
+          },
+        ],
+      });
+      mockGetOperations.mockResolvedValue([operation]);
+
+      mockExecute.mockResolvedValueOnce({
+        url: 'https://www.lotr.com/walkIntoMorder',
+        status: 200,
+        ok: true,
+        body: {
+          data: [],
+        },
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
+
+      await Positive.run(['http://urldoesnotmatter.com']);
+
+      expect(result).toEqual([
+        'getHobbit - default: Succeeded\n',
+        '  - Warning: This array was found to be empty and therefore could not be validated. Path: body -> data\n',
       ]);
     });
   });

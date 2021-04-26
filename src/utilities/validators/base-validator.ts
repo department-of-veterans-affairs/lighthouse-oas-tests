@@ -9,22 +9,36 @@ import {
   PropertySchemaMissing,
   RequiredProperty,
   TypeMismatch,
-} from '../../validation-failures';
-import ValidationFailure from '../../validation-failures/validation-failure';
+  ValidationFailure,
+} from '../../validation-messages/failures';
+import {
+  EmptyArray,
+  MissingProperties,
+  ValidationWarning,
+} from '../../validation-messages/warnings';
 
 abstract class BaseValidator {
   protected _failures: ValidationFailure[];
+
+  protected _warnings: ValidationWarning[];
 
   protected validated: boolean;
 
   constructor() {
     this.validated = false;
     this._failures = [];
+    this._warnings = [];
   }
 
   public get failures(): ValidationFailure[] {
     return this._failures;
   }
+
+  public get warnings(): ValidationWarning[] {
+    return this._warnings;
+  }
+
+  abstract performValidation(): void;
 
   public validate = (): void => {
     if (this.validated) {
@@ -64,8 +78,6 @@ abstract class BaseValidator {
       this.checkObjectProperties(actual, expected, [...path]);
     }
   }
-
-  abstract performValidation(): void;
 
   private checkInvalidSchema(
     actual: Json,
@@ -152,17 +164,21 @@ abstract class BaseValidator {
   }
 
   private checkArrayItemSchema(
-    actual: Json,
+    actual: Json[],
     expected: SchemaObject,
     path: string[],
   ): void {
     // check that the expected object's items property is set
     const itemSchema = expected.items;
     if (itemSchema) {
-      // re-run for each item
-      actual.forEach((item) => {
-        this.validateObjectAgainstSchema(item, itemSchema, [...path]);
-      });
+      if (actual.length === 0) {
+        this._warnings = [...this._warnings, new EmptyArray(path)];
+      } else {
+        // re-run for each item
+        actual.forEach((item) => {
+          this.validateObjectAgainstSchema(item, itemSchema, [...path]);
+        });
+      }
     } else {
       this._failures = [...this._failures, new ItemSchemaMissing([...path])];
     }
@@ -186,16 +202,23 @@ abstract class BaseValidator {
 
     const actualProperties = Object.keys(actual);
     const expectedProperties = Object.keys(properties);
+    const unexpectedActualProperties = actualProperties.filter(
+      (property) => !expectedProperties.includes(property),
+    );
 
     // check that the actual object only contains properties present in expected object
-    if (
-      actualProperties.filter(
-        (property) => !expectedProperties.includes(property),
-      ).length > 0
-    ) {
+    if (unexpectedActualProperties.length > 0) {
+      const expectedPropertiesNotFound = expectedProperties.filter(
+        (property) => !actualProperties.includes(property),
+      );
+
       this._failures = [
         ...this._failures,
-        new PropertiesMismatch([...path], expectedProperties, actualProperties),
+        new PropertiesMismatch(
+          [...path],
+          expectedPropertiesNotFound,
+          unexpectedActualProperties,
+        ),
       ];
     }
 
@@ -208,6 +231,21 @@ abstract class BaseValidator {
         ];
       }
     });
+
+    const optionalProperties = expectedProperties.filter(
+      (property) => !expected.required?.includes(property),
+    );
+
+    const missingOptionalProperties = optionalProperties.filter(
+      (property) => !actualProperties.includes(property),
+    );
+
+    if (missingOptionalProperties.length > 0) {
+      this._warnings = [
+        ...this._warnings,
+        new MissingProperties(missingOptionalProperties, path),
+      ];
+    }
 
     // re-un for each property that has a schema present
     Object.entries(actual)

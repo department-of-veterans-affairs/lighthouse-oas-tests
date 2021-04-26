@@ -58,7 +58,7 @@ describe('OASOperation', () => {
   describe('getExampleGroups', () => {
     it('returns the example groups', () => {
       const exampleGroups = operation.exampleGroups;
-      expect(exampleGroups).toHaveLength(1);
+      expect(exampleGroups).toHaveLength(2);
       expect(exampleGroups[0].name).toEqual('baggins');
     });
   });

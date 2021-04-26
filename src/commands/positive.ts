@@ -4,13 +4,14 @@ import loadJsonFile from 'load-json-file';
 import { ApiCommand } from '../baseCommands';
 import { DEFAULT_PARAMETER_GROUP } from '../utilities/constants';
 import OASSchema from '../utilities/oas-schema';
-import ValidationFailure from '../validation-failures/validation-failure';
+import { InvalidResponse } from '../validation-messages/failures';
 import { ParameterValidator, ResponseValidator } from '../utilities/validators';
 import {
   OperationExample,
   OperationFailures,
   OperationResponse,
   SecurityFailures,
+  OperationWarnings,
 } from './types';
 import {
   OASSecurityScheme,
@@ -45,6 +46,8 @@ export default class Positive extends ApiCommand {
   private operationFailures: OperationFailures = {};
 
   private securityFailures: SecurityFailures = {};
+
+  private operationWarnings: OperationWarnings = {};
 
   async run(): Promise<void> {
     const { args, flags } = this.parse(Positive);
@@ -87,6 +90,8 @@ export default class Positive extends ApiCommand {
 
       for (const exampleGroup of exampleGroups) {
         const operationExampleId = `${operation.operationId}:${exampleGroup.name}`;
+        this.operationFailures[operationExampleId] = [];
+        this.operationWarnings[operationExampleId] = [];
         this.operationExamples.push({
           id: operationExampleId,
           operation,
@@ -151,10 +156,9 @@ export default class Positive extends ApiCommand {
         validator.validate();
 
         this.operationFailures[id] = validator.failures;
+        this.operationWarnings[id] = validator.warnings;
       } else if (response) {
-        this.operationFailures[id] = [
-          new ValidationFailure('Response status code was a non 2XX value', []),
-        ];
+        this.operationFailures[id] = [new InvalidResponse()];
       }
     }
   };
@@ -185,29 +189,22 @@ export default class Positive extends ApiCommand {
     for (const { id, exampleGroup, operation } of this.operationExamples) {
       const exampleGroupName = exampleGroup.name;
       const failures = this.operationFailures[id];
+      const warnings = this.operationWarnings[id];
 
       if (failures.length > 0) {
         failingOperations.push(id);
-        this.log(
-          `${operation.operationId}${
-            exampleGroupName === DEFAULT_PARAMETER_GROUP
-              ? ''
-              : ` - ${exampleGroupName}`
-          }: Failed`,
-        );
+        this.log(`${operation.operationId} - ${exampleGroupName}: Failed`);
 
         failures.forEach((failure) => {
           this.log(`  - ${failure.toString()}`);
         });
       } else {
-        this.log(
-          `${operation.operationId}${
-            exampleGroupName === DEFAULT_PARAMETER_GROUP
-              ? ''
-              : ` - ${exampleGroupName}`
-          }: Succeeded`,
-        );
+        this.log(`${operation.operationId} - ${exampleGroupName}: Succeeded`);
       }
+
+      warnings.forEach((failure) => {
+        this.log(`  - ${failure.toString()}`);
+      });
     }
 
     if (failingOperations.length > 0) {

@@ -555,6 +555,16 @@ describe('BaseValidator', () => {
             schema.enum = undefined;
           });
         });
+
+        it('adds a validation warning when the array is empty', () => {
+          validator.validateObjectAgainstSchema([], schema, [
+            'body',
+            'numbers',
+          ]);
+          expect(validator.warnings).toContainValidationWarning(
+            'Warning: This array was found to be empty and therefore could not be validated. Path: body -> numbers',
+          );
+        });
       });
     });
 
@@ -611,19 +621,40 @@ describe('BaseValidator', () => {
           let tempSchema;
           beforeAll(() => {
             tempSchema = { ...schema };
-            tempSchema.properties = { ...schema.properties };
+            tempSchema.properties = {
+              ...schema.properties,
+              house: {
+                type: 'string',
+                description: 'gryffindor, hufflepuff, slytherin, ravenclaw',
+              },
+            };
             tempSchema.required = ['value'];
           });
 
-          it('adds a validation failure', () => {
-            validator.validateObjectAgainstSchema(
-              { fake: 'property', value: 'potato' },
-              tempSchema,
-              ['body', 'form'],
-            );
-            expect(validator.failures).toContainValidationFailure(
-              'Actual object contains a property not present in schema. Schema properties: value. Actual properties: fake, value. Path: body -> form',
-            );
+          describe('all schema properties are present', () => {
+            it('failure message contains only actual properties that were not expected', () => {
+              validator.validateObjectAgainstSchema(
+                { fake: 'property', value: 'potato', house: 'slytherin' },
+                tempSchema,
+                ['body', 'form'],
+              );
+              expect(validator.failures).toContainValidationFailure(
+                'Actual object contains a property not present in schema. Actual properties not expected: fake. Path: body -> form',
+              );
+            });
+          });
+
+          describe('not all schema properties are present', () => {
+            it('failure message contains all properties that did not match', () => {
+              validator.validateObjectAgainstSchema(
+                { fake: 'property', value: 'potato' },
+                tempSchema,
+                ['body', 'form'],
+              );
+              expect(validator.failures).toContainValidationFailure(
+                'Actual object contains a property not present in schema. Actual properties not expected: fake. Schema properties not found: house. Path: body -> form',
+              );
+            });
           });
         });
 
@@ -648,22 +679,44 @@ describe('BaseValidator', () => {
           });
         });
 
-        describe('object has properties', () => {
-          it('validates the properties', () => {
-            validator.validateObjectAgainstSchema(
-              {
-                value: 42,
-              },
-              schema,
-              ['body', 'form'],
-            );
+        it('validates the properties when object has properties', () => {
+          validator.validateObjectAgainstSchema(
+            {
+              value: 42,
+            },
+            schema,
+            ['body', 'form'],
+          );
 
-            const failures = validator.failures;
-            expect(failures).toHaveLength(1);
-            expect(validator.failures).toContainValidationFailure(
-              'Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> form -> value',
-            );
-          });
+          const failures = validator.failures;
+          expect(failures).toHaveLength(1);
+          expect(failures).toContainValidationFailure(
+            'Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> form -> value',
+          );
+        });
+
+        it('adds a warning when an optional property cannot be validated', () => {
+          validator.validateObjectAgainstSchema({}, schema, ['body', 'form']);
+
+          const warnings = validator.warnings;
+          expect(warnings).toHaveLength(1);
+          expect(warnings).toContainValidationWarning(
+            'Warning: This object is missing non-required parameters that were unable to be validated, including value. Path: body -> form',
+          );
+        });
+
+        it('does not print out the missing property warning when only required properties are missing', () => {
+          validator.validateObjectAgainstSchema(
+            {},
+            { ...schema, required: ['value'] },
+            ['body', 'form'],
+          );
+
+          const warnings = validator.warnings;
+          expect(warnings).toHaveLength(0);
+          expect(warnings).not.toContainValidationWarning(
+            'Warning: This object is missing non-required parameters that were unable to be validated, including value. Path: body -> form',
+          );
         });
 
         describe('schema expects an enum', () => {
