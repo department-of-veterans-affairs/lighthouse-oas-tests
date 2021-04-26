@@ -5,6 +5,7 @@ import {
   OASSecurityScheme,
   OASSecurityFactory,
   OASSecurity,
+  OASSecurityType,
 } from '../oas-security';
 
 class OASSchema {
@@ -33,10 +34,23 @@ class OASSchema {
   execute = async (
     operation: OASOperation,
     exampleGroup: ExampleGroup,
+    flags?: { apiKey: string | undefined },
   ): Promise<Response> => {
+    if (operation.security && operation.security.length > 0) {
+      let securitySchemes = await this.getSecuritySchemes();
+      securitySchemes = securitySchemes.filter(
+        (securityScheme) => securityScheme.name !== operation.security[0].key,
+      );
+      if (
+        securitySchemes.length > 0 &&
+        securitySchemes[0].securityType === OASSecurityType.APIKEY &&
+        flags?.apiKey
+      ) {
+        this.setOperationAPISecurity(flags.apiKey);
+      }
+    }
     const schema = await this._client;
-
-    return schema
+    const response = schema
       .execute({
         operationId: operation.operationId,
         parameters: exampleGroup.examples,
@@ -44,6 +58,12 @@ class OASSchema {
       .catch((error) => {
         return error.response;
       });
+    this.resetClient();
+    return response;
+  };
+
+  resetClient = (): void => {
+    this._client = swaggerClient(this._swaggerOptions);
   };
 
   setAPISecurity = (apikey: string): void => {
@@ -52,6 +72,14 @@ class OASSchema {
       ...this._swaggerOptions,
     };
     this._client = swaggerClient(this._swaggerOptions);
+  };
+
+  setOperationAPISecurity = (apikey: string): void => {
+    const swaggerOptions = {
+      authorizations: { apikey: { value: apikey } },
+      ...this._swaggerOptions,
+    };
+    this._client = swaggerClient(swaggerOptions);
   };
 
   getOperations = async (): Promise<OASOperation[]> => {

@@ -15,6 +15,8 @@ enum In {
 }
 
 export class OASSecurityScheme {
+  private _key: string;
+
   private _type: OASSecurityType;
 
   private _description: string | undefined;
@@ -23,12 +25,16 @@ export class OASSecurityScheme {
 
   private _in: In | undefined;
 
-  // eslint-disable-next-line no, @typescript-eslint/no-explicit-any
-  constructor(securityScheme: SecuritySchemeItemObject) {
+  constructor(key: string, securityScheme: SecuritySchemeItemObject) {
+    this._key = key;
     this._type = securityScheme.type as OASSecurityType;
     this._description = securityScheme.description;
     this._name = securityScheme.name;
     this._in = securityScheme?.in as In;
+  }
+
+  get key(): string {
+    return this._key;
   }
 
   get securityType(): OASSecurityType {

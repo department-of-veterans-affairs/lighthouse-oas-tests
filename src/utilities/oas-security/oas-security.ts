@@ -1,15 +1,15 @@
 export class OASSecurity {
-  private _name: string;
+  private _key: string;
 
   private _scopes: string[];
 
-  constructor(name: string, scopes: string[]) {
-    this._name = name;
+  constructor(key: string, scopes: string[]) {
+    this._key = key;
     this._scopes = scopes;
   }
 
-  get name(): string {
-    return this._name;
+  get key(): string {
+    return this._key;
   }
 
   get scopes(): string[] {

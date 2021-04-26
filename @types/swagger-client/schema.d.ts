@@ -36,6 +36,7 @@ declare module 'swagger-client/schema' {
     description?: string;
     name?: string;
     in?: 'query' | 'header' | 'cookie';
+    scheme?: string;
   }
 
   interface ParameterAndHeaderBase {

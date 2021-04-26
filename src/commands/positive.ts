@@ -70,7 +70,7 @@ export default class Positive extends ApiCommand {
 
     this.validateParameters();
 
-    const responses = await Promise.all(this.executeRequests());
+    const responses = await Promise.all(this.executeRequests(flags));
 
     const mergedResponses = responses.reduce((merged, response) => {
       return Object.assign(merged, response);
@@ -160,16 +160,20 @@ export default class Positive extends ApiCommand {
     }
   };
 
-  executeRequests = (): Promise<OperationResponse>[] => {
+  executeRequests = (flags: {
+    apiKey: string | undefined;
+  }): Promise<OperationResponse>[] => {
     const responses: Promise<OperationResponse>[] = [];
     for (const { id, exampleGroup, operation } of this.operationExamples) {
       if (this.operationFailures[id].length === 0) {
         responses.push(
-          this.schema.execute(operation, exampleGroup).then((response) => {
-            return {
-              [id]: response,
-            };
-          }),
+          this.schema
+            .execute(operation, exampleGroup, flags)
+            .then((response) => {
+              return {
+                [id]: response,
+              };
+            }),
         );
       }
     }

@@ -1,7 +1,7 @@
 import loadJsonFile from 'load-json-file';
 import { Swagger } from 'swagger-client';
-import OASOperation from '../../src/utilities/oas-operation';
-import OasSchema from '../../src/utilities/oas-schema';
+import OASOperation from '../../../src/utilities/oas-operation';
+import OasSchema from '../../../src/utilities/oas-schema';
 
 describe('OASSchema', () => {
   const generateSchema = async (filePath: string): Promise<OasSchema> => {

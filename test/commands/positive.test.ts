@@ -126,6 +126,7 @@ describe('Positive', () => {
       process.env.API_KEY = 'testApiKey';
     });
     const baseCommand = ['-f'];
+    const apiKey = { apiKey: 'testApiKey' };
 
     describe('Json is not loaded from the file', () => {
       describe('Provided file does not exist', () => {
@@ -255,21 +256,25 @@ describe('Positive', () => {
         expect(mockExecute).not.toHaveBeenCalledWith(
           operation1,
           operation1.exampleGroups[0],
+          apiKey,
         );
 
         expect(mockExecute).toHaveBeenCalledWith(
           operation1,
           operation1.exampleGroups[1],
+          apiKey,
         );
 
         expect(mockExecute).toHaveBeenCalledWith(
           operation2,
           operation2.exampleGroups[0],
+          apiKey,
         );
 
         expect(mockExecute).toHaveBeenCalledWith(
           operation3,
           operation3.exampleGroups[0],
+          apiKey,
         );
       });
 

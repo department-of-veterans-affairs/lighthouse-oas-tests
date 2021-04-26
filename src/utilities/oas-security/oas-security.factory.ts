@@ -7,10 +7,10 @@ class OASSecurityFactory {
   public static getSecuritySchemes(
     securitySchemes: SecuritySchemesObject,
   ): OASSecurityScheme[] {
-    const securitySchemeObjects = Object.values(securitySchemes);
+    const securitySchemeObjectsKeys = Object.keys(securitySchemes);
 
-    return securitySchemeObjects.map(
-      (securityScheme) => new OASSecurityScheme(securityScheme),
+    return securitySchemeObjectsKeys.map(
+      (key) => new OASSecurityScheme(key, securitySchemes[key]),
     );
   }
 
