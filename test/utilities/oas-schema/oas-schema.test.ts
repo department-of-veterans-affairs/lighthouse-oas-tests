@@ -1,7 +1,6 @@
 import loadJsonFile from 'load-json-file';
 import * as swagger from 'swagger-client';
 import OASOperation from '../../../src/utilities/oas-operation';
-import OASSchema from '../../../src/utilities/oas-schema';
 import OasSchema from '../../../src/utilities/oas-schema';
 
 describe('OASSchema', () => {
@@ -74,7 +73,7 @@ describe('OASSchema', () => {
       const filePath = 'test/fixtures/forms_oas_security_fix.json';
       const schema = await generateSchema(filePath);
       const [exampleGroup] = operation.exampleGroups;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line no, @typescript-eslint/no-explicit-any
       (swagger.default as any).execute = executeMock;
 
       await schema.execute(operation, exampleGroup);
@@ -100,7 +99,7 @@ describe('OASSchema', () => {
       const filePath = 'test/fixtures/forms_oas_security_fix.json';
       const schema = await generateSchema(filePath);
       const [exampleGroup] = operation.exampleGroups;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line no, @typescript-eslint/no-explicit-any
       (swagger.default as any).execute = executeMock;
 
       await schema.execute(operation, exampleGroup, {
@@ -123,7 +122,7 @@ describe('OASSchema', () => {
       const schema = await generateSchema(filePath);
       schema.setAPISecurity('mellon');
       const client = await schema.client;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line no, @typescript-eslint/no-explicit-any
       expect((client as any).authorizations.apikey.value).toBe('mellon');
     });
   });
