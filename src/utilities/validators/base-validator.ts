@@ -225,7 +225,11 @@ abstract class BaseValidator {
       }
     });
 
-    const missingOptionalProperties = expectedProperties.filter(
+    const optionalProperties = expectedProperties.filter(
+      (property) => !expected.required?.includes(property),
+    );
+
+    const missingOptionalProperties = optionalProperties.filter(
       (property) => !actualProperties.includes(property),
     );
 

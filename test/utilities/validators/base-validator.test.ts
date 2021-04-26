@@ -674,12 +674,26 @@ describe('BaseValidator', () => {
           );
         });
 
-        it('adds a warning when a property cannot be validated', () => {
+        it('adds a warning when an optional property cannot be validated', () => {
           validator.validateObjectAgainstSchema({}, schema, ['body', 'form']);
 
           const warnings = validator.warnings;
           expect(warnings).toHaveLength(1);
           expect(warnings).toContainValidationWarning(
+            'Warning: This object is missing non-required parameters that were unable to be validated, including value. Path: body -> form',
+          );
+        });
+
+        it('does not print out the missing property warning when only required properties are missing', () => {
+          validator.validateObjectAgainstSchema(
+            {},
+            { ...schema, required: ['value'] },
+            ['body', 'form'],
+          );
+
+          const warnings = validator.warnings;
+          expect(warnings).toHaveLength(0);
+          expect(warnings).not.toContainValidationWarning(
             'Warning: This object is missing non-required parameters that were unable to be validated, including value. Path: body -> form',
           );
         });
