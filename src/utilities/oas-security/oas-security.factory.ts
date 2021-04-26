@@ -8,7 +8,6 @@ class OASSecurityFactory {
     securitySchemes: SecuritySchemesObject,
   ): OASSecurityScheme[] {
     const securitySchemeObjectsKeys = Object.keys(securitySchemes);
-
     return securitySchemeObjectsKeys.map(
       (key) => new OASSecurityScheme(key, securitySchemes[key]),
     );

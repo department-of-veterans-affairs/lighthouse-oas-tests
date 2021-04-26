@@ -1,6 +1,7 @@
 import loadJsonFile from 'load-json-file';
-import { Swagger } from 'swagger-client';
+import * as swagger from 'swagger-client';
 import OASOperation from '../../../src/utilities/oas-operation';
+import OASSchema from '../../../src/utilities/oas-schema';
 import OasSchema from '../../../src/utilities/oas-schema';
 
 describe('OASSchema', () => {
@@ -44,20 +45,10 @@ describe('OASSchema', () => {
   });
 
   describe('execute', () => {
-    it('calls the provided operation with the provided parameters', async () => {
-      const executeMock = jest.fn(
-        (_arg) => new Promise((resolve) => resolve(_arg)),
-      );
-      const filePath = 'test/fixtures/facilities_oas.json';
-      const schema = await generateSchema(filePath);
+    let operationObject;
 
-      schema.client = new Promise((resolve) => {
-        resolve(({
-          execute: executeMock,
-        } as unknown) as Swagger);
-      });
-
-      const operation = new OASOperation({
+    beforeEach(() => {
+      operationObject = {
         operationId: 'getFacilityById',
         responses: {},
         parameters: [
@@ -72,18 +63,78 @@ describe('OASSchema', () => {
             },
           },
         ],
-      });
+      };
+    });
 
+    it('calls the provided operation with the provided parameters without apiKey', async () => {
+      const operation = new OASOperation(operationObject);
+      const executeMock = jest.fn(
+        (_arg) => new Promise((resolve) => resolve(_arg)),
+      );
+      const filePath = 'test/fixtures/forms_oas_security_fix.json';
+      const schema = await generateSchema(filePath);
       const [exampleGroup] = operation.exampleGroups;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (swagger.default as any).execute = executeMock;
 
       await schema.execute(operation, exampleGroup);
 
-      expect(executeMock).toHaveBeenCalledWith({
-        operationId: 'getFacilityById',
-        parameters: {
-          id: 'testId',
-        },
+      expect(executeMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          operationId: 'getFacilityById',
+          parameters: {
+            id: 'testId',
+          },
+        }),
+      );
+    });
+
+    it('calls the provided operation with the provided parameters with apiKey', async () => {
+      operationObject.security = {
+        apikey: [],
+      };
+      const operation = new OASOperation(operationObject);
+      const executeMock = jest.fn(
+        (_arg) => new Promise((resolve) => resolve(_arg)),
+      );
+      const filePath = 'test/fixtures/forms_oas_security_fix.json';
+      const schema = await generateSchema(filePath);
+      const [exampleGroup] = operation.exampleGroups;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (swagger.default as any).execute = executeMock;
+
+      await schema.execute(operation, exampleGroup, {
+        apiKey: 'three-golden-hairs',
       });
+      expect(executeMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          operationId: 'getFacilityById',
+          parameters: {
+            id: 'testId',
+          },
+        }),
+      );
+    });
+  });
+
+  describe('setAPISecurity', () => {
+    it('sets the authorizations on the swagger client', async () => {
+      const filePath = 'test/fixtures/facilities_oas.json';
+      const schema = await generateSchema(filePath);
+      schema.setAPISecurity('mellon');
+      const client = await schema.client;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((client as any).authorizations.apikey.value).toBe('mellon');
+    });
+  });
+
+  describe('getTopSecurities', () => {
+    it('gets the top securities on the spec', async () => {
+      const filePath = 'test/fixtures/top_level_security.json';
+      const schema = await generateSchema(filePath);
+      const securities = await schema.getTopSecurities();
+      expect(securities).toHaveLength(1);
+      expect(securities[0].key).toBe('apikey');
     });
   });
 });

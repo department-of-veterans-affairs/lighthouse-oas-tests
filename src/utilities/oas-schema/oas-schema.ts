@@ -1,4 +1,4 @@
-import swaggerClient, { Response, Swagger } from 'swagger-client';
+import swaggerClient, { Request, Response, Swagger } from 'swagger-client';
 import OASOperation, { OASOperationFactory } from '../oas-operation';
 import ExampleGroup from '../example-group';
 import {
@@ -6,6 +6,7 @@ import {
   OASSecurityFactory,
   OASSecurity,
   OASSecurityType,
+  OASIn,
 } from '../oas-security';
 
 class OASSchema {
@@ -31,34 +32,29 @@ class OASSchema {
     this._client = client;
   }
 
+  public get client(): Promise<Swagger> {
+    return this._client;
+  }
+
   execute = async (
     operation: OASOperation,
     exampleGroup: ExampleGroup,
     flags?: { apiKey: string | undefined },
   ): Promise<Response> => {
-    if (operation.security && operation.security.length > 0) {
-      let securitySchemes = await this.getSecuritySchemes();
-      securitySchemes = securitySchemes.filter(
-        (securityScheme) => securityScheme.name !== operation.security[0].key,
-      );
-      if (
-        securitySchemes.length > 0 &&
-        securitySchemes[0].securityType === OASSecurityType.APIKEY &&
-        flags?.apiKey
-      ) {
-        this.setOperationAPISecurity(flags.apiKey);
-      }
-    }
+    const requestInterceptor = await this.getOperationRequestInterceptor(
+      operation,
+      flags,
+    );
     const schema = await this._client;
     const response = schema
       .execute({
         operationId: operation.operationId,
         parameters: exampleGroup.examples,
+        requestInterceptor,
       })
       .catch((error) => {
         return error.response;
       });
-    this.resetClient();
     return response;
   };
 
@@ -74,12 +70,54 @@ class OASSchema {
     this._client = swaggerClient(this._swaggerOptions);
   };
 
-  setOperationAPISecurity = (apikey: string): void => {
-    const swaggerOptions = {
-      authorizations: { apikey: { value: apikey } },
-      ...this._swaggerOptions,
-    };
-    this._client = swaggerClient(swaggerOptions);
+  getOperationRequestInterceptor = async (
+    operation: OASOperation,
+    flags?: { apiKey: string | undefined },
+  ): Promise<((request: Request) => Request) | undefined> => {
+    if (!operation.security || operation.security.length === 0) {
+      return;
+    }
+
+    const securitySchemes = await this.getSecuritySchemes();
+    const securityScheme = securitySchemes.find(
+      (securityScheme) => securityScheme.key === operation.security[0].key,
+    );
+    if (
+      securityScheme &&
+      securityScheme.securityType === OASSecurityType.APIKEY
+    ) {
+      return this.getAPIKeyRequestInterceptor(securityScheme, flags);
+    }
+  };
+
+  getAPIKeyRequestInterceptor = (
+    securityScheme: OASSecurityScheme,
+    flags?: { apiKey: string | undefined },
+  ): ((request: Request) => Request) | undefined => {
+    if (!securityScheme.name || !flags || !flags.apiKey) {
+      return;
+    }
+
+    const name: string = securityScheme.name;
+    const apiKey: string = flags.apiKey;
+    if (securityScheme.in === OASIn.HEADER) {
+      return (req: Request): Request => {
+        req.headers[name] = apiKey;
+        return req;
+      };
+    }
+    if (securityScheme.in === OASIn.COOKIE) {
+      return (req: Request): Request => {
+        req.headers.COOKIE += `${name}=${apiKey}`;
+        return req;
+      };
+    }
+    if (securityScheme.in === OASIn.QUERY) {
+      return (req: Request): Request => {
+        req.url += `?${name}=${apiKey}`;
+        return req;
+      };
+    }
   };
 
   getOperations = async (): Promise<OASOperation[]> => {

@@ -8,7 +8,7 @@ export enum OASSecurityType {
   OPEN_ID_CONNECT = 'openIdConnect',
 }
 
-enum In {
+export enum OASIn {
   QUERY = 'query',
   HEADER = 'header',
   COOKIE = 'cookie',
@@ -23,14 +23,14 @@ export class OASSecurityScheme {
 
   private _name: string | undefined;
 
-  private _in: In | undefined;
+  private _in: OASIn | undefined;
 
   constructor(key: string, securityScheme: SecuritySchemeItemObject) {
     this._key = key;
     this._type = securityScheme.type as OASSecurityType;
     this._description = securityScheme.description;
     this._name = securityScheme.name;
-    this._in = securityScheme?.in as In;
+    this._in = securityScheme?.in as OASIn;
   }
 
   get key(): string {
@@ -49,7 +49,7 @@ export class OASSecurityScheme {
     return this._name;
   }
 
-  get in(): In | undefined {
+  get in(): OASIn | undefined {
     return this._in;
   }
 }

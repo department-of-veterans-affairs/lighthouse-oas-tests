@@ -17,7 +17,6 @@ import {
   OASSecurityType,
 } from '../utilities/oas-security/oas-security-scheme';
 import MissingAPIKey from '../security-failures/missing-apikey';
-import { OASSecurityFactory } from '../utilities/oas-security';
 
 export default class Positive extends ApiCommand {
   static description =
