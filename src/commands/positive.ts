@@ -1,7 +1,9 @@
-import { flags } from '@oclif/command';
+import yaml from 'js-yaml';
 import loadJsonFile from 'load-json-file';
+import parseUrl from 'parse-url';
+import { extname, resolve } from 'path';
+import { readFileSync } from 'fs';
 import { ApiKeyCommand } from '../baseCommands';
-import { DEFAULT_PARAMETER_GROUP } from '../utilities/constants';
 import OASSchema from '../utilities/oas-schema';
 import { InvalidResponse } from '../validation-messages/failures';
 import { ParameterValidator, ResponseValidator } from '../utilities/validators';
@@ -16,13 +18,7 @@ export default class Positive extends ApiKeyCommand {
   static description =
     'Runs positive smoke tests for Lighthouse APIs based on OpenAPI specs';
 
-  static flags = {
-    ...ApiKeyCommand.flags,
-    file: flags.boolean({
-      char: 'f',
-      description: 'Provide this flag if the path is to a local file',
-    }),
-  };
+  static flags = ApiKeyCommand.flags;
 
   static args = [
     {
@@ -41,17 +37,35 @@ export default class Positive extends ApiKeyCommand {
   private operationWarnings: OperationWarnings = {};
 
   async run(): Promise<void> {
-    const { args, flags } = this.parse(Positive);
+    const { args } = this.parse(Positive);
     const oasSchemaOptions: ConstructorParameters<typeof OASSchema>[0] = {
       authorizations: { apikey: { value: this.apiKey } },
     };
 
-    if (flags.file) {
-      try {
-        const json = await loadJsonFile(args.path);
-        oasSchemaOptions.spec = json;
-      } catch (error) {
-        this.error('unable to load json file');
+    const path = parseUrl(args.path);
+
+    if (path.protocol === 'file') {
+      const extension = extname(args.path);
+
+      if (extension === '.json') {
+        try {
+          const spec = await loadJsonFile(args.path);
+          oasSchemaOptions.spec = spec;
+        } catch (error) {
+          this.error('unable to load json file');
+        }
+      } else if (extension === '.yml' || extension === '.yaml') {
+        try {
+          const file = readFileSync(resolve(args.path));
+          const spec = yaml.load(file);
+          oasSchemaOptions.spec = spec;
+        } catch (error) {
+          this.error('unable to load yaml file');
+        }
+      } else {
+        this.error(
+          'File is of a type not supported by OAS (.json, .yml, .yaml)',
+        );
       }
     } else {
       oasSchemaOptions.url = args.path;

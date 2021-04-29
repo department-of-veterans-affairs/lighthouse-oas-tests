@@ -77,36 +77,62 @@ describe('Positive', () => {
     });
   });
 
-  describe('The file flag is passed', () => {
+  describe('The path is to a file', () => {
     beforeEach(() => {
       process.env.API_KEY = 'testApiKey';
     });
-    const baseCommand = ['-f'];
 
-    describe('Json is not loaded from the file', () => {
-      describe('Provided file does not exist', () => {
-        it('throws an error', async () => {
-          await expect(async () => {
-            await Positive.run([...baseCommand, 'fileDoesNotExist.json']);
-          }).rejects.toThrow('unable to load json file');
-        });
+    describe('Provided file does not exist', () => {
+      it('throws an error with json in it', async () => {
+        await expect(async () => {
+          await Positive.run(['fileDoesNotExist.json']);
+        }).rejects.toThrow('unable to load json file');
       });
 
-      describe('Non-json file', () => {
-        it('throws an error', async () => {
-          await expect(async () => {
-            await Positive.run([...baseCommand, './fixtures/file.xml']);
-          }).rejects.toThrow('unable to load json file');
-        });
+      it('throws an error with yaml in it', async () => {
+        await expect(async () => {
+          await Positive.run(['fileDoesNotExist.yaml']);
+        }).rejects.toThrow('unable to load yaml file');
       });
+    });
 
-      describe('Invalid json', () => {
-        it('throws an error', async () => {
-          await expect(async () => {
-            await Positive.run([...baseCommand, './fixtures/invalid.json']);
-          }).rejects.toThrow('unable to load json file');
-        });
+    it('throws an error file is a json file with invalid json', async () => {
+      await expect(async () => {
+        await Positive.run(['./test/fixtures/invalid.json']);
+      }).rejects.toThrow('unable to load json file');
+    });
+
+    it('loads the spec successfully when it is a yaml file', async () => {
+      const operation = new OASOperation({
+        operationId: 'getHobbit',
+        responses: defaultResponses,
+        parameters: [
+          {
+            name: 'name',
+            in: 'query',
+            schema: {
+              type: 'string',
+            },
+            example: 'Frodo',
+          },
+        ],
       });
+      mockGetOperations.mockResolvedValue([operation]);
+
+      mockExecute.mockResolvedValueOnce({
+        url: 'https://www.lotr.com/walkIntoMorder',
+        status: 200,
+        ok: true,
+        body: {
+          data: ['frodo'],
+        },
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
+      await Positive.run(['./test/fixtures/forms_oas.yaml']);
+
+      expect(result).toEqual(['getHobbit - default: Succeeded\n']);
     });
 
     it('outputs a failure for an operation if parameter validation fails', async () => {
@@ -557,6 +583,16 @@ describe('Positive', () => {
         'getHobbit - default: Succeeded\n',
         '  - Warning: This array was found to be empty and therefore could not be validated. Path: body -> data\n',
       ]);
+    });
+  });
+
+  describe('Non-json file', () => {
+    it('throws an error', async () => {
+      await expect(async () => {
+        await Positive.run(['./test/fixtures/file.xml']);
+      }).rejects.toThrow(
+        'File is of a type not supported by OAS (.json, .yml, .yaml)',
+      );
     });
   });
 });
