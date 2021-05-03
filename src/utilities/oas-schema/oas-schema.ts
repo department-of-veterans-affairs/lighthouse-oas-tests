@@ -12,8 +12,6 @@ import {
 class OASSchema {
   private _client: Promise<Swagger>;
 
-  private _swaggerOptions: Parameters<typeof swaggerClient>[0];
-
   private operations: OASOperation[];
 
   private topSecurities: OASSecurity[];
@@ -22,7 +20,6 @@ class OASSchema {
 
   constructor(options: Parameters<typeof swaggerClient>[0]) {
     this._client = swaggerClient(options);
-    this._swaggerOptions = options;
     this.operations = [];
     this.topSecurities = [];
     this.securitySchemes = [];
@@ -41,10 +38,17 @@ class OASSchema {
     exampleGroup: ExampleGroup,
     flags?: { apiKey: string | undefined },
   ): Promise<Response> => {
-    const requestInterceptor = await this.getOperationRequestInterceptor(
-      operation,
+    let requestInterceptor = await this.getSecurityRequestInterceptor(
+      operation.security,
       flags,
     );
+    if (!requestInterceptor) {
+      requestInterceptor = await this.getSecurityRequestInterceptor(
+        await this.getTopSecurities(),
+        flags,
+      );
+    }
+
     const schema = await this._client;
     const response = schema
       .execute({
@@ -58,29 +62,17 @@ class OASSchema {
     return response;
   };
 
-  resetClient = (): void => {
-    this._client = swaggerClient(this._swaggerOptions);
-  };
-
-  setAPISecurity = (apikey: string): void => {
-    this._swaggerOptions = {
-      authorizations: { apikey: { value: apikey } },
-      ...this._swaggerOptions,
-    };
-    this._client = swaggerClient(this._swaggerOptions);
-  };
-
-  getOperationRequestInterceptor = async (
-    operation: OASOperation,
+  getSecurityRequestInterceptor = async (
+    securities: OASSecurity[],
     flags?: { apiKey: string | undefined },
   ): Promise<((request: Request) => Request) | undefined> => {
-    if (!operation.security || operation.security.length === 0) {
+    if (!securities || securities.length === 0) {
       return;
     }
 
     const securitySchemes = await this.getSecuritySchemes();
     const securityScheme = securitySchemes.find(
-      (securityScheme) => securityScheme.key === operation.security[0].key,
+      (securityScheme) => securityScheme.key === securities[0].key,
     );
     if (
       securityScheme &&

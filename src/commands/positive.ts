@@ -1,8 +1,6 @@
-import { flags } from '@oclif/command';
+import Command, { flags } from '@oclif/command';
 import { cli } from 'cli-ux';
 import loadJsonFile from 'load-json-file';
-import { ApiCommand } from '../baseCommands';
-import { DEFAULT_PARAMETER_GROUP } from '../utilities/constants';
 import OASSchema from '../utilities/oas-schema';
 import { InvalidResponse } from '../validation-messages/failures';
 import { ParameterValidator, ResponseValidator } from '../utilities/validators';
@@ -10,21 +8,21 @@ import {
   OperationExample,
   OperationFailures,
   OperationResponse,
-  SecurityFailures,
   OperationWarnings,
 } from './types';
-import {
-  OASSecurityScheme,
-  OASSecurityType,
-} from '../utilities/oas-security/oas-security-scheme';
-import MissingAPIKey from '../security-failures/missing-apikey';
+import { OASSecurityType } from '../utilities/oas-security/oas-security-scheme';
 
-export default class Positive extends ApiCommand {
+export default class Positive extends Command {
   static description =
     'Runs positive smoke tests for Lighthouse APIs based on OpenAPI specs';
 
   static flags = {
-    ...ApiCommand.flags,
+    help: flags.help({ char: 'h' }),
+    apiKey: flags.string({
+      char: 'a',
+      env: 'API_KEY',
+      description: 'API key to use',
+    }),
     file: flags.boolean({
       char: 'f',
       description: 'Provide this flag if the path is to a local file',
@@ -45,8 +43,6 @@ export default class Positive extends ApiCommand {
 
   private operationFailures: OperationFailures = {};
 
-  private securityFailures: SecurityFailures = {};
-
   private operationWarnings: OperationWarnings = {};
 
   async run(): Promise<void> {
@@ -66,7 +62,7 @@ export default class Positive extends ApiCommand {
 
     this.schema = new OASSchema(oasSchemaOptions);
 
-    await this.setTopSecurity(flags);
+    await this.promptForAPISecurity(flags);
 
     await this.buildOperationExamples();
 
@@ -101,42 +97,21 @@ export default class Positive extends ApiCommand {
     }
   };
 
-  setTopSecurity = async (flags: {
+  promptForAPISecurity = async (flags: {
     apiKey: string | undefined;
   }): Promise<void> => {
     const securitySchemes = await this.schema.getSecuritySchemes();
-    const topSecurities = await this.schema.getTopSecurities();
     const securityTypes = {};
     for (const scheme of securitySchemes) {
-      securityTypes[OASSecurityType.APIKEY] =
-        this.getAPISecurityKey(scheme, flags) ??
-        securityTypes[OASSecurityType.APIKEY];
+      if (scheme.securityType === OASSecurityType.APIKEY && scheme.name) {
+        securityTypes[OASSecurityType.APIKEY] = scheme.name;
+      }
     }
-    if (this.securityFailures[OASSecurityType.APIKEY]) {
+    if (securityTypes[OASSecurityType.APIKEY] && !flags.apiKey) {
       flags.apiKey = (await cli.prompt('What is your apiKey?', {
         type: 'mask',
       })) as string;
-      delete this.securityFailures[OASSecurityType.APIKEY];
     }
-    if (
-      securityTypes[OASSecurityType.APIKEY] &&
-      topSecurities[securityTypes[OASSecurityType.APIKEY]]
-    ) {
-      this.schema.setAPISecurity(flags.apiKey as string);
-    }
-  };
-
-  getAPISecurityKey = (
-    scheme: OASSecurityScheme,
-    flags: { apiKey: string | undefined },
-  ): string | undefined => {
-    if (scheme.securityType !== OASSecurityType.APIKEY) {
-      return;
-    }
-    if (!flags.apiKey) {
-      this.securityFailures[OASSecurityType.APIKEY] = [new MissingAPIKey()];
-    }
-    return scheme.name;
   };
 
   validateParameters = (): void => {

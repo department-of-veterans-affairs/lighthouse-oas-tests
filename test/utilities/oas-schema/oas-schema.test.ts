@@ -116,17 +116,6 @@ describe('OASSchema', () => {
     });
   });
 
-  describe('setAPISecurity', () => {
-    it('sets the authorizations on the swagger client', async () => {
-      const filePath = 'test/fixtures/facilities_oas.json';
-      const schema = await generateSchema(filePath);
-      schema.setAPISecurity('mellon');
-      const client = await schema.client;
-      // eslint-disable-next-line no, @typescript-eslint/no-explicit-any
-      expect((client as any).authorizations.apikey.value).toBe('mellon');
-    });
-  });
-
   describe('getTopSecurities', () => {
     it('gets the top securities on the spec', async () => {
       const filePath = 'test/fixtures/top_level_security.json';

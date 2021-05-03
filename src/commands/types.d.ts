@@ -1,5 +1,4 @@
 import { Response } from 'swagger-client';
-import SecurityFailure from '../security-failures/security-failure';
 import ExampleGroup from '../utilities/example-group';
 import OASOperation from '../utilities/oas-operation';
 import { ValidationFailure } from '../validation-messages/failures';
@@ -11,10 +10,6 @@ export interface OperationResponse {
 
 export interface OperationFailures {
   [operationExampleId: string]: ValidationFailure[];
-}
-
-export interface SecurityFailures {
-  [securityFailureId: string]: SecurityFailure[];
 }
 
 export interface OperationWarnings {
