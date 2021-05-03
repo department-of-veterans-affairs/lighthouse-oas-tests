@@ -1,7 +1,6 @@
 import { flags } from '@oclif/command';
 import loadJsonFile from 'load-json-file';
 import { ApiKeyCommand } from '../baseCommands';
-import { DEFAULT_PARAMETER_GROUP } from '../utilities/constants';
 import OASSchema from '../utilities/oas-schema';
 import { InvalidResponse } from '../validation-messages/failures';
 import { ParameterValidator, ResponseValidator } from '../utilities/validators';
