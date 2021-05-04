@@ -586,7 +586,7 @@ describe('Positive', () => {
     });
   });
 
-  describe('Non-json file', () => {
+  describe('Unsupported file type', () => {
     it('throws an error', async () => {
       await expect(async () => {
         await Positive.run(['./test/fixtures/file.xml']);
