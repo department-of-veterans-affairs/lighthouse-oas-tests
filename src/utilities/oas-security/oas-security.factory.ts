@@ -14,14 +14,18 @@ class OASSecurityFactory {
   }
 
   public static getSecurities(
-    securityRequirement: SecurityRequirementObject | undefined,
+    securityRequirements: SecurityRequirementObject[] | undefined,
   ): OASSecurity[] {
-    if (!securityRequirement) {
+    if (!securityRequirements) {
       return [];
     }
 
-    return Object.keys(securityRequirement).map(
-      (key) => new OASSecurity(key, securityRequirement[key]),
+    return securityRequirements.map(
+      (securityRequirement) =>
+        new OASSecurity(
+          Object.keys(securityRequirement)[0],
+          securityRequirement.scopes,
+        ),
     );
   }
 }

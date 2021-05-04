@@ -1,17 +1,17 @@
 {
-    "openapi": "3.0.1",
+    "openapi": "3.0.0",
     "info": {
-        "title": "VA Facilities",
-        "description": "## Background\n\nThis RESTful API provides information about physical VA facilities. Information available includes\ngeographic location, address, phone, hours of operation, and available services.\n\nVA operates several different types of facilities, the types represented in this API include:\n- Health Facilities (vha)\n- Benefits Facilities (vba)\n- Cemeteries (nca)\n- Vet Centers (vc)\n\nTo read an FAQ on how wait times are calculated, click the \"For more information\" link on [this page](https://www.accesstocare.va.gov/PWT/SearchWaitTimes).\n\n## Getting Started\n\n### Base URLs\n\nThe base URLs for the VA Facilities API in the various environments are:\n- Sandbox: `https://sandbox-api.va.gov/services/va_facilities/v0`\n- Production: `https://api.va.gov/services/va_facilities/v0`\n\n### Authorization\n\nAPI requests are authorized through a symmetric API token, provided in an HTTP header with name `apikey`.\n\n### Response Formats\n\nClients may request several response formats by setting the `Accept` header.\n- `application/json` - The default JSON response format complies with JSON API. This media type is *not* available for bulk requests using the `/facilities/all` endpoint. It will return `406 Not Acceptable`.\n- `application/geo+json` - GeoJSON-compliant format, representing each facility as a feature with a point geometry.\n- `application/vnd.geo+json` - Deprecated. Prefer application/geo+json.\n- `text/csv` - Available for the bulk download operation only. Some structured fields are omitted from the CSV response.\n\n### Response Elements\n\nSome data elements within the response are only present for facilities of a given type:\n- The patient satisfaction scores contained in the `satisfaction` element are only applicable\n  to VA health facilities.\n- The patient wait time values contained in the `wait_times` element are only applicable to\n  VA health facilities.\n- The list of available services in the `services` element is only applicable to VA health and\n  benefits facilities.\n\n### Facility ID Formats and Constraints\n\nA facility ID has the format `prefix_stationNumber`. The prefix is one of nca, vc, vba, or vha. Cemeteries may be national (VA) or non-national; non-national cemeteries have the station number prefixed with an `s`. There are no other constraints on the format. Examples:\n- Health: `vha_402GA`\n- Benefits: `vba_539GB`\n- National cemetery: `nca_063`\n- Non-national cemetery: `nca_s1082`\n- Vet center: `vc_0872MVC`\n\n\n### Mobile Facilities\n\nThe mobile health facilities move regularly within a region. If a facility comes back from this API with `\"mobile\": \"true\"`, the latitude/longitude and address could be inaccurate. To get the exact current location, please call the number listed.\n\n## Deprecations\n\n- `active_status` field is deprecated and replaced with `operating_status`.\n- `application/vnd.geo+json` media type is deprecated and replaced by `application/geo+json`\n\n\n## Reference\n\n- [Raw VA Facilities Open API Spec](https://api.va.gov/services/va_facilities/docs/v0/api)\n- [GeoJSON Format](https://tools.ietf.org/html/rfc7946)\n- [JSON API Format](https://jsonapi.org/format/)",
+        "version": "0.0.0",
+        "title": "VA Forms",
+        "description": "The VA Forms API indexes data sourced from VA.gov, creating unique hashes for each version of a form and allowing quick lookup.\n\nVisit our VA Lighthouse [support portal](https://developer.va.gov/support) for further assistance.\n\n## Technical Summary\nMake a GET call to `/forms` to see an index of all available VA forms. Optionally, pass a `?query` parameter to filter forms by form number or title.\n\nMake a GET call with a specific `form_name` to `/forms/{form_name}` to see data for a given form, including version history.\n",
         "contact": {
-            "name": "developer.va.gov"
-        },
-        "version": "0.0.1"
+            "name": "va.gov"
+        }
     },
     "servers": [
         {
-            "url": "https://sandbox-api.va.gov/services/va_facilities/{version}",
-            "description": "Sandbox",
+            "url": "https://sandbox-api.va.gov/services/va_forms/{version}",
+            "description": "VA.gov API sandbox environment",
             "variables": {
                 "version": {
                     "default": "v0"
@@ -19,8 +19,8 @@
             }
         },
         {
-            "url": "https://api.va.gov/services/va_facilities/{version}",
-            "description": "Production",
+            "url": "https://api.va.gov/services/va_forms/{version}",
+            "description": "VA.gov API production environment",
             "variables": {
                 "version": {
                     "default": "v0"
@@ -28,1501 +28,380 @@
             }
         }
     ],
-    "tags": [
-        {
-            "name": "facilities",
-            "description": "VA Facilities API"
-        }
+    "basePath": "/services/va_forms/v0",
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
     ],
     "paths": {
-        "/facilities/all": {
+        "/forms": {
             "get": {
-                "tags": [
-                    "facilities"
+                "summary": "All VA Forms",
+                "description": "Returns all VA Forms and their last revision date",
+                "operationId": "findForms",
+                "produces": [
+                    "application/json"
                 ],
-                "summary": "Bulk download information for all facilities",
-                "description": "Retrieve all available facilities in a single operation, formatted as either a GeoJSON FeatureCollection or as a CSV. Due to the complexity of the facility resource type, the CSV response contains a subset of available facility data - specifically it omits the available services, patient satisfaction, and patient wait time data.",
-                "operationId": "getAllFacilities",
+                "tags": [
+                    "Forms"
+                ],
                 "parameters": [
                     {
-                        "name": "Accept",
-                        "in": "header",
-                        "required": true,
+                        "name": "query",
+                        "in": "query",
+                        "description": "Query the form number as well as title",
+                        "required": false,
                         "schema": {
-                            "type": "string",
-                            "enum": [
-                                "application/geo+json",
-                                "application/vnd.geo+json",
-                                "text/csv"
-                            ]
-                        },
-                        "example": "application/geo+json"
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "VaForms index response",
                         "content": {
-                            "application/geo+json": {
+                            "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/GeoFacilitiesResponse"
-                                }
-                            },
-                            "application/vnd.geo+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GeoFacilitiesResponse"
-                                }
-                            },
-                            "text/csv": {
-                                "schema": {
-                                    "type": "string",
-                                    "example": "id,name,station_id,latitude,longitude,facility_type,classification,website,physical_address_1,physical_address_2,physical_address_3,physical_city,physical_state,physical_zip,mailing_address_1,mailing_address_2,mailing_address_3,mailing_city,mailing_state,mailing_zip,phone_main,phone_fax,phone_mental_health_clinic,phone_pharmacy,phone_after_hours,phone_patient_advocate,phone_enrollment_coordinator,hours_monday,hours_tuesay,hours_wednesday,hours_thursday,hours_friday,hours_saturday,hours_sunday,mobile,active_status,visn\nvc_0101V,Boston Vet Center,0101V,42.3445959000001,-71.0361051099999,vet_center,,,7 Drydock Avenue,Suite 2070,,Boston,MA,2210,,,,,,,857-203-6461 x,,,,,,,800AM-700PM,800AM-800PM,800AM-700PM,800AM-800PM,800AM-600PM,-,-,,,\nvba_362b,Houston Regional Benefit Office at Frank Tejeda Outpatient Clinic,362b,29.51690196,-98.59601936,va_benefits_facility,Outbased,NULL,5788 Eckhert Road,,,San Antonio,TX,78240,,,,,,,210-699-5040,210-699-5079,,,,,,,,,,,,,,,\nvha_459GH,Saipan VA Clinic,459GH,15.216794,145.729385,va_health_facility,Other Outpatient Services (OOS),,Marina Heights Business Park - Garapan,Medical Associates of the Pacific,MH-II Building Suite 100 and 206,Saipan,MP,96950-9998,,,,,,,670-322-0035 x,670-322-0038 x,\"\",800-465-8387 x,800-214-1306 x,670-322-0035 x,808-433-7600 x,,,,,,,,false,A,21"
+                                    "type": "object",
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/FormsIndex"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "Missing API token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GenericError"
-                                }
-                            }
-                        }
+                        "description": "Unauthorized Request"
                     },
                     "403": {
-                        "description": "Invalid API token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GenericError"
-                                }
-                            }
-                        }
-                    },
-                    "406": {
-                        "description": "Requested format unacceptable",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
+                        "description": "Bad API Token"
                     }
-                },
-                "security": [
-                    {
-                        "apikey": []
-                    }
-                ]
+                }
             }
         },
-        "/facilities/{id}": {
+        "/forms/{form_name}": {
             "get": {
+                "summary": "Find form by form name",
+                "description": "Returns a single form ",
+                "operationId": "findFormByFormName",
                 "tags": [
-                    "facilities"
+                    "Forms"
                 ],
-                "summary": "Retrieve a specific facility by ID",
-                "operationId": "getFacilityById",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "form_name",
                         "in": "path",
-                        "description": "Facility ID, in the form `<prefix>_<station>`, where prefix is one of \"vha\", \"vba\", \"nca\", or \"vc\", for health facility, benefits, cemetery, or vet center, respectively.",
+                        "description": "The VA form_name of the form being requested",
                         "required": true,
                         "schema": {
                             "type": "string"
                         },
-                        "example": "vha_688"
+                        "example": "VA10192"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "VaForm response",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/FacilityReadResponse"
-                                }
-                            },
-                            "application/geo+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GeoFacilityReadResponse"
-                                }
-                            },
-                            "application/vnd.geo+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GeoFacilityReadResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request - invalid or missing query parameters",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
+                                    "type": "object",
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/FormShow"
+                                        }
+                                    }
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "Missing API token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GenericError"
-                                }
-                            }
-                        }
+                        "description": "Unauthorized Request"
                     },
                     "403": {
-                        "description": "Invalid API token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GenericError"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Facility not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    },
-                    "406": {
-                        "description": "Requested format unacceptable",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
+                        "description": "Bad API Token"
                     }
-                },
-                "security": [
-                    {
-                        "apikey": []
-                    }
-                ]
-            }
-        },
-        "/facilities": {
-            "get": {
-                "tags": [
-                    "facilities"
-                ],
-                "summary": "Query facilities by location or IDs, with optional filters",
-                "description": "Query facilities by bounding box, latitude and longitude, state, or zip code. Bounding box is specified as four `bbox[]` parameters, long1, lat1, long2, lat2. (Relative order is unimportant.)\n\nA query by latitude and longitude returns all facilities in the system, sorted by distance from that location.\n\nAll location queries support filtering by facility type and available services.\n\nOne can also retrieve facilities by ID using a comma-separated list like `?ids=id1,id2`. When requesting multiple facilities by ID, the API will return as many results as it can find matches for, omitting IDs where there is no match. It will not return an HTTP error code if it is unable to match a requested ID. Clients may supply IDs up to the limit their HTTP client enforces for URI path lengths. (Usually 2048 characters.)\n\nResults are paginated. JSON responses include pagination information in the standard JSON API \"links\" and \"meta\" elements. \n\n### Parameter combinations\nYou may optionally specify `page` and `per_page` with any query. You must specify one of the following parameter combinations: \n\n- `bbox[]`, with the option of any combination of `type` or `services[]`\n\n- `ids`\n\n- `lat` and `long`, with the option of any combination of `ids`, `type`, or `services[]`\n\n- `state`, with the option of any combination of `type` or `services[]`\n\n- `zip`, with the option of any combination of `type` or `services[]`\n\n Invalid combinations will return `400 Bad Request`.",
-                "operationId": "getFacilitiesByLocation",
-                "parameters": [
-                    {
-                        "name": "ids",
-                        "in": "query",
-                        "description": "List of comma-separated facility IDs to retrieve in a single request. Can be combined with lat and long parameters to retrieve facilities sorted by distance from a location.",
-                        "style": "form",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "examples": {
-                            "ids": {
-                                "value": "vha_688,vha_644"
-                            }
-                        }
-                    },
-                    {
-                        "name": "zip",
-                        "in": "query",
-                        "description": "Zip code to search for facilities. More detailed zip codes can be passed in, but only the first five digits are used to determine facilities to return.",
-                        "schema": {
-                            "type": "string",
-                            "format": "##### or #####-####"
-                        },
-                        "examples": {
-                            "zip": {
-                                "value": "80301"
-                            }
-                        }
-                    },
-                    {
-                        "name": "state",
-                        "in": "query",
-                        "description": "State to search for Facilities. Except in rare cases, this is two characters.",
-                        "schema": {
-                            "type": "string",
-                            "format": "XX"
-                        },
-                        "examples": {
-                            "state": {
-                                "value": "CO"
-                            }
-                        }
-                    },
-                    {
-                        "name": "lat",
-                        "in": "query",
-                        "description": "Latitude of point to search for facilities, in WGS84 coordinate reference system.",
-                        "schema": {
-                            "type": "number",
-                            "format": "float"
-                        },
-                        "examples": {
-                            "coordinates": {
-                                "value": 40.0
-                            }
-                        }
-                    },
-                    {
-                        "name": "long",
-                        "in": "query",
-                        "description": "Longitude of point to search for facilities, in WGS84 coordinate reference system.",
-                        "style": "form",
-                        "schema": {
-                            "type": "number",
-                            "format": "float"
-                        },
-                        "examples": {
-                            "coordinates": {
-                                "value": -105.0
-                            }
-                        }
-                    },
-                    {
-                        "name": "bbox[]",
-                        "in": "query",
-                        "description": "Bounding box (longitude, latitude, longitude, latitude) within which facilities will be returned. (WGS84 coordinate reference system)",
-                        "style": "form",
-                        "schema": {
-                            "maxItems": 4,
-                            "minItems": 4,
-                            "type": "array",
-                            "items": {
-                                "type": "number",
-                                "format": "float"
-                            }
-                        },
-                        "examples": {
-                            "bbox": {
-                                "value": "-105.4, 39.4, -104.5, 40.1"
-                            }
-                        }
-                    },
-                    {
-                        "name": "type",
-                        "in": "query",
-                        "description": "Optional facility type search filter",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "health",
-                                "cemetery",
-                                "benefits",
-                                "vet_center"
-                            ]
-                        }
-                    },
-                    {
-                        "name": "services[]",
-                        "in": "query",
-                        "description": "Optional facility service search filter",
-                        "style": "form",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "description": "Page of results to return per paginated response.",
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64",
-                            "default": 1
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Number of results to return per paginated response.",
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64",
-                            "default": 10
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/FacilitiesResponse"
-                                }
-                            },
-                            "application/geo+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GeoFacilitiesResponse"
-                                }
-                            },
-                            "application/vnd.geo+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GeoFacilitiesResponse"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Missing API token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GenericError"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Invalid API token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GenericError"
-                                }
-                            }
-                        }
-                    },
-                    "406": {
-                        "description": "Requested format unacceptable",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apikey": []
-                    }
-                ]
-            }
-        },
-        "/ids": {
-            "get": {
-                "tags": [
-                    "facilities"
-                ],
-                "summary": "Bulk download of all facility IDs",
-                "description": "Retrieves all available facility IDs only",
-                "operationId": "getFacilityIds",
-                "parameters": [
-                    {
-                        "name": "type",
-                        "in": "query",
-                        "description": "Optional facility type search filter",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "health",
-                                "cemetery",
-                                "benefits",
-                                "vet_center"
-                            ]
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/FacilitiesIdsResponse"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Missing API token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GenericError"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Invalid API token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GenericError"
-                                }
-                            }
-                        }
-                    },
-                    "406": {
-                        "description": "Requested format unacceptable",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apikey": []
-                    }
-                ]
-            }
-        },
-        "/nearby": {
-            "get": {
-                "tags": [
-                    "facilities"
-                ],
-                "summary": "Retrieve all VA health facilities reachable by driving within the specified time period",
-                "description": "Retrieve all VA health facilities that are located within a specified drive time from a specified location based on address (`street_address`, `city`, `state`, and `zip`) or coordinates (`lat` and `lng`). Optional filter parameters include `drive_time` and `services[]`. \n\nResults of this operation are paginated. Responses include pagination information in the standard JSON API \"links\" and \"meta\" elements. \n\nThe \"attributes\" element has information about the drive-time band that contains the requested location for each facility in the response. The values of `min_time` and `max_time` are in minutes. For example, a facility returned with a matched `min_time` of 10 and `max_time` of 20 is a 10 to 20 minute drive from the requested location.\n\nTo retrieve full details for nearby facilities, see the documentation for `/facilities?ids`.",
-                "operationId": "getNearbyFacilities",
-                "parameters": [
-                    {
-                        "name": "street_address",
-                        "in": "query",
-                        "description": "Street address of the location from which drive time will be calculated.",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "examples": {
-                            "address": {
-                                "value": "1350 I St. NW"
-                            }
-                        }
-                    },
-                    {
-                        "name": "city",
-                        "in": "query",
-                        "description": "City of the location from which drive time will be calculated.",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "examples": {
-                            "address": {
-                                "value": "Washington"
-                            }
-                        }
-                    },
-                    {
-                        "name": "state",
-                        "in": "query",
-                        "description": "Two character state code of the location from which drive time will be calculated.",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "examples": {
-                            "address": {
-                                "value": "DC"
-                            }
-                        }
-                    },
-                    {
-                        "name": "zip",
-                        "in": "query",
-                        "description": "Zip code of the location from which drive time will be calculated.",
-                        "schema": {
-                            "type": "string",
-                            "description": "##### or #####-####"
-                        },
-                        "examples": {
-                            "address": {
-                                "value": "20005"
-                            }
-                        }
-                    },
-                    {
-                        "name": "lat",
-                        "in": "query",
-                        "description": "Latitude of the location from which drive time will be calculated.",
-                        "schema": {
-                            "type": "number",
-                            "format": "float"
-                        },
-                        "examples": {
-                            "coordinates": {
-                                "value": 123.4
-                            }
-                        }
-                    },
-                    {
-                        "name": "lng",
-                        "in": "query",
-                        "description": "Longitude of the location from which drive time will be calculated.",
-                        "style": "form",
-                        "schema": {
-                            "type": "number",
-                            "format": "float"
-                        },
-                        "examples": {
-                            "coordinates": {
-                                "value": 456.7
-                            }
-                        }
-                    },
-                    {
-                        "name": "drive_time",
-                        "in": "query",
-                        "description": "Filter to only include facilities that are within the specified number of drive time minutes from the requested location.",
-                        "schema": {
-                            "type": "integer",
-                            "format": "int32",
-                            "default": 90,
-                            "enum": [
-                                10,
-                                20,
-                                30,
-                                40,
-                                50,
-                                60,
-                                70,
-                                80,
-                                90
-                            ]
-                        }
-                    },
-                    {
-                        "name": "services[]",
-                        "in": "query",
-                        "description": "Optional facility service search filter",
-                        "style": "form",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "description": "Page of results to return per paginated response.",
-                        "schema": {
-                            "type": "integer",
-                            "format": "int32",
-                            "default": 1
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Number of results to return per paginated response.",
-                        "schema": {
-                            "type": "integer",
-                            "format": "int32",
-                            "default": 20
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/NearbyResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Missing Required Or Ambiguous Parameters",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GenericError"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Missing API token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GenericError"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Invalid API token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GenericError"
-                                }
-                            }
-                        }
-                    },
-                    "406": {
-                        "description": "Requested format unacceptable",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apikey": []
-                    }
-                ]
+                }
             }
         }
     },
     "components": {
         "schemas": {
-            "Address": {
-                "type": "object",
-                "properties": {
-                    "zip": {
-                        "type": "string",
-                        "example": "20422-0001"
-                    },
-                    "city": {
-                        "type": "string",
-                        "example": "Washington"
-                    },
-                    "state": {
-                        "type": "string",
-                        "example": "DC"
-                    },
-                    "address_1": {
-                        "type": "string",
-                        "example": "50 Irving Street, Northwest"
-                    },
-                    "address_2": {
-                        "type": "string"
-                    },
-                    "address_3": {
-                        "type": "string"
-                    }
-                }
-            },
-            "Addresses": {
-                "type": "object",
-                "properties": {
-                    "mailing": {
-                        "$ref": "#/components/schemas/Address"
-                    },
-                    "physical": {
-                        "$ref": "#/components/schemas/Address"
-                    }
-                }
-            },
-            "GeoFacilitiesResponse": {
-                "required": [
-                    "type"
-                ],
-                "type": "object",
-                "properties": {
-                    "type": {
-                        "type": "string",
-                        "enum": [
-                            "FeatureCollection"
-                        ]
-                    },
-                    "features": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/GeoFacility"
-                        }
-                    }
-                }
-            },
-            "GeoFacility": {
-                "required": [
-                    "geometry",
-                    "properties",
-                    "type"
-                ],
-                "type": "object",
-                "properties": {
-                    "type": {
-                        "type": "string",
-                        "example": "Feature",
-                        "enum": [
-                            "Feature"
-                        ]
-                    },
-                    "geometry": {
-                        "$ref": "#/components/schemas/Geometry"
-                    },
-                    "properties": {
-                        "$ref": "#/components/schemas/Properties"
-                    }
-                },
-                "description": "GeoJSON-complaint Feature object describing a VA Facility"
-            },
-            "Geometry": {
-                "required": [
-                    "type"
-                ],
-                "type": "object",
-                "properties": {
-                    "type": {
-                        "type": "string",
-                        "example": "Point",
-                        "enum": [
-                            "Point"
-                        ]
-                    },
-                    "coordinates": {
-                        "maxItems": 2,
-                        "minItems": 2,
-                        "type": "array",
-                        "example": [
-                            -77.0367761,
-                            38.9004181
-                        ],
-                        "items": {
-                            "type": "number"
-                        }
-                    }
-                }
-            },
-            "Hours": {
-                "type": "object",
-                "properties": {
-                    "monday": {
-                        "type": "string",
-                        "example": "9AM-5PM"
-                    },
-                    "tuesday": {
-                        "type": "string",
-                        "example": "9AM-5PM"
-                    },
-                    "wednesday": {
-                        "type": "string",
-                        "example": "9AM-5PM"
-                    },
-                    "thursday": {
-                        "type": "string",
-                        "example": "9AM-5PM"
-                    },
-                    "friday": {
-                        "type": "string",
-                        "example": "9AM-5PM"
-                    },
-                    "saturday": {
-                        "type": "string",
-                        "example": "Closed"
-                    },
-                    "sunday": {
-                        "type": "string",
-                        "example": "Closed"
-                    }
-                },
-                "description": "Standard hours of operation. Currently formatted as descriptive text suitable for display, with no guarantee of a standard parseable format. Hours of operation may vary due to holidays or other events."
-            },
-            "OperatingStatus": {
-                "required": [
-                    "code"
-                ],
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "string",
-                        "description": "Status codes indicate normal hours/services, limited hours/services, closed operations, or published facility notices for visitors.",
-                        "example": "NORMAL",
-                        "enum": [
-                            "NORMAL",
-                            "NOTICE",
-                            "LIMITED",
-                            "CLOSED"
-                        ]
-                    },
-                    "additional_info": {
-                        "maxLength": 300,
-                        "minLength": 0,
-                        "type": "string",
-                        "description": "Details of facility notices for visitors, such as messages about parking lot closures or floor visitation information."
-                    }
-                },
-                "description": "Current status of facility operations.The overall status of the facility which can be Normal Hours and Services, Facility Notice, Limited Hours and/or Services, or Closed. This field replaces active_status."
-            },
-            "PatientSatisfaction": {
-                "type": "object",
-                "properties": {
-                    "primary_care_urgent": {
-                        "type": "number",
-                        "description": "% of Veterans who say they usually or always get an appointment when they need care right away at a primary care location.",
-                        "format": "float",
-                        "example": 0.85
-                    },
-                    "primary_care_routine": {
-                        "type": "number",
-                        "description": "% of Veterans who say they usually or always get an appointment when they need it at a primary care location.",
-                        "format": "float",
-                        "example": 0.85
-                    },
-                    "specialty_care_urgent": {
-                        "type": "number",
-                        "description": "% of Veterans who say they usually or always get an appointment when they need care right away at a specialty location.",
-                        "format": "float",
-                        "example": 0.85
-                    },
-                    "specialty_care_routine": {
-                        "type": "number",
-                        "description": "% of Veterans who say they usually or always get an appointment when they need it at a specialty location.",
-                        "format": "float",
-                        "example": 0.85
-                    }
-                },
-                "description": "Veteran-reported satisfaction scores for health care services"
-            },
-            "PatientWaitTime": {
-                "required": [
-                    "service"
-                ],
-                "type": "object",
-                "properties": {
-                    "service": {
-                        "type": "string",
-                        "enum": [
-                            "Audiology",
-                            "Cardiology",
-                            "DentalServices",
-                            "Dermatology",
-                            "EmergencyCare",
-                            "Gastroenterology",
-                            "Gynecology",
-                            "MentalHealthCare",
-                            "Ophthalmology",
-                            "Optometry",
-                            "Orthopedics",
-                            "Nutrition",
-                            "Podiatry",
-                            "PrimaryCare",
-                            "SpecialtyCare",
-                            "UrgentCare",
-                            "Urology",
-                            "WomensHealth"
-                        ]
-                    },
-                    "new": {
-                        "type": "number",
-                        "description": "Average number of days a Veteran who hasn't been to this location has to wait for a non-urgent appointment.",
-                        "example": 10
-                    },
-                    "established": {
-                        "type": "number",
-                        "description": "Average number of days a patient who has already been to this location has to wait for a non-urgent appointment.",
-                        "example": 5
-                    }
-                },
-                "description": "Expected wait times for new and established patients for a given health care service"
-            },
-            "Phone": {
-                "type": "object",
-                "properties": {
-                    "fax": {
-                        "type": "string",
-                        "example": "202-555-1212"
-                    },
-                    "main": {
-                        "type": "string",
-                        "example": "202-555-1212"
-                    },
-                    "pharmacy": {
-                        "type": "string",
-                        "example": "202-555-1212"
-                    },
-                    "after_hours": {
-                        "type": "string",
-                        "example": "202-555-1212"
-                    },
-                    "patient_advocate": {
-                        "type": "string",
-                        "example": "202-555-1212"
-                    },
-                    "mental_health_clinic": {
-                        "type": "string",
-                        "example": "202-555-1212"
-                    },
-                    "enrollment_coordinator": {
-                        "type": "string",
-                        "example": "202-555-1212"
-                    }
-                }
-            },
-            "Properties": {
-                "required": [
-                    "facility_type",
-                    "id",
-                    "operating_status"
-                ],
-                "type": "object",
+            "FormsIndex": {
+                "description": "A listing of available VA forms and their location.",
                 "properties": {
                     "id": {
+                        "description": "JSON API identifier",
                         "type": "string",
-                        "example": "vha_688"
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "Washington VA Medical Center"
-                    },
-                    "classification": {
-                        "type": "string",
-                        "example": "VA Medical Center (VAMC)"
-                    },
-                    "website": {
-                        "type": "string",
-                        "example": "http://www.washingtondc.va.gov"
-                    },
-                    "address": {
-                        "$ref": "#/components/schemas/Addresses"
-                    },
-                    "phone": {
-                        "$ref": "#/components/schemas/Phone"
-                    },
-                    "hours": {
-                        "$ref": "#/components/schemas/Hours"
-                    },
-                    "services": {
-                        "$ref": "#/components/schemas/Services"
-                    },
-                    "satisfaction": {
-                        "$ref": "#/components/schemas/Satisfaction"
-                    },
-                    "mobile": {
-                        "type": "boolean",
-                        "example": false
-                    },
-                    "visn": {
-                        "type": "string",
-                        "example": "20"
-                    },
-                    "facility_type": {
-                        "type": "string",
-                        "enum": [
-                            "va_benefits_facility",
-                            "va_cemetery",
-                            "va_health_facility",
-                            "vet_center"
-                        ]
-                    },
-                    "wait_times": {
-                        "$ref": "#/components/schemas/WaitTimes"
-                    },
-                    "active_status": {
-                        "type": "string",
-                        "enum": [
-                            "A",
-                            "T"
-                        ]
-                    },
-                    "operating_status": {
-                        "$ref": "#/components/schemas/OperatingStatus"
-                    }
-                }
-            },
-            "Satisfaction": {
-                "type": "object",
-                "properties": {
-                    "health": {
-                        "$ref": "#/components/schemas/PatientSatisfaction"
-                    },
-                    "effective_date": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2018-01-01"
-                    }
-                }
-            },
-            "Services": {
-                "type": "object",
-                "properties": {
-                    "other": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "enum": [
-                                "OnlineScheduling"
-                            ]
-                        }
-                    },
-                    "health": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "enum": [
-                                "Audiology",
-                                "Cardiology",
-                                "DentalServices",
-                                "Dermatology",
-                                "EmergencyCare",
-                                "Gastroenterology",
-                                "Gynecology",
-                                "MentalHealthCare",
-                                "Ophthalmology",
-                                "Optometry",
-                                "Orthopedics",
-                                "Nutrition",
-                                "Podiatry",
-                                "PrimaryCare",
-                                "SpecialtyCare",
-                                "UrgentCare",
-                                "Urology",
-                                "WomensHealth"
-                            ]
-                        }
-                    },
-                    "benefits": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "enum": [
-                                "ApplyingForBenefits",
-                                "BurialClaimAssistance",
-                                "DisabilityClaimAssistance",
-                                "eBenefitsRegistrationAssistance",
-                                "EducationAndCareerCounseling",
-                                "EducationClaimAssistance",
-                                "FamilyMemberClaimAssistance",
-                                "HomelessAssistance",
-                                "InsuranceClaimAssistanceAndFinancialCounseling",
-                                "IntegratedDisabilityEvaluationSystemAssistance",
-                                "Pensions",
-                                "PreDischargeClaimAssistance",
-                                "TransitionAssistance",
-                                "UpdatingDirectDepositInformation",
-                                "VAHomeLoanAssistance",
-                                "VocationalRehabilitationAndEmploymentAssistance"
-                            ]
-                        }
-                    },
-                    "last_updated": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2018-01-01"
-                    }
-                }
-            },
-            "WaitTimes": {
-                "type": "object",
-                "properties": {
-                    "health": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/PatientWaitTime"
-                        }
-                    },
-                    "effective_date": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2018-01-01"
-                    }
-                }
-            },
-            "GenericError": {
-                "required": [
-                    "message"
-                ],
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string",
-                        "example": "Detailed Error Message"
-                    }
-                },
-                "description": "A general error json response for things like Authorization Errors or Bad Requests (ex. invalid parameter values)."
-            },
-            "ApiError": {
-                "required": [
-                    "errors"
-                ],
-                "type": "object",
-                "properties": {
-                    "errors": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ErrorMessage"
-                        }
-                    }
-                },
-                "description": "API invocation or processing error"
-            },
-            "ErrorMessage": {
-                "type": "object",
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "example": "Error title"
-                    },
-                    "detail": {
-                        "type": "string",
-                        "example": "Detailed error message"
-                    },
-                    "code": {
-                        "type": "string",
-                        "example": "103"
-                    },
-                    "status": {
-                        "type": "string",
-                        "example": "400"
-                    }
-                }
-            },
-            "Facility": {
-                "required": [
-                    "attributes",
-                    "id",
-                    "type"
-                ],
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "example": "vha_688"
+                        "example": "VA10192"
                     },
                     "type": {
+                        "description": "JSON API type specification",
                         "type": "string",
-                        "enum": [
-                            "va_facilities"
-                        ]
+                        "example": "va_form"
                     },
                     "attributes": {
-                        "$ref": "#/components/schemas/FacilityAttributes"
-                    }
-                },
-                "description": "JSON API-compliant object describing a VA facility"
-            },
-            "FacilityAttributes": {
-                "required": [
-                    "facility_type",
-                    "lat",
-                    "long",
-                    "name",
-                    "operating_status"
-                ],
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "example": "Washington VA Medical Center"
-                    },
-                    "classification": {
-                        "type": "string",
-                        "example": "VA Medical Center (VAMC)"
-                    },
-                    "website": {
-                        "type": "string",
-                        "example": "http://www.washingtondc.va.gov"
-                    },
-                    "address": {
-                        "$ref": "#/components/schemas/Addresses"
-                    },
-                    "phone": {
-                        "$ref": "#/components/schemas/Phone"
-                    },
-                    "hours": {
-                        "$ref": "#/components/schemas/Hours"
-                    },
-                    "services": {
-                        "$ref": "#/components/schemas/Services"
-                    },
-                    "satisfaction": {
-                        "$ref": "#/components/schemas/Satisfaction"
-                    },
-                    "mobile": {
-                        "type": "boolean",
-                        "example": false
-                    },
-                    "visn": {
-                        "type": "string",
-                        "example": "20"
-                    },
-                    "facility_type": {
-                        "type": "string",
-                        "enum": [
-                            "va_benefits_facility",
-                            "va_cemetery",
-                            "va_health_facility",
-                            "vet_center"
-                        ]
-                    },
-                    "lat": {
-                        "type": "number",
-                        "description": "Facility latitude",
-                        "format": "float",
-                        "example": 38.9311137
-                    },
-                    "long": {
-                        "type": "number",
-                        "description": "Facility longitude",
-                        "format": "float",
-                        "example": -77.0109110499999
-                    },
-                    "wait_times": {
-                        "$ref": "#/components/schemas/WaitTimes"
-                    },
-                    "active_status": {
-                        "type": "string",
-                        "description": "This field is deprecated and replaced with \"operating_status\".",
-                        "enum": [
-                            "A",
-                            "T"
-                        ]
-                    },
-                    "operating_status": {
-                        "$ref": "#/components/schemas/OperatingStatus"
-                    }
-                }
-            },
-            "FacilityReadResponse": {
-                "required": [
-                    "data"
-                ],
-                "type": "object",
-                "properties": {
-                    "data": {
-                        "$ref": "#/components/schemas/Facility"
-                    }
-                }
-            },
-            "GeoFacilityReadResponse": {
-                "required": [
-                    "geometry",
-                    "properties",
-                    "type"
-                ],
-                "type": "object",
-                "properties": {
-                    "type": {
-                        "type": "string",
-                        "enum": [
-                            "Feature"
-                        ]
-                    },
-                    "geometry": {
-                        "$ref": "#/components/schemas/Geometry"
-                    },
-                    "properties": {
-                        "$ref": "#/components/schemas/Properties"
+                        "properties": {
+                            "form_name": {
+                                "description": "Name of the VA Form",
+                                "type": "string",
+                                "example": "VA10192"
+                            },
+                            "url": {
+                                "description": "Web location of the form",
+                                "type": "string",
+                                "example": "https://www.va.gov/vaforms/va/pdf/VA10192.pdf"
+                            },
+                            "title": {
+                                "description": "Title of the form as given by VA",
+                                "type": "string",
+                                "example": "Information for Pre-Complaint Processing"
+                            },
+                            "first_issued_on": {
+                                "description": "The date the form first became available",
+                                "type": "string",
+                                "example": "2012-01-01",
+                                "format": "date",
+                                "nullable": true
+                            },
+                            "last_revision_on": {
+                                "description": "The date the form was last updated",
+                                "type": "string",
+                                "example": "2012-01-01",
+                                "format": "date"
+                            },
+                            "pages": {
+                                "description": "Number of pages contained in the form",
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "valid_pdf": {
+                                "description": "A flag indicating whether the form url was confirmed as a valid download",
+                                "type": "boolean",
+                                "example": true
+                            },
+                            "sha256": {
+                                "description": "A sha256 hash of the form contents",
+                                "type": "string",
+                                "example": "5fe171299ece147e8b456961a38e17f1391026f26e9e170229317bc95d9827b7"
+                            },
+                            "form_usage": {
+                                "description": "A description of how the form is to be used",
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "form_tool_intro": {
+                                "description": "Introductionary text describing the VA online tool for this form",
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "form_tool_url": {
+                                "description": "Location of the online tool for this form",
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "form_details_url": {
+                                "description": "Location on www.va.gov of the info page for this form",
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "form_type": {
+                                "description": "VA Type of the form",
+                                "type": "string",
+                                "example": "VHA",
+                                "nullable": true
+                            },
+                            "language": {
+                                "description": "Language code of the form",
+                                "type": "string",
+                                "example": "en",
+                                "nullable": true
+                            },
+                            "deleted_at": {
+                                "description": "The timestamp at which the form was deleted",
+                                "type": "string",
+                                "example": "2018-07-30T17:31:15.958Z",
+                                "format": "date-time",
+                                "nullable": true
+                            },
+                            "related_forms": {
+                                "description": "A listing of other forms that relate to current form",
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "example": "21-22A"
+                                },
+                                "nullable": true
+                            },
+                            "benefit_categories": {
+                                "description": "Listing of categories and match",
+                                "type": "array",
+                                "items": {
+                                    "properties": {
+                                        "name": {
+                                            "description": "Name of the benefit category of the form",
+                                            "type": "string",
+                                            "example": "Pension"
+                                        },
+                                        "description": {
+                                            "description": "Description of the benefit category of the form",
+                                            "type": "string",
+                                            "example": "VA pension benefits"
+                                        }
+                                    }
+                                },
+                                "nullable": true
+                            }
+                        }
                     }
                 }
             },
-            "Distance": {
-                "required": [
-                    "distance",
-                    "id"
-                ],
-                "type": "object",
+            "FormShow": {
+                "description": "Data for a particular VA form, including form version history.",
                 "properties": {
                     "id": {
-                        "type": "string"
-                    },
-                    "distance": {
-                        "type": "number"
-                    }
-                }
-            },
-            "FacilitiesMetadata": {
-                "required": [
-                    "distances",
-                    "pagination"
-                ],
-                "type": "object",
-                "properties": {
-                    "pagination": {
-                        "$ref": "#/components/schemas/Pagination"
-                    },
-                    "distances": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Distance"
-                        }
-                    }
-                }
-            },
-            "FacilitiesResponse": {
-                "required": [
-                    "links",
-                    "meta"
-                ],
-                "type": "object",
-                "properties": {
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Facility"
-                        }
-                    },
-                    "links": {
-                        "$ref": "#/components/schemas/PageLinks"
-                    },
-                    "meta": {
-                        "$ref": "#/components/schemas/FacilitiesMetadata"
-                    }
-                }
-            },
-            "PageLinks": {
-                "required": [
-                    "self"
-                ],
-                "type": "object",
-                "properties": {
-                    "related": {
+                        "description": "JSON API identifier",
                         "type": "string",
-                        "description": "/services/va_facilities/v0/facilities?id=vha_688"
-                    },
-                    "self": {
-                        "type": "string"
-                    },
-                    "first": {
-                        "type": "string"
-                    },
-                    "prev": {
-                        "type": "string"
-                    },
-                    "next": {
-                        "type": "string"
-                    },
-                    "last": {
-                        "type": "string"
-                    }
-                }
-            },
-            "Pagination": {
-                "required": [
-                    "current_page",
-                    "per_page",
-                    "total_entries",
-                    "total_pages"
-                ],
-                "type": "object",
-                "properties": {
-                    "current_page": {
-                        "type": "integer",
-                        "format": "int32",
-                        "example": 1
-                    },
-                    "per_page": {
-                        "type": "integer",
-                        "format": "int32",
-                        "example": 10
-                    },
-                    "total_pages": {
-                        "type": "integer",
-                        "format": "int32",
-                        "example": 217
-                    },
-                    "total_entries": {
-                        "type": "integer",
-                        "format": "int32",
-                        "example": 2162
-                    }
-                }
-            },
-            "FacilitiesIdsResponse": {
-                "type": "object",
-                "properties": {
-                    "data": {
-                        "type": "array",
-                        "example": [
-                            "vha_688"
-                        ],
-                        "items": {
-                            "type": "string",
-                            "example": "[\"vha_688\"]"
-                        }
-                    }
-                }
-            },
-            "Nearby": {
-                "required": [
-                    "attributes",
-                    "id",
-                    "type"
-                ],
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "example": "vha_688"
+                        "example": "VA10192"
                     },
                     "type": {
+                        "description": "JSON API type specification",
                         "type": "string",
-                        "example": "nearby_facility",
-                        "enum": [
-                            "NearbyFacility"
-                        ]
+                        "example": "va_form"
                     },
                     "attributes": {
-                        "$ref": "#/components/schemas/NearbyAttributes"
-                    }
-                },
-                "description": "JSON API-compliant object describing a nearby VA facility"
-            },
-            "NearbyAttributes": {
-                "required": [
-                    "max_time",
-                    "min_time"
-                ],
-                "type": "object",
-                "properties": {
-                    "min_time": {
-                        "type": "integer",
-                        "format": "int32",
-                        "example": 10
-                    },
-                    "max_time": {
-                        "type": "integer",
-                        "format": "int32",
-                        "example": 20
-                    }
-                }
-            },
-            "NearbyResponse": {
-                "required": [
-                    "data"
-                ],
-                "type": "object",
-                "properties": {
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Nearby"
+                        "properties": {
+                            "form_name": {
+                                "description": "Name of the VA Form",
+                                "type": "string",
+                                "example": "VA10192"
+                            },
+                            "url": {
+                                "description": "Web location of the form",
+                                "type": "string",
+                                "example": "https://www.va.gov/vaforms/va/pdf/VA10192.pdf"
+                            },
+                            "title": {
+                                "description": "Title of the form as given by VA",
+                                "type": "string",
+                                "example": "Information for Pre-Complaint Processing"
+                            },
+                            "first_issued_on": {
+                                "description": "The date the form first became available",
+                                "type": "string",
+                                "example": "2012-01-01",
+                                "format": "date"
+                            },
+                            "last_revised_on": {
+                                "description": "The date the form was last updated",
+                                "type": "string",
+                                "example": "2012-01-01",
+                                "format": "date"
+                            },
+                            "pages": {
+                                "description": "Number of pages contained in the form",
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "sha256": {
+                                "description": "A sha256 hash of the form contents",
+                                "type": "string",
+                                "example": "5fe171299ece147e8b456961a38e17f1391026f26e9e170229317bc95d9827b7"
+                            },
+                            "form_usage": {
+                                "description": "A description of how the form is to be used",
+                                "type": "string"
+                            },
+                            "form_tool_intro": {
+                                "description": "Introductionary text describing the VA online tool for this form",
+                                "type": "string"
+                            },
+                            "form_tool_url": {
+                                "description": "Location of the online tool for this form",
+                                "type": "string"
+                            },
+                            "form_details_url": {
+                                "description": "Location on www.va.gov of the info page for this form",
+                                "type": "string"
+                            },
+                            "form_type": {
+                                "description": "VA Type of the form",
+                                "type": "string",
+                                "example": "VHA"
+                            },
+                            "language": {
+                                "description": "Language code of the form",
+                                "type": "string",
+                                "example": "en"
+                            },
+                            "related_forms": {
+                                "description": "A listing of other forms that relate to current form",
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "example": "21-22A"
+                                }
+                            },
+                            "benefit_categories": {
+                                "description": "Listing of categories and match",
+                                "type": "array",
+                                "items": {
+                                    "properties": {
+                                        "name": {
+                                            "description": "Name of the benefit category of the form",
+                                            "type": "string",
+                                            "example": "Pension"
+                                        },
+                                        "description": {
+                                            "description": "Description of the benefit category of the form",
+                                            "type": "string",
+                                            "example": "VA pension benefits"
+                                        }
+                                    }
+                                }
+                            },
+                            "versions": {
+                                "type": "array",
+                                "description": "The version history of revisions to the form",
+                                "items": {
+                                    "properties": {
+                                        "sha256": {
+                                            "description": "A sha256 hash of the form contents for that version",
+                                            "type": "string",
+                                            "example": "5fe171299ece147e8b456961a38e17f1391026f26e9e170229317bc95d9827b7"
+                                        },
+                                        "revision_on": {
+                                            "description": "The date the version was revised",
+                                            "type": "string",
+                                            "example": "2012-01-01",
+                                            "format": "date"
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
         },
+        "examples": {},
+        "links": {},
+        "parameters": {},
+        "requestBodies": {},
+        "responses": {},
         "securitySchemes": {
             "apikey": {
                 "type": "apiKey",
@@ -1531,7 +410,9 @@
             }
         }
     },
-    "security": {
-        "apikey": []
-    }
+    "security": [
+        {
+            "apikey": []
+        }
+    ]
 }

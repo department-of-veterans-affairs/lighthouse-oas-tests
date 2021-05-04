@@ -11,6 +11,9 @@ import {
   OperationWarnings,
 } from './types';
 import { OASSecurityType } from '../utilities/oas-security/oas-security-scheme';
+import { Authorized, Security } from 'swagger-client';
+import { OASSecurityFactory } from '../utilities/oas-security';
+import { OpenAPIObject } from 'swagger-client/schema';
 
 export default class Positive extends Command {
   static description =
@@ -60,15 +63,24 @@ export default class Positive extends Command {
       oasSchemaOptions.url = args.path;
     }
 
-    this.schema = new OASSchema(oasSchemaOptions);
+    const apiKey = await this.promptForAPISecurity(flags, oasSchemaOptions);
 
-    await this.promptForAPISecurity(flags);
+    if (apiKey) {
+      oasSchemaOptions.securities = {
+        authorized: {
+          ...oasSchemaOptions.securities?.authorized,
+          [apiKey.key]: apiKey.security[apiKey.key],
+        },
+      };
+    }
+
+    this.schema = new OASSchema(oasSchemaOptions);
 
     await this.buildOperationExamples();
 
     this.validateParameters();
 
-    const responses = await Promise.all(this.executeRequests(flags));
+    const responses = await Promise.all(this.executeRequests());
 
     const mergedResponses = responses.reduce((merged, response) => {
       return Object.assign(merged, response);
@@ -97,10 +109,17 @@ export default class Positive extends Command {
     }
   };
 
-  promptForAPISecurity = async (flags: {
-    apiKey: string | undefined;
-  }): Promise<void> => {
-    const securitySchemes = await this.schema.getSecuritySchemes();
+  promptForAPISecurity = async (
+    flags: { apiKey: string | undefined },
+    oasSchemaOptions: ConstructorParameters<typeof OASSchema>[0],
+  ): Promise<{ key: string; security: Security } | undefined> => {
+    const spec = oasSchemaOptions.spec;
+    if (!spec.components || !spec.components.securitySchemes) {
+      return;
+    }
+    const securitySchemes = OASSecurityFactory.getSecuritySchemes(
+      spec.components.securitySchemes,
+    );
     const securityTypes = {};
     for (const scheme of securitySchemes) {
       if (scheme.securityType === OASSecurityType.APIKEY && scheme.name) {
@@ -111,6 +130,17 @@ export default class Positive extends Command {
       flags.apiKey = (await cli.prompt('What is your apiKey?', {
         type: 'mask',
       })) as string;
+    }
+
+    if (flags.apiKey) {
+      return {
+        key: securityTypes[OASSecurityType.APIKEY],
+        security: {
+          [securityTypes[OASSecurityType.APIKEY]]: {
+            value: flags.apiKey,
+          },
+        },
+      };
     }
   };
 
@@ -138,20 +168,16 @@ export default class Positive extends Command {
     }
   };
 
-  executeRequests = (flags: {
-    apiKey: string | undefined;
-  }): Promise<OperationResponse>[] => {
+  executeRequests = (): Promise<OperationResponse>[] => {
     const responses: Promise<OperationResponse>[] = [];
     for (const { id, exampleGroup, operation } of this.operationExamples) {
       if (this.operationFailures[id].length === 0) {
         responses.push(
-          this.schema
-            .execute(operation, exampleGroup, flags)
-            .then((response) => {
-              return {
-                [id]: response,
-              };
-            }),
+          this.schema.execute(operation, exampleGroup).then((response) => {
+            return {
+              [id]: response,
+            };
+          }),
         );
       }
     }

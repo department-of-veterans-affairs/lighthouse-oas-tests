@@ -4,7 +4,7 @@ declare module 'swagger-client/schema' {
   interface OpenAPIObject {
     paths: PathsObject;
     components?: ComponentsObject;
-    security?: SecurityRequirementObject;
+    security?: SecurityRequirementObject[];
   }
 
   export interface PathsObject { [path: string]: PathItemObject }
@@ -21,7 +21,7 @@ declare module 'swagger-client/schema' {
     operationId: string;
     parameters: ParameterObject[];
     responses: { [responseStatus: string]: ResponseObject };
-    security?: SecurityRequirementObject;
+    security?: SecurityRequirementObject[];
   }
   interface PathItemObject {
     get?: OperationObject;
