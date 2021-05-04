@@ -13,6 +13,17 @@ class ExampleGroupFactory {
       .reduce((examples, parameter) => {
         return {
           ...examples,
+          [parameter.name]:
+            parameter.example ??
+            parameter.examples?.[DEFAULT_PARAMETER_GROUP]?.value,
+        };
+      }, {});
+
+    const nonRequiredExamplesWithExampleField = parameters
+      .filter((parameter) => !parameter.required && parameter.example)
+      .reduce((examples, parameter) => {
+        return {
+          ...examples,
           [parameter.name]: parameter.example,
         };
       }, {});
@@ -22,6 +33,16 @@ class ExampleGroupFactory {
     if (groupNames.length > 0) {
       exampleGroups = groupNames.reduce<ExampleGroup[]>(
         (exampleGroups, groupName) => {
+          if (groupName === DEFAULT_PARAMETER_GROUP) {
+            return [
+              ...exampleGroups,
+              this.findExamplesForGroup(operation, groupName, parameters, {
+                ...requiredExamples,
+                ...nonRequiredExamplesWithExampleField,
+              }),
+            ];
+          }
+
           return [
             ...exampleGroups,
             this.findExamplesForGroup(
@@ -35,12 +56,16 @@ class ExampleGroupFactory {
         [],
       );
     }
-    const defaultGroup = new ExampleGroup(
-      operation,
-      DEFAULT_PARAMETER_GROUP,
-      requiredExamples,
-    );
-    exampleGroups.push(defaultGroup);
+
+    if (!groupNames.includes(DEFAULT_PARAMETER_GROUP)) {
+      const defaultGroup = new ExampleGroup(
+        operation,
+        DEFAULT_PARAMETER_GROUP,
+        { ...requiredExamples, ...nonRequiredExamplesWithExampleField },
+      );
+      exampleGroups.push(defaultGroup);
+    }
+
     return exampleGroups;
   }
 
@@ -56,7 +81,7 @@ class ExampleGroupFactory {
     operation: OASOperation,
     groupName: string,
     parameters: ParameterObject[],
-    requiredExamples: ExampleObject,
+    otherExamples: ExampleObject,
   ): ExampleGroup {
     const examples = {};
     for (const parameter of parameters) {
@@ -65,7 +90,7 @@ class ExampleGroupFactory {
       }
     }
     return new ExampleGroup(operation, groupName, {
-      ...requiredExamples,
+      ...otherExamples,
       ...examples,
     });
   }
