@@ -1,13 +1,7 @@
-import swaggerClient, { Request, Response, Swagger } from 'swagger-client';
+import swaggerClient, { Response, Swagger } from 'swagger-client';
 import OASOperation, { OASOperationFactory } from '../oas-operation';
 import ExampleGroup from '../example-group';
-import {
-  OASSecurityScheme,
-  OASSecurityFactory,
-  OASSecurity,
-  OASSecurityType,
-  OASIn,
-} from '../oas-security';
+import { OASSecurityFactory, OASSecurity } from '../oas-security';
 import { Authorized } from 'swagger-client';
 
 class OASSchema {
@@ -23,7 +17,8 @@ class OASSchema {
     this._client = swaggerClient(options);
     this.operations = [];
     this.topSecurities = [];
-    this.securitySchemes = options.securities || { authorized: {} } as Authorized;
+    this.securitySchemes =
+      options.securities || ({ authorized: {} } as Authorized);
   }
 
   public set client(client: Promise<Swagger>) {

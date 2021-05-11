@@ -1,4 +1,4 @@
-import { ParameterObject, OperationObject } from 'swagger-client';
+import { ParameterObject } from 'swagger-client';
 import ExampleGroup from '../../../src/utilities/example-group';
 import OASOperation from '../../../src/utilities/oas-operation';
 import { ParameterValidator } from '../../../src/utilities/validators';

@@ -11,9 +11,8 @@ import {
   OperationWarnings,
 } from './types';
 import { OASSecurityType } from '../utilities/oas-security/oas-security-scheme';
-import { Authorized, Security } from 'swagger-client';
+import { Security } from 'swagger-client';
 import { OASSecurityFactory } from '../utilities/oas-security';
-import { OpenAPIObject } from 'swagger-client/schema';
 
 export default class Positive extends Command {
   static description =
