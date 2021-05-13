@@ -3,21 +3,59 @@ declare module 'swagger-client/schema' {
 
   interface OpenAPIObject {
     paths: PathsObject;
+    components?: ComponentsObject;
+    security?: SecurityRequirementObject[];
   }
 
-  export interface PathsObject { [path: string]: PathItemObject }
+  interface ServerObject {
+    url: string;
+    description?: string;
+    variables?: {
+      [variableName: string]: ServerVariableObject;
+    };
+  }
+
+  type NonEmptyArray<T> = [T, ...T[]];
+
+  interface ServerVariableObject {
+    enum?: NonEmptyArray<string>;
+    default: string;
+    description?: string;
+  }
+
+  interface ComponentsObject {
+    securitySchemes: SecuritySchemesObject | ReferenceObject;
+  }
+
+  export interface PathsObject {
+    [path: string]: PathItemObject;
+  }
+
+  interface PathItemObject {
+    $ref?: string;
+    summary?: string;
+    description?: string;
+    get?: OperationObject;
+    put?: OperationObject;
+    post?: OperationObject;
+    delete?: OperationObject;
+    options?: OperationObject;
+    head?: OperationObject;
+    patch?: OperationObject;
+    trace?: OperationObject;
+    servers?: ServerObject[];
+    parameters?: ParameterObject[];
+  }
+
+  export interface SecuritySchemesObject {
+    [securityScheme: string]: SecuritySchemeObject;
+  }
+
   export interface OperationObject {
     operationId: string;
     parameters: ParameterObject[];
     responses: { [responseStatus: string]: ResponseObject };
-  }
-  interface PathItemObject {
-    get?: OperationObject;
-    post?: OperationObject;
-    put?: OperationObject;
-    delete?: OperationObject;
-    patch?: OperationObject;
-    parameters?: ParameterObject[];
+    security?: SecurityRequirementObject[];
   }
 
   interface ParameterAndHeaderBase {
@@ -34,7 +72,7 @@ declare module 'swagger-client/schema' {
 
   export interface ResponseObject {
     description: string;
-    content: {[contentType: string]: MediaTypeObject}
+    content: { [contentType: string]: MediaTypeObject };
   }
 
   export interface ParameterWithSchema extends ParameterBase {
@@ -74,6 +112,10 @@ declare module 'swagger-client/schema' {
     content?: { [name: string]: MediaTypeObject };
   }
 
+  interface ReferenceObject {
+    $ref: string;
+  }
+
   export interface SchemaObject {
     type?: 'number' | 'string' | 'object' | 'array' | 'integer';
     required?: string[];
@@ -83,4 +125,17 @@ declare module 'swagger-client/schema' {
     enum?: Json[];
     nullable?: boolean;
   }
+}
+
+interface SecuritySchemeObject {
+  type: 'apiKey' | 'http' | 'mutualTLS' | 'oauth2' | 'openIdConnect';
+  description?: string;
+  name?: string;
+  in?: 'query' | 'header' | 'cookie';
+  scheme?: string;
+  bearerFormat?: string;
+}
+
+interface SecurityRequirementObject {
+  [security: string]: string[];
 }

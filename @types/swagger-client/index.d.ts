@@ -12,9 +12,17 @@ declare module 'swagger-client' {
     execute: (options: {
       parameters: { [name: string]: Json };
       operationId: string;
-      requestInterceptor?: (request: string) => string;
+      securities?: Authorized;
+      requestInterceptor?: (request: Request) => Request;
     }) => Promise<Response>;
   }
+
+  export interface Request {
+    url: string;
+    headers: { [header: string]: string };
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS';
+  }
+
   export interface Response {
     ok: boolean;
     status: number;
@@ -33,8 +41,12 @@ declare module 'swagger-client' {
     value: string;
   }
 
-  interface Authorized {
-    apikey: ApiKey;
+  export interface Authorized {
+    authorized: Security;
+  }
+
+  export interface Security {
+    [securityKey: string]: ApiKey;
   }
 
   interface Opts {
