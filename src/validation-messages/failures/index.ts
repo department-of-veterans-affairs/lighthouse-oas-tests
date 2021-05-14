@@ -15,3 +15,4 @@ export { default as InvalidParameterObject } from './invalid-parameter-object';
 export { default as InvalidParameterContent } from './invalid-parameter-content';
 export { default as MissingContentSchemaObject } from './missing-content-schema-object';
 export { default as InvalidResponse } from './invalid-response';
+export { default as InvalidParameterExample } from './invalid-parameter-example';

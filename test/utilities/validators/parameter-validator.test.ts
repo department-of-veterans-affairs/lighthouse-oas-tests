@@ -220,6 +220,39 @@ describe('ParameterValidator', () => {
       );
     });
 
+    it('adds a validation failure if parameter has both example and examples', () => {
+      const operation = new OASOperation({
+        operationId: 'hobbits or something',
+        parameters: [
+          ({
+            name: 'horcrux',
+            in: 'query',
+            example: "tom riddle's diary",
+            examples: {
+              doesnot: 'matter',
+            },
+            schema: {
+              type: 'string',
+              description: 'founded by Godric Gryffindor',
+            },
+          } as unknown) as ParameterObject,
+        ],
+        responses: {},
+      });
+      const exampleGroup = new ExampleGroup(operation, 'default', {
+        horcrux: 'nagini',
+      });
+      const validator = new ParameterValidator(exampleGroup);
+      validator.validate();
+
+      const failures = validator.failures;
+
+      expect(failures).toHaveLength(1);
+      expect(failures).toContainValidationFailure(
+        'Parameter object must have either example or examples set, but not both. Path: parameters -> horcrux',
+      );
+    });
+
     it('does not register a validation failure if content is shaped correctly', () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
