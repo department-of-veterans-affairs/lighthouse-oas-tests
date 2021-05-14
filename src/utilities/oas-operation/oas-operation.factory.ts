@@ -20,16 +20,18 @@ class OASOperationFactory {
     const operationObjects = pathObjects.flatMap((path) => {
       return Object.entries(path).reduce<OperationObject[]>(
         (operations, [key, object]) => {
-          if(key === 'parameters') params = [...object]
-          return OPERATION_KEYS.includes(key) ? [...operations, object] : operations
+          if (key === 'parameters') params = [...object];
+          return OPERATION_KEYS.includes(key)
+            ? [...operations, object]
+            : operations;
         },
         [],
       );
     });
 
     return operationObjects.map((operation) => {
-      operation.parameters = [...params, ...operation.parameters]
-      return new OASOperation(operation)
+      operation.parameters = [...params, ...operation.parameters];
+      return new OASOperation(operation);
     });
   }
 }
