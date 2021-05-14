@@ -1,4 +1,5 @@
 import { OperationObject, PathsObject } from 'swagger-client';
+import { ParameterObject } from 'swagger-client/schema';
 import OASOperation from './oas-operation';
 
 const OPERATION_KEYS = [
@@ -15,16 +16,21 @@ const OPERATION_KEYS = [
 class OASOperationFactory {
   public static buildFromPaths(paths: PathsObject): OASOperation[] {
     const pathObjects = Object.values(paths);
-
+    let params: ParameterObject[] = [];
     const operationObjects = pathObjects.flatMap((path) => {
       return Object.entries(path).reduce<OperationObject[]>(
-        (operations, [key, object]) =>
-          OPERATION_KEYS.includes(key) ? [...operations, object] : operations,
+        (operations, [key, object]) => {
+          if(key === 'parameters') params = [...object]
+          return OPERATION_KEYS.includes(key) ? [...operations, object] : operations
+        },
         [],
       );
     });
 
-    return operationObjects.map((operation) => new OASOperation(operation));
+    return operationObjects.map((operation) => {
+      operation.parameters = [...params, ...operation.parameters]
+      return new OASOperation(operation)
+    });
   }
 }
 

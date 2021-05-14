@@ -66,5 +66,71 @@ describe('OASOperationFactory', () => {
       expect(result[1].operationId).toEqual('postAHobbit');
       expect(result[2].operationId).toEqual('getAllHobbits');
     });
+    
+    it('returns one example when parameters have the same name and in values', () => {
+      const result = OASOperationFactory.buildFromPaths({
+        "/nearby-avenger": {
+          get: {
+            operationId: 'getAHobbit',
+            parameters: [
+              {
+                name: "frodo",
+                in: "query",
+                schema: {},
+                example: 1,
+                required: true
+              }
+            ],
+            responses: {},
+          },
+          parameters: [
+            {
+              name: "frodo",
+              in: "query",
+              schema: {},
+              example: 20,
+              required: true
+            }
+          ]
+    },
+      });
+      
+      expect(result).toHaveLength(1);
+      expect(result[0].operationId).toEqual('getAHobbit');
+      expect(result[0].exampleGroups[0].examples).toEqual({"frodo": 1});
+    });
+
+    it('returns one example object with both examples', () => {
+      const result = OASOperationFactory.buildFromPaths({
+        "/nearby-avenger": {
+          get: {
+            operationId: 'getAHobbit',
+            parameters: [
+              {
+                name: "frodo",
+                in: "query",
+                schema: {},
+                example: 1,            
+              }
+            ],
+            responses: {},
+          },
+          parameters: [
+            {
+              name: "gollum",
+              in: "header",
+              schema: {},
+              example: 20,
+              required: true
+            }
+          ]
+    },
+      });
+      console.log(`results: `, result)
+      console.log(`result example group: `, result[0].exampleGroups)
+      expect(result).toHaveLength(1);
+      expect(result[0].exampleGroups).toHaveLength(1);
+    });
+    
   });
 });
