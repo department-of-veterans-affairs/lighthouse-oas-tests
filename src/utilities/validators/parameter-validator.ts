@@ -5,6 +5,7 @@ import {
 } from '../../types/typeguards';
 import {
   InvalidParameterContent,
+  InvalidParameterExample,
   InvalidParameterObject,
   MissingContentSchemaObject,
   MissingRequiredParameters,
@@ -64,7 +65,12 @@ class ParameterValidator extends BaseValidator {
     example: Json,
     path: string[],
   ): void {
-    if (parameterHasSchema(parameter) && !parameterHasContent(parameter)) {
+    if (parameter.example && parameter.examples) {
+      this._failures = [...this._failures, new InvalidParameterExample(path)];
+    } else if (
+      parameterHasSchema(parameter) &&
+      !parameterHasContent(parameter)
+    ) {
       // Parameter Object conatains field: schema; does not contain field: content
       this.validateObjectAgainstSchema(example, parameter.schema, [
         ...path,
