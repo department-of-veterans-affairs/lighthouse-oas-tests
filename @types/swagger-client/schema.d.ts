@@ -17,6 +17,7 @@ declare module 'swagger-client/schema' {
     put?: OperationObject;
     delete?: OperationObject;
     patch?: OperationObject;
+    parameters?: ParameterObject[];
   }
 
   interface ParameterAndHeaderBase {
