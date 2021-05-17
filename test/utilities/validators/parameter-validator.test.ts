@@ -249,7 +249,7 @@ describe('ParameterValidator', () => {
 
       expect(failures).toHaveLength(1);
       expect(failures).toContainValidationFailure(
-        'Parameter object must have either example or examples set, but not both. Path: parameters -> horcrux',
+        'Parameter object can have either example or examples set, but not both. Path: parameters -> horcrux',
       );
     });
 
