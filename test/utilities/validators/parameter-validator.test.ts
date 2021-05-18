@@ -249,7 +249,7 @@ describe('ParameterValidator', () => {
 
       expect(failures).toHaveLength(1);
       expect(failures).toContainValidationFailure(
-        'Parameter object can have either example or examples set, but not both. Path: parameters -> horcrux',
+        "The 'example' field is mutually exclusive of the 'examples' field, provide one or the other or neither, but not both. Path: parameters -> horcrux",
       );
     });
 
