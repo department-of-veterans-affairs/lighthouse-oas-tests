@@ -3,7 +3,7 @@ import ValidationFailure from './validation-failure';
 class InvalidParameterExample extends ValidationFailure {
   constructor(path: string[]) {
     super(
-      'Parameter object can have either example or examples set, but not both.',
+      "The 'example' field is mutually exclusive of the 'examples' field, provide one or the other or neither, but not both.",
       path,
     );
   }
