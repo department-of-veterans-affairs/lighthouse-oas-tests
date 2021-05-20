@@ -1,16 +1,27 @@
 import { ResponseObject } from 'swagger-client';
+const mockPrompt = jest.fn();
 import Positive from '../../src/commands/positive';
 import OASOperation from '../../src/utilities/oas-operation';
 
 const mockGetOperations = jest.fn();
+const mockGetSecuritySchemes = jest.fn();
 const mockExecute = jest.fn();
 
 jest.mock('../../src/utilities/oas-schema', () => {
   return function (): Record<string, jest.Mock> {
     return {
       getOperations: mockGetOperations,
+      getSecuritySchemes: mockGetSecuritySchemes,
       execute: mockExecute,
     };
+  };
+});
+
+jest.mock('cli-ux', () => {
+  return {
+    cli: {
+      prompt: mockPrompt,
+    },
   };
 });
 
@@ -43,11 +54,72 @@ describe('Positive', () => {
       .spyOn(process.stdout, 'write')
       .mockImplementation((val) => result.push(val));
 
+    mockPrompt.mockReset();
     mockGetOperations.mockReset();
     mockGetOperations.mockResolvedValue([
-      'walkIntoMordor',
-      'getHobbit',
-      'getTomBombadil',
+      new OASOperation(
+        {
+          operationId: 'walkIntoMordor',
+          responses: defaultResponses,
+          parameters: [
+            {
+              name: 'guide',
+              in: 'query',
+              schema: {
+                type: 'string',
+              },
+              required: true,
+              example: 'golem',
+            },
+          ],
+        },
+        [{ 'boromir-security': [] }],
+      ),
+      new OASOperation(
+        {
+          operationId: 'getHobbit',
+          responses: defaultResponses,
+          parameters: [
+            {
+              name: 'name',
+              in: 'query',
+              schema: {
+                type: 'string',
+              },
+              example: 'Frodo',
+            },
+          ],
+        },
+        [{ 'boromir-security': [] }],
+      ),
+      new OASOperation(
+        {
+          operationId: 'getTomBombadil',
+          responses: defaultResponses,
+          parameters: [
+            {
+              name: 'times',
+              in: 'query',
+              example: 2,
+              schema: {
+                type: 'number',
+              },
+            },
+          ],
+        },
+        [{ 'boromir-security': [] }],
+      ),
+    ]);
+
+    mockGetSecuritySchemes.mockReset();
+    mockGetSecuritySchemes.mockResolvedValue([
+      {
+        key: 'boromir-security',
+        type: 'apiKey',
+        description: 'one does simply walk into VA APIs',
+        name: 'boromir-security',
+        in: 'header',
+      },
     ]);
 
     mockExecute.mockReset();
@@ -68,12 +140,23 @@ describe('Positive', () => {
     beforeEach(() => {
       process.env.API_KEY = '';
     });
-    it('throws an error', async () => {
-      await expect(async () => {
-        await Positive.run(['asdf']);
-      }).rejects.toThrow(
-        'apiKey flag should be provided or the API_KEY environment variable should be set',
-      );
+
+    it('requests an apiKey when apiKey scheme exists', async () => {
+      await Positive.run(['./test/fixtures/spec_level_security.json']);
+      expect(mockPrompt).toHaveBeenCalled();
+    });
+
+    it("does not request an apiKey when apiKey scheme doesn't exist", async () => {
+      mockGetSecuritySchemes.mockReset();
+      mockGetSecuritySchemes.mockResolvedValue([
+        {
+          securityType: 'http',
+          description: 'one does simply walk into VA APIs',
+          name: 'boromir-security',
+        },
+      ]);
+      await Positive.run(['http://isengard.com']);
+      expect(mockPrompt).not.toHaveBeenCalled();
     });
   });
 
@@ -230,6 +313,8 @@ describe('Positive', () => {
           operation3,
         ]);
 
+        const security = {};
+
         await expect(async () => {
           await Positive.run(['http://urldoesnotmatter.com']);
         }).rejects.toThrow('1 operation failed');
@@ -237,21 +322,25 @@ describe('Positive', () => {
         expect(mockExecute).not.toHaveBeenCalledWith(
           operation1,
           operation1.exampleGroups[0],
+          security,
         );
 
         expect(mockExecute).toHaveBeenCalledWith(
           operation1,
           operation1.exampleGroups[1],
+          security,
         );
 
         expect(mockExecute).toHaveBeenCalledWith(
           operation2,
           operation2.exampleGroups[0],
+          security,
         );
 
         expect(mockExecute).toHaveBeenCalledWith(
           operation3,
           operation3.exampleGroups[0],
+          security,
         );
       });
 
