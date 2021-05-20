@@ -24,7 +24,7 @@ declare module 'swagger-client/schema' {
   }
 
   interface ComponentsObject {
-    securitySchemes: SecuritySchemesObject | ReferenceObject;
+    securitySchemes: SecuritySchemesObject;
   }
 
   export interface PathsObject {
@@ -72,6 +72,7 @@ declare module 'swagger-client/schema' {
 
   export interface ResponseObject {
     description: string;
+    headers?: { [headerName: string]: HeaderObject };
     content: { [contentType: string]: MediaTypeObject };
   }
 
@@ -112,10 +113,6 @@ declare module 'swagger-client/schema' {
     content?: { [name: string]: MediaTypeObject };
   }
 
-  interface ReferenceObject {
-    $ref: string;
-  }
-
   export interface SchemaObject {
     type?: 'number' | 'string' | 'object' | 'array' | 'integer';
     required?: string[];
@@ -125,17 +122,16 @@ declare module 'swagger-client/schema' {
     enum?: Json[];
     nullable?: boolean;
   }
-}
+  export interface SecuritySchemeObject {
+    type: 'apiKey' | 'http' | 'mutualTLS' | 'oauth2' | 'openIdConnect';
+    description?: string;
+    name?: string;
+    in?: 'query' | 'header' | 'cookie';
+    scheme?: string;
+    bearerFormat?: string;
+  }
 
-interface SecuritySchemeObject {
-  type: 'apiKey' | 'http' | 'mutualTLS' | 'oauth2' | 'openIdConnect';
-  description?: string;
-  name?: string;
-  in?: 'query' | 'header' | 'cookie';
-  scheme?: string;
-  bearerFormat?: string;
-}
-
-interface SecurityRequirementObject {
-  [security: string]: string[];
+  interface SecurityRequirementObject {
+    [security: string]: string[];
+  }
 }
