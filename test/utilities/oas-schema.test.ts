@@ -1,5 +1,5 @@
 import loadJsonFile from 'load-json-file';
-import { Swagger } from 'swagger-client';
+import { Swagger, Security } from 'swagger-client';
 import OASOperation from '../../src/utilities/oas-operation';
 import OasSchema from '../../src/utilities/oas-schema';
 
@@ -51,6 +51,7 @@ describe('OASSchema', () => {
       const filePath = 'test/fixtures/facilities_oas.json';
       const schema = await generateSchema(filePath);
 
+      // eslint-disable-next-line dot-notation
       schema.client = new Promise((resolve) => {
         resolve(({
           execute: executeMock,
@@ -75,13 +76,17 @@ describe('OASSchema', () => {
       });
 
       const [exampleGroup] = operation.exampleGroups;
+      const securities: Security = {};
 
-      await schema.execute(operation, exampleGroup);
+      await schema.execute(operation, exampleGroup, securities);
 
       expect(executeMock).toHaveBeenCalledWith({
         operationId: 'getFacilityById',
         parameters: {
           id: 'testId',
+        },
+        securities: {
+          authorized: {},
         },
       });
     });
