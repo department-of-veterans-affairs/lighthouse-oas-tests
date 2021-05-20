@@ -1,21 +1,31 @@
 import { OperationObject, ParameterObject } from 'swagger-client';
-import { ResponseObject } from 'swagger-client/schema';
+import {
+  ResponseObject,
+  SecurityRequirementObject,
+} from 'swagger-client/schema';
 import ExampleGroup, { ExampleGroupFactory } from '../example-group';
+import OASSecurity from '../oas-security';
+import OASSecurityFactory from '../oas-security/oas-security.factory';
 
 class OASOperation {
   readonly operationId: string;
 
-  private _schema: OperationObject;
+  readonly security: OASSecurity[];
+
+  private _operation: OperationObject;
 
   private _exampleGroups: ExampleGroup[];
 
-  readonly test: string[];
-
-  constructor(schema: OperationObject) {
-    this.test = [];
-    this._schema = schema;
-    this.operationId = schema.operationId;
+  constructor(
+    operation: OperationObject,
+    securities: SecurityRequirementObject[] = [],
+  ) {
+    this._operation = operation;
+    this.operationId = operation.operationId;
     this._exampleGroups = ExampleGroupFactory.buildFromOperation(this);
+
+    operation.security = operation.security ?? securities;
+    this.security = OASSecurityFactory.getSecurities(operation.security);
   }
 
   get exampleGroups(): ExampleGroup[] {
@@ -23,11 +33,11 @@ class OASOperation {
   }
 
   get parameters(): ParameterObject[] {
-    return this._schema.parameters;
+    return this._operation.parameters;
   }
 
   get requiredParameterNames(): string[] {
-    return this._schema.parameters
+    return this._operation.parameters
       .filter((parameter) => parameter.required)
       .map((parameter) => parameter.name);
   }
@@ -40,7 +50,7 @@ class OASOperation {
   }
 
   getResponseSchema(statusCode: string | number): ResponseObject | null {
-    const entry = this._schema.responses[statusCode];
+    const entry = this._operation.responses[statusCode];
 
     return entry ?? null;
   }

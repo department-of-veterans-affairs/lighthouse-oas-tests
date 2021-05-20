@@ -1,9 +1,10 @@
+import Command, { flags } from '@oclif/command';
+import { cli } from 'cli-ux';
+import { readFileSync } from 'fs';
 import yaml from 'js-yaml';
 import loadJsonFile from 'load-json-file';
 import parseUrl from 'parse-url';
 import { extname, resolve } from 'path';
-import { readFileSync } from 'fs';
-import { ApiKeyCommand } from '../baseCommands';
 import OASSchema from '../utilities/oas-schema';
 import { InvalidResponse } from '../validation-messages/failures';
 import { ParameterValidator, ResponseValidator } from '../utilities/validators';
@@ -13,12 +14,22 @@ import {
   OperationResponse,
   OperationWarnings,
 } from './types';
+import { Security } from 'swagger-client';
+import { OASSecurityType } from '../utilities/oas-security';
+import { uniq } from 'lodash';
 
-export default class Positive extends ApiKeyCommand {
+export default class Positive extends Command {
   static description =
     'Runs positive smoke tests for Lighthouse APIs based on OpenAPI specs';
 
-  static flags = ApiKeyCommand.flags;
+  static flags = {
+    help: flags.help({ char: 'h' }),
+    apiKey: flags.string({
+      char: 'a',
+      description: 'API key to use',
+      env: 'LOAST_API_KEY',
+    }),
+  };
 
   static args = [
     {
@@ -36,29 +47,30 @@ export default class Positive extends ApiKeyCommand {
 
   private operationWarnings: OperationWarnings = {};
 
+  private securities: string[] = [];
+
+  private securityValues: Security = {};
+
   async run(): Promise<void> {
-    const { args } = this.parse(Positive);
-    const oasSchemaOptions: ConstructorParameters<typeof OASSchema>[0] = {
-      authorizations: { apikey: { value: this.apiKey } },
-    };
+    const { args, flags } = this.parse(Positive);
+    const oasSchemaOptions: ConstructorParameters<typeof OASSchema>[0] = {};
 
     const path = parseUrl(args.path);
 
     if (path.protocol === 'file') {
+      let spec;
       const extension = extname(args.path);
 
       if (extension === '.json') {
         try {
-          const spec = await loadJsonFile(args.path);
-          oasSchemaOptions.spec = spec;
+          spec = await loadJsonFile(args.path);
         } catch (error) {
           this.error('unable to load json file');
         }
       } else if (extension === '.yml' || extension === '.yaml') {
         try {
           const file = readFileSync(resolve(args.path));
-          const spec = yaml.load(file);
-          oasSchemaOptions.spec = spec;
+          spec = yaml.load(file);
         } catch (error) {
           this.error('unable to load yaml file');
         }
@@ -67,11 +79,19 @@ export default class Positive extends ApiKeyCommand {
           'File is of a type not supported by OAS (.json, .yml, .yaml)',
         );
       }
+      oasSchemaOptions.spec = spec;
     } else {
       oasSchemaOptions.url = args.path;
     }
 
     this.schema = new OASSchema(oasSchemaOptions);
+
+    this.securities = await this.getSecurities();
+
+    if (this.securities.length > 0) {
+      await this.promptForSecurityValues(flags);
+    }
+
     await this.buildOperationExamples();
 
     this.validateParameters();
@@ -106,6 +126,47 @@ export default class Positive extends ApiKeyCommand {
     }
   };
 
+  getSecurities = async (): Promise<string[]> => {
+    const operations = await this.schema.getOperations();
+
+    return uniq(
+      operations.flatMap((operation) => {
+        return operation.security.map((security) => security.key);
+      }),
+    );
+  };
+
+  promptForSecurityValues = async (flags: {
+    apiKey: string | undefined;
+  }): Promise<void> => {
+    const securitySchemes = await this.schema.getSecuritySchemes();
+    if (securitySchemes.length <= 0) {
+      if (this.securities.length > 0) {
+        this.error(
+          `The following security requirements exist but no corresponding security scheme exists on a components object: ${this.securities}.
+  See more at: https://swagger.io/specification/#security-requirement-object`,
+        );
+      }
+      return;
+    }
+
+    const securityTypes = {};
+    for (const scheme of securitySchemes) {
+      if (this.securities.includes(scheme.key)) {
+        securityTypes[scheme.type] = scheme.type;
+      }
+    }
+
+    if (securityTypes[OASSecurityType.APIKEY]) {
+      const apiSecurityName = securityTypes[OASSecurityType.APIKEY];
+      const value =
+        flags.apiKey ??
+        (await cli.prompt('What is your API Key?', { type: 'mask' }));
+
+      this.securityValues[apiSecurityName] = { value };
+    }
+  };
+
   validateParameters = (): void => {
     for (const { id, exampleGroup } of this.operationExamples) {
       const validator = new ParameterValidator(exampleGroup);
@@ -135,11 +196,13 @@ export default class Positive extends ApiKeyCommand {
     for (const { id, exampleGroup, operation } of this.operationExamples) {
       if (this.operationFailures[id].length === 0) {
         responses.push(
-          this.schema.execute(operation, exampleGroup).then((response) => {
-            return {
-              [id]: response,
-            };
-          }),
+          this.schema
+            .execute(operation, exampleGroup, this.securityValues)
+            .then((response) => {
+              return {
+                [id]: response,
+              };
+            }),
         );
       }
     }
