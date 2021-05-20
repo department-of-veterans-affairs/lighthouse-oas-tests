@@ -12,7 +12,7 @@ declare module 'swagger-client' {
     execute: (options: {
       parameters: { [name: string]: Json };
       operationId: string;
-      securities?: Authorized;
+      securities?: Securities;
       requestInterceptor?: (request: Request) => Request;
     }) => Promise<Response>;
   }
@@ -37,20 +37,23 @@ declare module 'swagger-client' {
     }) => Promise<Response>;
   };
 
-  interface ApiKey {
+  interface ValueObject {
     value: string;
   }
 
-  export interface Authorized {
+  interface ApiKey extends ValueObject {}
+  interface BearerToken extends ValueObject {}
+
+  export interface Securities {
     authorized: Security;
   }
 
   export interface Security {
-    [securityKey: string]: ApiKey;
+    [securityKey: string]: ApiKey | BearerToken;
   }
 
   interface Opts {
-    authorizations?: Authorized;
+    authorizations?: Security;
     spec?: Json;
     url?: string;
   }
