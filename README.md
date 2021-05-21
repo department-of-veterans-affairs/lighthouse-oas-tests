@@ -8,6 +8,7 @@ CLI for testing Lighthouse APIs using OpenAPI specs
 [![Version](https://img.shields.io/npm/v/loast.svg)](https://npmjs.org/package/loast)
 [![Downloads/week](https://img.shields.io/npm/dw/loast.svg)](https://npmjs.org/package/loast)
 [![License](https://img.shields.io/npm/l/loast.svg)](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/package.json)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 <!-- toc -->
 * [Usage](#usage)
