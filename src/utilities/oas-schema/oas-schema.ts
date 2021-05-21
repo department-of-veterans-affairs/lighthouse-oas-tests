@@ -1,8 +1,7 @@
 import swaggerClient, { Response, Security, Swagger } from 'swagger-client';
 import OASOperation, { OASOperationFactory } from '../oas-operation';
 import ExampleGroup from '../example-group';
-import OASSecurityFactory from '../oas-security/oas-security.factory';
-import { OASSecurityScheme } from '../oas-security';
+import { OASSecurityScheme, OASSecurityFactory } from '../oas-security';
 
 class OASSchema {
   private _client: Promise<Swagger>;
