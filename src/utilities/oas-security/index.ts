@@ -1,6 +1,6 @@
 export {
-  OASSecurityScheme,
+  default as OASSecurityScheme,
   OASSecurityType,
-  OASIn,
 } from './oas-security-scheme';
+export { default as OASSecurityFactory } from './oas-security.factory';
 export { default } from './oas-security';

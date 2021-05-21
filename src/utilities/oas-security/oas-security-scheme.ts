@@ -8,7 +8,7 @@ export enum OASSecurityType {
   OPEN_ID_CONNECT = 'openIdConnect',
 }
 
-export enum OASIn {
+enum OASIn {
   QUERY = 'query',
   HEADER = 'header',
   COOKIE = 'cookie',
