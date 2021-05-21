@@ -30,7 +30,7 @@ export class OASSecurityScheme implements SecuritySchemeObject {
     this.type = securityScheme.type as OASSecurityType;
     this.description = securityScheme.description;
     this.name = securityScheme.name;
-    this.in = securityScheme?.in as OASIn;
+    this.in = securityScheme.in as OASIn;
   }
 }
 

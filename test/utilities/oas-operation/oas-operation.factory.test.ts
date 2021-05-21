@@ -1,4 +1,4 @@
-import { OASOperationFactory } from '../../src/utilities/oas-operation';
+import { OASOperationFactory } from '../../../src/utilities/oas-operation';
 
 describe('OASOperationFactory', () => {
   describe('buildFromPaths', () => {

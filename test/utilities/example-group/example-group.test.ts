@@ -1,5 +1,5 @@
-import ExampleGroup from '../../src/utilities/example-group';
-import OASOperation from '../../src/utilities/oas-operation';
+import ExampleGroup from '../../../src/utilities/example-group';
+import OASOperation from '../../../src/utilities/oas-operation';
 
 describe('ExampleGroup', () => {
   describe('getName', () => {

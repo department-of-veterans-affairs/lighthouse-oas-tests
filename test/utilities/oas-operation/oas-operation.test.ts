@@ -1,4 +1,4 @@
-import OASOperation from '../../src/utilities/oas-operation';
+import OASOperation from '../../../src/utilities/oas-operation';
 
 describe('OASOperation', () => {
   const operation = new OASOperation({
