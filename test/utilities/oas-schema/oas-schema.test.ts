@@ -73,7 +73,6 @@ describe('OASSchema', () => {
       const filePath = 'test/fixtures/facilities_oas.json';
       const schema = await generateSchema(filePath);
 
-      // eslint-disable-next-line dot-notation
       schema.client = new Promise((resolve) => {
         resolve(({
           execute: executeMock,
@@ -94,24 +93,6 @@ describe('OASSchema', () => {
           authorized: {},
         },
       });
-    });
-
-    it('returns an error message if unable to execute', async () => {
-      const filePath = 'test/fixtures/facilities_oas.json';
-      const schema = await generateSchema(filePath);
-      const operation = new OASOperation(operationObject);
-      const [exampleGroup] = operation.exampleGroups;
-      const securities: Security = {
-        apikey: { value: 'bad_apikey' },
-      };
-
-      const response = await schema.execute(
-        operation,
-        exampleGroup,
-        securities,
-      );
-
-      expect(response.body.message).toBe('Invalid authentication credentials');
     });
   });
 
