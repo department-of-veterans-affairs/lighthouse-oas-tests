@@ -140,7 +140,7 @@ export default class Positive extends Command {
     apiKey: string | undefined;
   }): Promise<void> => {
     const securitySchemes = await this.schema.getSecuritySchemes();
-    if (securitySchemes.length <= 0) {
+    if (securitySchemes.length === 0) {
       if (this.securities.length > 0) {
         this.error(
           `The following security requirements exist but no corresponding security scheme exists on a components object: ${this.securities}.
@@ -153,7 +153,7 @@ export default class Positive extends Command {
     const securityTypes = {};
     for (const scheme of securitySchemes) {
       if (this.securities.includes(scheme.key)) {
-        securityTypes[scheme.type] = scheme.type;
+        securityTypes[scheme.type] = scheme.key;
       }
     }
 
