@@ -6,7 +6,7 @@ pipeline {
   }
   environment {
     NPM_TOKEN = credentials('LIGHTHOUSE_NPM_REGISTRY_PROXY_NEXUS_TOKEN')
-    NPM_CONFIG_REGISTRY = 'https://tools.health.dev-developer.va.gov/nexus/repository/lighthouse-npm-registry-proxy/'
+    NPM_CONFIG_REGISTRY = 'https://tools.health.dev-developer.va.gov/nexus/repository/lighthouse-npm-proxy/'
   }
 
   stages {
