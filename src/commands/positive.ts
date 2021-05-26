@@ -13,7 +13,7 @@ import OASSchema from '../utilities/oas-schema';
 import { OASSecurityType } from '../utilities/oas-security';
 import {
   ParameterSchemaValidator,
-  ParameterValidator,
+  ExampleGroupValidator,
   ResponseValidator,
 } from '../utilities/validators';
 import {
@@ -109,7 +109,7 @@ export default class Positive extends Command {
         failures = [...failures, ...parameterSchemaValidator.failures];
         warnings = [...warnings, ...parameterSchemaValidator.warnings];
 
-        const parameterValidator = new ParameterValidator(exampleGroup);
+        const parameterValidator = new ExampleGroupValidator(exampleGroup);
         parameterValidator.validate();
 
         failures = [...failures, ...parameterValidator.failures];
