@@ -5,7 +5,7 @@ import ExampleGroup from '../example-group';
 import OASOperation from '../oas-operation';
 import BaseValidator from './base-validator';
 
-class ParameterValidator extends BaseValidator {
+class ExampleGroupValidator extends BaseValidator {
   private exampleGroup: ExampleGroup;
 
   private operation: OASOperation;
@@ -57,7 +57,6 @@ class ParameterValidator extends BaseValidator {
     path: string[],
   ): void {
     if (parameterHasSchema(parameter)) {
-      // Parameter Object conatains field: schema; does not contain field: content
       this.validateObjectAgainstSchema(example, parameter.schema, [
         ...path,
         'example',
@@ -73,4 +72,4 @@ class ParameterValidator extends BaseValidator {
   }
 }
 
-export default ParameterValidator;
+export default ExampleGroupValidator;
