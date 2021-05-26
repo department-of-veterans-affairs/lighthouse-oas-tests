@@ -47,7 +47,8 @@ paths:
         in: query
         description: Query the form number as well as title
         required: false
-        type: string
+        schema:
+          type: string
       responses:
         '200':
           description: VAForms index response

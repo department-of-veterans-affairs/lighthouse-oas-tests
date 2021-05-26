@@ -3,20 +3,25 @@ import { cli } from 'cli-ux';
 import { readFileSync } from 'fs';
 import yaml from 'js-yaml';
 import loadJsonFile from 'load-json-file';
+import { uniq } from 'lodash';
 import parseUrl from 'parse-url';
 import { extname, resolve } from 'path';
-import OASSchema from '../utilities/oas-schema';
-import { InvalidResponse } from '../validation-messages/failures';
-import { ParameterValidator, ResponseValidator } from '../utilities/validators';
-import {
-  OperationExample,
-  OperationFailures,
-  OperationResponse,
-  OperationWarnings,
-} from './types';
 import { Security } from 'swagger-client';
+import ExampleGroup from '../utilities/example-group';
+import OASOperation from '../utilities/oas-operation';
+import OASSchema from '../utilities/oas-schema';
 import { OASSecurityType } from '../utilities/oas-security';
-import { uniq } from 'lodash';
+import {
+  ParameterSchemaValidator,
+  ParameterValidator,
+  ResponseValidator,
+} from '../utilities/validators';
+import {
+  InvalidResponse,
+  ValidationFailure,
+} from '../validation-messages/failures';
+import { ValidationWarning } from '../validation-messages/warnings';
+import { OperationExample } from './types';
 
 export default class Positive extends Command {
   static description =
@@ -27,7 +32,6 @@ export default class Positive extends Command {
     apiKey: flags.string({
       char: 'a',
       description: 'API key to use',
-      env: 'LOAST_API_KEY',
     }),
   };
 
@@ -43,9 +47,7 @@ export default class Positive extends Command {
 
   private operationExamples: OperationExample[] = [];
 
-  private operationFailures: OperationFailures = {};
-
-  private operationWarnings: OperationWarnings = {};
+  private failingOperations: OASOperation[] = [];
 
   private securities: string[] = [];
 
@@ -94,15 +96,54 @@ export default class Positive extends Command {
 
     await this.buildOperationExamples();
 
-    this.validateParameters();
+    await Promise.all(
+      this.operationExamples.map(async (operationExample) => {
+        let failures: ValidationFailure[] = [];
+        let warnings: ValidationWarning[] = [];
+        const { operation, exampleGroup } = operationExample;
+        const parameterSchemaValidator = new ParameterSchemaValidator(
+          operation,
+        );
+        parameterSchemaValidator.validate();
 
-    const responses = await Promise.all(this.executeRequests());
+        failures = [...failures, ...parameterSchemaValidator.failures];
+        warnings = [...warnings, ...parameterSchemaValidator.warnings];
 
-    const mergedResponses = responses.reduce((merged, response) => {
-      return Object.assign(merged, response);
-    }, {});
+        const parameterValidator = new ParameterValidator(exampleGroup);
+        parameterValidator.validate();
 
-    this.validateResponses(mergedResponses);
+        failures = [...failures, ...parameterValidator.failures];
+        warnings = [...warnings, ...parameterValidator.warnings];
+
+        if (failures.length === 0) {
+          const response = await this.schema.execute(
+            operation,
+            exampleGroup,
+            this.securityValues,
+          );
+          if (response?.ok) {
+            const validator = new ResponseValidator(operation, response);
+            validator.validate();
+
+            failures = [...failures, ...validator.failures];
+            warnings = [...warnings, ...validator.warnings];
+          } else if (response) {
+            failures = [...failures, new InvalidResponse()];
+          }
+        }
+
+        if (failures.length > 0) {
+          this.failingOperations.push(operation);
+        }
+
+        this.displayOperationResults(
+          operation,
+          exampleGroup,
+          failures,
+          warnings,
+        );
+      }),
+    );
 
     this.displayResults();
   }
@@ -115,8 +156,6 @@ export default class Positive extends Command {
 
       for (const exampleGroup of exampleGroups) {
         const operationExampleId = `${operation.operationId}:${exampleGroup.name}`;
-        this.operationFailures[operationExampleId] = [];
-        this.operationWarnings[operationExampleId] = [];
         this.operationExamples.push({
           id: operationExampleId,
           operation,
@@ -167,76 +206,32 @@ export default class Positive extends Command {
     }
   };
 
-  validateParameters = (): void => {
-    for (const { id, exampleGroup } of this.operationExamples) {
-      const validator = new ParameterValidator(exampleGroup);
-      validator.validate();
+  displayOperationResults = (
+    operation: OASOperation,
+    exampleGroup: ExampleGroup,
+    failures: ValidationFailure[],
+    warnings: ValidationWarning[],
+  ): void => {
+    if (failures.length > 0) {
+      this.log(`${operation.operationId} - ${exampleGroup.name}: Failed`);
 
-      this.operationFailures[id] = validator.failures;
-    }
-  };
-
-  validateResponses = (responses: OperationResponse): void => {
-    for (const { id, operation } of this.operationExamples) {
-      const response = responses[id];
-      if (response?.ok) {
-        const validator = new ResponseValidator(operation, response);
-        validator.validate();
-
-        this.operationFailures[id] = validator.failures;
-        this.operationWarnings[id] = validator.warnings;
-      } else if (response) {
-        this.operationFailures[id] = [new InvalidResponse()];
-      }
-    }
-  };
-
-  executeRequests = (): Promise<OperationResponse>[] => {
-    const responses: Promise<OperationResponse>[] = [];
-    for (const { id, exampleGroup, operation } of this.operationExamples) {
-      if (this.operationFailures[id].length === 0) {
-        responses.push(
-          this.schema
-            .execute(operation, exampleGroup, this.securityValues)
-            .then((response) => {
-              return {
-                [id]: response,
-              };
-            }),
-        );
-      }
+      failures.forEach((failure) => {
+        this.log(`  - ${failure.toString()}`);
+      });
+    } else {
+      this.log(`${operation.operationId} - ${exampleGroup.name}: Succeeded`);
     }
 
-    return responses;
+    warnings.forEach((failure) => {
+      this.log(`  - ${failure.toString()}`);
+    });
   };
 
   displayResults = (): void => {
-    const failingOperations: string[] = [];
-    for (const { id, exampleGroup, operation } of this.operationExamples) {
-      const exampleGroupName = exampleGroup.name;
-      const failures = this.operationFailures[id];
-      const warnings = this.operationWarnings[id];
-
-      if (failures.length > 0) {
-        failingOperations.push(id);
-        this.log(`${operation.operationId} - ${exampleGroupName}: Failed`);
-
-        failures.forEach((failure) => {
-          this.log(`  - ${failure.toString()}`);
-        });
-      } else {
-        this.log(`${operation.operationId} - ${exampleGroupName}: Succeeded`);
-      }
-
-      warnings.forEach((failure) => {
-        this.log(`  - ${failure.toString()}`);
-      });
-    }
-
-    if (failingOperations.length > 0) {
+    if (this.failingOperations.length > 0) {
       this.error(
-        `${failingOperations.length} operation${
-          failingOperations.length > 1 ? 's' : ''
+        `${this.failingOperations.length} operation${
+          this.failingOperations.length > 1 ? 's' : ''
         } failed`,
       );
     }
