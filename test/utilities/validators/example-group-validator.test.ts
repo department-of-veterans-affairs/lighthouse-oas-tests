@@ -1,6 +1,6 @@
 import ExampleGroup from '../../../src/utilities/example-group';
 import OASOperation from '../../../src/utilities/oas-operation';
-import { ParameterValidator } from '../../../src/utilities/validators';
+import { ExampleGroupValidator } from '../../../src/utilities/validators';
 
 describe('ParameterValidator', () => {
   describe('validate', () => {
@@ -23,7 +23,7 @@ describe('ParameterValidator', () => {
           responses: {},
         });
         const exampleGroup = new ExampleGroup(operation, 'default', {});
-        const validator = new ParameterValidator(exampleGroup);
+        const validator = new ExampleGroupValidator(exampleGroup);
 
         validator.validate();
 
@@ -65,7 +65,7 @@ describe('ParameterValidator', () => {
           const exampleGroup = new ExampleGroup(operation, 'default', {
             family: 1,
           });
-          const validator = new ParameterValidator(exampleGroup);
+          const validator = new ExampleGroupValidator(exampleGroup);
           validator.validate();
 
           const failures = validator.failures;
@@ -97,7 +97,7 @@ describe('ParameterValidator', () => {
         responses: {},
       });
       const exampleGroup = new ExampleGroup(operation, 'default', { fit: 123 });
-      const validator = new ParameterValidator(exampleGroup);
+      const validator = new ExampleGroupValidator(exampleGroup);
 
       validator.validate();
 
@@ -126,7 +126,7 @@ describe('ParameterValidator', () => {
         responses: {},
       });
       const exampleGroup = new ExampleGroup(operation, 'default', {});
-      const validator = new ParameterValidator(exampleGroup);
+      const validator = new ExampleGroupValidator(exampleGroup);
 
       validator.validate();
 
