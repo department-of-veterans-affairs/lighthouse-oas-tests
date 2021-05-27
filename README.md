@@ -135,3 +135,12 @@ This library is setup with [eslint](https://eslint.org/) and [Prettier](https://
 
 ## Releasing
 See [oclif's release documentation](https://oclif.io/docs/releasing) for instructions on how to release new versions of the CLI both to npm and as standalone packages
+
+### Node Version Tools
+- **NVM:**  `.nvmrc` file is included in the repo to lock in the version of node used for development.
+  - Run `nvm use` to change your version of node. You may need to run `nvm install` first if the required version isn't installed.
+  - You can automatically call `nvm use` by updating your `$HOME/.bashrc` or `$HOME/.zshrc` more on that [here.](https://github.com/nvm-sh/nvm#nvmrc)
+
+- **ASDF:**  `.tool-versions` file is also included in the repo to lock in the version of node used for development.
+  - Run `asdf install` to install the version of node in the `.tool-versions` file.
+  - Additional settings and adding a `.asdfrc` to your home directory [here.](https://asdf-vm.com/#/core-configuration?id=homeasdfrc)
