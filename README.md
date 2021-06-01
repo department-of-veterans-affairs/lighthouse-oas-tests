@@ -82,7 +82,128 @@ Create an `examples` object on each parameter that needs to go into a group in t
   }
 }
 ```
-`loast` will go through and execute a test against the endpoint for each grouping it finds, including any required parameters in each request. 
+`loast` will go through and execute a test against the endpoint for each grouping it finds, including any required parameters in each request.
+
+## Parameter Groups
+Example Groups are built from Parameter objects in both the Path Item Object and the Operation Object.
+
+- Parameters set at the Path Item Object level with an example (or examples), Will be included in the example groups for any Operation Objects underneath the Path Item
+  <details><summary>Sample JSON</summary>
+  
+    ```json
+    "paths": {
+      "/sample": {
+          "get": {
+            "tags": [
+              "facilities"
+            ],
+            "operationId": "getPathAndOp",
+            "parameters": [
+              {
+                "name": "page",
+                "in": "query",
+                "description": "Page of results to return per paginated response.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32",
+                  "default": 1
+                },
+                "example": 1,
+                "required": true
+              }
+            ]
+          },
+          "parameters": [
+            {
+              "name": "per_page",
+              "in": "query",
+              "description": "Number of results to return per paginated response.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              },
+              "example": 20,
+              "required": true
+            }
+          ]
+      }
+    }
+
+    //Eample Group
+    {
+      "name": "default",
+      "examples": {
+        "page": 1,
+        "per_page": 20
+      }
+    }
+    ```
+  </details>
+  </br>
+- When the parameters set at the Operation Object level have the same unique identifier (combination of name and in values) as the Path Item Object parameters the example is pulled from the Operation Object level.
+  
+  <details><summary>Sample JSON</summary>
+    
+      ```json
+      "paths": {
+        "/sample": {
+            "get": {
+              "tags": [
+                "facilities"
+              ],
+              "operationId": "getSameValues",
+              "parameters": [
+                {
+                  "name": "page",
+                  "in": "query",
+                  "description": "Page of results to return per paginated response.",
+                  "schema": {
+                    "type": "integer",
+                    "format": "int32",
+                    "default": 1
+                  },
+                  "example": 1,
+                  "required": true
+                }
+              ]
+            },
+            "parameters": [
+              {
+                "name": "page",
+                "in": "query",
+                "description": "Number of results to return per paginated response.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32",
+                  "default": 20
+                },
+                "example": 20,
+                "required": true
+              }
+            ]
+        }
+      }
+
+      //Eample Group
+      {
+        "name": "default",
+        "examples": {
+          "page": 1
+        }
+      }
+      ```
+  </details>
+  </br>
+- Using empty default example groups will result in false failures.
+
+  <details><summary>Sample JSON</summary>
+  
+    ```sh
+   getSampleEmptyGroup - default: Failed
+      - Response status code was a non 2XX value
+    ```
+  </details>
 
 # Validation Failures
 The sections below contain details about validation failures that can be produced by loast and how to fix them. Failures will include a path to the place in the schema where the failure occured.
