@@ -1,5 +1,5 @@
 import {
-  ComponentObject,
+  ComponentsObject,
   OpenAPIObject,
   SecurityRequirementObject,
   SecuritySchemesObject,
@@ -24,7 +24,7 @@ describe('OASSecurityFactory', () => {
           scheme: 'basic',
         },
       },
-    } as ComponentObject,
+    } as ComponentsObject,
     security: [
       {
         phial_of_galadriel: [],
