@@ -141,6 +141,7 @@ Example Groups are built from Parameter objects in both the Path Item Object and
     ```
   </details>
   </br>
+  
 - When the parameters set at the Operation Object level have the same unique identifier (combination of name and in values) as the Path Item Object parameters the example is pulled from the Operation Object level.
   
   <details><summary>Sample JSON</summary>
@@ -195,6 +196,7 @@ Example Groups are built from Parameter objects in both the Path Item Object and
       ```
   </details>
   </br>
+
 - Using empty default example groups will result in false failures.
 
   <details><summary>Sample JSON</summary>
