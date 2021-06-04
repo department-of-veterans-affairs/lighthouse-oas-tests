@@ -63,12 +63,12 @@ ARGUMENTS
   PATH  Url or local file path containing the OpenAPI spec
 
 OPTIONS
-  -a, --apiKey=apiKey  API key to use
-  -f, --file           Provide this flag if the path is to a local file
-  -h, --help           show CLI help
+  -a, --apiKey=apiKey            API key to use
+  -b, --bearerToken=bearerToken  Bearer token to use
+  -h, --help                     show CLI help
 ```
 
-_See code: [src/commands/positive.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/v0.2.0/src/commands/positive.ts)_
+_See code: [src/commands/positive.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/src/commands/positive.ts)_
 <!-- commandsstop -->
 
 # OpenApi Spec Setup
@@ -89,7 +89,7 @@ Example Groups are built from Parameter objects in both the Path Item Object and
 
 - Parameters set at the Path Item Object level with an example (or examples), Will be included in the example groups for any Operation Objects underneath the Path Item
   <details><summary>Sample JSON</summary>
-  
+
     ```json
     "paths": {
       "/sample": {
@@ -162,11 +162,11 @@ Example Groups are built from Parameter objects in both the Path Item Object and
     //Example Group
     {
       "name": "coordinates",
-      "examples": { 
-        "page": 1, 
-        "per_page": 20, 
-        "lat": 123.4, 
-        "lng": 456.7 
+      "examples": {
+        "page": 1,
+        "per_page": 20,
+        "lat": 123.4,
+        "lng": 456.7
       }
     },
     {
@@ -178,12 +178,12 @@ Example Groups are built from Parameter objects in both the Path Item Object and
     }
     ```
   </details>
-  </br> 
+  </br>
 
 - When the parameters set at the Operation Object level have the same unique identifier (combination of name and in values) as the Path Item Object parameters the example is pulled from the Operation Object level.
-  
+
   <details><summary>Sample JSON</summary>
-    
+
     ```json
       "paths": {
         "/sample": {
@@ -234,11 +234,11 @@ Example Groups are built from Parameter objects in both the Path Item Object and
     ```
   </details>
   </br>
-  
+
 - Using an empty default example group may result in false failures if the endpoint under test responds with an error if no parameters are provided.
 
   <details><summary>Sample JSON</summary>
-  
+
     ```sh
    getSampleEmptyGroup - default: Failed
       - Response status code was a non 2XX value
@@ -284,7 +284,7 @@ These failures can occur for parameters and responses.
 # Local Development
 
 ## Running Commands
-Before running any commands locally and after any code changes, the code will need to be built using `npm run build`.  
+Before running any commands locally and after any code changes, the code will need to be built using `npm run build`.
 While developing locally, `$ ./bin/run` is the equivalent of running `$ loast` with the CLI installed.
 - e.g.: `$ ./bin/run positive -a YOUR_API_KEY -f test/fixtures/facilities_oas.json` will run positive tests against the facilities OAS present in our test fixtures.
 
