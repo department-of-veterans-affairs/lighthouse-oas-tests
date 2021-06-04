@@ -1,7 +1,8 @@
 import OASOperation from '../../../src/utilities/oas-operation';
+import { OperationObject } from 'swagger-client';
 
 describe('OASOperation', () => {
-  const operation = new OASOperation({
+  const baseOperation = {
     operationId: 'getHobbits',
     parameters: [
       {
@@ -47,7 +48,9 @@ describe('OASOperation', () => {
         },
       },
     },
-  });
+  } as OperationObject;
+
+  const operation = new OASOperation({ ...baseOperation });
 
   describe('getOperationId', () => {
     it('returns the operation ID', () => {
@@ -162,6 +165,22 @@ describe('OASOperation', () => {
 
     it('returns null if the response is not found', () => {
       expect(operation.getResponseSchema(683)).toBeNull();
+    });
+  });
+
+  describe('getSecurity', () => {
+    it('uses operation level security if it exists', () => {
+      const secureOperation = new OASOperation({ ...baseOperation }, [
+        { 'boromir-security': [] },
+      ]);
+
+      expect(secureOperation.security).toEqual([
+        { key: 'boromir-security', scopes: undefined },
+      ]);
+    });
+
+    it('overrides spec level security with operation level security if it exists', () => {
+      expect(operation.security).toEqual([]);
     });
   });
 });

@@ -107,7 +107,7 @@ describe('Positive', () => {
             },
           ],
         },
-        [{ 'boromir-security': [] }],
+        [{ 'faramir-security': [] }],
       ),
     ]);
 
@@ -139,11 +139,6 @@ describe('Positive', () => {
   describe('API key is not set', () => {
     beforeEach(() => {
       process.env.API_KEY = '';
-    });
-
-    it('requests an apiKey when apiKey scheme exists', async () => {
-      await Positive.run(['./test/fixtures/spec_level_security.json']);
-      expect(mockPrompt).toHaveBeenCalled();
     });
 
     it("does not request an apiKey when apiKey scheme doesn't exist", async () => {
@@ -682,6 +677,88 @@ describe('Positive', () => {
       }).rejects.toThrow(
         'File is of a type not supported by OAS (.json, .yml, .yaml)',
       );
+    });
+  });
+
+  describe('promptForSecurityValues', () => {
+    beforeEach(() => {
+      mockPrompt.mockReset();
+      mockGetSecuritySchemes.mockReset();
+    });
+
+    it('requests an apiKey when apiKey scheme exists', async () => {
+      mockGetSecuritySchemes.mockResolvedValue([
+        {
+          key: 'boromir-security',
+          type: 'apiKey',
+          description: 'one does simply walk into VA APIs',
+          name: 'boromir-security',
+          in: 'header',
+        },
+      ]);
+
+      await Positive.run([
+        './test/fixtures/securities/spec_level_security_oas.json',
+      ]);
+
+      expect(mockPrompt).toHaveBeenCalled();
+    });
+
+    it('requests a bearer token when http bearer scheme exists', async () => {
+      mockGetSecuritySchemes.mockResolvedValue([
+        {
+          key: 'boromir-security',
+          type: 'http',
+          description: 'one does simply walk into VA APIs',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      ]);
+
+      await Positive.run([
+        './test/fixtures/securities/spec_level_security_oas.json',
+      ]);
+
+      expect(mockPrompt).toHaveBeenCalled();
+    });
+
+    it('requests authorization for each security type in the spec', async () => {
+      mockGetSecuritySchemes.mockResolvedValue([
+        {
+          key: 'faramir-security',
+          type: 'apiKey',
+          description:
+            'A chance for Faramir, Captain of Gondor, to show his quality!',
+          name: 'faramir-security',
+          in: 'header',
+        },
+        {
+          key: 'boromir-security',
+          type: 'http',
+          description: 'one does simply walk into VA APIs',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      ]);
+
+      await Positive.run(['./test/fixtures/securities/mixed_levels_oas.json']);
+
+      expect(mockPrompt).toHaveBeenCalled();
+      expect(mockPrompt).toHaveBeenCalledTimes(2);
+    });
+
+    it('throws an error if no security schemes are defined in the component object', async () => {
+      mockGetSecuritySchemes.mockResolvedValue([]);
+
+      await expect(
+        Positive.run([
+          './test/fixtures/securities/no_security_schemes_oas.json',
+        ]),
+      ).rejects
+        .toThrow(`The following security requirements exist but no corresponding security scheme exists on a components object: boromir-security,faramir-security.
+  See more at: https://swagger.io/specification/#security-requirement-object`);
+
+      expect(mockPrompt).not.toHaveBeenCalled();
     });
   });
 });
