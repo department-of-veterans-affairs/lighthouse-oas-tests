@@ -100,6 +100,35 @@ Example Groups are built from Parameter objects in both the Path Item Object and
             "operationId": "getPathAndOp",
             "parameters": [
               {
+                  "name": "lat",
+                  "in": "query",
+                  "description": "Latitude of the location from which drive time will be calculated.",
+                  "schema": {
+                      "type": "number",
+                      "format": "float"
+                  },
+                  "examples": {
+                      "coordinates": {
+                          "value": 123.4
+                      }
+                  }
+              },
+              {
+                  "name": "lng",
+                  "in": "query",
+                  "description": "Longitude of the location from which drive time will be calculated.",
+                  "style": "form",
+                  "schema": {
+                      "type": "number",
+                      "format": "float"
+                  },
+                  "examples": {
+                      "coordinates": {
+                          "value": 456.7
+                      }
+                  }
+              },
+              {
                 "name": "page",
                 "in": "query",
                 "description": "Page of results to return per paginated response.",
@@ -130,7 +159,16 @@ Example Groups are built from Parameter objects in both the Path Item Object and
       }
     }
 
-    //Eample Group
+    //Example Group
+    {
+      "name": "coordinates",
+      "examples": { 
+        "page": 1, 
+        "per_page": 20, 
+        "lat": 123.4, 
+        "lng": 456.7 
+      }
+    },
     {
       "name": "default",
       "examples": {
@@ -146,7 +184,7 @@ Example Groups are built from Parameter objects in both the Path Item Object and
   
   <details><summary>Sample JSON</summary>
     
-      ```json
+    ```json
       "paths": {
         "/sample": {
             "get": {
@@ -186,18 +224,18 @@ Example Groups are built from Parameter objects in both the Path Item Object and
         }
       }
 
-      //Eample Group
+      //Example Group
       {
         "name": "default",
         "examples": {
           "page": 1
         }
       }
-      ```
+    ```
   </details>
   </br>
   
-- Using empty default example groups will result in false failures.
+- Using an empty default example group may result in false failures if the endpoint under test responds with an error if no parameters are provided.
 
   <details><summary>Sample JSON</summary>
   
