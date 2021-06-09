@@ -211,7 +211,7 @@ export default class Positive extends Command {
       const apiSecurityName = securityTypes[OASSecurityType.APIKEY].key;
       const value =
         flags.apiKey ??
-        (await cli.prompt('Please provide your API Key?', { type: 'mask' }));
+        (await cli.prompt('Please provide your API Key', { type: 'mask' }));
 
       this.securityValues[apiSecurityName] = { value };
     }
