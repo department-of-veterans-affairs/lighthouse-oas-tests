@@ -7,6 +7,7 @@ import { uniq } from 'lodash';
 import parseUrl from 'parse-url';
 import { extname, resolve } from 'path';
 import { Security } from 'swagger-client';
+import { BEARER_SECURITY_SCHEME } from '../utilities/constants';
 import ExampleGroup from '../utilities/example-group';
 import OASOperation from '../utilities/oas-operation';
 import OASSchema from '../utilities/oas-schema';
@@ -219,7 +220,9 @@ export default class Positive extends Command {
       const bearerSecurityName = securityTypes[OASSecurityType.HTTP].key;
       let value;
 
-      if (securityTypes[OASSecurityType.HTTP].scheme === 'bearer') {
+      if (
+        securityTypes[OASSecurityType.HTTP].scheme === BEARER_SECURITY_SCHEME
+      ) {
         value =
           flags.bearerToken ??
           (await cli.prompt('Please provide your bearer token', {
