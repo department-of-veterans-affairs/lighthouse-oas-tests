@@ -282,6 +282,7 @@ These failures can occur for parameters and responses.
 | Invalid `operationId` | There is no operation with that id | Check for misspellings or add the missing `operationId` to the schema |
 
 # Local Development
+See our [contribution guide](CONTRIBUTING.MD)
 
 ## Running Commands
 Before running any commands locally and after any code changes, the code will need to be built using `npm run build`.  
