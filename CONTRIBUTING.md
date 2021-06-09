@@ -7,6 +7,7 @@ Please consider these guidelines when filing a pull request:
 *  Commits follow the [Angular commit convention](https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#-git-commit-guidelines)
     *  Commits messages are enforced using husky hooks and [commitlint](https://github.com/conventional-changelog/commitlint)
     *  [Commitizen](https://github.com/commitizen/cz-cli) can be used to create commits following the correct format. This is integrated in a commit message hook, so can be accessed by simply typing `git commit`
+        * You will need to install the CLI first using `npm install -g commitizen`
 *  Prettier is used to enforce code style
 *  eslint is used to enforce code quality
 *  Features and bug fixes should be covered by test cases
