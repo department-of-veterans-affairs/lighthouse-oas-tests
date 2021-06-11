@@ -70,12 +70,6 @@ declare module 'swagger-client/schema' {
     in: 'path' | 'query' | 'header' | 'cookie';
   }
 
-  export interface ResponseObject {
-    description: string;
-    headers?: { [headerName: string]: HeaderObject };
-    content: { [contentType: string]: MediaTypeObject };
-  }
-
   export interface ParameterWithSchema extends ParameterBase {
     schema: SchemaObject;
   }
@@ -99,6 +93,12 @@ declare module 'swagger-client/schema' {
     style?: string;
     explode?: boolean;
     allowReserved: boolean;
+  }
+
+  export interface ResponseObject {
+    description: string;
+    headers?: { [headerName: string]: HeaderObject };
+    content: { [contentType: string]: MediaTypeObject };
   }
 
   export interface ExampleObject {
