@@ -82,7 +82,7 @@ describe('ParameterSchemaValidator', () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
         parameters: [
-          ({
+          {
             name: 'magical deliveries',
             in: 'query',
             example: 'the daily prophet',
@@ -95,7 +95,7 @@ describe('ParameterSchemaValidator', () => {
                 },
               },
             },
-          } as unknown) as ParameterObject,
+          } as unknown as ParameterObject,
         ],
         responses: {},
       });
@@ -115,11 +115,11 @@ describe('ParameterSchemaValidator', () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
         parameters: [
-          ({
+          {
             name: 'horcrux',
             in: 'query',
             example: "tom riddle's diary",
-          } as unknown) as ParameterObject,
+          } as unknown as ParameterObject,
         ],
         responses: {},
       });
@@ -139,7 +139,7 @@ describe('ParameterSchemaValidator', () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
         parameters: [
-          ({
+          {
             name: 'horcrux',
             in: 'query',
             example: "tom riddle's diary",
@@ -150,7 +150,7 @@ describe('ParameterSchemaValidator', () => {
               type: 'string',
               description: 'founded by Godric Gryffindor',
             },
-          } as unknown) as ParameterObject,
+          } as unknown as ParameterObject,
         ],
         responses: {},
       });
@@ -223,7 +223,7 @@ describe('ParameterSchemaValidator', () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
         parameters: [
-          ({
+          {
             name: 'magical deliveries',
             in: 'query',
             example: 'the daily prophet',
@@ -236,7 +236,7 @@ describe('ParameterSchemaValidator', () => {
                 },
               },
             },
-          } as unknown) as ParameterObject,
+          } as unknown as ParameterObject,
         ],
         responses: {},
       });
