@@ -702,6 +702,9 @@ describe('Positive', () => {
       ]);
 
       expect(mockPrompt).toHaveBeenCalled();
+      expect(mockPrompt).toHaveBeenCalledWith('Please provide your API Key', {
+        type: 'mask',
+      });
     });
 
     it('requests a bearer token when http bearer scheme exists', async () => {
@@ -715,11 +718,15 @@ describe('Positive', () => {
         },
       ]);
 
-      await Positive.run([
-        './test/fixtures/securities/spec_level_security_oas.json',
-      ]);
+      await Positive.run(['./test/fixtures/securities/bearer_token_oas.json']);
 
       expect(mockPrompt).toHaveBeenCalled();
+      expect(mockPrompt).toHaveBeenCalledWith(
+        'Please provide your bearer token',
+        {
+          type: 'mask',
+        },
+      );
     });
 
     it('requests authorization for each security type in the spec', async () => {
