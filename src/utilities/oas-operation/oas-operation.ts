@@ -10,6 +10,8 @@ import OASSecurityFactory from '../oas-security/oas-security.factory';
 class OASOperation {
   readonly operationId: string;
 
+  readonly parameters: ParameterObject[];
+
   readonly security: OASSecurity[];
 
   private _operation: OperationObject;
@@ -22,6 +24,7 @@ class OASOperation {
   ) {
     this._operation = operation;
     this.operationId = operation.operationId;
+    this.parameters = operation.parameters;
     this._exampleGroups = ExampleGroupFactory.buildFromOperation(this);
 
     operation.security = operation.security ?? securities;
@@ -30,10 +33,6 @@ class OASOperation {
 
   get exampleGroups(): ExampleGroup[] {
     return [...this._exampleGroups];
-  }
-
-  get parameters(): ParameterObject[] {
-    return this._operation.parameters;
   }
 
   get requiredParameterNames(): string[] {
