@@ -1,4 +1,9 @@
 import { ExampleObject, ParameterObject } from 'swagger-client';
+import { Json } from 'swagger-client/schema';
+import {
+  parameterHasContent,
+  parameterHasSchema,
+} from '../../types/typeguards';
 import { DEFAULT_PARAMETER_GROUP } from '../constants';
 import OASOperation from '../oas-operation';
 import ExampleGroup from './example-group';
@@ -8,25 +13,8 @@ class ExampleGroupFactory {
     const parameters = operation.parameters;
     const groupNames = this.getGroupNames(parameters);
 
-    const requiredExamples = parameters
-      .filter((parameter) => parameter.required)
-      .reduce((examples, parameter) => {
-        return {
-          ...examples,
-          [parameter.name]:
-            parameter.example ??
-            parameter.examples?.[DEFAULT_PARAMETER_GROUP]?.value,
-        };
-      }, {});
-
-    const nonRequiredExamplesWithExampleField = parameters
-      .filter((parameter) => !parameter.required && parameter.example)
-      .reduce((examples, parameter) => {
-        return {
-          ...examples,
-          [parameter.name]: parameter.example,
-        };
-      }, {});
+    const requiredExamples = this.getRequiredExamples(parameters);
+    const nonRequiredExamples = this.getNonRequiredExamples(parameters);
 
     let exampleGroups: ExampleGroup[] = [];
 
@@ -38,7 +26,7 @@ class ExampleGroupFactory {
               ...exampleGroups,
               this.findExamplesForGroup(operation, groupName, parameters, {
                 ...requiredExamples,
-                ...nonRequiredExamplesWithExampleField,
+                ...nonRequiredExamples,
               }),
             ];
           }
@@ -61,12 +49,80 @@ class ExampleGroupFactory {
       const defaultGroup = new ExampleGroup(
         operation,
         DEFAULT_PARAMETER_GROUP,
-        { ...requiredExamples, ...nonRequiredExamplesWithExampleField },
+        { ...requiredExamples, ...nonRequiredExamples },
       );
       exampleGroups.push(defaultGroup);
     }
 
     return exampleGroups;
+  }
+
+  private static getNonRequiredExamples(parameters): { [name: string]: Json } {
+    return parameters
+      .filter((parameter): boolean => {
+        if (parameter.required) return false;
+
+        // Examples on parameters should always override examples found elsewhere
+        if (parameter.example) {
+          return Boolean(parameter.example);
+        }
+
+        if (parameterHasSchema(parameter)) {
+          return Boolean(parameter.schema.example);
+        }
+
+        if (parameterHasContent(parameter)) {
+          const [key] = Object.keys(parameter.content);
+
+          return Boolean(parameter.content[key].example);
+        }
+
+        return false;
+      })
+      .reduce((examples, parameter) => {
+        return {
+          ...examples,
+          [parameter.name]: parameter.example,
+        };
+      }, {});
+  }
+
+  private static getRequiredExamples(parameters): { [name: string]: Json } {
+    return parameters
+      .filter((parameter) => parameter.required)
+      .reduce((examples, parameter) => {
+        // If an example/examples exist on the Parameter Object they should override other potential sources.
+        if (parameter.example || parameter.examples) {
+          return {
+            ...examples,
+            [parameter.name]:
+              parameter.example ??
+              parameter.examples?.[DEFAULT_PARAMETER_GROUP]?.value,
+          };
+        }
+
+        // Since a parameter MUST contain either a schema or content propery but not both,
+        // the order of these two `if` blocks does not matter.
+        if (parameter.content) {
+          const [key] = Object.keys(parameter.content);
+          return {
+            ...examples,
+            [parameter.name]:
+              parameter.content[key].example ??
+              parameter.content[key].examples?.[DEFAULT_PARAMETER_GROUP]?.value,
+          };
+        }
+
+        if (parameter.schema?.example) {
+          return {
+            ...examples,
+            [parameter.name]: parameter.schema.example,
+          };
+        }
+
+        // catch-all in case there are no examples.
+        return examples;
+      }, {});
   }
 
   private static getGroupNames(parameters: ParameterObject[]): string[] {
@@ -87,6 +143,13 @@ class ExampleGroupFactory {
     for (const parameter of parameters) {
       if (parameter.examples?.[groupName]) {
         examples[parameter.name] = parameter.examples[groupName].value;
+      } else if (parameterHasContent(parameter)) {
+        const [key] = Object.keys(parameter.content);
+
+        if (parameter.content[key].examples?.[groupName]) {
+          examples[parameter.name] =
+            parameter.content[key].examples?.[groupName].value;
+        }
       }
     }
     return new ExampleGroup(operation, groupName, {

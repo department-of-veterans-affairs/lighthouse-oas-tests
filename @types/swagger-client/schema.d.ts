@@ -121,6 +121,7 @@ declare module 'swagger-client/schema' {
     description?: string;
     enum?: Json[];
     nullable?: boolean;
+    example?: Json;
   }
   export interface SecuritySchemeObject {
     type: 'apiKey' | 'http' | 'mutualTLS' | 'oauth2' | 'openIdConnect';
