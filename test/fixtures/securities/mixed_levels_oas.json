@@ -1,0 +1,414 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "0.0.0",
+    "title": "VA Forms",
+    "description": "The VA Forms API indexes data sourced from VA.gov, creating unique hashes for each version of a form and allowing quick lookup.\n\nVisit our VA Lighthouse [support portal](https://developer.va.gov/support) for further assistance.\n\n## Technical Summary\nMake a GET call to `/forms` to see an index of all available VA forms. Optionally, pass a `?query` parameter to filter forms by form number or title.\n\nMake a GET call with a specific `form_name` to `/forms/{form_name}` to see data for a given form, including version history.\n",
+    "contact": {
+      "name": "va.gov"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://sandbox-api.va.gov/services/va_forms/{version}",
+      "description": "VA.gov API sandbox environment",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    },
+    {
+      "url": "https://api.va.gov/services/va_forms/{version}",
+      "description": "VA.gov API production environment",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    }
+  ],
+  "basePath": "/services/va_forms/v0",
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/forms": {
+      "get": {
+        "summary": "All VA Forms",
+        "description": "Returns all VA Forms and their last revision date",
+        "operationId": "findForms",
+        "produces": ["application/json"],
+        "tags": ["Forms"],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Query the form number as well as title",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "VaForms index response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data"],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FormsIndex"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized Request"
+          },
+          "403": {
+            "description": "Bad API Token"
+          }
+        },
+        "security": [
+          {
+            "faramir_api_key": []
+          }
+        ]
+      }
+    },
+    "/forms/{form_name}": {
+      "get": {
+        "summary": "Find form by form name",
+        "description": "Returns a single form ",
+        "operationId": "findFormByFormName",
+        "tags": ["Forms"],
+        "parameters": [
+          {
+            "name": "form_name",
+            "in": "path",
+            "description": "The VA form_name of the form being requested",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "VA10192"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "VaForm response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data"],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/FormShow"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized Request"
+          },
+          "403": {
+            "description": "Bad API Token"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "FormsIndex": {
+        "description": "A listing of available VA forms and their location.",
+        "properties": {
+          "id": {
+            "description": "JSON API identifier",
+            "type": "string",
+            "example": "VA10192"
+          },
+          "type": {
+            "description": "JSON API type specification",
+            "type": "string",
+            "example": "va_form"
+          },
+          "attributes": {
+            "properties": {
+              "form_name": {
+                "description": "Name of the VA Form",
+                "type": "string",
+                "example": "VA10192"
+              },
+              "url": {
+                "description": "Web location of the form",
+                "type": "string",
+                "example": "https://www.va.gov/vaforms/va/pdf/VA10192.pdf"
+              },
+              "title": {
+                "description": "Title of the form as given by VA",
+                "type": "string",
+                "example": "Information for Pre-Complaint Processing"
+              },
+              "first_issued_on": {
+                "description": "The date the form first became available",
+                "type": "string",
+                "example": "2012-01-01",
+                "format": "date",
+                "nullable": true
+              },
+              "last_revision_on": {
+                "description": "The date the form was last updated",
+                "type": "string",
+                "example": "2012-01-01",
+                "format": "date"
+              },
+              "pages": {
+                "description": "Number of pages contained in the form",
+                "type": "integer",
+                "example": 3
+              },
+              "valid_pdf": {
+                "description": "A flag indicating whether the form url was confirmed as a valid download",
+                "type": "boolean",
+                "example": true
+              },
+              "sha256": {
+                "description": "A sha256 hash of the form contents",
+                "type": "string",
+                "example": "5fe171299ece147e8b456961a38e17f1391026f26e9e170229317bc95d9827b7"
+              },
+              "form_usage": {
+                "description": "A description of how the form is to be used",
+                "type": "string",
+                "nullable": true
+              },
+              "form_tool_intro": {
+                "description": "Introductionary text describing the VA online tool for this form",
+                "type": "string",
+                "nullable": true
+              },
+              "form_tool_url": {
+                "description": "Location of the online tool for this form",
+                "type": "string",
+                "nullable": true
+              },
+              "form_details_url": {
+                "description": "Location on www.va.gov of the info page for this form",
+                "type": "string",
+                "nullable": true
+              },
+              "form_type": {
+                "description": "VA Type of the form",
+                "type": "string",
+                "example": "VHA",
+                "nullable": true
+              },
+              "language": {
+                "description": "Language code of the form",
+                "type": "string",
+                "example": "en",
+                "nullable": true
+              },
+              "deleted_at": {
+                "description": "The timestamp at which the form was deleted",
+                "type": "string",
+                "example": "2018-07-30T17:31:15.958Z",
+                "format": "date-time",
+                "nullable": true
+              },
+              "related_forms": {
+                "description": "A listing of other forms that relate to current form",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "example": "21-22A"
+                },
+                "nullable": true
+              },
+              "benefit_categories": {
+                "description": "Listing of categories and match",
+                "type": "array",
+                "items": {
+                  "properties": {
+                    "name": {
+                      "description": "Name of the benefit category of the form",
+                      "type": "string",
+                      "example": "Pension"
+                    },
+                    "description": {
+                      "description": "Description of the benefit category of the form",
+                      "type": "string",
+                      "example": "VA pension benefits"
+                    }
+                  }
+                },
+                "nullable": true
+              }
+            }
+          }
+        }
+      },
+      "FormShow": {
+        "description": "Data for a particular VA form, including form version history.",
+        "properties": {
+          "id": {
+            "description": "JSON API identifier",
+            "type": "string",
+            "example": "VA10192"
+          },
+          "type": {
+            "description": "JSON API type specification",
+            "type": "string",
+            "example": "va_form"
+          },
+          "attributes": {
+            "properties": {
+              "form_name": {
+                "description": "Name of the VA Form",
+                "type": "string",
+                "example": "VA10192"
+              },
+              "url": {
+                "description": "Web location of the form",
+                "type": "string",
+                "example": "https://www.va.gov/vaforms/va/pdf/VA10192.pdf"
+              },
+              "title": {
+                "description": "Title of the form as given by VA",
+                "type": "string",
+                "example": "Information for Pre-Complaint Processing"
+              },
+              "first_issued_on": {
+                "description": "The date the form first became available",
+                "type": "string",
+                "example": "2012-01-01",
+                "format": "date"
+              },
+              "last_revised_on": {
+                "description": "The date the form was last updated",
+                "type": "string",
+                "example": "2012-01-01",
+                "format": "date"
+              },
+              "pages": {
+                "description": "Number of pages contained in the form",
+                "type": "integer",
+                "example": 3
+              },
+              "sha256": {
+                "description": "A sha256 hash of the form contents",
+                "type": "string",
+                "example": "5fe171299ece147e8b456961a38e17f1391026f26e9e170229317bc95d9827b7"
+              },
+              "form_usage": {
+                "description": "A description of how the form is to be used",
+                "type": "string"
+              },
+              "form_tool_intro": {
+                "description": "Introductionary text describing the VA online tool for this form",
+                "type": "string"
+              },
+              "form_tool_url": {
+                "description": "Location of the online tool for this form",
+                "type": "string"
+              },
+              "form_details_url": {
+                "description": "Location on www.va.gov of the info page for this form",
+                "type": "string"
+              },
+              "form_type": {
+                "description": "VA Type of the form",
+                "type": "string",
+                "example": "VHA"
+              },
+              "language": {
+                "description": "Language code of the form",
+                "type": "string",
+                "example": "en"
+              },
+              "related_forms": {
+                "description": "A listing of other forms that relate to current form",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "example": "21-22A"
+                }
+              },
+              "benefit_categories": {
+                "description": "Listing of categories and match",
+                "type": "array",
+                "items": {
+                  "properties": {
+                    "name": {
+                      "description": "Name of the benefit category of the form",
+                      "type": "string",
+                      "example": "Pension"
+                    },
+                    "description": {
+                      "description": "Description of the benefit category of the form",
+                      "type": "string",
+                      "example": "VA pension benefits"
+                    }
+                  }
+                }
+              },
+              "versions": {
+                "type": "array",
+                "description": "The version history of revisions to the form",
+                "items": {
+                  "properties": {
+                    "sha256": {
+                      "description": "A sha256 hash of the form contents for that version",
+                      "type": "string",
+                      "example": "5fe171299ece147e8b456961a38e17f1391026f26e9e170229317bc95d9827b7"
+                    },
+                    "revision_on": {
+                      "description": "The date the version was revised",
+                      "type": "string",
+                      "example": "2012-01-01",
+                      "format": "date"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "examples": {},
+    "links": {},
+    "parameters": {},
+    "requestBodies": {},
+    "responses": {},
+    "securitySchemes": {
+      "boromir-security": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "faramir_api_key": {
+        "type": "apiKey",
+        "name": "faramir_api_key",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "boromir-security": []
+    }
+  ]
+}

@@ -25,12 +25,18 @@ export class OASSecurityScheme implements SecuritySchemeObject {
 
   readonly in: OASIn | undefined;
 
+  readonly scheme: string | undefined;
+
+  readonly bearerFormat: string | undefined;
+
   constructor(key: string, securityScheme: SecuritySchemeObject) {
     this.key = key;
     this.type = securityScheme.type as OASSecurityType;
     this.description = securityScheme.description;
     this.name = securityScheme.name;
     this.in = securityScheme.in as OASIn;
+    this.scheme = securityScheme.scheme;
+    this.bearerFormat = securityScheme.bearerFormat;
   }
 }
 

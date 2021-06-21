@@ -1,7 +1,8 @@
 import OASOperation from '../../../src/utilities/oas-operation';
+import { OperationObject } from 'swagger-client';
 
 describe('OASOperation', () => {
-  const operation = new OASOperation({
+  const baseOperation = {
     operationId: 'getHobbits',
     parameters: [
       {
@@ -47,7 +48,9 @@ describe('OASOperation', () => {
         },
       },
     },
-  });
+  } as OperationObject;
+
+  const operation = new OASOperation({ ...baseOperation });
 
   describe('getOperationId', () => {
     it('returns the operation ID', () => {
@@ -162,6 +165,72 @@ describe('OASOperation', () => {
 
     it('returns null if the response is not found', () => {
       expect(operation.getResponseSchema(683)).toBeNull();
+    });
+  });
+
+  describe('getSecurity', () => {
+    describe('security exists on operation only', () => {
+      it('returns operation level security if it exists', () => {
+        const secureOperation = new OASOperation({
+          ...baseOperation,
+          security: [{ 'faramir-security': [] }],
+        });
+
+        expect(secureOperation.security).toEqual([{ key: 'faramir-security' }]);
+      });
+    });
+
+    describe('security does not exists on operation or spec', () => {
+      it('returns empty', () => {
+        const unsecureOperation = new OASOperation({
+          ...baseOperation,
+        });
+
+        expect(unsecureOperation.security).toEqual([]);
+      });
+    });
+
+    describe('security exists on spec only', () => {
+      it('returns spec level security', () => {
+        const specLevelSecurityOperation = new OASOperation(
+          { ...baseOperation },
+          [{ 'boromir-security': [] }],
+        );
+
+        expect(specLevelSecurityOperation.security).toEqual([
+          { key: 'boromir-security' },
+        ]);
+      });
+    });
+
+    describe('security exists on operation and spec', () => {
+      it('returns the operation level security', () => {
+        const mixedLevelSecurityOperation = new OASOperation(
+          {
+            ...baseOperation,
+            security: [{ 'faramir-security': [] }],
+          },
+          [{ 'boromir-security': [] }],
+        );
+
+        expect(mixedLevelSecurityOperation.security).toEqual([
+          { key: 'faramir-security' },
+        ]);
+      });
+    });
+
+    describe('security exists on spec but is set as optional on operation', () => {
+      it('returns empty', () => {
+        const mixedLevelSecurityOperation = new OASOperation(
+          {
+            ...baseOperation,
+            security: [],
+          },
+          [{ 'boromir-security': [] }],
+        );
+
+        expect(mixedLevelSecurityOperation.security).toEqual([]);
+      });
     });
   });
 });

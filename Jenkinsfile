@@ -5,14 +5,12 @@ pipeline {
     }
   }
   environment {
-    NPM_TOKEN = credentials('LIGHTHOUSE_NPM_REGISTRY_PROXY_NEXUS_TOKEN')
-    NPM_CONFIG_REGISTRY = 'https://tools.health.dev-developer.va.gov/nexus/repository/lighthouse-npm-registry-proxy/'
+    NPM_TOKEN = credentials('LIGHTHOUSE_NPM_REGISTRY_TOKEN')
   }
 
   stages {
     stage('Setup') {
       steps {
-        sh 'echo """registry = $NPM_CONFIG_REGISTRY\n_auth = $NPM_TOKEN""" > .npmrc'
         sh 'npm install'
       }
     }
@@ -42,12 +40,6 @@ pipeline {
           sh 'npm run release'
         }
       }
-    }
-  }
-  post {
-    always {
-      // Clean up file containing secrets
-      sh 'rm -rf .npmrc'
     }
   }
 }

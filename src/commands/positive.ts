@@ -7,6 +7,7 @@ import { uniq } from 'lodash';
 import parseUrl from 'parse-url';
 import { extname, resolve } from 'path';
 import { Security } from 'swagger-client';
+import { BEARER_SECURITY_SCHEME } from '../utilities/constants';
 import ExampleGroup from '../utilities/example-group';
 import OASOperation from '../utilities/oas-operation';
 import OASSchema from '../utilities/oas-schema';
@@ -32,6 +33,11 @@ export default class Positive extends Command {
     apiKey: flags.string({
       char: 'a',
       description: 'API key to use',
+    }),
+    bearerToken: flags.string({
+      char: 'b',
+      description: 'Bearer token to use',
+      env: 'LOAST_BEARER_TOKEN',
     }),
   };
 
@@ -177,6 +183,7 @@ export default class Positive extends Command {
 
   promptForSecurityValues = async (flags: {
     apiKey: string | undefined;
+    bearerToken: string | undefined;
   }): Promise<void> => {
     const securitySchemes = await this.schema.getSecuritySchemes();
     if (securitySchemes.length === 0) {
@@ -192,17 +199,38 @@ export default class Positive extends Command {
     const securityTypes = {};
     for (const scheme of securitySchemes) {
       if (this.securities.includes(scheme.key)) {
-        securityTypes[scheme.type] = scheme.key;
+        securityTypes[scheme.type] = {
+          type: scheme.type,
+          key: scheme.key,
+          scheme: scheme.scheme,
+        };
       }
     }
 
     if (securityTypes[OASSecurityType.APIKEY]) {
-      const apiSecurityName = securityTypes[OASSecurityType.APIKEY];
+      const apiSecurityName = securityTypes[OASSecurityType.APIKEY].key;
       const value =
         flags.apiKey ??
-        (await cli.prompt('What is your API Key?', { type: 'mask' }));
+        (await cli.prompt('Please provide your API Key', { type: 'mask' }));
 
       this.securityValues[apiSecurityName] = { value };
+    }
+
+    if (securityTypes[OASSecurityType.HTTP]) {
+      const bearerSecurityName = securityTypes[OASSecurityType.HTTP].key;
+      let value;
+
+      if (
+        securityTypes[OASSecurityType.HTTP].scheme === BEARER_SECURITY_SCHEME
+      ) {
+        value =
+          flags.bearerToken ??
+          (await cli.prompt('Please provide your bearer token', {
+            type: 'mask',
+          }));
+      }
+
+      this.securityValues[bearerSecurityName] = { value };
     }
   };
 

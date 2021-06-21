@@ -74,9 +74,9 @@ describe('OASSchema', () => {
       const schema = await generateSchema(filePath);
 
       schema.client = new Promise((resolve) => {
-        resolve(({
+        resolve({
           execute: executeMock,
-        } as unknown) as Swagger);
+        } as unknown as Swagger);
       });
 
       const [exampleGroup] = operation.exampleGroups;
@@ -115,15 +115,13 @@ describe('OASSchema', () => {
       });
     });
 
-    describe('with spec level securities', () => {
-      describe('without any securitySchemes set in the components object', () => {
-        it('returns an empty array', async () => {
-          const filePath = 'test/fixtures/simple_forms_oas.json';
-          const schema = await generateSchema(filePath);
-          const securitySchemes = await schema.getSecuritySchemes();
+    describe('without any securitySchemes set in the components object', () => {
+      it('returns an empty array', async () => {
+        const filePath = 'test/fixtures/simple_forms_oas.json';
+        const schema = await generateSchema(filePath);
+        const securitySchemes = await schema.getSecuritySchemes();
 
-          expect(securitySchemes).toEqual([]);
-        });
+        expect(securitySchemes).toEqual([]);
       });
     });
   });
