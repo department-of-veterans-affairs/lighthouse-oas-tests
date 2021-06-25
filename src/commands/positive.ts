@@ -23,6 +23,7 @@ import {
 } from '../validation-messages/failures';
 import { ValidationWarning } from '../validation-messages/warnings';
 import { OperationExample } from './types';
+import PDFBuilder from '../utilities/pdf-builder/pdf-builder';
 
 export default class Positive extends Command {
   static description =
@@ -64,6 +65,7 @@ export default class Positive extends Command {
     const oasSchemaOptions: ConstructorParameters<typeof OASSchema>[0] = {};
 
     const path = parseUrl(args.path);
+    const pdfBuilder: PDFBuilder = new PDFBuilder('./output.pdf');
 
     if (path.protocol === 'file') {
       let spec;
@@ -93,6 +95,7 @@ export default class Positive extends Command {
     }
 
     this.schema = new OASSchema(oasSchemaOptions);
+    const spec = (await this.schema.client).spec;
 
     this.securities = await this.getSecurities();
 
@@ -122,7 +125,7 @@ export default class Positive extends Command {
         warnings = [...warnings, ...parameterValidator.warnings];
 
         if (failures.length === 0) {
-          const response = await this.schema.execute(
+          const { request, response } = await this.schema.execute(
             operation,
             exampleGroup,
             this.securityValues,
@@ -134,7 +137,7 @@ export default class Positive extends Command {
             failures = [...failures, ...validator.failures];
             warnings = [...warnings, ...validator.warnings];
           } else if (response) {
-            failures = [...failures, new InvalidResponse()];
+            failures = [...failures, new InvalidResponse(request)];
           }
         }
 
@@ -142,6 +145,12 @@ export default class Positive extends Command {
           this.failingOperations.push(operation);
         }
 
+        pdfBuilder.addOperationResults(
+          operation,
+          exampleGroup,
+          failures,
+          warnings,
+        );
         this.displayOperationResults(
           operation,
           exampleGroup,
@@ -151,6 +160,12 @@ export default class Positive extends Command {
       }),
     );
 
+    pdfBuilder.addResultsSummary(this.failingOperations);
+    const title = spec.info.title ?? 'Unknown API';
+    const version = spec.info.version ?? 'Unspecified Version';
+    const success = this.failingOperations.length === 0;
+    pdfBuilder.addCoverPage(title, version, success, this.failingOperations);
+    pdfBuilder.build();
     this.displayResults();
   }
 
@@ -250,14 +265,14 @@ export default class Positive extends Command {
       this.log(`${operation.operationId} - ${exampleGroup.name}: Succeeded`);
     }
 
-    warnings.forEach((failure) => {
-      this.log(`  - ${failure.toString()}`);
+    warnings.forEach((warning) => {
+      this.log(`  - Warning: ${warning.toString()}`);
     });
   };
 
   displayResults = (): void => {
     if (this.failingOperations.length > 0) {
-      this.error(
+      this.warn(
         `${this.failingOperations.length} operation${
           this.failingOperations.length > 1 ? 's' : ''
         } failed`,

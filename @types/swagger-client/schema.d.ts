@@ -2,9 +2,15 @@ declare module 'swagger-client/schema' {
   type Json = ReturnType<JSON['parse']>;
 
   interface OpenAPIObject {
+    info: InfoObject;
     paths: PathsObject;
     components?: ComponentsObject;
     security?: SecurityRequirementObject[];
+  }
+
+  interface InfoObject {
+    title: string;
+    version: string;
   }
 
   interface ServerObject {
@@ -56,6 +62,8 @@ declare module 'swagger-client/schema' {
     parameters: ParameterObject[];
     responses: { [responseStatus: string]: ResponseObject };
     security?: SecurityRequirementObject[];
+    path?: string;
+    verb?: string;
   }
 
   interface ParameterAndHeaderBase {

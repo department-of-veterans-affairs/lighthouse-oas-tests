@@ -19,6 +19,7 @@ declare module 'swagger-client' {
 
   export interface Request {
     url: string;
+    credentials: string;
     headers: { [header: string]: string };
     method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS';
   }

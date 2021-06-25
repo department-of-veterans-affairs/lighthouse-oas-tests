@@ -21,20 +21,22 @@ class OASOperationFactory {
     paths: PathsObject,
     securities?: SecurityRequirementObject[],
   ): OASOperation[] {
-    const pathObjects = Object.values(paths);
     let params: ParameterObject[] = [];
-    const operationObjects = pathObjects.flatMap((path) => {
-      return Object.entries(path).reduce<OperationObject[]>(
-        (operations, [key, object]) => {
-          if (key === 'parameters') params = [...object];
-          return OPERATION_KEYS.includes(key)
-            ? [...operations, object]
-            : operations;
-        },
-        [],
-      );
-    });
-
+    const operationObjects = Object.entries(paths).reduce<OperationObject[]>(
+      (convertedOperations, [path, value]) => {
+        const operations = Object.entries(value).reduce<OperationObject[]>(
+          (operations, [key, object]) => {
+            if (key === 'parameters') params = [...object];
+            return OPERATION_KEYS.includes(key)
+              ? [...operations, { ...object, path, verb: key }]
+              : operations;
+          },
+          [],
+        );
+        return [...convertedOperations, ...operations];
+      },
+      [],
+    );
     return operationObjects.map((operation) => {
       operation.parameters = [...params, ...operation.parameters];
       return new OASOperation(operation, securities);
