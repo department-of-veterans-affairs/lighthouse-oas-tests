@@ -14,7 +14,8 @@ class ExampleGroupFactory {
     const groupNames = this.getGroupNames(parameters);
 
     const requiredExamples = this.getRequiredExamples(parameters);
-    const nonRequiredExamples = this.getNonRequiredExamples(parameters);
+    const nonRequiredExamplesWithExampleField =
+      this.nonRequiredExamplesWithExampleField(parameters);
 
     let exampleGroups: ExampleGroup[] = [];
 
@@ -26,7 +27,7 @@ class ExampleGroupFactory {
               ...exampleGroups,
               this.findExamplesForGroup(operation, groupName, parameters, {
                 ...requiredExamples,
-                ...nonRequiredExamples,
+                ...nonRequiredExamplesWithExampleField,
               }),
             ];
           }
@@ -49,7 +50,7 @@ class ExampleGroupFactory {
       const defaultGroup = new ExampleGroup(
         operation,
         DEFAULT_PARAMETER_GROUP,
-        { ...requiredExamples, ...nonRequiredExamples },
+        { ...requiredExamples, ...nonRequiredExamplesWithExampleField },
       );
       exampleGroups.push(defaultGroup);
     }
@@ -57,34 +58,40 @@ class ExampleGroupFactory {
     return exampleGroups;
   }
 
-  private static getNonRequiredExamples(parameters): { [name: string]: Json } {
-    return parameters
-      .filter((parameter): boolean => {
-        if (parameter.required) return false;
+  private static nonRequiredExamplesWithExampleField(parameters): {
+    [name: string]: Json;
+  } {
+    return parameters.reduce((examples, parameter) => {
+      if (parameter.required) return examples;
 
-        // Examples on parameters should always override examples found elsewhere
-        if (parameter.example) {
-          return Boolean(parameter.example);
-        }
-
-        if (parameterHasSchema(parameter)) {
-          return Boolean(parameter.schema.example);
-        }
-
-        if (parameterHasContent(parameter)) {
-          const [key] = Object.keys(parameter.content);
-
-          return Boolean(parameter.content[key].example);
-        }
-
-        return false;
-      })
-      .reduce((examples, parameter) => {
+      // Examples on parameters should always override examples found elsewhere
+      if (parameter.example) {
         return {
           ...examples,
           [parameter.name]: parameter.example,
         };
-      }, {});
+      }
+
+      if (parameterHasSchema(parameter) && parameter.schema.example) {
+        return {
+          ...examples,
+          [parameter.name]: parameter.schema.example,
+        };
+      }
+
+      if (parameterHasContent(parameter)) {
+        const [key] = Object.keys(parameter.content);
+
+        if (parameter.content[key].example) {
+          return {
+            ...examples,
+            [parameter.name]: parameter.content[key].example,
+          };
+        }
+      }
+
+      return examples;
+    }, {});
   }
 
   private static getRequiredExamples(parameters): { [name: string]: Json } {
