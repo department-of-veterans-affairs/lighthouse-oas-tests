@@ -366,6 +366,31 @@ describe('ExampleGroupFactory', () => {
           race: 'elves',
         });
       });
+      it('returns the non required example found on the schema', () => {
+        const raceParameter = {
+          name: 'race',
+          in: 'query',
+          required: false,
+          schema: {
+            type: 'string',
+            description: 'a race in middle earth',
+            example: 'elves',
+          },
+        };
+        const operation = new OASOperation({
+          operationId: '123',
+          responses: {},
+          parameters: [raceParameter],
+        });
+        const groups = ExampleGroupFactory.buildFromOperation(operation);
+
+        expect(groups).toHaveLength(1);
+        const defaultGroup = groups[0];
+        expect(defaultGroup.name).toEqual('default');
+        expect(defaultGroup.examples).toEqual({
+          race: 'elves',
+        });
+      });
     });
 
     describe('the example is set on the content only', () => {
@@ -374,6 +399,35 @@ describe('ExampleGroupFactory', () => {
           name: 'race',
           in: 'query',
           required: true,
+          schema: {
+            type: 'string',
+            description: 'a race in middle earth',
+          },
+          content: {
+            'application/json': {
+              example: 'hobbits',
+            },
+          },
+        };
+        const operation = new OASOperation({
+          operationId: '123',
+          responses: {},
+          parameters: [raceParameter],
+        });
+        const groups = ExampleGroupFactory.buildFromOperation(operation);
+
+        expect(groups).toHaveLength(1);
+        const defaultGroup = groups[0];
+        expect(defaultGroup.name).toEqual('default');
+        expect(defaultGroup.examples).toEqual({
+          race: 'hobbits',
+        });
+      });
+      it('returns the non required example found on the content', () => {
+        const raceParameter = {
+          name: 'race',
+          in: 'query',
+          required: false,
           schema: {
             type: 'string',
             description: 'a race in middle earth',
