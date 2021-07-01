@@ -161,8 +161,8 @@ export default class Positive extends Command {
     );
 
     pdfBuilder.addResultsSummary(this.failingOperations);
-    const title = spec.info.title ?? 'Unknown API';
-    const version = spec.info.version ?? 'Unspecified Version';
+    const title = spec?.info?.title ?? 'Unknown API';
+    const version = spec?.info?.version ?? 'Unspecified Version';
     const success = this.failingOperations.length === 0;
     pdfBuilder.addCoverPage(title, version, success, this.failingOperations);
     pdfBuilder.build();
@@ -272,7 +272,7 @@ export default class Positive extends Command {
 
   displayResults = (): void => {
     if (this.failingOperations.length > 0) {
-      this.warn(
+      this.log(
         `${this.failingOperations.length} operation${
           this.failingOperations.length > 1 ? 's' : ''
         } failed`,
