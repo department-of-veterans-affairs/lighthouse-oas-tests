@@ -36,7 +36,8 @@ class OASOperationFactory {
     });
 
     return operationObjects.map((operation) => {
-      operation.parameters = [...params, ...operation.parameters];
+      if (operation.parameters)
+        operation.parameters = [...params, ...operation.parameters];
       return new OASOperation(operation, securities);
     });
   }

@@ -9,56 +9,62 @@ import OASOperation from '../oas-operation';
 import ExampleGroup from './example-group';
 
 class ExampleGroupFactory {
-  static buildFromOperation(operation: OASOperation): ExampleGroup[] {
+  static buildFromOperation(operation: OASOperation): ExampleGroup[] | [] {
     const parameters = operation.parameters;
-    const groupNames = this.getGroupNames(parameters);
+    if (parameters) {
+      const groupNames = this.getGroupNames(parameters);
 
-    const requiredExamples = this.getRequiredExamples(parameters);
-    const nonRequiredExamplesWithExampleField =
-      this.nonRequiredExamplesWithExampleField(parameters);
+      const requiredExamples = this.getRequiredExamples(parameters);
+      const nonRequiredExamplesWithExampleField = this.nonRequiredExamplesWithExampleField(
+        parameters,
+      );
 
-    let exampleGroups: ExampleGroup[] = [];
+      let exampleGroups: ExampleGroup[] = [];
 
-    if (groupNames.length > 0) {
-      exampleGroups = groupNames.reduce<ExampleGroup[]>(
-        (exampleGroups, groupName) => {
-          if (groupName === DEFAULT_PARAMETER_GROUP) {
+      if (groupNames.length > 0) {
+        exampleGroups = groupNames.reduce<ExampleGroup[]>(
+          (exampleGroups, groupName) => {
+            if (groupName === DEFAULT_PARAMETER_GROUP) {
+              return [
+                ...exampleGroups,
+                this.findExamplesForGroup(operation, groupName, parameters, {
+                  ...requiredExamples,
+                  ...nonRequiredExamplesWithExampleField,
+                }),
+              ];
+            }
+
             return [
               ...exampleGroups,
-              this.findExamplesForGroup(operation, groupName, parameters, {
-                ...requiredExamples,
-                ...nonRequiredExamplesWithExampleField,
-              }),
+              this.findExamplesForGroup(
+                operation,
+                groupName,
+                parameters,
+                requiredExamples,
+              ),
             ];
-          }
+          },
+          [],
+        );
+      }
 
-          return [
-            ...exampleGroups,
-            this.findExamplesForGroup(
-              operation,
-              groupName,
-              parameters,
-              requiredExamples,
-            ),
-          ];
-        },
-        [],
-      );
+      if (!groupNames.includes(DEFAULT_PARAMETER_GROUP)) {
+        const defaultGroup = new ExampleGroup(
+          operation,
+          DEFAULT_PARAMETER_GROUP,
+          { ...requiredExamples, ...nonRequiredExamplesWithExampleField },
+        );
+        exampleGroups.push(defaultGroup);
+      }
+
+      return exampleGroups;
     }
-
-    if (!groupNames.includes(DEFAULT_PARAMETER_GROUP)) {
-      const defaultGroup = new ExampleGroup(
-        operation,
-        DEFAULT_PARAMETER_GROUP,
-        { ...requiredExamples, ...nonRequiredExamplesWithExampleField },
-      );
-      exampleGroups.push(defaultGroup);
-    }
-
-    return exampleGroups;
+    return [];
   }
 
-  private static nonRequiredExamplesWithExampleField(parameters): {
+  private static nonRequiredExamplesWithExampleField(
+    parameters,
+  ): {
     [name: string]: Json;
   } {
     return parameters.reduce((examples, parameter) => {
