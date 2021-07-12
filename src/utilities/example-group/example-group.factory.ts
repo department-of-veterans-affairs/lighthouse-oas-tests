@@ -17,9 +17,8 @@ class ExampleGroupFactory {
     const groupNames = this.getGroupNames(parameters);
 
     const requiredExamples = this.getRequiredExamples(parameters);
-    const nonRequiredExamplesWithExampleField = this.nonRequiredExamplesWithExampleField(
-      parameters,
-    );
+    const nonRequiredExamplesWithExampleField =
+      this.nonRequiredExamplesWithExampleField(parameters);
 
     let exampleGroups: ExampleGroup[] = [];
 
@@ -62,9 +61,7 @@ class ExampleGroupFactory {
     return exampleGroups;
   }
 
-  private static nonRequiredExamplesWithExampleField(
-    parameters,
-  ): {
+  private static nonRequiredExamplesWithExampleField(parameters): {
     [name: string]: Json;
   } {
     return parameters.reduce((examples, parameter) => {
