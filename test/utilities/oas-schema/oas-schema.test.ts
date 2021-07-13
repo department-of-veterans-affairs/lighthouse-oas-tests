@@ -84,15 +84,17 @@ describe('OASSchema', () => {
 
       await schema.execute(operation, exampleGroup, securities);
 
-      expect(executeMock).toHaveBeenCalledWith({
-        operationId: 'getFacilityById',
-        parameters: {
-          id: 'testId',
-        },
-        securities: {
-          authorized: {},
-        },
-      });
+      expect(executeMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          operationId: 'getFacilityById',
+          parameters: {
+            id: 'testId',
+          },
+          securities: {
+            authorized: {},
+          },
+        }),
+      );
     });
   });
 

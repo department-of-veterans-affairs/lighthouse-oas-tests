@@ -6,6 +6,7 @@ import OASOperation from '../../src/utilities/oas-operation';
 const mockGetOperations = jest.fn();
 const mockGetSecuritySchemes = jest.fn();
 const mockExecute = jest.fn();
+const mockClient = jest.fn();
 
 jest.mock('../../src/utilities/oas-schema', () => {
   return function (): Record<string, jest.Mock> {
@@ -13,6 +14,7 @@ jest.mock('../../src/utilities/oas-schema', () => {
       getOperations: mockGetOperations,
       getSecuritySchemes: mockGetSecuritySchemes,
       execute: mockExecute,
+      client: mockClient,
     };
   };
 });
@@ -198,14 +200,16 @@ describe('Positive', () => {
       mockGetOperations.mockResolvedValue([operation]);
 
       mockExecute.mockResolvedValueOnce({
-        url: 'https://www.lotr.com/walkIntoMorder',
-        status: 200,
-        ok: true,
-        body: {
-          data: ['frodo'],
-        },
-        headers: {
-          'content-type': 'application/json',
+        response: {
+          url: 'https://www.lotr.com/walkIntoMorder',
+          status: 200,
+          ok: true,
+          body: {
+            data: ['frodo'],
+          },
+          headers: {
+            'content-type': 'application/json',
+          },
         },
       });
       await Positive.run(['./test/fixtures/forms_oas.yaml']);
@@ -232,13 +236,12 @@ describe('Positive', () => {
         }),
       ]);
 
-      await expect(async () => {
-        await Positive.run(['http://urldoesnotmatter.com']);
-      }).rejects.toThrow('1 operation failed');
+      await Positive.run(['http://urldoesnotmatter.com']);
 
       expect(result).toEqual([
         'walkIntoMordor - default: Failed\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: parameters -> guide -> example\n',
+        '1 operation failed\n',
       ]);
     });
 
@@ -310,9 +313,7 @@ describe('Positive', () => {
 
         const security = {};
 
-        await expect(async () => {
-          await Positive.run(['http://urldoesnotmatter.com']);
-        }).rejects.toThrow('1 operation failed');
+        await Positive.run(['http://urldoesnotmatter.com']);
 
         expect(mockExecute).not.toHaveBeenCalledWith(
           operation1,
@@ -405,20 +406,20 @@ describe('Positive', () => {
         ]);
 
         mockExecute.mockResolvedValueOnce({
-          url: 'https://www.lotr.com/walkIntoMorder',
-          status: 200,
-          ok: true,
-          body: {
-            data: [42],
-          },
-          headers: {
-            'content-type': 'application/json',
+          response: {
+            url: 'https://www.lotr.com/walkIntoMorder',
+            status: 200,
+            ok: true,
+            body: {
+              data: [42],
+            },
+            headers: {
+              'content-type': 'application/json',
+            },
           },
         });
 
-        await expect(async () => {
-          await Positive.run(['http://urldoesnotmatter.com']);
-        }).rejects.toThrow('1 operation failed');
+        await Positive.run(['http://urldoesnotmatter.com']);
 
         expect(result).toEqual([
           'walkIntoMordor - door: Failed\n',
@@ -427,6 +428,7 @@ describe('Positive', () => {
           'walkIntoMordor - default: Succeeded\n',
           'getHobbit - default: Succeeded\n',
           'getTomBombadil - default: Succeeded\n',
+          '1 operation failed\n',
         ]);
       });
     });
@@ -463,26 +465,27 @@ describe('Positive', () => {
       mockGetOperations.mockResolvedValue([operation2, operation3]);
 
       mockExecute.mockResolvedValue({
-        url: 'https://www.lotr.com/walkIntoMorder',
-        status: 200,
-        ok: true,
-        body: {
-          data: [42],
-        },
-        headers: {
-          'content-type': 'application/json',
+        response: {
+          url: 'https://www.lotr.com/walkIntoMorder',
+          status: 200,
+          ok: true,
+          body: {
+            data: [42],
+          },
+          headers: {
+            'content-type': 'application/json',
+          },
         },
       });
 
-      await expect(async () => {
-        await Positive.run(['http://urldoesnotmatter.com']);
-      }).rejects.toThrow('2 operations failed');
+      await Positive.run(['http://urldoesnotmatter.com']);
 
       expect(result).toEqual([
         'getHobbit - default: Failed\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data\n',
         'getTomBombadil - default: Failed\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data\n',
+        '2 operations failed\n',
       ]);
     });
 
@@ -518,23 +521,31 @@ describe('Positive', () => {
       mockGetOperations.mockResolvedValue([operation2, operation3]);
 
       mockExecute.mockResolvedValueOnce({
-        url: 'https://www.lotr.com/walkIntoMorder',
-        status: 404,
-        ok: false,
-        body: {},
-        headers: {
-          'content-type': 'application/json',
+        request: {
+          url: 'https://www.lotr.com/walkIntoMorder',
+          method: 'get',
+          headers: {
+            'content-type': 'application/json',
+          },
+        },
+        response: {
+          url: 'https://www.lotr.com/walkIntoMorder',
+          status: 404,
+          ok: false,
+          body: {},
+          headers: {
+            'content-type': 'application/json',
+          },
         },
       });
 
-      await expect(async () => {
-        await Positive.run(['http://urldoesnotmatter.com']);
-      }).rejects.toThrow('1 operation failed');
+      await Positive.run(['http://urldoesnotmatter.com']);
 
       expect(result).toEqual([
         'getHobbit - default: Failed\n',
         '  - Response status code was a non 2XX value\n',
         'getTomBombadil - default: Succeeded\n',
+        '1 operation failed\n',
       ]);
     });
 
@@ -580,28 +591,29 @@ describe('Positive', () => {
       mockGetOperations.mockResolvedValue([operation]);
 
       mockExecute.mockResolvedValueOnce({
-        url: 'https://www.lotr.com/walkIntoMorder',
-        status: 200,
-        ok: true,
-        body: {
-          data: {
-            one: 'number',
-            two: 42,
+        response: {
+          url: 'https://www.lotr.com/walkIntoMorder',
+          status: 200,
+          ok: true,
+          body: {
+            data: {
+              one: 'number',
+              two: 42,
+            },
           },
-        },
-        headers: {
-          'content-type': 'application/json',
+          headers: {
+            'content-type': 'application/json',
+          },
         },
       });
 
-      await expect(async () => {
-        await Positive.run(['http://urldoesnotmatter.com']);
-      }).rejects.toThrow('1 operation failed');
+      await Positive.run(['http://urldoesnotmatter.com']);
 
       expect(result).toEqual([
         'getHobbit - default: Failed\n',
         '  - Actual type did not match schema. Schema type: number. Actual type: string. Path: body -> data -> one\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> data -> two\n',
+        '1 operation failed\n',
       ]);
     });
 
@@ -650,14 +662,16 @@ describe('Positive', () => {
       mockGetOperations.mockResolvedValue([operation]);
 
       mockExecute.mockResolvedValueOnce({
-        url: 'https://www.lotr.com/walkIntoMorder',
-        status: 200,
-        ok: true,
-        body: {
-          data: [],
-        },
-        headers: {
-          'content-type': 'application/json',
+        response: {
+          url: 'https://www.lotr.com/walkIntoMorder',
+          status: 200,
+          ok: true,
+          body: {
+            data: [],
+          },
+          headers: {
+            'content-type': 'application/json',
+          },
         },
       });
 

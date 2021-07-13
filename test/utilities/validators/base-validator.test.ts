@@ -562,7 +562,7 @@ describe('BaseValidator', () => {
             'numbers',
           ]);
           expect(validator.warnings).toContainValidationWarning(
-            'Warning: This array was found to be empty and therefore could not be validated. Path: body -> numbers',
+            'This array was found to be empty and therefore could not be validated. Path: body -> numbers',
           );
         });
       });
@@ -701,7 +701,7 @@ describe('BaseValidator', () => {
           const warnings = validator.warnings;
           expect(warnings).toHaveLength(1);
           expect(warnings).toContainValidationWarning(
-            'Warning: This object is missing non-required parameters that were unable to be validated, including value. Path: body -> form',
+            'This object is missing non-required parameters that were unable to be validated, including value. Path: body -> form',
           );
         });
 
@@ -715,7 +715,7 @@ describe('BaseValidator', () => {
           const warnings = validator.warnings;
           expect(warnings).toHaveLength(0);
           expect(warnings).not.toContainValidationWarning(
-            'Warning: This object is missing non-required parameters that were unable to be validated, including value. Path: body -> form',
+            'This object is missing non-required parameters that were unable to be validated, including value. Path: body -> form',
           );
         });
 

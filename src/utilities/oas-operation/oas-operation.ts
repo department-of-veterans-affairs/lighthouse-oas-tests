@@ -35,6 +35,14 @@ class OASOperation {
     return [...this._exampleGroups];
   }
 
+  get path(): string {
+    return this._operation.path || '';
+  }
+
+  get verb(): string {
+    return this._operation.verb || '';
+  }
+
   get requiredParameterNames(): string[] {
     return this._operation.parameters
       .filter((parameter) => parameter.required)

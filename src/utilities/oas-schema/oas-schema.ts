@@ -1,4 +1,9 @@
-import swaggerClient, { Response, Security, Swagger } from 'swagger-client';
+import swaggerClient, {
+  Request,
+  Response,
+  Security,
+  Swagger,
+} from 'swagger-client';
 import OASOperation, { OASOperationFactory } from '../oas-operation';
 import ExampleGroup from '../example-group';
 import { OASSecurityScheme, OASSecurityFactory } from '../oas-security';
@@ -13,6 +18,10 @@ class OASSchema {
     this.operations = [];
   }
 
+  public get client(): Promise<Swagger> {
+    return this._client;
+  }
+
   public set client(client: Promise<Swagger>) {
     this._client = client;
   }
@@ -21,20 +30,28 @@ class OASSchema {
     operation: OASOperation,
     exampleGroup: ExampleGroup,
     securities: Security,
-  ): Promise<Response> => {
+  ): Promise<{ request: Request; response: Response }> => {
     const schema = await this._client;
-
-    return schema
+    let currentRequest;
+    const response = await schema
       .execute({
         operationId: operation.operationId,
         parameters: exampleGroup.examples,
         securities: {
           authorized: securities,
         },
+        requestInterceptor: (request) => {
+          currentRequest = request;
+          return request;
+        },
       })
       .catch((error) => {
         return error.response;
       });
+    return {
+      request: currentRequest,
+      response,
+    };
   };
 
   getOperations = async (): Promise<OASOperation[]> => {

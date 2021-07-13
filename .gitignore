@@ -45,3 +45,4 @@ lib
 test-report.xml
 .scannerwork
 coverage/
+output.pdf
