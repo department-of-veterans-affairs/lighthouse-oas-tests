@@ -443,6 +443,30 @@ describe('BaseValidator', () => {
         });
       });
 
+      const schemaSingleValueArray: SchemaObject = {
+        type: 'array',
+        items: {
+          type: 'string',
+          description: 'a string',
+        },
+        description: 'an array of a single string',
+      };
+  
+      describe('object is single value string array', () => {
+        it('Insure single value string array passes validation', () => {
+          const object = 'this is a string';
+
+          let startFailureCount = validator.failures.length;
+
+          validator.validateObjectAgainstSchema(object, schemaSingleValueArray, [
+            'body',
+            'string',
+          ]);
+
+          expect(validator.failures.length).toEqual(startFailureCount);
+        });
+      });
+
       describe('object is an array', () => {
         describe('items property is not defined in schema', () => {
           let originalItems;

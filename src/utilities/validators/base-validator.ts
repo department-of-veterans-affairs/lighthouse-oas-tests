@@ -1,4 +1,4 @@
-import { isEqual, uniqWith } from 'lodash';
+import { isEqual, uniqWith, isString } from 'lodash';
 import { Json, SchemaObject } from 'swagger-client/schema';
 import {
   DuplicateEnum,
@@ -103,37 +103,37 @@ abstract class BaseValidator {
     path: string[],
   ): boolean {
     const actualType = typeof actual;
+    let isUnexpectedType = false;
+
     if (!expected.type) {
-      return false;
+      return isUnexpectedType;
     }
     if (expected.type === 'array') {
       // check that the actual object is an array
-      if (!Array.isArray(actual)) {
-        this._failures = [
-          ...this._failures,
-          new TypeMismatch([...path], expected.type, actualType),
-        ];
-        return true;
+      if(expected.items?.type === "string") {
+         // Arrays can be represented as a string (single value)
+         isUnexpectedType = !isString(actual);
       }
+      else {
+        isUnexpectedType = !Array.isArray(actual);
+      }
+
     } else if (expected.type === 'integer') {
       // check that the actual value is an integer
-      if (!Number.isInteger(actual)) {
-        this._failures = [
-          ...this._failures,
-          new TypeMismatch([...path], expected.type, actualType),
-        ];
-        return true;
-      }
+      isUnexpectedType = !Number.isInteger(actual);
     } else if (actualType !== expected.type) {
       // check that type matches for other types
+      isUnexpectedType = true;
+    }
+
+    if(isUnexpectedType) {
       this._failures = [
         ...this._failures,
         new TypeMismatch([...path], expected.type, actualType),
       ];
-      return true;
     }
 
-    return false;
+    return isUnexpectedType;
   }
 
   private checkEnumValue(
