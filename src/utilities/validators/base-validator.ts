@@ -110,12 +110,11 @@ abstract class BaseValidator {
     }
     if (expected.type === 'array') {
       // check that the actual object is an array
-      if(expected.items?.type === "string") {
+      isUnexpectedType = !Array.isArray(actual);
+
+      if(!Array.isArray(actual) && expected.items?.type === "string") {
          // Arrays can be represented as a string (single value)
          isUnexpectedType = !isString(actual);
-      }
-      else {
-        isUnexpectedType = !Array.isArray(actual);
       }
 
     } else if (expected.type === 'integer') {
