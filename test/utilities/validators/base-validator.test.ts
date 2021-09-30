@@ -451,17 +451,18 @@ describe('BaseValidator', () => {
         },
         description: 'an array of a single string',
       };
-  
+
       describe('object is single value string array', () => {
         it('Insure single value string array passes validation', () => {
           const object = 'this is a string';
 
-          let startFailureCount = validator.failures.length;
+          const startFailureCount = validator.failures.length;
 
-          validator.validateObjectAgainstSchema(object, schemaSingleValueArray, [
-            'body',
-            'string',
-          ]);
+          validator.validateObjectAgainstSchema(
+            object,
+            schemaSingleValueArray,
+            ['body', 'string'],
+          );
 
           expect(validator.failures.length).toEqual(startFailureCount);
         });
