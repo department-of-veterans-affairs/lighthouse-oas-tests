@@ -1,4 +1,4 @@
-import { isEqual, uniqWith, isString } from 'lodash';
+import { isEqual, uniqWith } from 'lodash';
 import { Json, SchemaObject } from 'swagger-client/schema';
 import {
   DuplicateEnum,
@@ -111,11 +111,6 @@ abstract class BaseValidator {
     if (expected.type === 'array') {
       // check that the actual object is an array
       isUnexpectedType = !Array.isArray(actual);
-
-      if (!Array.isArray(actual) && expected.items?.type === 'string') {
-        // Arrays can be represented as a string (single value)
-        isUnexpectedType = !isString(actual);
-      }
     } else if (expected.type === 'integer') {
       // check that the actual value is an integer
       isUnexpectedType = !Number.isInteger(actual);
