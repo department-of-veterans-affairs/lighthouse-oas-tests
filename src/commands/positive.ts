@@ -233,7 +233,7 @@ export default class Positive extends Command {
         const value =
           token ??
           // eslint-disable-next-line no-await-in-loop
-          (await cli.prompt('Please provide your bearer token', {
+          (await cli.prompt('Please provide your token', {
             type: 'mask',
           }));
         if (!token) {
