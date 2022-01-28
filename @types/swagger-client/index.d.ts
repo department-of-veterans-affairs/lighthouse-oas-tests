@@ -43,13 +43,16 @@ declare module 'swagger-client' {
 
   interface ApiKey extends ValueObject {}
   interface BearerToken extends ValueObject {}
+  interface OauthToken {
+    token: { access_token: string }
+  }
 
   export interface Securities {
     authorized: Security;
   }
 
   export interface Security {
-    [securityKey: string]: ApiKey | BearerToken;
+    [securityKey: string]: ApiKey | BearerToken | OauthToken;
   }
 
   interface Opts {
