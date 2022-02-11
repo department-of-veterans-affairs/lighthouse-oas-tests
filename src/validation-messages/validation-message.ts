@@ -1,11 +1,31 @@
+import crypto from 'crypto';
+
 abstract class ValidationMessage {
   protected message: string;
 
-  private path: string[];
+  private _path: string[];
+
+  private _hash: string;
+
+  private _count: number;
 
   constructor(message, path) {
-    this.path = path;
-    this.message = `${message}${this.generatePath(this.path)}`;
+    this._path = path;
+    this.message = `${message}${this.generatePath(this._path)}`;
+    this._hash = this.generateHash();
+    this._count = 1;
+  }
+
+  public get hash(): string {
+    return this._hash;
+  }
+
+  public get count(): number {
+    return this._count;
+  }
+
+  public incrementCount(): void {
+    this._count++;
   }
 
   private generatePath(path: string[]): string {
@@ -14,6 +34,13 @@ abstract class ValidationMessage {
     }
 
     return '';
+  }
+
+  private generateHash(): string {
+    const hash = crypto.createHash('sha1');
+
+    hash.update(this.message);
+    return hash.digest('hex');
   }
 
   toString = (): string => {
