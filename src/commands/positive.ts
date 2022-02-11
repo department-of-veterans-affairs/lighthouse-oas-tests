@@ -104,41 +104,45 @@ export default class Positive extends Command {
 
     await Promise.all(
       this.operationExamples.map(async (operationExample) => {
-        let failures: ValidationFailure[] = [];
-        let warnings: ValidationWarning[] = [];
+        let failures: Map<string, ValidationFailure> = new Map();
+        let warnings: Map<string, ValidationWarning> = new Map();
+
         const { operation, exampleGroup } = operationExample;
         const parameterSchemaValidator = new ParameterSchemaValidator(
           operation,
         );
         parameterSchemaValidator.validate();
-
-        failures = [...failures, ...parameterSchemaValidator.failures];
-        warnings = [...warnings, ...parameterSchemaValidator.warnings];
+        failures = new Map([...failures, ...parameterSchemaValidator.failures]);
+        warnings = new Map([...warnings, ...parameterSchemaValidator.warnings]);
 
         const parameterValidator = new ExampleGroupValidator(exampleGroup);
         parameterValidator.validate();
 
-        failures = [...failures, ...parameterValidator.failures];
-        warnings = [...warnings, ...parameterValidator.warnings];
+        failures = new Map([...failures, ...parameterValidator.failures]);
+        warnings = new Map([...warnings, ...parameterValidator.warnings]);
 
-        if (failures.length === 0) {
+        if (failures.size === 0) {
           const response = await this.schema.execute(
             operation,
             exampleGroup,
             this.securityValues,
           );
           if (response?.ok) {
-            const validator = new ResponseValidator(operation, response);
-            validator.validate();
+            const responseValidator = new ResponseValidator(
+              operation,
+              response,
+            );
+            responseValidator.validate();
 
-            failures = [...failures, ...validator.failures];
-            warnings = [...warnings, ...validator.warnings];
+            failures = new Map([...failures, ...responseValidator.failures]);
+            warnings = new Map([...warnings, ...responseValidator.warnings]);
           } else if (response) {
-            failures = [...failures, new InvalidResponse()];
+            const failure = new InvalidResponse();
+            failures.set(failure.hash, failure);
           }
         }
 
-        if (failures.length > 0) {
+        if (failures.size > 0) {
           this.failingOperations.push(operation);
         }
 
@@ -237,21 +241,29 @@ export default class Positive extends Command {
   displayOperationResults = (
     operation: OASOperation,
     exampleGroup: ExampleGroup,
-    failures: ValidationFailure[],
-    warnings: ValidationWarning[],
+    failures: Map<string, ValidationFailure>,
+    warnings: Map<string, ValidationWarning>,
   ): void => {
-    if (failures.length > 0) {
+    if (failures.size > 0) {
       this.log(`${operation.operationId} - ${exampleGroup.name}: Failed`);
 
-      failures.forEach((failure) => {
-        this.log(`  - ${failure.toString()}`);
+      failures.forEach((failure, _) => {
+        const count = failure.count;
+        this.log(
+          `  - ${failure.toString()}. Found ${count} time${
+            count > 1 ? 's' : ''
+          }`,
+        );
       });
     } else {
       this.log(`${operation.operationId} - ${exampleGroup.name}: Succeeded`);
     }
 
-    warnings.forEach((failure) => {
-      this.log(`  - ${failure.toString()}`);
+    warnings.forEach((warning, _) => {
+      const count = warning.count;
+      this.log(
+        `  - ${warning.toString()}. Found ${count} time${count > 1 ? 's' : ''}`,
+      );
     });
   };
 

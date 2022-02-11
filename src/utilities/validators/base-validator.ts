@@ -11,6 +11,7 @@ import {
   TypeMismatch,
   ValidationFailure,
 } from '../../validation-messages/failures';
+import ValidationMessage from '../../validation-messages/validation-message';
 import {
   EmptyArray,
   MissingProperties,
@@ -18,24 +19,44 @@ import {
 } from '../../validation-messages/warnings';
 
 abstract class BaseValidator {
-  protected _failures: ValidationFailure[];
+  protected _failures: Map<string, ValidationFailure>;
 
-  protected _warnings: ValidationWarning[];
+  protected _warnings: Map<string, ValidationWarning>;
 
   protected validated: boolean;
 
   constructor() {
     this.validated = false;
-    this._failures = [];
-    this._warnings = [];
+    this._failures = new Map();
+    this._warnings = new Map();
   }
 
-  public get failures(): ValidationFailure[] {
+  public get failures(): Map<string, ValidationFailure> {
     return this._failures;
   }
 
-  public get warnings(): ValidationWarning[] {
+  public get warnings(): Map<string, ValidationWarning> {
     return this._warnings;
+  }
+
+  protected addFailure(failure: ValidationFailure): void {
+    this.addValidationMessage(failure, this._failures);
+  }
+
+  protected addWarning(warning: ValidationWarning): void {
+    this.addValidationMessage(warning, this._warnings);
+  }
+
+  private addValidationMessage(
+    message: ValidationMessage,
+    map: Map<string, ValidationMessage>,
+  ): void {
+    const existingMessage = map.get(message.hash);
+    if (existingMessage) {
+      existingMessage.incrementCount();
+    } else {
+      map.set(message.hash, message);
+    }
   }
 
   abstract performValidation(): void;
@@ -87,10 +108,7 @@ abstract class BaseValidator {
     // if the actual object is null check that null values are allowed
     if (actual === null) {
       if (!expected.nullable) {
-        this._failures = [
-          ...this._failures,
-          new NullValueNotAllowed([...path]),
-        ];
+        this.addFailure(new NullValueNotAllowed([...path]));
         return true;
       }
     }
@@ -120,10 +138,7 @@ abstract class BaseValidator {
     }
 
     if (isUnexpectedType) {
-      this._failures = [
-        ...this._failures,
-        new TypeMismatch([...path], expected.type, actualType),
-      ];
+      this.addFailure(new TypeMismatch([...path], expected.type, actualType));
     }
 
     return isUnexpectedType;
@@ -139,19 +154,13 @@ abstract class BaseValidator {
       // check that expected enum does not contain duplicate values
       const uniqueEnumValues = uniqWith(enumValues, isEqual);
       if (uniqueEnumValues.length !== enumValues.length) {
-        this._failures = [
-          ...this._failures,
-          new DuplicateEnum([...path], enumValues),
-        ];
+        this.addFailure(new DuplicateEnum([...path], enumValues));
       }
 
       // check that the actual object matches an element in the expected enum
       const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
       if (filteredEnum.length === 0) {
-        this._failures = [
-          ...this._failures,
-          new EnumMismatch([...path], enumValues, actual),
-        ];
+        this.addFailure(new EnumMismatch([...path], enumValues, actual));
       }
     }
   }
@@ -165,7 +174,7 @@ abstract class BaseValidator {
     const itemSchema = expected.items;
     if (itemSchema) {
       if (actual.length === 0) {
-        this._warnings = [...this._warnings, new EmptyArray(path)];
+        this.addWarning(new EmptyArray(path));
       } else {
         // re-run for each item
         actual.forEach((item) => {
@@ -173,7 +182,7 @@ abstract class BaseValidator {
         });
       }
     } else {
-      this._failures = [...this._failures, new ItemSchemaMissing([...path])];
+      this.addFailure(new ItemSchemaMissing([...path]));
     }
   }
 
@@ -186,10 +195,7 @@ abstract class BaseValidator {
 
     // check that the expected object's properties field is set
     if (!properties) {
-      this._failures = [
-        ...this._failures,
-        new PropertySchemaMissing([...path]),
-      ];
+      this.addFailure(new PropertySchemaMissing([...path]));
       return;
     }
 
@@ -205,23 +211,19 @@ abstract class BaseValidator {
         (property) => !actualProperties.includes(property),
       );
 
-      this._failures = [
-        ...this._failures,
+      this.addFailure(
         new PropertiesMismatch(
           [...path],
           expectedPropertiesNotFound,
           unexpectedActualProperties,
         ),
-      ];
+      );
     }
 
     // check required values are present
     expected.required?.forEach((requiredProperty) => {
       if (!actualProperties.includes(requiredProperty)) {
-        this._failures = [
-          ...this._failures,
-          new RequiredProperty([...path], requiredProperty),
-        ];
+        this.addFailure(new RequiredProperty([...path], requiredProperty));
       }
     });
 
@@ -234,10 +236,7 @@ abstract class BaseValidator {
     );
 
     if (missingOptionalProperties.length > 0) {
-      this._warnings = [
-        ...this._warnings,
-        new MissingProperties(missingOptionalProperties, path),
-      ];
+      this.addWarning(new MissingProperties(missingOptionalProperties, path));
     }
 
     // re-un for each property that has a schema present

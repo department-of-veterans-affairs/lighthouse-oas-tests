@@ -34,10 +34,7 @@ class ExampleGroupValidator extends BaseValidator {
     );
 
     if (missingRequiredParameters.length > 0) {
-      this._failures = [
-        ...this._failures,
-        new MissingRequiredParameters(missingRequiredParameters),
-      ];
+      this.addFailure(new MissingRequiredParameters(missingRequiredParameters));
     }
   }
 
