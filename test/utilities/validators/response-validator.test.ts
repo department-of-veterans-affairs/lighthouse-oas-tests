@@ -71,7 +71,7 @@ describe('ResponseValidator', () => {
       validator.validate();
       const failures = validator.failures;
 
-      expect(failures).toHaveLength(1);
+      expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
         'Response status code not present in schema. Actual status code: 500',
       );
@@ -91,7 +91,7 @@ describe('ResponseValidator', () => {
       validator.validate();
       const failures = validator.failures;
 
-      expect(failures).toHaveLength(1);
+      expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
         'Response content type not present in schema. Actual content type: text/csv',
       );
@@ -113,7 +113,7 @@ describe('ResponseValidator', () => {
       validator.validate();
       const failures = validator.failures;
 
-      expect(failures).toHaveLength(0);
+      expect(failures.size).toEqual(0);
     });
 
     it('is idempotent', () => {
@@ -130,7 +130,7 @@ describe('ResponseValidator', () => {
       validator.validate();
       let failures = validator.failures;
 
-      expect(failures).toHaveLength(1);
+      expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
         'Response status code not present in schema. Actual status code: 500',
       );
@@ -139,7 +139,7 @@ describe('ResponseValidator', () => {
       validator.validate();
       failures = validator.failures;
 
-      expect(failures).toHaveLength(1);
+      expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
         'Response status code not present in schema. Actual status code: 500',
       );
