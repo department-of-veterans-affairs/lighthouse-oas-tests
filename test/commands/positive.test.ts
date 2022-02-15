@@ -738,7 +738,7 @@ describe('Positive', () => {
         },
       ]);
 
-      await Positive.run(['./test/fixtures/securities/bearer_token_oas.json']);
+      await Positive.run(['./test/fixtures/securities/oauth2_token_oas.json']);
 
       expect(mockPrompt).toHaveBeenCalled();
       expect(mockPrompt).toHaveBeenCalledWith(
