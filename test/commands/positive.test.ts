@@ -729,6 +729,26 @@ describe('Positive', () => {
       );
     });
 
+    it('requests an oauth token when oauth scheme exists', async () => {
+      mockGetSecuritySchemes.mockResolvedValue([
+        {
+          key: 'boromir-security',
+          type: 'oauth2',
+          description: 'one does simply walk into VA APIs',
+        },
+      ]);
+
+      await Positive.run(['./test/fixtures/securities/bearer_token_oas.json']);
+
+      expect(mockPrompt).toHaveBeenCalled();
+      expect(mockPrompt).toHaveBeenCalledWith(
+        'Please provide your oauth2 token',
+        {
+          type: 'mask',
+        },
+      );
+    });
+
     it('requests authorization for each security type in the spec', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
