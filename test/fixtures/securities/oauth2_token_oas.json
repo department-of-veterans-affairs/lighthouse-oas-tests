@@ -52,12 +52,17 @@
         "operationId": "conditionSearch",
         "security": [
           {
-            "OauthFlowSandbox": [
+            "boromir-bearer": [
               "patient/Condition.read"
             ]
           },
           {
-            "OauthFlowProduction": [
+            "boromir-prod-oauth": [
+              "patient/Condition.read"
+            ]
+          },
+          {
+            "boromir-sandbox-oauth": [
               "patient/Condition.read"
             ]
           }

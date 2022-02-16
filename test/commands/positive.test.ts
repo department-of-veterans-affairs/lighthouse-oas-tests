@@ -721,15 +721,12 @@ describe('Positive', () => {
       await Positive.run(['./test/fixtures/securities/bearer_token_oas.json']);
 
       expect(mockPrompt).toHaveBeenCalled();
-      expect(mockPrompt).toHaveBeenCalledWith(
-        'Please provide your bearer token',
-        {
-          type: 'mask',
-        },
-      );
+      expect(mockPrompt).toHaveBeenCalledWith('Please provide your token', {
+        type: 'mask',
+      });
     });
 
-    it('requests an oauth token when oauth scheme exists', async () => {
+    it('requests an oauth token when oauth type exists', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
           key: 'boromir-security',
@@ -741,12 +738,38 @@ describe('Positive', () => {
       await Positive.run(['./test/fixtures/securities/oauth2_token_oas.json']);
 
       expect(mockPrompt).toHaveBeenCalled();
-      expect(mockPrompt).toHaveBeenCalledWith(
-        'Please provide your oauth2 token',
+      expect(mockPrompt).toHaveBeenCalledWith('Please provide your token', {
+        type: 'mask',
+      });
+    });
+
+    it('handles multiple tokens of type bearer and oauth2', async () => {
+      mockGetSecuritySchemes.mockResolvedValue([
         {
-          type: 'mask',
+          key: 'boromir-bearer',
+          type: 'http',
+          description: 'one does simply walk into VA APIs',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
         },
-      );
+        {
+          key: 'boromir-prod-oauth',
+          type: 'oauth2',
+          description: 'one does simply walk into VA APIs',
+        },
+        {
+          key: 'boromir-sandbox-oauth',
+          type: 'oauth2',
+          description: 'one does simply walk into VA APIs',
+        },
+      ]);
+
+      await Positive.run(['./test/fixtures/securities/oauth2_token_oas.json']);
+
+      expect(mockPrompt).toHaveBeenCalledTimes(1);
+      expect(mockPrompt).toHaveBeenCalledWith('Please provide your token', {
+        type: 'mask',
+      });
     });
 
     it('requests authorization for each security type in the spec', async () => {
