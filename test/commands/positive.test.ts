@@ -683,6 +683,7 @@ describe('Positive', () => {
   describe('promptForSecurityValues', () => {
     beforeEach(() => {
       mockPrompt.mockReset();
+      mockPrompt.mockResolvedValue('apikeyOrToken');
       mockGetSecuritySchemes.mockReset();
     });
 
@@ -697,9 +698,7 @@ describe('Positive', () => {
         },
       ]);
 
-      await Positive.run([
-        './test/fixtures/securities/spec_level_security_oas.json',
-      ]);
+      await Positive.run(['https://url-does-not-matter.com']);
 
       expect(mockPrompt).toHaveBeenCalled();
       expect(mockPrompt).toHaveBeenCalledWith('Please provide your API Key', {
@@ -718,7 +717,7 @@ describe('Positive', () => {
         },
       ]);
 
-      await Positive.run(['./test/fixtures/securities/bearer_token_oas.json']);
+      await Positive.run(['https://url-does-not-matter.com']);
 
       expect(mockPrompt).toHaveBeenCalled();
       expect(mockPrompt).toHaveBeenCalledWith('Please provide your token', {
@@ -735,7 +734,7 @@ describe('Positive', () => {
         },
       ]);
 
-      await Positive.run(['./test/fixtures/securities/oauth2_token_oas.json']);
+      await Positive.run(['https://url-does-not-matter.com']);
 
       expect(mockPrompt).toHaveBeenCalled();
       expect(mockPrompt).toHaveBeenCalledWith('Please provide your token', {
@@ -743,28 +742,23 @@ describe('Positive', () => {
       });
     });
 
-    it('handles multiple tokens of type bearer and oauth2', async () => {
+    it('only propmts once if OAS contains both http bearer and oauth2 security schemes', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
-          key: 'boromir-bearer',
+          key: 'boromir-security',
           type: 'http',
           description: 'one does simply walk into VA APIs',
           scheme: 'bearer',
           bearerFormat: 'JWT',
         },
         {
-          key: 'boromir-prod-oauth',
-          type: 'oauth2',
-          description: 'one does simply walk into VA APIs',
-        },
-        {
-          key: 'boromir-sandbox-oauth',
+          key: 'faramir-security',
           type: 'oauth2',
           description: 'one does simply walk into VA APIs',
         },
       ]);
 
-      await Positive.run(['./test/fixtures/securities/oauth2_token_oas.json']);
+      await Positive.run(['https://url-does-not-matter.com']);
 
       expect(mockPrompt).toHaveBeenCalledTimes(1);
       expect(mockPrompt).toHaveBeenCalledWith('Please provide your token', {
@@ -791,7 +785,7 @@ describe('Positive', () => {
         },
       ]);
 
-      await Positive.run(['./test/fixtures/securities/mixed_levels_oas.json']);
+      await Positive.run(['https://url-does-not-matter.com']);
 
       expect(mockPrompt).toHaveBeenCalled();
       expect(mockPrompt).toHaveBeenCalledTimes(2);
@@ -800,11 +794,7 @@ describe('Positive', () => {
     it('throws an error if no security schemes are defined in the component object', async () => {
       mockGetSecuritySchemes.mockResolvedValue([]);
 
-      await expect(
-        Positive.run([
-          './test/fixtures/securities/no_security_schemes_oas.json',
-        ]),
-      ).rejects
+      await expect(Positive.run(['https://url-does-not-matter.com'])).rejects
         .toThrow(`The following security requirements exist but no corresponding security scheme exists on a components object: boromir-security,faramir-security.
   See more at: https://swagger.io/specification/#security-requirement-object`);
 
