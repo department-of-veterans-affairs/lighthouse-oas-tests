@@ -211,17 +211,17 @@ export default class Positive extends Command {
     for (const security of securities) {
       if (security.type === OASSecurityType.APIKEY) {
         const apiSecurityName = security.key;
-        const value =
+        const apiKeyValue =
           apiKey ??
           // eslint-disable-next-line no-await-in-loop
           (await cli.prompt('Please provide your API Key', {
             type: 'mask',
           }));
         if (!apiKey) {
-          apiKey = value;
+          apiKey = apiKeyValue;
         }
 
-        this.securityValues[apiSecurityName] = { value };
+        this.securityValues[apiSecurityName] = { value: apiKeyValue };
       }
       // Refactor logic to nest HTTP and OAUTH2 together in the same statement
       if (
@@ -230,23 +230,23 @@ export default class Positive extends Command {
         security.type === OASSecurityType.OAUTH2
       ) {
         const tokenSecurityName = security.key;
-        const value =
+        const tokenValue =
           token ??
           // eslint-disable-next-line no-await-in-loop
           (await cli.prompt('Please provide your token', {
             type: 'mask',
           }));
         if (!token) {
-          token = value;
+          token = tokenValue;
         }
 
         if (security.type === OASSecurityType.HTTP) {
-          this.securityValues[tokenSecurityName] = { value };
+          this.securityValues[tokenSecurityName] = { value: tokenValue };
         }
 
         if (security.type === OASSecurityType.OAUTH2) {
           this.securityValues[tokenSecurityName] = {
-            token: { access_token: value },
+            token: { access_token: tokenValue },
           };
         }
       }
