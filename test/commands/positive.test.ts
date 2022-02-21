@@ -446,12 +446,50 @@ describe('Positive', () => {
       await Positive.run(['./test/fixtures/securities/bearer_token_oas.json']);
 
       expect(mockPrompt).toHaveBeenCalled();
-      expect(mockPrompt).toHaveBeenCalledWith(
-        'Please provide your bearer token',
+      expect(mockPrompt).toHaveBeenCalledWith('Please provide your token', {
+        type: 'mask',
+      });
+    });
+
+    it('requests an oauth token when oauth type exists', async () => {
+      mockGetSecuritySchemes.mockResolvedValue([
         {
-          type: 'mask',
+          key: 'boromir-security',
+          type: 'oauth2',
+          description: 'one does simply walk into VA APIs',
         },
-      );
+      ]);
+
+      await Positive.run(['https://url-does-not-matter.com']);
+
+      expect(mockPrompt).toHaveBeenCalled();
+      expect(mockPrompt).toHaveBeenCalledWith('Please provide your token', {
+        type: 'mask',
+      });
+    });
+
+    it('only propmts once if OAS contains both http bearer and oauth2 security schemes', async () => {
+      mockGetSecuritySchemes.mockResolvedValue([
+        {
+          key: 'boromir-security',
+          type: 'http',
+          description: 'one does simply walk into VA APIs',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+        {
+          key: 'faramir-security',
+          type: 'oauth2',
+          description: 'one does simply walk into VA APIs',
+        },
+      ]);
+
+      await Positive.run(['https://url-does-not-matter.com']);
+
+      expect(mockPrompt).toHaveBeenCalledTimes(2);
+      expect(mockPrompt).toHaveBeenCalledWith('Please provide your token', {
+        type: 'mask',
+      });
     });
 
     it('requests authorization for each security type in the spec', async () => {

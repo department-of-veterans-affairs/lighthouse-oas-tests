@@ -200,41 +200,60 @@ export default class Positive extends Command {
       return;
     }
 
-    const securityTypes = {};
-    for (const scheme of securitySchemes) {
-      if (this.securities.includes(scheme.key)) {
-        securityTypes[scheme.type] = {
+    const securities = securitySchemes // May have to convert to an array of promises to resolve awaits
+      .filter((scheme) => this.securities.includes(scheme.key))
+      .map((scheme) => {
+        return {
           type: scheme.type,
           key: scheme.key,
           scheme: scheme.scheme,
         };
-      }
-    }
-
-    if (securityTypes[OASSecurityType.APIKEY]) {
-      const apiSecurityName = securityTypes[OASSecurityType.APIKEY].key;
-      const value =
-        flags.apiKey ??
-        (await cli.prompt('Please provide your API Key', { type: 'mask' }));
-
-      this.securityValues[apiSecurityName] = { value };
-    }
-
-    if (securityTypes[OASSecurityType.HTTP]) {
-      const bearerSecurityName = securityTypes[OASSecurityType.HTTP].key;
-      let value;
-
-      if (
-        securityTypes[OASSecurityType.HTTP].scheme === BEARER_SECURITY_SCHEME
-      ) {
-        value =
-          flags.bearerToken ??
-          (await cli.prompt('Please provide your bearer token', {
+      });
+    // Wrap if statements in loop to iterate over securities array to check for apiKey or bearer_token(s)
+    let apiKey = flags.apiKey;
+    let token = flags.bearerToken;
+    for (const security of securities) {
+      if (security.type === OASSecurityType.APIKEY) {
+        const apiSecurityName = security.key;
+        const apiKeyValue =
+          apiKey ??
+          // eslint-disable-next-line no-await-in-loop
+          (await cli.prompt('Please provide your API Key', {
             type: 'mask',
           }));
-      }
+        if (!apiKey) {
+          apiKey = apiKeyValue;
+        }
 
-      this.securityValues[bearerSecurityName] = { value };
+        this.securityValues[apiSecurityName] = { value: apiKeyValue };
+      }
+      // Refactor logic to nest HTTP and OAUTH2 together in the same statement
+      if (
+        (security.type === OASSecurityType.HTTP &&
+          security.scheme === BEARER_SECURITY_SCHEME) ||
+        security.type === OASSecurityType.OAUTH2
+      ) {
+        const tokenSecurityName = security.key;
+        const tokenValue =
+          token ??
+          // eslint-disable-next-line no-await-in-loop
+          (await cli.prompt('Please provide your token', {
+            type: 'mask',
+          }));
+        if (!token) {
+          token = tokenValue;
+        }
+
+        if (security.type === OASSecurityType.HTTP) {
+          this.securityValues[tokenSecurityName] = { value: tokenValue };
+        }
+
+        if (security.type === OASSecurityType.OAUTH2) {
+          this.securityValues[tokenSecurityName] = {
+            token: { access_token: tokenValue },
+          };
+        }
+      }
     }
   };
 
