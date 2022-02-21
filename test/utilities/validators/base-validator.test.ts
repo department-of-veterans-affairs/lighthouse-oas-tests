@@ -22,7 +22,7 @@ describe('BaseValidator', () => {
           ]);
 
           const failures = validator.failures;
-          expect(failures).toHaveLength(1);
+          expect(failures.size).toEqual(1);
           expect(failures).toContainValidationFailure(
             'Actual value is null but schema does not allow null values. Path: body -> facility -> id',
           );
@@ -44,7 +44,7 @@ describe('BaseValidator', () => {
           ]);
 
           const failures = validator.failures;
-          expect(failures).toHaveLength(1);
+          expect(failures.size).toEqual(1);
           expect(failures).toContainValidationFailure(
             'Actual value is null but schema does not allow null values. Path: body -> facility -> id',
           );
@@ -66,7 +66,7 @@ describe('BaseValidator', () => {
           ]);
 
           const failures = validator.failures;
-          expect(failures).toHaveLength(0);
+          expect(failures.size).toEqual(0);
         });
       });
     });
@@ -91,14 +91,14 @@ describe('BaseValidator', () => {
           validator.validateObjectAgainstSchema('This is a string', schema, [
             'test',
           ]);
-          expect(validator.failures).toHaveLength(0);
+          expect(validator.failures.size).toEqual(0);
         });
       });
 
       describe('actual object is an array', () => {
         it('does not add a validation failure', () => {
           validator.validateObjectAgainstSchema([42, 58], schema, ['test']);
-          expect(validator.failures).toHaveLength(0);
+          expect(validator.failures.size).toEqual(0);
         });
       });
 
@@ -109,7 +109,7 @@ describe('BaseValidator', () => {
             schema,
             ['test'],
           );
-          expect(validator.failures).toHaveLength(0);
+          expect(validator.failures.size).toEqual(0);
         });
       });
     });
@@ -125,7 +125,7 @@ describe('BaseValidator', () => {
           validator.validateObjectAgainstSchema('This is a string', schema, [
             'test',
           ]);
-          expect(validator.failures).toHaveLength(0);
+          expect(validator.failures.size).toEqual(0);
         });
 
         describe('schema expects an enum', () => {
@@ -164,7 +164,7 @@ describe('BaseValidator', () => {
                 'facility',
                 'id',
               ]);
-              expect(validator.failures).toHaveLength(0);
+              expect(validator.failures.size).toEqual(0);
             });
           });
 
@@ -214,7 +214,7 @@ describe('BaseValidator', () => {
             ]);
 
             const failures = validator.failures;
-            expect(failures).toHaveLength(1);
+            expect(failures.size).toEqual(1);
             expect(failures).toContainValidationFailure(
               'Actual type did not match schema. Schema type: string. Actual type: object. Path: body -> facility -> id',
             );
@@ -232,7 +232,7 @@ describe('BaseValidator', () => {
             ]);
 
             const failures = validator.failures;
-            expect(failures).toHaveLength(1);
+            expect(failures.size).toEqual(1);
             expect(failures).toContainValidationFailure(
               'Actual type did not match schema. Schema type: string. Actual type: object. Path: body -> facility -> id',
             );
@@ -254,7 +254,7 @@ describe('BaseValidator', () => {
             'facility',
             'lat',
           ]);
-          expect(validator.failures).toHaveLength(0);
+          expect(validator.failures.size).toEqual(0);
         });
 
         describe('schema expects an enum', () => {
@@ -269,7 +269,7 @@ describe('BaseValidator', () => {
                 'facility',
                 'lat',
               ]);
-              expect(validator.failures).toHaveLength(0);
+              expect(validator.failures.size).toEqual(0);
             });
           });
 
@@ -343,7 +343,7 @@ describe('BaseValidator', () => {
             'facility',
             'lat',
           ]);
-          expect(validator.failures).toHaveLength(0);
+          expect(validator.failures.size).toEqual(0);
         });
 
         describe('schema expects an enum', () => {
@@ -358,7 +358,7 @@ describe('BaseValidator', () => {
                 'facility',
                 'lat',
               ]);
-              expect(validator.failures).toHaveLength(0);
+              expect(validator.failures.size).toEqual(0);
             });
           });
 
@@ -508,7 +508,7 @@ describe('BaseValidator', () => {
                 'body',
                 'numbers',
               ]);
-              expect(validator.failures).toHaveLength(0);
+              expect(validator.failures.size).toEqual(0);
             });
           });
 
@@ -689,7 +689,7 @@ describe('BaseValidator', () => {
           );
 
           const failures = validator.failures;
-          expect(failures).toHaveLength(1);
+          expect(failures.size).toEqual(1);
           expect(failures).toContainValidationFailure(
             'Actual type did not match schema. Schema type: string. Actual type: number. Path: body -> form -> value',
           );
@@ -699,9 +699,9 @@ describe('BaseValidator', () => {
           validator.validateObjectAgainstSchema({}, schema, ['body', 'form']);
 
           const warnings = validator.warnings;
-          expect(warnings).toHaveLength(1);
+          expect(warnings.size).toEqual(1);
           expect(warnings).toContainValidationWarning(
-            'Warning: This object is missing non-required parameters that were unable to be validated, including value. Path: body -> form',
+            'Warning: This object is missing non-required properties that were unable to be validated, including value. Path: body -> form',
           );
         });
 
@@ -713,9 +713,9 @@ describe('BaseValidator', () => {
           );
 
           const warnings = validator.warnings;
-          expect(warnings).toHaveLength(0);
+          expect(warnings.size).toEqual(0);
           expect(warnings).not.toContainValidationWarning(
-            'Warning: This object is missing non-required parameters that were unable to be validated, including value. Path: body -> form',
+            'Warning: This object is missing non-required properties that were unable to be validated, including value. Path: body -> form',
           );
         });
 
@@ -730,7 +730,7 @@ describe('BaseValidator', () => {
                 'body',
                 'form',
               ]);
-              expect(validator.failures).toHaveLength(0);
+              expect(validator.failures.size).toEqual(0);
             });
           });
 

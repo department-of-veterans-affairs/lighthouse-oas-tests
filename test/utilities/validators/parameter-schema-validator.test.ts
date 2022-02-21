@@ -34,7 +34,7 @@ describe('ParameterSchemaValidator', () => {
 
       const failures = validator.failures;
 
-      expect(failures).toHaveLength(1);
+      expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
         'Parameter object must have either schema or content set, but not both. Path: parameters -> gryffindor',
       );
@@ -72,7 +72,7 @@ describe('ParameterSchemaValidator', () => {
 
       const failures = validator.failures;
 
-      expect(failures).toHaveLength(1);
+      expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
         'Parameter content object should only have one key. Path: parameters -> magical deliveries -> content',
       );
@@ -105,7 +105,7 @@ describe('ParameterSchemaValidator', () => {
 
       const failures = validator.failures;
 
-      expect(failures).toHaveLength(1);
+      expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
         'The media type obejct in the content field is missing a schema object. Path: parameters -> magical deliveries -> content -> document/howler',
       );
@@ -129,7 +129,7 @@ describe('ParameterSchemaValidator', () => {
 
       const failures = validator.failures;
 
-      expect(failures).toHaveLength(1);
+      expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
         'Parameter object must have either schema or content set, but not both. Path: parameters -> horcrux',
       );
@@ -160,7 +160,7 @@ describe('ParameterSchemaValidator', () => {
 
       const failures = validator.failures;
 
-      expect(failures).toHaveLength(1);
+      expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
         "The 'example' field is mutually exclusive of the 'examples' field, provide one or the other or neither, but not both. Path: parameters -> horcrux",
       );
@@ -190,9 +190,7 @@ describe('ParameterSchemaValidator', () => {
       const validator = new ParameterSchemaValidator(operation);
       validator.validate();
 
-      const failures = validator.failures;
-
-      expect(failures).toHaveLength(0);
+      expect(validator.failures.size).toEqual(0);
     });
 
     it('does not register a validation failure if schema is shaped correctly', () => {
@@ -214,9 +212,7 @@ describe('ParameterSchemaValidator', () => {
       const validator = new ParameterSchemaValidator(operation);
       validator.validate();
 
-      const failures = validator.failures;
-
-      expect(failures).toHaveLength(0);
+      expect(validator.failures.size).toEqual(0);
     });
 
     it('is idempotent', () => {
@@ -246,7 +242,7 @@ describe('ParameterSchemaValidator', () => {
 
       let failures = validator.failures;
 
-      expect(failures).toHaveLength(1);
+      expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
         'The media type obejct in the content field is missing a schema object. Path: parameters -> magical deliveries -> content -> document/howler',
       );
@@ -255,7 +251,7 @@ describe('ParameterSchemaValidator', () => {
       validator.validate();
 
       failures = validator.failures;
-      expect(failures).toHaveLength(1);
+      expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
         'The media type obejct in the content field is missing a schema object. Path: parameters -> magical deliveries -> content -> document/howler',
       );

@@ -2,9 +2,13 @@ import { ValidationFailure } from '../src/validation-messages/failures';
 import { ValidationWarning } from '../src/validation-messages/warnings';
 
 expect.extend({
-  toContainValidationFailure(received: ValidationFailure[], argument: string) {
+  toContainValidationFailure(
+    received: Map<string, ValidationFailure>,
+    argument: string,
+  ) {
     let pass = false;
-    received
+    const failures = [...received.values()];
+    failures
       .map((validationFailure) => validationFailure.toString())
       .forEach((failureMessage) => {
         if (failureMessage === argument) {
@@ -16,7 +20,7 @@ expect.extend({
       return {
         message: (): string =>
           `expected ${this.utils.printReceived(
-            received.map((failure) => failure.toString()),
+            failures.map((failure) => failure.toString()),
           )} not to contain failure ${this.utils.printExpected(argument)}`,
         pass: true,
       };
@@ -24,14 +28,18 @@ expect.extend({
     return {
       message: (): string =>
         `expected ${this.utils.printReceived(
-          received.map((failure) => failure.toString()),
+          failures.map((failure) => failure.toString()),
         )} to contain failure ${this.utils.printExpected(argument)}`,
       pass: false,
     };
   },
-  toContainValidationWarning(received: ValidationWarning[], argument: string) {
+  toContainValidationWarning(
+    received: Map<string, ValidationWarning>,
+    argument: string,
+  ) {
     let pass = false;
-    received
+    const warnings = [...received.values()];
+    warnings
       .map((validationWarning) => validationWarning.toString())
       .forEach((warningMessage) => {
         if (warningMessage === argument) {
@@ -43,7 +51,7 @@ expect.extend({
       return {
         message: (): string =>
           `expected ${this.utils.printReceived(
-            received.map((warning) => warning.toString()),
+            warnings.map((warning) => warning.toString()),
           )} not to contain warning ${this.utils.printExpected(argument)}`,
         pass: true,
       };
@@ -51,7 +59,7 @@ expect.extend({
     return {
       message: (): string =>
         `expected ${this.utils.printReceived(
-          received.map((warning) => warning.toString()),
+          warnings.map((warning) => warning.toString()),
         )} to contain warning ${this.utils.printExpected(argument)}`,
       pass: false,
     };
