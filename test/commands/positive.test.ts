@@ -446,12 +446,9 @@ describe('Positive', () => {
       await Positive.run(['./test/fixtures/securities/bearer_token_oas.json']);
 
       expect(mockPrompt).toHaveBeenCalled();
-      expect(mockPrompt).toHaveBeenCalledWith(
-        'Please provide your token',
-        {
-          type: 'mask',
-        },
-      );
+      expect(mockPrompt).toHaveBeenCalledWith('Please provide your token', {
+        type: 'mask',
+      });
     });
 
     it('requests an oauth token when oauth type exists', async () => {
