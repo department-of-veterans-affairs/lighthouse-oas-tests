@@ -104,41 +104,45 @@ export default class Positive extends Command {
 
     await Promise.all(
       this.operationExamples.map(async (operationExample) => {
-        let failures: ValidationFailure[] = [];
-        let warnings: ValidationWarning[] = [];
+        let failures: Map<string, ValidationFailure> = new Map();
+        let warnings: Map<string, ValidationWarning> = new Map();
+
         const { operation, exampleGroup } = operationExample;
         const parameterSchemaValidator = new ParameterSchemaValidator(
           operation,
         );
         parameterSchemaValidator.validate();
-
-        failures = [...failures, ...parameterSchemaValidator.failures];
-        warnings = [...warnings, ...parameterSchemaValidator.warnings];
+        failures = new Map([...failures, ...parameterSchemaValidator.failures]);
+        warnings = new Map([...warnings, ...parameterSchemaValidator.warnings]);
 
         const parameterValidator = new ExampleGroupValidator(exampleGroup);
         parameterValidator.validate();
 
-        failures = [...failures, ...parameterValidator.failures];
-        warnings = [...warnings, ...parameterValidator.warnings];
+        failures = new Map([...failures, ...parameterValidator.failures]);
+        warnings = new Map([...warnings, ...parameterValidator.warnings]);
 
-        if (failures.length === 0) {
+        if (failures.size === 0) {
           const response = await this.schema.execute(
             operation,
             exampleGroup,
             this.securityValues,
           );
           if (response?.ok) {
-            const validator = new ResponseValidator(operation, response);
-            validator.validate();
+            const responseValidator = new ResponseValidator(
+              operation,
+              response,
+            );
+            responseValidator.validate();
 
-            failures = [...failures, ...validator.failures];
-            warnings = [...warnings, ...validator.warnings];
+            failures = new Map([...failures, ...responseValidator.failures]);
+            warnings = new Map([...warnings, ...responseValidator.warnings]);
           } else if (response) {
-            failures = [...failures, new InvalidResponse()];
+            const failure = new InvalidResponse();
+            failures.set(failure.hash, failure);
           }
         }
 
-        if (failures.length > 0) {
+        if (failures.size > 0) {
           this.failingOperations.push(operation);
         }
 
@@ -196,62 +200,89 @@ export default class Positive extends Command {
       return;
     }
 
-    const securityTypes = {};
-    for (const scheme of securitySchemes) {
-      if (this.securities.includes(scheme.key)) {
-        securityTypes[scheme.type] = {
+    const securities = securitySchemes // May have to convert to an array of promises to resolve awaits
+      .filter((scheme) => this.securities.includes(scheme.key))
+      .map((scheme) => {
+        return {
           type: scheme.type,
           key: scheme.key,
           scheme: scheme.scheme,
         };
-      }
-    }
-
-    if (securityTypes[OASSecurityType.APIKEY]) {
-      const apiSecurityName = securityTypes[OASSecurityType.APIKEY].key;
-      const value =
-        flags.apiKey ??
-        (await cli.prompt('Please provide your API Key', { type: 'mask' }));
-
-      this.securityValues[apiSecurityName] = { value };
-    }
-
-    if (securityTypes[OASSecurityType.HTTP]) {
-      const bearerSecurityName = securityTypes[OASSecurityType.HTTP].key;
-      let value;
-
-      if (
-        securityTypes[OASSecurityType.HTTP].scheme === BEARER_SECURITY_SCHEME
-      ) {
-        value =
-          flags.bearerToken ??
-          (await cli.prompt('Please provide your bearer token', {
+      });
+    // Wrap if statements in loop to iterate over securities array to check for apiKey or bearer_token(s)
+    let apiKey = flags.apiKey;
+    let token = flags.bearerToken;
+    for (const security of securities) {
+      if (security.type === OASSecurityType.APIKEY) {
+        const apiSecurityName = security.key;
+        const apiKeyValue =
+          apiKey ??
+          // eslint-disable-next-line no-await-in-loop
+          (await cli.prompt('Please provide your API Key', {
             type: 'mask',
           }));
-      }
+        if (!apiKey) {
+          apiKey = apiKeyValue;
+        }
 
-      this.securityValues[bearerSecurityName] = { value };
+        this.securityValues[apiSecurityName] = { value: apiKeyValue };
+      }
+      // Refactor logic to nest HTTP and OAUTH2 together in the same statement
+      if (
+        (security.type === OASSecurityType.HTTP &&
+          security.scheme === BEARER_SECURITY_SCHEME) ||
+        security.type === OASSecurityType.OAUTH2
+      ) {
+        const tokenSecurityName = security.key;
+        const tokenValue =
+          token ??
+          // eslint-disable-next-line no-await-in-loop
+          (await cli.prompt('Please provide your token', {
+            type: 'mask',
+          }));
+        if (!token) {
+          token = tokenValue;
+        }
+
+        if (security.type === OASSecurityType.HTTP) {
+          this.securityValues[tokenSecurityName] = { value: tokenValue };
+        }
+
+        if (security.type === OASSecurityType.OAUTH2) {
+          this.securityValues[tokenSecurityName] = {
+            token: { access_token: tokenValue },
+          };
+        }
+      }
     }
   };
 
   displayOperationResults = (
     operation: OASOperation,
     exampleGroup: ExampleGroup,
-    failures: ValidationFailure[],
-    warnings: ValidationWarning[],
+    failures: Map<string, ValidationFailure>,
+    warnings: Map<string, ValidationWarning>,
   ): void => {
-    if (failures.length > 0) {
+    if (failures.size > 0) {
       this.log(`${operation.operationId} - ${exampleGroup.name}: Failed`);
 
-      failures.forEach((failure) => {
-        this.log(`  - ${failure.toString()}`);
+      failures.forEach((failure, _) => {
+        const count = failure.count;
+        this.log(
+          `  - ${failure.toString()}. Found ${count} time${
+            count > 1 ? 's' : ''
+          }`,
+        );
       });
     } else {
       this.log(`${operation.operationId} - ${exampleGroup.name}: Succeeded`);
     }
 
-    warnings.forEach((failure) => {
-      this.log(`  - ${failure.toString()}`);
+    warnings.forEach((warning, _) => {
+      const count = warning.count;
+      this.log(
+        `  - ${warning.toString()}. Found ${count} time${count > 1 ? 's' : ''}`,
+      );
     });
   };
 

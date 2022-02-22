@@ -2,7 +2,7 @@ import ExampleGroup from '../../../src/utilities/example-group';
 import OASOperation from '../../../src/utilities/oas-operation';
 import { ExampleGroupValidator } from '../../../src/utilities/validators';
 
-describe('ParameterValidator', () => {
+describe('ExampleGroupValidator', () => {
   describe('validate', () => {
     describe('input parameters is missing a required parameter', () => {
       it('adds a validation failure', () => {
@@ -28,7 +28,7 @@ describe('ParameterValidator', () => {
         validator.validate();
 
         const failures = validator.failures;
-        expect(failures).toHaveLength(1);
+        expect(failures.size).toEqual(1);
         expect(failures).toContainValidationFailure(
           'Missing required parameters: [fit]',
         );
@@ -69,7 +69,7 @@ describe('ParameterValidator', () => {
           validator.validate();
 
           const failures = validator.failures;
-          expect(failures).toHaveLength(2);
+          expect(failures.size).toEqual(2);
           expect(failures).toContainValidationFailure(
             'Missing required parameters: [fit]',
           );
@@ -102,7 +102,7 @@ describe('ParameterValidator', () => {
       validator.validate();
 
       const failures = validator.failures;
-      expect(failures).toHaveLength(1);
+      expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
         'Actual type did not match schema. Schema type: string. Actual type: number. Path: parameters -> fit -> example',
       );
@@ -131,7 +131,7 @@ describe('ParameterValidator', () => {
       validator.validate();
 
       let failures = validator.failures;
-      expect(failures).toHaveLength(1);
+      expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
         'Missing required parameters: [fit]',
       );
@@ -140,7 +140,7 @@ describe('ParameterValidator', () => {
       validator.validate();
 
       failures = validator.failures;
-      expect(failures).toHaveLength(1);
+      expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
         'Missing required parameters: [fit]',
       );
