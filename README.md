@@ -287,7 +287,7 @@ See our [contribution guide](CONTRIBUTING.MD)
 ## Running Commands
 Before running any commands locally and after any code changes, the code will need to be built using `npm run build`.
 While developing locally, `$ ./bin/run` is the equivalent of running `$ loast` with the CLI installed.
-- e.g.: `$ ./bin/run positive -a YOUR_API_KEY -f test/fixtures/facilities_oas.json` will run positive tests against the facilities OAS present in our test fixtures.
+- e.g.: `$ ./bin/run positive -a YOUR_API_KEY test/fixtures/facilities_oas.json` will run positive tests against the facilities OAS present in our test fixtures.
 
 ## Testing
 Tests are setup with [Jest](https://jestjs.io/). Run tests using the `npm run test` command.
