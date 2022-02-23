@@ -36,6 +36,12 @@ typings/
 .env
 .env.local
 
+# Visual Studio Code project folder
+.vscode
+
+# IntelliJ/WebStorm/etc project folder
+.idea
+
 #
 dist
 lib

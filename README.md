@@ -295,6 +295,59 @@ Tests are setup with [Jest](https://jestjs.io/). Run tests using the `npm run te
 ## Linting
 This library is setup with [eslint](https://eslint.org/) and [Prettier](https://prettier.io/). Run linting using the `npm run lint` command or the `npm run lint:fix` command for in place corrections of errors.
 
+## Debugging
+
+### With Visual Studio Code
+
+This requires the [Docker Extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker) to be installed.
+
+Debugging with Visual Studio Code can be accomplished by adding or updating `./.vscode/launch.json` with the following configurations:
+
+```shl
+{
+  "configurations": [
+    {
+      "name": "Launch Debug",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/run",
+      "outputCapture": "std",
+      "stopOnEntry": true,
+      "args": [ // args are passed to the program being debugged
+        "positive",
+        "-a",
+        "YOUR_API_KEY",
+        "test/fixtures/facilities_oas.json"
+      ],
+      "preLaunchTask": "npm: build"
+    },
+    {
+      "name": "Attach",
+      "port": 9229,
+      "request": "attach",
+      "type": "node"
+    }
+  ]
+}
+```
+
+The `Launch Debug` configuration will build the application, launch it with the arguments defined under `args`, connect the debugger, and pause at the first line of code.
+If it is preferred to execute the application until a breakpoint is hit, then change `stopOnEntry` to `false`.
+
+The `Attach` configuration will attach the debugger to a loast instance that is already running.  Loast can be launched for debugging like so:
+
+`$ node --inspect-brk ./bin/run positive -a YOUR_API_KEY test/fixtures/facilities_oas.json`
+
+### With WebStorm
+
+Debugging with WebStorm can be accomplished by creating a Node.js run/debug configuration as described [here](https://www.jetbrains.com/help/webstorm/running-and-debugging-node-js.html#Node.js_run).   
+Set the **JavaScript File** field to: `bin/run`  
+Set the **Application Parameters** field to: `positive -a YOUR_API_KEY test/fixtures/facilities_oas.json`  
+
+To build the application automatically, configure a before-launch task of type **Run npm script**.  
+Set the **Command** field to: `run`  
+Set the **Scripts** field to: `build`  
+
 ## Releasing
 See [oclif's release documentation](https://oclif.io/docs/releasing) for instructions on how to release new versions of the CLI both to npm and as standalone packages
 
