@@ -54,8 +54,15 @@ declare module 'swagger-client/schema' {
   export interface OperationObject {
     operationId: string;
     parameters: ParameterObject[];
+    requestBody?: RequestBodyObject;
     responses: { [responseStatus: string]: ResponseObject };
     security?: SecurityRequirementObject[];
+  }
+
+  interface RequestBodyObject {
+    description?: string;
+    required?: boolean;
+    content: { [name: string]: MediaTypeObject };
   }
 
   interface ParameterAndHeaderBase {
