@@ -7,7 +7,7 @@ class RequestBodyFactory {
 
     const requestBody = operation.requestBody;
 
-    if (!requestBody) return {};
+    if (!requestBody || !requestBody.required) return {};
 
     const content = requestBody.content;
     // get first key in content map
