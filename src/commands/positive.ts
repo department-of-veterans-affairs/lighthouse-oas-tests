@@ -107,7 +107,7 @@ export default class Positive extends Command {
         let failures: Map<string, ValidationFailure> = new Map();
         let warnings: Map<string, ValidationWarning> = new Map();
 
-        const { operation, exampleGroup } = operationExample;
+        const { operation, exampleGroup, requestBody } = operationExample;
         const parameterSchemaValidator = new ParameterSchemaValidator(
           operation,
         );
@@ -126,6 +126,7 @@ export default class Positive extends Command {
             operation,
             exampleGroup,
             this.securityValues,
+            requestBody,
           );
           if (response?.ok) {
             const responseValidator = new ResponseValidator(
@@ -170,6 +171,7 @@ export default class Positive extends Command {
           id: operationExampleId,
           operation,
           exampleGroup,
+          requestBody: operation.exampleRequestBody,
         });
       }
     }

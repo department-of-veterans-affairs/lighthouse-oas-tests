@@ -13,6 +13,7 @@ declare module 'swagger-client' {
       parameters: { [name: string]: Json };
       operationId: string;
       securities?: Securities;
+      requestBody?: RequestBody;
       requestInterceptor?: (request: Request) => Request;
     }) => Promise<Response>;
   }
@@ -31,6 +32,8 @@ declare module 'swagger-client' {
     body: Json;
   }
 
+  export type RequestBody = { [name: string]: Json };
+
   type Api = {
     [operationId: string]: (options: {
       parameters: { [name: string]: Json };
@@ -44,7 +47,7 @@ declare module 'swagger-client' {
   interface ApiKey extends ValueObject {}
   interface BearerToken extends ValueObject {}
   interface OauthToken {
-    token: { access_token: string }
+    token: { access_token: string };
   }
 
   export interface Securities {

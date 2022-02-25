@@ -1,4 +1,4 @@
-import { OperationObject, ParameterObject } from 'swagger-client';
+import { OperationObject, ParameterObject, RequestBody } from 'swagger-client';
 import {
   RequestBodyObject,
   ResponseObject,
@@ -8,12 +8,11 @@ import ExampleGroup, { ExampleGroupFactory } from '../example-group';
 import OASSecurity from '../oas-security';
 import OASSecurityFactory from '../oas-security/oas-security.factory';
 import RequestBodyFactory from '../request-body/request-body.factory';
-import { RequestBody } from '../request-body/types';
 
 class OASOperation {
   readonly operationId: string;
 
-  readonly parameters: ParameterObject[];
+  readonly parameters: ParameterObject[] | undefined;
 
   readonly requestBody: RequestBodyObject | undefined;
 
@@ -49,12 +48,20 @@ class OASOperation {
   }
 
   get requiredParameterNames(): string[] {
+    if (this._operation.parameters === undefined) {
+      return [];
+    }
+
     return this._operation.parameters
       .filter((parameter) => parameter.required)
       .map((parameter) => parameter.name);
   }
 
   getParameter(name): ParameterObject | null {
+    if (this.parameters === undefined) {
+      return null;
+    }
+
     const parameter = this.parameters.find(
       (parameter) => parameter.name === name,
     );

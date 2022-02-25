@@ -1,4 +1,9 @@
-import swaggerClient, { Response, Security, Swagger } from 'swagger-client';
+import swaggerClient, {
+  RequestBody,
+  Response,
+  Security,
+  Swagger,
+} from 'swagger-client';
 import OASOperation, { OASOperationFactory } from '../oas-operation';
 import ExampleGroup from '../example-group';
 import { OASSecurityScheme, OASSecurityFactory } from '../oas-security';
@@ -21,6 +26,7 @@ class OASSchema {
     operation: OASOperation,
     exampleGroup: ExampleGroup,
     securities: Security,
+    requestBody: RequestBody,
   ): Promise<Response> => {
     const schema = await this._client;
 
@@ -31,6 +37,7 @@ class OASSchema {
         securities: {
           authorized: securities,
         },
+        requestBody: requestBody,
       })
       .catch((error) => {
         return error.response;

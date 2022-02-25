@@ -1,5 +1,5 @@
+import { RequestBody } from 'swagger-client';
 import OASOperation from '../oas-operation';
-import { RequestBody } from './types';
 
 class RequestBodyFactory {
   static buildFromOperation(operation: OASOperation): RequestBody {

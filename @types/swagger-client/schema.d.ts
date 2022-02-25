@@ -53,7 +53,7 @@ declare module 'swagger-client/schema' {
 
   export interface OperationObject {
     operationId: string;
-    parameters: ParameterObject[];
+    parameters?: ParameterObject[];
     requestBody?: RequestBodyObject;
     responses: { [responseStatus: string]: ResponseObject };
     security?: SecurityRequirementObject[];
