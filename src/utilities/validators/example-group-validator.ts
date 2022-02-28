@@ -23,6 +23,16 @@ class ExampleGroupValidator extends BaseValidator {
     Object.entries(examples).forEach(([name, example]) => {
       this.checkExample(name, example);
     });
+
+    const requestBody = this.operation.requestBody;
+    if (requestBody) {
+      const example = this.operation.exampleRequestBody;
+      const content = requestBody.content;
+      const [key] = Object.keys(content);
+      const schema = content[key].schema;
+      const path: string[] = ['requestBody', 'example'];
+      this.validateObjectAgainstSchema(example, schema, path);
+    }
   };
 
   private checkMissingRequiredParameters(): void {

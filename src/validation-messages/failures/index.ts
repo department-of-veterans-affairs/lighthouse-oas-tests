@@ -14,5 +14,6 @@ export { default as PropertySchemaMissing } from './property-schema-missing';
 export { default as InvalidParameterObject } from './invalid-parameter-object';
 export { default as InvalidParameterContent } from './invalid-parameter-content';
 export { default as MissingContentSchemaObject } from './missing-content-schema-object';
+export { default as InvalidRequestBodyContent } from './invalid-request-body-content';
 export { default as InvalidResponse } from './invalid-response';
 export { default as InvalidParameterExample } from './invalid-parameter-example';
