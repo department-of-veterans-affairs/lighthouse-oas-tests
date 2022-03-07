@@ -142,12 +142,52 @@ describe('Positive', () => {
     });
 
     describe('Provided file does not exist', () => {
+      // Line 76
       it('throws an error with json in it', async () => {
         await expect(async () => {
           await Positive.run(['fileDoesNotExist.json']);
         }).rejects.toThrow('unable to load json file');
       });
 
+      it('throws an error file is a json file with invalid json', async () => {
+        await expect(async () => {
+          await Positive.run(['./test/fixtures/invalid.json']);
+        }).rejects.toThrow('unable to load json file');
+      });
+      // Lines 80-81
+      it('loads the spec successfully when it is a yaml file', async () => {
+        const operation = new OASOperation({
+          operationId: 'getHobbit',
+          responses: defaultResponses,
+          parameters: [
+            {
+              name: 'name',
+              in: 'query',
+              schema: {
+                type: 'string',
+              },
+              example: 'Frodo',
+            },
+          ],
+        });
+        mockGetOperations.mockResolvedValue([operation]);
+
+        mockExecute.mockResolvedValueOnce({
+          url: 'https://www.lotr.com/walkIntoMorder',
+          status: 200,
+          ok: true,
+          body: {
+            data: ['frodo'],
+          },
+          headers: {
+            'content-type': 'application/json',
+          },
+        });
+        await Positive.run(['./test/fixtures/forms_oas.yaml']);
+
+        expect(result).toEqual(['getHobbit - default: Succeeded\n']);
+      });
+      // Line 83
       it('throws an error with yaml in it', async () => {
         await expect(async () => {
           await Positive.run(['fileDoesNotExist.yaml']);
@@ -155,46 +195,8 @@ describe('Positive', () => {
       });
     });
 
-    it('throws an error file is a json file with invalid json', async () => {
-      await expect(async () => {
-        await Positive.run(['./test/fixtures/invalid.json']);
-      }).rejects.toThrow('unable to load json file');
-    });
-
-    it('loads the spec successfully when it is a yaml file', async () => {
-      const operation = new OASOperation({
-        operationId: 'getHobbit',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'name',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            example: 'Frodo',
-          },
-        ],
-      });
-      mockGetOperations.mockResolvedValue([operation]);
-
-      mockExecute.mockResolvedValueOnce({
-        url: 'https://www.lotr.com/walkIntoMorder',
-        status: 200,
-        ok: true,
-        body: {
-          data: ['frodo'],
-        },
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-      await Positive.run(['./test/fixtures/forms_oas.yaml']);
-
-      expect(result).toEqual(['getHobbit - default: Succeeded\n']);
-    });
-
     describe('Unsupported file type', () => {
+      // Line 86
       it('throws an error', async () => {
         await expect(async () => {
           await Positive.run(['./test/fixtures/file.xml']);
@@ -206,6 +208,7 @@ describe('Positive', () => {
   });
 
   describe('operation has parameter groups', () => {
+    // Line 115
     it('does not execute a request for a parameter group that fails parameter validation', async () => {
       const operation1 = new OASOperation({
         operationId: 'walkIntoMordor',
