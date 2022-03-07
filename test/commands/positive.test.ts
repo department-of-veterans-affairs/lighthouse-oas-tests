@@ -300,7 +300,7 @@ describe('Positive', () => {
         security,
       );
     });
-
+    // Line 118
     it('validates the responses for each parameter group', async () => {
       const operation1 = new OASOperation({
         operationId: 'walkIntoMordor',
@@ -388,32 +388,13 @@ describe('Positive', () => {
       ]);
     });
   });
-
+  // Line 188
   describe('promptForSecurityValues', () => {
     beforeEach(() => {
       mockPrompt.mockReset();
       mockGetSecuritySchemes.mockReset();
     });
-
-    describe('API key is not set', () => {
-      beforeEach(() => {
-        process.env.API_KEY = '';
-      });
-
-      it("does not request an apiKey when apiKey scheme doesn't exist", async () => {
-        mockGetSecuritySchemes.mockReset();
-        mockGetSecuritySchemes.mockResolvedValue([
-          {
-            securityType: 'http',
-            description: 'one does simply walk into VA APIs',
-            name: 'boromir-security',
-          },
-        ]);
-        await Positive.run(['http://isengard.com']);
-        expect(mockPrompt).not.toHaveBeenCalled();
-      });
-    });
-
+    // Line 216
     it('requests an apiKey when apiKey scheme exists', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
@@ -434,7 +415,26 @@ describe('Positive', () => {
         type: 'mask',
       });
     });
-
+    // Line 219
+    describe('API key is not set', () => {
+      beforeEach(() => {
+        process.env.API_KEY = '';
+      });
+      // Line 224
+      it("does not request an apiKey when apiKey scheme doesn't exist", async () => {
+        mockGetSecuritySchemes.mockReset();
+        mockGetSecuritySchemes.mockResolvedValue([
+          {
+            securityType: 'http',
+            description: 'one does simply walk into VA APIs',
+            name: 'boromir-security',
+          },
+        ]);
+        await Positive.run(['http://isengard.com']);
+        expect(mockPrompt).not.toHaveBeenCalled();
+      });
+    });
+    // Lines 232 - 233
     it('requests a bearer token when http bearer scheme exists', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
@@ -453,7 +453,7 @@ describe('Positive', () => {
         type: 'mask',
       });
     });
-
+    // Line 234
     it('requests an oauth token when oauth type exists', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
@@ -471,7 +471,7 @@ describe('Positive', () => {
       });
     });
 
-    it('only propmts once if OAS contains both http bearer and oauth2 security schemes', async () => {
+    it('only prompts once if OAS contains both http bearer and oauth2 security schemes', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
           key: 'boromir-security',
