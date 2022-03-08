@@ -509,6 +509,10 @@ describe('ExampleGroupFactory', () => {
                   value: 'hobbits',
                 },
               },
+              schema: {
+                type: 'string',
+                description: 'a race in middle earth',
+              },
             },
           },
         };
