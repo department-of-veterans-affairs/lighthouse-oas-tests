@@ -457,7 +457,7 @@ describe('ExampleGroupFactory', () => {
 
     describe('the examples field is set on the parameter and content', () => {
       it('returns the examples found on the parameter', () => {
-        const raceParameter = {
+        const raceParameter: ParameterWithContent = {
           name: 'race',
           in: 'query',
           required: true,
@@ -498,7 +498,7 @@ describe('ExampleGroupFactory', () => {
 
     describe('the examples field is set on the content', () => {
       it('returns the examples found on the content', () => {
-        const raceParameter = {
+        const raceParameter: ParameterWithContent = {
           name: 'race',
           in: 'query',
           required: true,
