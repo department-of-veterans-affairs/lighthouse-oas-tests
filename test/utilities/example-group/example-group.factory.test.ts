@@ -1,4 +1,4 @@
-import { ParameterWithSchema } from 'swagger-client';
+import { ParameterWithSchema, ParameterWithContent } from 'swagger-client';
 import { ExampleGroupFactory } from '../../../src/utilities/example-group';
 import OASOperation from '../../../src/utilities/oas-operation';
 
@@ -396,17 +396,17 @@ describe('ExampleGroupFactory', () => {
 
     describe('the example is set on the content only', () => {
       it('returns the example found on the content', () => {
-        const raceParameter: ParameterWithSchema = {
+        const raceParameter: ParameterWithContent = {
           name: 'race',
           in: 'query',
           required: true,
-          schema: {
-            type: 'string',
-            description: 'a race in middle earth',
-          },
           content: {
             'application/json': {
               example: 'hobbits',
+              schema: {
+                type: 'string',
+                description: 'a race in middle earth',
+              },
             },
           },
         };
@@ -425,17 +425,17 @@ describe('ExampleGroupFactory', () => {
         });
       });
       it('returns the non required example found on the content', () => {
-        const raceParameter: ParameterWithSchema = {
+        const raceParameter: ParameterWithContent = {
           name: 'race',
           in: 'query',
           required: false,
-          schema: {
-            type: 'string',
-            description: 'a race in middle earth',
-          },
           content: {
             'application/json': {
               example: 'hobbits',
+              schema: {
+                type: 'string',
+                description: 'a race in middle earth',
+              },
             },
           },
         };
