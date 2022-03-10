@@ -6,7 +6,7 @@ import loadJsonFile from 'load-json-file';
 import { uniq } from 'lodash';
 import parseUrl from 'parse-url';
 import { extname, resolve } from 'path';
-import { Security } from 'swagger-client';
+import { Json, Security } from 'swagger-client';
 import { BEARER_SECURITY_SCHEME } from '../utilities/constants';
 import ExampleGroup from '../utilities/example-group';
 import OASOperation from '../utilities/oas-operation';
@@ -62,32 +62,10 @@ export default class Positive extends Command {
   async run(): Promise<void> {
     const { args, flags } = this.parse(Positive);
     const oasSchemaOptions: ConstructorParameters<typeof OASSchema>[0] = {};
-
     const path = parseUrl(args.path);
 
     if (path.protocol === 'file') {
-      let spec;
-      const extension = extname(args.path);
-
-      if (extension === '.json') {
-        try {
-          spec = await loadJsonFile(args.path);
-        } catch (error) {
-          this.error('unable to load json file');
-        }
-      } else if (extension === '.yml' || extension === '.yaml') {
-        try {
-          const file = readFileSync(resolve(args.path));
-          spec = yaml.load(file);
-        } catch (error) {
-          this.error('unable to load yaml file');
-        }
-      } else {
-        this.error(
-          'File is of a type not supported by OAS (.json, .yml, .yaml)',
-        );
-      }
-      oasSchemaOptions.spec = spec;
+      oasSchemaOptions.spec = await this.loadSpecFromFile(args.path);
     } else {
       oasSchemaOptions.url = args.path;
     }
@@ -172,6 +150,30 @@ export default class Positive extends Command {
           exampleGroup,
         });
       }
+    }
+  };
+
+  loadSpecFromFile = async (path): Promise<Json> => {
+    let spec;
+    const extension = extname(path);
+
+    if (extension === '.json') {
+      try {
+        spec = await loadJsonFile(path);
+        return spec;
+      } catch (error) {
+        return this.error('unable to load json file');
+      }
+    } else if (extension === '.yml' || extension === '.yaml') {
+      try {
+        const file = readFileSync(resolve(path));
+        spec = yaml.load(file);
+        return spec;
+      } catch (error) {
+        this.error('unable to load yaml file');
+      }
+    } else {
+      this.error('File is of a type not supported by OAS (.json, .yml, .yaml)');
     }
   };
 

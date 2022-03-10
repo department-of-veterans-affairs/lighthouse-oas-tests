@@ -136,77 +136,6 @@ describe('Positive', () => {
     });
   });
 
-  describe('Path to file', () => {
-    beforeEach(() => {
-      process.env.API_KEY = 'testApiKey';
-    });
-
-    describe('File does not exist', () => {
-      // Line 76
-      it('Unsupported file type JSON', async () => {
-        await expect(async () => {
-          await Positive.run(['fileDoesNotExist.json']);
-        }).rejects.toThrow('unable to load json file');
-      });
-
-      it('JSON file has invalid JSON', async () => {
-        await expect(async () => {
-          await Positive.run(['./test/fixtures/invalid.json']);
-        }).rejects.toThrow('unable to load json file');
-      });
-      // Lines 80-81
-      it('Successful load of YAML file type specification', async () => {
-        const operation = new OASOperation({
-          operationId: 'getHobbit',
-          responses: defaultResponses,
-          parameters: [
-            {
-              name: 'name',
-              in: 'query',
-              schema: {
-                type: 'string',
-              },
-              example: 'Frodo',
-            },
-          ],
-        });
-        mockGetOperations.mockResolvedValue([operation]);
-
-        mockExecute.mockResolvedValueOnce({
-          url: 'https://www.lotr.com/walkIntoMorder',
-          status: 200,
-          ok: true,
-          body: {
-            data: ['frodo'],
-          },
-          headers: {
-            'content-type': 'application/json',
-          },
-        });
-        await Positive.run(['./test/fixtures/forms_oas.yaml']);
-
-        expect(result).toEqual(['getHobbit - default: Succeeded\n']);
-      });
-      // Line 83
-      it('Unsupported file type YAML', async () => {
-        await expect(async () => {
-          await Positive.run(['fileDoesNotExist.yaml']);
-        }).rejects.toThrow('unable to load yaml file');
-      });
-    });
-
-    describe('Unsupported file type', () => {
-      // Line 86
-      it('throws an error', async () => {
-        await expect(async () => {
-          await Positive.run(['./test/fixtures/file.xml']);
-        }).rejects.toThrow(
-          'File is of a type not supported by OAS (.json, .yml, .yaml)',
-        );
-      });
-    });
-  });
-
   describe('OAS operation has parameter groups', () => {
     // Line 115
     it('does not execute a request for a parameter group that fails parameter validation', async () => {
@@ -388,6 +317,77 @@ describe('Positive', () => {
       ]);
     });
   });
+  // Line 156
+  describe('loadSpecFromFile', () => {
+    beforeEach(() => {
+      process.env.API_KEY = 'testApiKey';
+    });
+
+    describe('File does not exist', () => {
+      // Line 165
+      it('Unsupported file type JSON', async () => {
+        await expect(async () => {
+          await Positive.run(['fileDoesNotExist.json']);
+        }).rejects.toThrow('unable to load json file');
+      });
+
+      it('JSON file has invalid JSON', async () => {
+        await expect(async () => {
+          await Positive.run(['./test/fixtures/invalid.json']);
+        }).rejects.toThrow('unable to load json file');
+      });
+      // Lines 169-170
+      it('Successful load of YAML file type specification', async () => {
+        const operation = new OASOperation({
+          operationId: 'getHobbit',
+          responses: defaultResponses,
+          parameters: [
+            {
+              name: 'name',
+              in: 'query',
+              schema: {
+                type: 'string',
+              },
+              example: 'Frodo',
+            },
+          ],
+        });
+        mockGetOperations.mockResolvedValue([operation]);
+
+        mockExecute.mockResolvedValueOnce({
+          url: 'https://www.lotr.com/walkIntoMorder',
+          status: 200,
+          ok: true,
+          body: {
+            data: ['frodo'],
+          },
+          headers: {
+            'content-type': 'application/json',
+          },
+        });
+        await Positive.run(['./test/fixtures/forms_oas.yaml']);
+
+        expect(result).toEqual(['getHobbit - default: Succeeded\n']);
+      });
+      // Line 173
+      it('Unsupported file type YAML', async () => {
+        await expect(async () => {
+          await Positive.run(['fileDoesNotExist.yaml']);
+        }).rejects.toThrow('unable to load yaml file');
+      });
+    });
+
+    describe('Unsupported file type', () => {
+      // Line 176
+      it('throws an error', async () => {
+        await expect(async () => {
+          await Positive.run(['./test/fixtures/file.xml']);
+        }).rejects.toThrow(
+          'File is of a type not supported by OAS (.json, .yml, .yaml)',
+        );
+      });
+    });
+  });
   // Line 188
   describe('promptForSecurityValues', () => {
     beforeEach(() => {
@@ -421,7 +421,7 @@ describe('Positive', () => {
         process.env.API_KEY = '';
       });
       // Line 224
-      it("Skip when apiKey scheme does not exist", async () => {
+      it('Skip when apiKey scheme does not exist', async () => {
         mockGetSecuritySchemes.mockReset();
         mockGetSecuritySchemes.mockResolvedValue([
           {
