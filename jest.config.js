@@ -15,5 +15,6 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/', '/lib/'],
   testEnvironment: 'node',
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec|integration))\\.[jt]s?$',
+  testTimeout: 15000, // milliseconds
   setupFilesAfterEnv: ['<rootDir>/test/setup-tests.ts']
 };
