@@ -1,3 +1,4 @@
+import { ParameterWithSchema, ParameterWithContent } from 'swagger-client';
 import { ExampleGroupFactory } from '../../../src/utilities/example-group';
 import OASOperation from '../../../src/utilities/oas-operation';
 
@@ -313,7 +314,7 @@ describe('ExampleGroupFactory', () => {
 
     describe('the example is set on the parameter and schema', () => {
       it('returns the example found on the parameter', () => {
-        const raceParameter = {
+        const raceParameter: ParameterWithSchema = {
           name: 'race',
           in: 'query',
           required: true,
@@ -342,7 +343,7 @@ describe('ExampleGroupFactory', () => {
 
     describe('the example is set on the schema only', () => {
       it('returns the example found on the schema', () => {
-        const raceParameter = {
+        const raceParameter: ParameterWithSchema = {
           name: 'race',
           in: 'query',
           required: true,
@@ -367,7 +368,7 @@ describe('ExampleGroupFactory', () => {
         });
       });
       it('returns the non required example found on the schema', () => {
-        const raceParameter = {
+        const raceParameter: ParameterWithSchema = {
           name: 'race',
           in: 'query',
           required: false,
@@ -395,17 +396,17 @@ describe('ExampleGroupFactory', () => {
 
     describe('the example is set on the content only', () => {
       it('returns the example found on the content', () => {
-        const raceParameter = {
+        const raceParameter: ParameterWithContent = {
           name: 'race',
           in: 'query',
           required: true,
-          schema: {
-            type: 'string',
-            description: 'a race in middle earth',
-          },
           content: {
             'application/json': {
               example: 'hobbits',
+              schema: {
+                type: 'string',
+                description: 'a race in middle earth',
+              },
             },
           },
         };
@@ -424,17 +425,17 @@ describe('ExampleGroupFactory', () => {
         });
       });
       it('returns the non required example found on the content', () => {
-        const raceParameter = {
+        const raceParameter: ParameterWithContent = {
           name: 'race',
           in: 'query',
           required: false,
-          schema: {
-            type: 'string',
-            description: 'a race in middle earth',
-          },
           content: {
             'application/json': {
               example: 'hobbits',
+              schema: {
+                type: 'string',
+                description: 'a race in middle earth',
+              },
             },
           },
         };
@@ -456,7 +457,7 @@ describe('ExampleGroupFactory', () => {
 
     describe('the examples field is set on the parameter and content', () => {
       it('returns the examples found on the parameter', () => {
-        const raceParameter = {
+        const raceParameter: ParameterWithContent = {
           name: 'race',
           in: 'query',
           required: true,
@@ -497,7 +498,7 @@ describe('ExampleGroupFactory', () => {
 
     describe('the examples field is set on the content', () => {
       it('returns the examples found on the content', () => {
-        const raceParameter = {
+        const raceParameter: ParameterWithContent = {
           name: 'race',
           in: 'query',
           required: true,
@@ -507,6 +508,10 @@ describe('ExampleGroupFactory', () => {
                 default: {
                   value: 'hobbits',
                 },
+              },
+              schema: {
+                type: 'string',
+                description: 'a race in middle earth',
               },
             },
           },

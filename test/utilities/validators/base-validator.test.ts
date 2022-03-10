@@ -1,10 +1,19 @@
 import { SchemaObject } from 'swagger-client';
-import BaseValidator from '../../../src/utilities/validators/base-validator';
+import OASOperation from '../../../src/utilities/oas-operation';
+import { ParameterSchemaValidator } from '../../../src/utilities/validators';
 
 describe('BaseValidator', () => {
-  let validator: BaseValidator;
+  const operation = new OASOperation({
+    operationId: 'nothing really',
+    parameters: [],
+    responses: {},
+  });
+
+  // here we are only testing the methods implemented on BaseValidator
+  // using ParameterSchemaValidator instead of BaseValidator because BaseValidator is abstract
+  let validator: ParameterSchemaValidator;
   beforeEach(() => {
-    validator = new BaseValidator();
+    validator = new ParameterSchemaValidator(operation);
   });
   describe('validateObjectAgainstSchema', () => {
     describe('actual object is null', () => {
