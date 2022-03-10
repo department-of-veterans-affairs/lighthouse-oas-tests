@@ -1,5 +1,5 @@
 import loadJsonFile from 'load-json-file';
-import { Swagger, Security } from 'swagger-client';
+import { Swagger, Security, RequestBody } from 'swagger-client';
 import OASOperation from '../../../src/utilities/oas-operation';
 import OASSchema from '../../../src/utilities/oas-schema';
 
@@ -81,8 +81,9 @@ describe('OASSchema', () => {
 
       const [exampleGroup] = operation.exampleGroups;
       const securities: Security = {};
+      const requestBody: RequestBody = {};
 
-      await schema.execute(operation, exampleGroup, securities);
+      await schema.execute(operation, exampleGroup, securities, requestBody);
 
       expect(executeMock).toHaveBeenCalledWith({
         operationId: 'getFacilityById',
@@ -92,6 +93,7 @@ describe('OASSchema', () => {
         securities: {
           authorized: {},
         },
+        requestBody: {},
       });
     });
   });
