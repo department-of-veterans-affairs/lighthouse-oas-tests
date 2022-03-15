@@ -2,14 +2,17 @@ import { ResponseObject } from 'swagger-client';
 const mockPrompt = jest.fn();
 import Positive from '../../src/commands/positive';
 import OASOperation from '../../src/utilities/oas-operation';
+import OASServer from '../../src/utilities/oas-server/oas-server';
 
 const mockGetOperations = jest.fn();
+const mockGetServers = jest.fn();
 const mockGetSecuritySchemes = jest.fn();
 const mockExecute = jest.fn();
 
 jest.mock('../../src/utilities/oas-schema', () => {
   return function (): Record<string, jest.Mock> {
     return {
+      getServers: mockGetServers,
       getOperations: mockGetOperations,
       getSecuritySchemes: mockGetSecuritySchemes,
       execute: mockExecute,
@@ -109,6 +112,11 @@ describe('Positive', () => {
         },
         [{ 'faramir-security': [] }],
       ),
+    ]);
+
+    mockGetServers.mockReset();
+    mockGetServers.mockResolvedValue([
+      new OASServer('https://lotr.com/services/the-fellowship/v0'),
     ]);
 
     mockGetSecuritySchemes.mockReset();
@@ -277,24 +285,28 @@ describe('Positive', () => {
         operation1,
         operation1.exampleGroups[0],
         security,
+        undefined,
       );
 
       expect(mockExecute).toHaveBeenCalledWith(
         operation1,
         operation1.exampleGroups[1],
         security,
+        undefined,
       );
 
       expect(mockExecute).toHaveBeenCalledWith(
         operation2,
         operation2.exampleGroups[0],
         security,
+        undefined,
       );
 
       expect(mockExecute).toHaveBeenCalledWith(
         operation3,
         operation3.exampleGroups[0],
         security,
+        undefined,
       );
     });
 

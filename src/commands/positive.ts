@@ -12,6 +12,7 @@ import ExampleGroup from '../utilities/example-group';
 import OASOperation from '../utilities/oas-operation';
 import OASSchema from '../utilities/oas-schema';
 import { OASSecurityType } from '../utilities/oas-security';
+import OASServer from '../utilities/oas-server/oas-server';
 import {
   ParameterSchemaValidator,
   ExampleGroupValidator,
@@ -38,6 +39,10 @@ export default class Positive extends Command {
       char: 'b',
       description: 'Bearer token to use',
       env: 'LOAST_BEARER_TOKEN',
+    }),
+    server: flags.string({
+      char: 's',
+      description: 'Server URL to use',
     }),
   };
 
@@ -94,6 +99,18 @@ export default class Positive extends Command {
 
     this.schema = new OASSchema(oasSchemaOptions);
 
+    const servers = await this.schema.getServers();
+    const numServers = servers.length;
+    let server = flags.server;
+
+    if (!server && numServers > 1) {
+      server = await cli.prompt('Please provide the server URL to use');
+    }
+
+    if (server && !this.isServerValid(server, servers)) {
+      this.error('Server value must match one of the server URLs in the OAS');
+    }
+
     this.securities = await this.getSecurities();
 
     if (this.securities.length > 0) {
@@ -126,6 +143,7 @@ export default class Positive extends Command {
             operation,
             exampleGroup,
             this.securityValues,
+            server,
           );
           if (response?.ok) {
             const responseValidator = new ResponseValidator(
@@ -157,6 +175,17 @@ export default class Positive extends Command {
 
     this.displayResults();
   }
+
+  isServerValid = (
+    server: string | undefined,
+    servers: OASServer[],
+  ): boolean => {
+    if (server === undefined) {
+      return false;
+    }
+    const urls = servers.map((server) => server.url);
+    return urls.includes(server);
+  };
 
   buildOperationExamples = async (): Promise<void> => {
     const operations = await this.schema.getOperations();

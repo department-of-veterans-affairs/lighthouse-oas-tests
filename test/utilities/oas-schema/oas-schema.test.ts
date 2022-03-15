@@ -82,7 +82,7 @@ describe('OASSchema', () => {
       const [exampleGroup] = operation.exampleGroups;
       const securities: Security = {};
 
-      await schema.execute(operation, exampleGroup, securities);
+      await schema.execute(operation, exampleGroup, securities, undefined);
 
       expect(executeMock).toHaveBeenCalledWith({
         operationId: 'getFacilityById',
