@@ -25,11 +25,6 @@ describe('OASSecurityFactory', () => {
         },
       },
     } as ComponentsObject,
-    servers: [
-      {
-        url: 'https://lotr.com/services/lady-of-light',
-      },
-    ],
     security: [
       {
         phial_of_galadriel: [],
