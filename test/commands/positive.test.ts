@@ -398,6 +398,125 @@ describe('Positive', () => {
     });
   });
 
+  describe('servers', () => {
+    const operation = new OASOperation({
+      operationId: 'getHobbit',
+      responses: defaultResponses,
+      parameters: [
+        {
+          name: 'name',
+          in: 'query',
+          schema: {
+            type: 'string',
+          },
+          example: 'Frodo',
+        },
+      ],
+    });
+
+    beforeEach(() => {
+      mockGetOperations.mockResolvedValue([operation]);
+      mockGetSecuritySchemes.mockResolvedValue([]);
+      mockGetServers.mockResolvedValue([
+        new OASServer('https://sandbox-lotr.com/services/the-fellowship/v0'),
+        new OASServer('https://lotr.com/services/the-fellowship/v0'),
+      ]);
+    });
+
+    describe('the server parameter is provided', () => {
+      it('does not prompt for a server', async () => {
+        await Positive.run([
+          'http://path-doesnt-matter.com',
+          '-s',
+          'https://lotr.com/services/the-fellowship/v0',
+        ]);
+        expect(mockPrompt).not.toHaveBeenCalled();
+      });
+
+      it('calls execute with the server parameter value', async () => {
+        await Positive.run([
+          'http://path-doesnt-matter.com',
+          '-s',
+          'https://lotr.com/services/the-fellowship/v0',
+        ]);
+        expect(mockExecute).toHaveBeenCalledWith(
+          operation,
+          operation.exampleGroups[0],
+          {},
+          'https://lotr.com/services/the-fellowship/v0',
+        );
+      });
+
+      it('throws an error if the parameter value is not valid', async () => {
+        await expect(
+          Positive.run([
+            'http://path-doesnt-matter.com',
+            '-s',
+            'https://server-does-not-match.com',
+          ]),
+        ).rejects.toThrow(
+          'Server value must match one of the server URLs in the OAS',
+        );
+      });
+    });
+    describe('the server parameter is not provided', () => {
+      describe('OAS servers array has 1 item', () => {
+        beforeEach(() => {
+          mockGetServers.mockResolvedValue([
+            new OASServer('https://lotr.com/services/the-fellowship/v0'),
+          ]);
+        });
+        it('does not prompt for a server', async () => {
+          await Positive.run(['http://path-doesnt-matter.com']);
+          expect(mockPrompt).not.toHaveBeenCalled();
+        });
+
+        it('calls execute with an undefined server', async () => {
+          await Positive.run(['http://path-doesnt-matter.com']);
+          expect(mockExecute).toHaveBeenCalledWith(
+            operation,
+            operation.exampleGroups[0],
+            {},
+            undefined,
+          );
+        });
+      });
+      describe('OAS servers array has multiple items', () => {
+        it('prompts for a server', async () => {
+          await Positive.run(['http://path-doesnt-matter.com']);
+          expect(mockPrompt).toHaveBeenCalledTimes(1);
+          expect(mockPrompt).toHaveBeenCalledWith(
+            'Please provide the server URL to use',
+          );
+        });
+
+        it('calls execute with the server value from the prompt', async () => {
+          mockPrompt.mockResolvedValue(
+            'https://lotr.com/services/the-fellowship/v0',
+          );
+
+          await Positive.run(['http://path-doesnt-matter.com']);
+          expect(mockExecute).toHaveBeenCalledWith(
+            operation,
+            operation.exampleGroups[0],
+            {},
+            'https://lotr.com/services/the-fellowship/v0',
+          );
+        });
+
+        it('throws an error if the prompted server value is not valid', async () => {
+          mockPrompt.mockResolvedValue('https://server-does-not-match.com');
+
+          await expect(
+            Positive.run(['http://path-doesnt-matter.com']),
+          ).rejects.toThrow(
+            'Server value must match one of the server URLs in the OAS',
+          );
+        });
+      });
+    });
+  });
+
   describe('promptForSecurityValues', () => {
     beforeEach(() => {
       mockPrompt.mockReset();
