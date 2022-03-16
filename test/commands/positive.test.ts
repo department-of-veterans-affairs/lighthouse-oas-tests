@@ -136,76 +136,8 @@ describe('Positive', () => {
     });
   });
 
-  describe('The path is to a file', () => {
-    beforeEach(() => {
-      process.env.API_KEY = 'testApiKey';
-    });
-
-    describe('Provided file does not exist', () => {
-      it('throws an error with json in it', async () => {
-        await expect(async () => {
-          await Positive.run(['fileDoesNotExist.json']);
-        }).rejects.toThrow('unable to load json file');
-      });
-
-      it('throws an error with yaml in it', async () => {
-        await expect(async () => {
-          await Positive.run(['fileDoesNotExist.yaml']);
-        }).rejects.toThrow('unable to load yaml file');
-      });
-    });
-
-    it('throws an error file is a json file with invalid json', async () => {
-      await expect(async () => {
-        await Positive.run(['./test/fixtures/invalid.json']);
-      }).rejects.toThrow('unable to load json file');
-    });
-
-    it('loads the spec successfully when it is a yaml file', async () => {
-      const operation = new OASOperation({
-        operationId: 'getHobbit',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'name',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            example: 'Frodo',
-          },
-        ],
-      });
-      mockGetOperations.mockResolvedValue([operation]);
-
-      mockExecute.mockResolvedValueOnce({
-        url: 'https://www.lotr.com/walkIntoMorder',
-        status: 200,
-        ok: true,
-        body: {
-          data: ['frodo'],
-        },
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-      await Positive.run(['./test/fixtures/forms_oas.yaml']);
-
-      expect(result).toEqual(['getHobbit - default: Succeeded\n']);
-    });
-
-    describe('Unsupported file type', () => {
-      it('throws an error', async () => {
-        await expect(async () => {
-          await Positive.run(['./test/fixtures/file.xml']);
-        }).rejects.toThrow(
-          'File is of a type not supported by OAS (.json, .yml, .yaml)',
-        );
-      });
-    });
-  });
-
-  describe('operation has parameter groups', () => {
+  describe('OAS operation has parameter groups', () => {
+    // Line 115
     it('does not execute a request for a parameter group that fails parameter validation', async () => {
       const operation1 = new OASOperation({
         operationId: 'walkIntoMordor',
@@ -297,8 +229,8 @@ describe('Positive', () => {
         security,
       );
     });
-
-    it('validates the responses for each parameter group', async () => {
+    // Line 118
+    it('Validate response(s) for each parameter group', async () => {
       const operation1 = new OASOperation({
         operationId: 'walkIntoMordor',
         responses: defaultResponses,
@@ -385,33 +317,85 @@ describe('Positive', () => {
       ]);
     });
   });
+  // Line 156
+  describe('loadSpecFromFile', () => {
+    beforeEach(() => {
+      process.env.API_KEY = 'testApiKey';
+    });
 
+    describe('File does not exist', () => {
+      // Line 165
+      it('Unsupported file type JSON', async () => {
+        await expect(async () => {
+          await Positive.run(['fileDoesNotExist.json']);
+        }).rejects.toThrow('unable to load json file');
+      });
+
+      it('JSON file has invalid JSON', async () => {
+        await expect(async () => {
+          await Positive.run(['./test/fixtures/invalid.json']);
+        }).rejects.toThrow('unable to load json file');
+      });
+      // Lines 169-170
+      it('Successful load of YAML file type specification', async () => {
+        const operation = new OASOperation({
+          operationId: 'getHobbit',
+          responses: defaultResponses,
+          parameters: [
+            {
+              name: 'name',
+              in: 'query',
+              schema: {
+                type: 'string',
+              },
+              example: 'Frodo',
+            },
+          ],
+        });
+        mockGetOperations.mockResolvedValue([operation]);
+
+        mockExecute.mockResolvedValueOnce({
+          url: 'https://www.lotr.com/walkIntoMorder',
+          status: 200,
+          ok: true,
+          body: {
+            data: ['frodo'],
+          },
+          headers: {
+            'content-type': 'application/json',
+          },
+        });
+        await Positive.run(['./test/fixtures/forms_oas.yaml']);
+
+        expect(result).toEqual(['getHobbit - default: Succeeded\n']);
+      });
+      // Line 173
+      it('Unsupported file type YAML', async () => {
+        await expect(async () => {
+          await Positive.run(['fileDoesNotExist.yaml']);
+        }).rejects.toThrow('unable to load yaml file');
+      });
+    });
+
+    describe('Unsupported file type', () => {
+      // Line 176
+      it('throws an error', async () => {
+        await expect(async () => {
+          await Positive.run(['./test/fixtures/file.xml']);
+        }).rejects.toThrow(
+          'File is of a type not supported by OAS (.json, .yml, .yaml)',
+        );
+      });
+    });
+  });
+  // Line 188
   describe('promptForSecurityValues', () => {
     beforeEach(() => {
       mockPrompt.mockReset();
       mockGetSecuritySchemes.mockReset();
     });
-
-    describe('API key is not set', () => {
-      beforeEach(() => {
-        process.env.API_KEY = '';
-      });
-
-      it("does not request an apiKey when apiKey scheme doesn't exist", async () => {
-        mockGetSecuritySchemes.mockReset();
-        mockGetSecuritySchemes.mockResolvedValue([
-          {
-            securityType: 'http',
-            description: 'one does simply walk into VA APIs',
-            name: 'boromir-security',
-          },
-        ]);
-        await Positive.run(['http://isengard.com']);
-        expect(mockPrompt).not.toHaveBeenCalled();
-      });
-    });
-
-    it('requests an apiKey when apiKey scheme exists', async () => {
+    // Line 216
+    it('Request apiKey when apiKey scheme exists', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
           key: 'boromir-security',
@@ -431,8 +415,27 @@ describe('Positive', () => {
         type: 'mask',
       });
     });
-
-    it('requests a bearer token when http bearer scheme exists', async () => {
+    // Line 219
+    describe('API key is not set', () => {
+      beforeEach(() => {
+        process.env.API_KEY = '';
+      });
+      // Line 224
+      it('Skip when apiKey scheme does not exist', async () => {
+        mockGetSecuritySchemes.mockReset();
+        mockGetSecuritySchemes.mockResolvedValue([
+          {
+            securityType: 'http',
+            description: 'one does simply walk into VA APIs',
+            name: 'boromir-security',
+          },
+        ]);
+        await Positive.run(['http://isengard.com']);
+        expect(mockPrompt).not.toHaveBeenCalled();
+      });
+    });
+    // Lines 232 - 233
+    it('Request bearer token when http bearer scheme exists', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
           key: 'boromir-security',
@@ -450,8 +453,8 @@ describe('Positive', () => {
         type: 'mask',
       });
     });
-
-    it('requests an oauth token when oauth type exists', async () => {
+    // Line 234
+    it('Request oauth token when oauth type exists', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
           key: 'boromir-security',
@@ -468,7 +471,7 @@ describe('Positive', () => {
       });
     });
 
-    it('only propmts once if OAS contains both http bearer and oauth2 security schemes', async () => {
+    it('Prompts once if OAS contains both http bearer and oauth2 security schemes', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
           key: 'boromir-security',
@@ -492,7 +495,7 @@ describe('Positive', () => {
       });
     });
 
-    it('requests authorization for each security type in the spec', async () => {
+    it('Request authorization for each security type in specification', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
           key: 'faramir-security',
@@ -517,7 +520,7 @@ describe('Positive', () => {
       expect(mockPrompt).toHaveBeenCalledTimes(2);
     });
 
-    it('throws an error if no security schemes are defined in the component object', async () => {
+    it('No security schemes defined in component object', async () => {
       mockGetSecuritySchemes.mockResolvedValue([]);
 
       await expect(
@@ -579,7 +582,7 @@ describe('Positive', () => {
       mockGetOperations.mockResolvedValue([operation]);
     });
 
-    it('outputs a failure for an operation if parameter validation fails', async () => {
+    it('On parameter validation failure, output operation failure', async () => {
       mockGetOperations.mockResolvedValue([
         new OASOperation({
           operationId: 'walkIntoMordor',
@@ -608,7 +611,7 @@ describe('Positive', () => {
       ]);
     });
 
-    it('outputs the failures and throws an error when more than one of the operations fails validation', async () => {
+    it('On multiple operation failures, output error(s) and operation failure(s)', async () => {
       const operation2 = new OASOperation({
         operationId: 'getHobbit',
         responses: defaultResponses,
@@ -663,7 +666,7 @@ describe('Positive', () => {
       ]);
     });
 
-    it('outputs the failure and throws an error when one of the responses returns a non-ok status', async () => {
+    it('On single non-ok response status, output error and failure', async () => {
       const operation2 = new OASOperation({
         operationId: 'getHobbit',
         responses: defaultResponses,
@@ -715,7 +718,7 @@ describe('Positive', () => {
       ]);
     });
 
-    it('outputs all the failures when one of the operations returns more than one validation failure', async () => {
+    it('On multiple validation failures per operation, output all errors and failures', async () => {
       mockExecute.mockResolvedValueOnce({
         url: 'https://www.lotr.com/walkIntoMorder',
         status: 200,
@@ -744,7 +747,7 @@ describe('Positive', () => {
       ]);
     });
 
-    it('outputs any present warnings', async () => {
+    it('Output current warnings', async () => {
       mockExecute.mockResolvedValueOnce({
         url: 'https://www.lotr.com/walkIntoMorder',
         status: 200,
@@ -765,7 +768,7 @@ describe('Positive', () => {
       ]);
     });
 
-    it('prints repeated failures and warnings once with a count', async () => {
+    it('Log redundant failures and warnings with count', async () => {
       mockExecute.mockResolvedValueOnce({
         url: 'https://www.lotr.com/walkIntoMorder',
         status: 200,
