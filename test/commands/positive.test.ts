@@ -208,11 +208,11 @@ describe('Positive', () => {
   describe('operation has parameter groups', () => {
     it('does not execute a request for a parameter group that fails parameter validation', async () => {
       const operation1 = new OASOperation({
-        operationId: 'walkIntoMordor',
+        operationId: 'walkIntoMordorWithAnInvalidDoor',
         responses: defaultResponses,
         parameters: [
           {
-            name: 'door',
+            name: 'doorWithAnInvalidExample',
             in: 'query',
             schema: {
               type: 'string',
@@ -268,6 +268,7 @@ describe('Positive', () => {
       mockGetOperations.mockResolvedValue([operation1, operation2, operation3]);
 
       const security = {};
+      const requestBody = {};
 
       await expect(async () => {
         await Positive.run(['http://urldoesnotmatter.com']);
@@ -277,24 +278,28 @@ describe('Positive', () => {
         operation1,
         operation1.exampleGroups[0],
         security,
+        requestBody,
       );
 
       expect(mockExecute).toHaveBeenCalledWith(
         operation1,
         operation1.exampleGroups[1],
         security,
+        requestBody,
       );
 
       expect(mockExecute).toHaveBeenCalledWith(
         operation2,
         operation2.exampleGroups[0],
         security,
+        requestBody,
       );
 
       expect(mockExecute).toHaveBeenCalledWith(
         operation3,
         operation3.exampleGroups[0],
         security,
+        requestBody,
       );
     });
 
