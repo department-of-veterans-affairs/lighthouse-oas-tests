@@ -1,7 +1,14 @@
-import swaggerClient, { Response, Security, Swagger } from 'swagger-client';
+import swaggerClient, {
+  ExecuteOptions,
+  Response,
+  Security,
+  Swagger,
+} from 'swagger-client';
 import OASOperation, { OASOperationFactory } from '../oas-operation';
 import ExampleGroup from '../example-group';
 import { OASSecurityScheme, OASSecurityFactory } from '../oas-security';
+import OASServerFactory from '../oas-server/oas-server.factory';
+import OASServer from '../oas-server/oas-server';
 
 class OASSchema {
   private _client: Promise<Swagger>;
@@ -21,20 +28,24 @@ class OASSchema {
     operation: OASOperation,
     exampleGroup: ExampleGroup,
     securities: Security,
+    server: string | undefined,
   ): Promise<Response> => {
     const schema = await this._client;
+    let options: ExecuteOptions = {
+      operationId: operation.operationId,
+      parameters: exampleGroup.examples,
+      securities: {
+        authorized: securities,
+      },
+    };
 
-    return schema
-      .execute({
-        operationId: operation.operationId,
-        parameters: exampleGroup.examples,
-        securities: {
-          authorized: securities,
-        },
-      })
-      .catch((error) => {
-        return error.response;
-      });
+    if (server) {
+      options = { server, ...options };
+    }
+
+    return schema.execute(options).catch((error) => {
+      return error.response;
+    });
   };
 
   getOperations = async (): Promise<OASOperation[]> => {
@@ -54,6 +65,11 @@ class OASSchema {
     return OASSecurityFactory.getSecuritySchemes(
       schema.spec.components?.securitySchemes ?? {},
     );
+  };
+
+  getServers = async (): Promise<OASServer[]> => {
+    const schema = await this._client;
+    return OASServerFactory.getServers(schema.spec.servers);
   };
 }
 

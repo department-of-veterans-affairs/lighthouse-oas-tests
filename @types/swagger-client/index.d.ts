@@ -9,12 +9,15 @@ declare module 'swagger-client' {
   export interface Swagger {
     spec: schema.OpenAPIObject;
     apis: { [name: string]: Api };
-    execute: (options: {
-      parameters: { [name: string]: Json };
-      operationId: string;
-      securities?: Securities;
-      requestInterceptor?: (request: Request) => Request;
-    }) => Promise<Response>;
+    execute: (options: ExecuteOptions) => Promise<Response>;
+  }
+
+  export interface ExecuteOptions {
+    parameters: { [name: string]: Json };
+    operationId: string;
+    securities?: Securities;
+    server?: string;
+    requestInterceptor?: (request: Request) => Request;
   }
 
   export interface Request {
@@ -44,7 +47,7 @@ declare module 'swagger-client' {
   interface ApiKey extends ValueObject {}
   interface BearerToken extends ValueObject {}
   interface OauthToken {
-    token: { access_token: string }
+    token: { access_token: string };
   }
 
   export interface Securities {

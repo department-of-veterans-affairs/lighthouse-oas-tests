@@ -8,26 +8,6 @@
           "name": "va.gov"
       }
   },
-  "servers": [
-      {
-          "url": "https://sandbox-api.va.gov/services/va_forms/{version}",
-          "description": "VA.gov API sandbox environment",
-          "variables": {
-              "version": {
-                  "default": "v0"
-              }
-          }
-      },
-      {
-          "url": "https://api.va.gov/services/va_forms/{version}",
-          "description": "VA.gov API production environment",
-          "variables": {
-              "version": {
-                  "default": "v0"
-              }
-          }
-      }
-  ],
   "basePath": "/services/va_forms/v0",
   "consumes": [
       "application/json"

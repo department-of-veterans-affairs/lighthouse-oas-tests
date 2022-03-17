@@ -2,14 +2,17 @@ import { ResponseObject } from 'swagger-client';
 const mockPrompt = jest.fn();
 import Positive from '../../src/commands/positive';
 import OASOperation from '../../src/utilities/oas-operation';
+import OASServer from '../../src/utilities/oas-server/oas-server';
 
 const mockGetOperations = jest.fn();
+const mockGetServers = jest.fn();
 const mockGetSecuritySchemes = jest.fn();
 const mockExecute = jest.fn();
 
 jest.mock('../../src/utilities/oas-schema', () => {
   return function (): Record<string, jest.Mock> {
     return {
+      getServers: mockGetServers,
       getOperations: mockGetOperations,
       getSecuritySchemes: mockGetSecuritySchemes,
       execute: mockExecute,
@@ -111,6 +114,11 @@ describe('Positive', () => {
       ),
     ]);
 
+    mockGetServers.mockReset();
+    mockGetServers.mockResolvedValue([
+      new OASServer('https://lotr.com/services/the-fellowship/v0'),
+    ]);
+
     mockGetSecuritySchemes.mockReset();
     mockGetSecuritySchemes.mockResolvedValue([
       {
@@ -137,7 +145,6 @@ describe('Positive', () => {
   });
 
   describe('OAS operation has parameter groups', () => {
-    // Line 115
     it('does not execute a request for a parameter group that fails parameter validation', async () => {
       const operation1 = new OASOperation({
         operationId: 'walkIntoMordor',
@@ -209,27 +216,31 @@ describe('Positive', () => {
         operation1,
         operation1.exampleGroups[0],
         security,
+        undefined,
       );
 
       expect(mockExecute).toHaveBeenCalledWith(
         operation1,
         operation1.exampleGroups[1],
         security,
+        undefined,
       );
 
       expect(mockExecute).toHaveBeenCalledWith(
         operation2,
         operation2.exampleGroups[0],
         security,
+        undefined,
       );
 
       expect(mockExecute).toHaveBeenCalledWith(
         operation3,
         operation3.exampleGroups[0],
         security,
+        undefined,
       );
     });
-    // Line 118
+
     it('Validate response(s) for each parameter group', async () => {
       const operation1 = new OASOperation({
         operationId: 'walkIntoMordor',
@@ -317,84 +328,199 @@ describe('Positive', () => {
       ]);
     });
   });
-  // Line 156
+
   describe('loadSpecFromFile', () => {
     beforeEach(() => {
       process.env.API_KEY = 'testApiKey';
     });
 
-    describe('File does not exist', () => {
-      // Line 165
-      it('Unsupported file type JSON', async () => {
-        await expect(async () => {
-          await Positive.run(['fileDoesNotExist.json']);
-        }).rejects.toThrow('unable to load json file');
-      });
-
-      it('JSON file has invalid JSON', async () => {
-        await expect(async () => {
-          await Positive.run(['./test/fixtures/invalid.json']);
-        }).rejects.toThrow('unable to load json file');
-      });
-      // Lines 169-170
-      it('Successful load of YAML file type specification', async () => {
-        const operation = new OASOperation({
-          operationId: 'getHobbit',
-          responses: defaultResponses,
-          parameters: [
-            {
-              name: 'name',
-              in: 'query',
-              schema: {
-                type: 'string',
-              },
-              example: 'Frodo',
-            },
-          ],
-        });
-        mockGetOperations.mockResolvedValue([operation]);
-
-        mockExecute.mockResolvedValueOnce({
-          url: 'https://www.lotr.com/walkIntoMorder',
-          status: 200,
-          ok: true,
-          body: {
-            data: ['frodo'],
-          },
-          headers: {
-            'content-type': 'application/json',
-          },
-        });
-        await Positive.run(['./test/fixtures/forms_oas.yaml']);
-
-        expect(result).toEqual(['getHobbit - default: Succeeded\n']);
-      });
-      // Line 173
-      it('Unsupported file type YAML', async () => {
-        await expect(async () => {
-          await Positive.run(['fileDoesNotExist.yaml']);
-        }).rejects.toThrow('unable to load yaml file');
-      });
+    it('JSON file does not exist', async () => {
+      await expect(async () => {
+        await Positive.run(['fileDoesNotExist.json']);
+      }).rejects.toThrow('unable to load json file');
     });
 
-    describe('Unsupported file type', () => {
-      // Line 176
-      it('throws an error', async () => {
-        await expect(async () => {
-          await Positive.run(['./test/fixtures/file.xml']);
-        }).rejects.toThrow(
-          'File is of a type not supported by OAS (.json, .yml, .yaml)',
+    it('JSON file has invalid JSON', async () => {
+      await expect(async () => {
+        await Positive.run(['./test/fixtures/invalid.json']);
+      }).rejects.toThrow('unable to load json file');
+    });
+
+    it('Successful load of YAML file type specification', async () => {
+      const operation = new OASOperation({
+        operationId: 'getHobbit',
+        responses: defaultResponses,
+        parameters: [
+          {
+            name: 'name',
+            in: 'query',
+            schema: {
+              type: 'string',
+            },
+            example: 'Frodo',
+          },
+        ],
+      });
+      mockGetOperations.mockResolvedValue([operation]);
+
+      mockExecute.mockResolvedValueOnce({
+        url: 'https://www.lotr.com/walkIntoMorder',
+        status: 200,
+        ok: true,
+        body: {
+          data: ['frodo'],
+        },
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
+      await Positive.run(['./test/fixtures/forms_oas.yaml']);
+
+      expect(result).toEqual(['getHobbit - default: Succeeded\n']);
+    });
+
+    it('YAML file does not exist', async () => {
+      await expect(async () => {
+        await Positive.run(['fileDoesNotExist.yaml']);
+      }).rejects.toThrow('unable to load yaml file');
+    });
+
+    it('Unsupported file type throws an error', async () => {
+      await expect(async () => {
+        await Positive.run(['./test/fixtures/file.xml']);
+      }).rejects.toThrow(
+        'File is of a type not supported by OAS (.json, .yml, .yaml)',
+      );
+    });
+  });
+
+  describe('promptForServerValue', () => {
+    const operation = new OASOperation({
+      operationId: 'getHobbit',
+      responses: defaultResponses,
+      parameters: [
+        {
+          name: 'name',
+          in: 'query',
+          schema: {
+            type: 'string',
+          },
+          example: 'Frodo',
+        },
+      ],
+    });
+
+    beforeEach(() => {
+      mockGetOperations.mockResolvedValue([operation]);
+      mockGetSecuritySchemes.mockResolvedValue([]);
+      mockGetServers.mockResolvedValue([
+        new OASServer('https://sandbox-lotr.com/services/the-fellowship/v0'),
+        new OASServer('https://lotr.com/services/the-fellowship/v0'),
+      ]);
+    });
+
+    describe('the server parameter is provided', () => {
+      it('does not prompt for a server', async () => {
+        await Positive.run([
+          'http://path-doesnt-matter.com',
+          '-s',
+          'https://lotr.com/services/the-fellowship/v0',
+        ]);
+        expect(mockPrompt).not.toHaveBeenCalled();
+      });
+
+      it('calls execute with the server parameter value', async () => {
+        await Positive.run([
+          'http://path-doesnt-matter.com',
+          '-s',
+          'https://lotr.com/services/the-fellowship/v0',
+        ]);
+        expect(mockExecute).toHaveBeenCalledWith(
+          operation,
+          operation.exampleGroups[0],
+          {},
+          'https://lotr.com/services/the-fellowship/v0',
+        );
+      });
+
+      it('throws an error if the parameter value is not valid', async () => {
+        await expect(
+          Positive.run([
+            'http://path-doesnt-matter.com',
+            '-s',
+            'https://server-does-not-match.com',
+          ]),
+        ).rejects.toThrow(
+          'Server value must match one of the server URLs in the OAS',
         );
       });
     });
+
+    describe('the server parameter is not provided', () => {
+      describe('OAS servers array has 1 item', () => {
+        beforeEach(() => {
+          mockGetServers.mockResolvedValue([
+            new OASServer('https://lotr.com/services/the-fellowship/v0'),
+          ]);
+        });
+
+        it('does not prompt for a server', async () => {
+          await Positive.run(['http://path-doesnt-matter.com']);
+          expect(mockPrompt).not.toHaveBeenCalled();
+        });
+
+        it('calls execute with an undefined server', async () => {
+          await Positive.run(['http://path-doesnt-matter.com']);
+          expect(mockExecute).toHaveBeenCalledWith(
+            operation,
+            operation.exampleGroups[0],
+            {},
+            undefined,
+          );
+        });
+      });
+      describe('OAS servers array has multiple items', () => {
+        it('prompts for a server', async () => {
+          await Positive.run(['http://path-doesnt-matter.com']);
+          expect(mockPrompt).toHaveBeenCalledTimes(1);
+          expect(mockPrompt).toHaveBeenCalledWith(
+            'Please provide the server URL to use',
+          );
+        });
+
+        it('calls execute with the server value from the prompt', async () => {
+          mockPrompt.mockResolvedValue(
+            'https://lotr.com/services/the-fellowship/v0',
+          );
+
+          await Positive.run(['http://path-doesnt-matter.com']);
+          expect(mockExecute).toHaveBeenCalledWith(
+            operation,
+            operation.exampleGroups[0],
+            {},
+            'https://lotr.com/services/the-fellowship/v0',
+          );
+        });
+
+        it('throws an error if the prompted server value is not valid', async () => {
+          mockPrompt.mockResolvedValue('https://server-does-not-match.com');
+
+          await expect(
+            Positive.run(['http://path-doesnt-matter.com']),
+          ).rejects.toThrow(
+            'Server value must match one of the server URLs in the OAS',
+          );
+        });
+      });
+    });
   });
-  // Line 188
+
   describe('promptForSecurityValues', () => {
     beforeEach(() => {
       mockPrompt.mockReset();
       mockGetSecuritySchemes.mockReset();
     });
-    // Line 216
+
     it('Request apiKey when apiKey scheme exists', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
@@ -415,12 +541,12 @@ describe('Positive', () => {
         type: 'mask',
       });
     });
-    // Line 219
+
     describe('API key is not set', () => {
       beforeEach(() => {
         process.env.API_KEY = '';
       });
-      // Line 224
+
       it('Skip when apiKey scheme does not exist', async () => {
         mockGetSecuritySchemes.mockReset();
         mockGetSecuritySchemes.mockResolvedValue([
@@ -434,7 +560,7 @@ describe('Positive', () => {
         expect(mockPrompt).not.toHaveBeenCalled();
       });
     });
-    // Lines 232 - 233
+
     it('Request bearer token when http bearer scheme exists', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
@@ -453,7 +579,7 @@ describe('Positive', () => {
         type: 'mask',
       });
     });
-    // Line 234
+
     it('Request oauth token when oauth type exists', async () => {
       mockGetSecuritySchemes.mockResolvedValue([
         {
@@ -486,10 +612,11 @@ describe('Positive', () => {
           description: 'one does simply walk into VA APIs',
         },
       ]);
+      mockPrompt.mockResolvedValue('token');
 
       await Positive.run(['https://url-does-not-matter.com']);
 
-      expect(mockPrompt).toHaveBeenCalledTimes(2);
+      expect(mockPrompt).toHaveBeenCalledTimes(1);
       expect(mockPrompt).toHaveBeenCalledWith('Please provide your token', {
         type: 'mask',
       });
