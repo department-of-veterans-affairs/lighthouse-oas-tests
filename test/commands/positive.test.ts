@@ -3,7 +3,15 @@ const mockPrompt = jest.fn();
 import Positive from '../../src/commands/positive';
 import OASOperation from '../../src/utilities/oas-operation';
 import OASServer from '../../src/utilities/oas-server/oas-server';
-import { getHobbit, getHobbits, getTomBombadil } from './positive.test-objects';
+import {
+  getHobbit,
+  getHobbits,
+  getTomBombadil,
+  walkIntoMordorIntEx,
+  walkIntoMordorStrEx,
+  walkIntoMordorIntExs,
+  walkIntoMordorStrExs,
+} from './positive.test-objects';
 
 const mockGetOperations = jest.fn();
 const mockGetServers = jest.fn();
@@ -61,24 +69,7 @@ describe('Positive', () => {
     mockPrompt.mockReset();
     mockGetOperations.mockReset();
     mockGetOperations.mockResolvedValue([
-      new OASOperation(
-        {
-          operationId: 'walkIntoMordor',
-          responses: defaultResponses,
-          parameters: [
-            {
-              name: 'guide',
-              in: 'query',
-              schema: {
-                type: 'string',
-              },
-              required: true,
-              example: 'golem',
-            },
-          ],
-        },
-        [{ 'boromir-security': [] }],
-      ),
+      new OASOperation(walkIntoMordorStrEx, [{ 'boromir-security': [] }]),
       new OASOperation(getHobbit, [{ 'boromir-security': [] }]),
       new OASOperation(getTomBombadil, [{ 'faramir-security': [] }]),
     ]);
@@ -115,36 +106,7 @@ describe('Positive', () => {
 
   describe('OAS operation has parameter groups', () => {
     it('does not execute a request for a parameter group that fails parameter validation', async () => {
-      const operation1 = new OASOperation({
-        operationId: 'walkIntoMordor',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'door',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            examples: {
-              door: {
-                value: 2,
-              },
-            },
-          },
-          {
-            name: 'guide',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            examples: {
-              guided: {
-                value: 'gollum',
-              },
-            },
-          },
-        ],
-      });
+      const operation1 = new OASOperation(walkIntoMordorIntExs);
       const operation2 = new OASOperation(getHobbit);
       const operation3 = new OASOperation(getTomBombadil);
       mockGetOperations.mockResolvedValue([operation1, operation2, operation3]);
@@ -185,36 +147,7 @@ describe('Positive', () => {
     });
 
     it('Validate response(s) for each parameter group', async () => {
-      const operation1 = new OASOperation({
-        operationId: 'walkIntoMordor',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'door',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            examples: {
-              door: {
-                value: 'front',
-              },
-            },
-          },
-          {
-            name: 'guide',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            examples: {
-              guided: {
-                value: 'gollum',
-              },
-            },
-          },
-        ],
-      });
+      const operation1 = new OASOperation(walkIntoMordorStrExs);
       const operation2 = new OASOperation(getHobbit);
       const operation3 = new OASOperation(getTomBombadil);
       mockGetOperations.mockResolvedValue([operation1, operation2, operation3]);
@@ -575,21 +508,7 @@ describe('Positive', () => {
 
     it('On parameter validation failure, output operation failure', async () => {
       mockGetOperations.mockResolvedValue([
-        new OASOperation({
-          operationId: 'walkIntoMordor',
-          parameters: [
-            {
-              name: 'guide',
-              in: 'query',
-              schema: {
-                type: 'string',
-              },
-              required: true,
-              example: 42,
-            },
-          ],
-          responses: defaultResponses,
-        }),
+        new OASOperation(walkIntoMordorIntEx),
       ]);
 
       await expect(async () => {

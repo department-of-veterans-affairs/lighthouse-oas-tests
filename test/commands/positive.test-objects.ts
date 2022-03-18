@@ -95,4 +95,106 @@ const getTomBombadil: OperationObject = {
   ],
 };
 
-export { getHobbit, getHobbits, getTomBombadil };
+const walkIntoMordorIntEx: OperationObject = {
+  operationId: 'walkIntoMordor',
+  responses: defaultResponses,
+  parameters: [
+    {
+      name: 'guide',
+      in: 'query',
+      schema: {
+        type: 'string',
+      },
+      required: true,
+      example: 42,
+    },
+  ],
+};
+
+const walkIntoMordorStrEx: OperationObject = {
+  operationId: 'walkIntoMordor',
+  responses: defaultResponses,
+  parameters: [
+    {
+      name: 'guide',
+      in: 'query',
+      schema: {
+        type: 'string',
+      },
+      required: true,
+      example: 'golem',
+    },
+  ],
+};
+
+const walkIntoMordorIntExs: OperationObject = {
+  operationId: 'walkIntoMordor',
+  responses: defaultResponses,
+  parameters: [
+    {
+      name: 'door',
+      in: 'query',
+      schema: {
+        type: 'string',
+      },
+      examples: {
+        door: {
+          value: 2,
+        },
+      },
+    },
+    {
+      name: 'guide',
+      in: 'query',
+      schema: {
+        type: 'string',
+      },
+      examples: {
+        guided: {
+          value: 'gollum',
+        },
+      },
+    },
+  ],
+};
+
+const walkIntoMordorStrExs: OperationObject = {
+  operationId: 'walkIntoMordor',
+  responses: defaultResponses,
+  parameters: [
+    {
+      name: 'door',
+      in: 'query',
+      schema: {
+        type: 'string',
+      },
+      examples: {
+        door: {
+          value: 'front',
+        },
+      },
+    },
+    {
+      name: 'guide',
+      in: 'query',
+      schema: {
+        type: 'string',
+      },
+      examples: {
+        guided: {
+          value: 'gollum',
+        },
+      },
+    },
+  ],
+};
+
+export {
+  getHobbit,
+  getHobbits,
+  getTomBombadil,
+  walkIntoMordorIntEx,
+  walkIntoMordorStrEx,
+  walkIntoMordorIntExs,
+  walkIntoMordorStrExs,
+};
