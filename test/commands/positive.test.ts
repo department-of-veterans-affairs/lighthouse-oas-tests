@@ -1,4 +1,3 @@
-import { ResponseObject } from 'swagger-client';
 const mockPrompt = jest.fn();
 import Positive from '../../src/commands/positive';
 import OASOperation from '../../src/utilities/oas-operation';
@@ -39,26 +38,6 @@ jest.mock('cli-ux', () => {
 
 describe('Positive', () => {
   let result;
-  const defaultResponses: { [responseCode: string]: ResponseObject } = {
-    '200': {
-      description: '',
-      content: {
-        'application/json': {
-          schema: {
-            type: 'object',
-            properties: {
-              data: {
-                type: 'array',
-                items: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  };
 
   beforeEach(() => {
     result = [];
@@ -197,20 +176,7 @@ describe('Positive', () => {
     });
 
     it('Successful load of YAML file type specification', async () => {
-      const operation = new OASOperation({
-        operationId: 'getHobbit',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'name',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            example: 'Frodo',
-          },
-        ],
-      });
+      const operation = new OASOperation(getHobbit);
       mockGetOperations.mockResolvedValue([operation]);
 
       mockExecute.mockResolvedValueOnce({
