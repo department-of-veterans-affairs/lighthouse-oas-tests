@@ -34,9 +34,9 @@ class OASOperation {
     this.requestBody = operation.requestBody;
     this._exampleGroups = ExampleGroupFactory.buildFromOperation(this);
     this._exampleRequestBody = RequestBodyFactory.buildFromOperation(this);
-
-    operation.security = operation.security ?? securities;
-    this.security = OASSecurityFactory.getSecurities(operation.security);
+    this.security = OASSecurityFactory.getSecurities(
+      operation.security ?? securities,
+    );
   }
 
   get exampleGroups(): ExampleGroup[] {

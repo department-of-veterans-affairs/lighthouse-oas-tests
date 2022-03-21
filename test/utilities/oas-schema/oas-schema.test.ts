@@ -2,6 +2,7 @@ import loadJsonFile from 'load-json-file';
 import { Swagger, Security, RequestBody } from 'swagger-client';
 import OASOperation from '../../../src/utilities/oas-operation';
 import OASSchema from '../../../src/utilities/oas-schema';
+import OASServer from '../../../src/utilities/oas-server/oas-server';
 
 describe('OASSchema', () => {
   const generateSchema = async (filePath: string): Promise<OASSchema> => {
@@ -82,8 +83,10 @@ describe('OASSchema', () => {
       const [exampleGroup] = operation.exampleGroups;
       const securities: Security = {};
       const requestBody: RequestBody = {};
+      const server =
+        'https://sandbox-api.va.gov/services/va_facilities/{version}';
 
-      await schema.execute(operation, exampleGroup, securities, requestBody);
+      await schema.execute(operation, exampleGroup, securities, requestBody, server);
 
       expect(executeMock).toHaveBeenCalledWith({
         operationId: 'getFacilityById',
@@ -94,6 +97,7 @@ describe('OASSchema', () => {
           authorized: {},
         },
         requestBody: {},
+        server,
       });
     });
   });
@@ -124,6 +128,32 @@ describe('OASSchema', () => {
         const securitySchemes = await schema.getSecuritySchemes();
 
         expect(securitySchemes).toEqual([]);
+      });
+    });
+  });
+
+  describe('getServers', () => {
+    describe('servers is set in the OAS', () => {
+      it('returns OASServers', async () => {
+        const filePath = 'test/fixtures/facilities_oas.json';
+        const schema = await generateSchema(filePath);
+        const oasServers = await schema.getServers();
+
+        expect(oasServers).toEqual([
+          new OASServer(
+            'https://sandbox-api.va.gov/services/va_facilities/{version}',
+          ),
+          new OASServer('https://api.va.gov/services/va_facilities/{version}'),
+        ]);
+      });
+    });
+    describe('servers is not set in the OAS', () => {
+      it('returns an empty array', async () => {
+        const filePath = 'test/fixtures/simple_forms_oas.json';
+        const schema = await generateSchema(filePath);
+        const oasServers = await schema.getServers();
+
+        expect(oasServers).toEqual([]);
       });
     });
   });

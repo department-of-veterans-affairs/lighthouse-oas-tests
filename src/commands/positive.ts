@@ -6,12 +6,13 @@ import loadJsonFile from 'load-json-file';
 import { uniq } from 'lodash';
 import parseUrl from 'parse-url';
 import { extname, resolve } from 'path';
-import { Security } from 'swagger-client';
+import { Json, Security } from 'swagger-client';
 import { BEARER_SECURITY_SCHEME } from '../utilities/constants';
 import ExampleGroup from '../utilities/example-group';
 import OASOperation from '../utilities/oas-operation';
 import OASSchema from '../utilities/oas-schema';
 import { OASSecurityType } from '../utilities/oas-security';
+import OASServer from '../utilities/oas-server/oas-server';
 import {
   ParameterSchemaValidator,
   ExampleGroupValidator,
@@ -39,6 +40,10 @@ export default class Positive extends Command {
       description: 'Bearer token to use',
       env: 'LOAST_BEARER_TOKEN',
     }),
+    server: flags.string({
+      char: 's',
+      description: 'Server URL to use',
+    }),
   };
 
   static args = [
@@ -62,37 +67,19 @@ export default class Positive extends Command {
   async run(): Promise<void> {
     const { args, flags } = this.parse(Positive);
     const oasSchemaOptions: ConstructorParameters<typeof OASSchema>[0] = {};
-
     const path = parseUrl(args.path);
 
     if (path.protocol === 'file') {
-      let spec;
-      const extension = extname(args.path);
-
-      if (extension === '.json') {
-        try {
-          spec = await loadJsonFile(args.path);
-        } catch (error) {
-          this.error('unable to load json file');
-        }
-      } else if (extension === '.yml' || extension === '.yaml') {
-        try {
-          const file = readFileSync(resolve(args.path));
-          spec = yaml.load(file);
-        } catch (error) {
-          this.error('unable to load yaml file');
-        }
-      } else {
-        this.error(
-          'File is of a type not supported by OAS (.json, .yml, .yaml)',
-        );
-      }
-      oasSchemaOptions.spec = spec;
+      oasSchemaOptions.spec = await this.loadSpecFromFile(args.path);
     } else {
       oasSchemaOptions.url = args.path;
     }
 
     this.schema = new OASSchema(oasSchemaOptions);
+
+    const server: string | undefined = await this.promptForServerValue(
+      flags.server,
+    );
 
     this.securities = await this.getSecurities();
 
@@ -127,6 +114,7 @@ export default class Positive extends Command {
             exampleGroup,
             this.securityValues,
             requestBody,
+            server,
           );
           if (response?.ok) {
             const responseValidator = new ResponseValidator(
@@ -175,6 +163,59 @@ export default class Positive extends Command {
         });
       }
     }
+  };
+
+  loadSpecFromFile = async (path): Promise<Json> => {
+    let spec;
+    const extension = extname(path);
+
+    if (extension === '.json') {
+      try {
+        spec = await loadJsonFile(path);
+        return spec;
+      } catch (error) {
+        return this.error('unable to load json file');
+      }
+    } else if (extension === '.yml' || extension === '.yaml') {
+      try {
+        const file = readFileSync(resolve(path));
+        spec = yaml.load(file);
+        return spec;
+      } catch (error) {
+        this.error('unable to load yaml file');
+      }
+    } else {
+      this.error('File is of a type not supported by OAS (.json, .yml, .yaml)');
+    }
+  };
+
+  promptForServerValue = async (
+    serverParameter: string | undefined,
+  ): Promise<string | undefined> => {
+    const servers = await this.schema.getServers();
+    const numServers = servers.length;
+    let server = serverParameter;
+
+    if (!server && numServers > 1) {
+      server = await cli.prompt('Please provide the server URL to use');
+    }
+
+    if (server && !this.isServerValid(server, servers)) {
+      this.error('Server value must match one of the server URLs in the OAS');
+    }
+
+    return server;
+  };
+
+  isServerValid = (
+    server: string | undefined,
+    servers: OASServer[],
+  ): boolean => {
+    if (server === undefined) {
+      return false;
+    }
+    const urls = servers.map((server) => server.url);
+    return urls.includes(server);
   };
 
   getSecurities = async (): Promise<string[]> => {

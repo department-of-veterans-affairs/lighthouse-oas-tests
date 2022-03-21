@@ -9,13 +9,16 @@ declare module 'swagger-client' {
   export interface Swagger {
     spec: schema.OpenAPIObject;
     apis: { [name: string]: Api };
-    execute: (options: {
-      parameters: { [name: string]: Json };
-      operationId: string;
-      securities?: Securities;
-      requestBody?: RequestBody;
-      requestInterceptor?: (request: Request) => Request;
-    }) => Promise<Response>;
+    execute: (options: ExecuteOptions) => Promise<Response>;
+  }
+
+  export interface ExecuteOptions {
+    parameters: { [name: string]: Json };
+    operationId: string;
+    securities?: Securities;
+    requestBody?: RequestBody;
+    server?: string;
+    requestInterceptor?: (request: Request) => Request;
   }
 
   export interface Request {

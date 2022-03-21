@@ -5,6 +5,7 @@ declare module 'swagger-client/schema' {
     paths: PathsObject;
     components?: ComponentsObject;
     security?: SecurityRequirementObject[];
+    servers?: ServerObject[];
   }
 
   interface ServerObject {
