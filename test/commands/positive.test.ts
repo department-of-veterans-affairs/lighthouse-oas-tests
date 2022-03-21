@@ -1,8 +1,16 @@
-import { ResponseObject } from 'swagger-client';
 const mockPrompt = jest.fn();
 import Positive from '../../src/commands/positive';
 import OASOperation from '../../src/utilities/oas-operation';
 import OASServer from '../../src/utilities/oas-server/oas-server';
+import {
+  getHobbit,
+  getHobbits,
+  getTomBombadil,
+  walkIntoMordorSingleIntegerTest,
+  walkIntoMordorSingleStringTest,
+  walkIntoMordorMultiIntegerTest,
+  walkIntoMordorMultiStringTest,
+} from './positive.test-objects';
 
 const mockGetOperations = jest.fn();
 const mockGetServers = jest.fn();
@@ -30,26 +38,6 @@ jest.mock('cli-ux', () => {
 
 describe('Positive', () => {
   let result;
-  const defaultResponses: { [responseCode: string]: ResponseObject } = {
-    '200': {
-      description: '',
-      content: {
-        'application/json': {
-          schema: {
-            type: 'object',
-            properties: {
-              data: {
-                type: 'array',
-                items: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  };
 
   beforeEach(() => {
     result = [];
@@ -60,58 +48,11 @@ describe('Positive', () => {
     mockPrompt.mockReset();
     mockGetOperations.mockReset();
     mockGetOperations.mockResolvedValue([
-      new OASOperation(
-        {
-          operationId: 'walkIntoMordor',
-          responses: defaultResponses,
-          parameters: [
-            {
-              name: 'guide',
-              in: 'query',
-              schema: {
-                type: 'string',
-              },
-              required: true,
-              example: 'golem',
-            },
-          ],
-        },
-        [{ 'boromir-security': [] }],
-      ),
-      new OASOperation(
-        {
-          operationId: 'getHobbit',
-          responses: defaultResponses,
-          parameters: [
-            {
-              name: 'name',
-              in: 'query',
-              schema: {
-                type: 'string',
-              },
-              example: 'Frodo',
-            },
-          ],
-        },
-        [{ 'boromir-security': [] }],
-      ),
-      new OASOperation(
-        {
-          operationId: 'getTomBombadil',
-          responses: defaultResponses,
-          parameters: [
-            {
-              name: 'times',
-              in: 'query',
-              example: 2,
-              schema: {
-                type: 'number',
-              },
-            },
-          ],
-        },
-        [{ 'faramir-security': [] }],
-      ),
+      new OASOperation(walkIntoMordorSingleStringTest, [
+        { 'boromir-security': [] },
+      ]),
+      new OASOperation(getHobbit, [{ 'boromir-security': [] }]),
+      new OASOperation(getTomBombadil, [{ 'faramir-security': [] }]),
     ]);
 
     mockGetServers.mockReset();
@@ -146,64 +87,9 @@ describe('Positive', () => {
 
   describe('OAS operation has parameter groups', () => {
     it('does not execute a request for a parameter group that fails parameter validation', async () => {
-      const operation1 = new OASOperation({
-        operationId: 'walkIntoMordor',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'door',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            examples: {
-              door: {
-                value: 2,
-              },
-            },
-          },
-          {
-            name: 'guide',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            examples: {
-              guided: {
-                value: 'gollum',
-              },
-            },
-          },
-        ],
-      });
-      const operation2 = new OASOperation({
-        operationId: 'getHobbit',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'name',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            example: 'Frodo',
-          },
-        ],
-      });
-      const operation3 = new OASOperation({
-        operationId: 'getTomBombadil',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'times',
-            in: 'query',
-            example: 2,
-            schema: {
-              type: 'number',
-            },
-          },
-        ],
-      });
+      const operation1 = new OASOperation(walkIntoMordorMultiIntegerTest);
+      const operation2 = new OASOperation(getHobbit);
+      const operation3 = new OASOperation(getTomBombadil);
       mockGetOperations.mockResolvedValue([operation1, operation2, operation3]);
 
       const security = {};
@@ -242,64 +128,9 @@ describe('Positive', () => {
     });
 
     it('Validate response(s) for each parameter group', async () => {
-      const operation1 = new OASOperation({
-        operationId: 'walkIntoMordor',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'door',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            examples: {
-              door: {
-                value: 'front',
-              },
-            },
-          },
-          {
-            name: 'guide',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            examples: {
-              guided: {
-                value: 'gollum',
-              },
-            },
-          },
-        ],
-      });
-      const operation2 = new OASOperation({
-        operationId: 'getHobbit',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'name',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            example: 'Frodo',
-          },
-        ],
-      });
-      const operation3 = new OASOperation({
-        operationId: 'getTomBombadil',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'times',
-            in: 'query',
-            example: 2,
-            schema: {
-              type: 'number',
-            },
-          },
-        ],
-      });
+      const operation1 = new OASOperation(walkIntoMordorMultiStringTest);
+      const operation2 = new OASOperation(getHobbit);
+      const operation3 = new OASOperation(getTomBombadil);
       mockGetOperations.mockResolvedValue([operation1, operation2, operation3]);
 
       mockExecute.mockResolvedValueOnce({
@@ -347,20 +178,7 @@ describe('Positive', () => {
     });
 
     it('Successful load of YAML file type specification', async () => {
-      const operation = new OASOperation({
-        operationId: 'getHobbit',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'name',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            example: 'Frodo',
-          },
-        ],
-      });
+      const operation = new OASOperation(getHobbit);
       mockGetOperations.mockResolvedValue([operation]);
 
       mockExecute.mockResolvedValueOnce({
@@ -395,20 +213,7 @@ describe('Positive', () => {
   });
 
   describe('promptForServerValue', () => {
-    const operation = new OASOperation({
-      operationId: 'getHobbit',
-      responses: defaultResponses,
-      parameters: [
-        {
-          name: 'name',
-          in: 'query',
-          schema: {
-            type: 'string',
-          },
-          example: 'Frodo',
-        },
-      ],
-    });
+    const operation = new OASOperation(getHobbit);
 
     beforeEach(() => {
       mockGetOperations.mockResolvedValue([operation]);
@@ -663,47 +468,7 @@ describe('Positive', () => {
   });
 
   describe('output', () => {
-    const operation = new OASOperation({
-      operationId: 'getHobbits',
-      responses: {
-        '200': {
-          description: '',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  data: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        one: {
-                          type: 'number',
-                        },
-                        two: {
-                          type: 'string',
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      parameters: [
-        {
-          name: 'name',
-          in: 'query',
-          schema: {
-            type: 'string',
-          },
-          example: 'Frodo',
-        },
-      ],
-    });
+    const operation = new OASOperation(getHobbits);
 
     beforeEach(() => {
       mockGetOperations.mockResolvedValue([operation]);
@@ -711,21 +476,7 @@ describe('Positive', () => {
 
     it('On parameter validation failure, output operation failure', async () => {
       mockGetOperations.mockResolvedValue([
-        new OASOperation({
-          operationId: 'walkIntoMordor',
-          parameters: [
-            {
-              name: 'guide',
-              in: 'query',
-              schema: {
-                type: 'string',
-              },
-              required: true,
-              example: 42,
-            },
-          ],
-          responses: defaultResponses,
-        }),
+        new OASOperation(walkIntoMordorSingleIntegerTest),
       ]);
 
       await expect(async () => {
@@ -739,34 +490,8 @@ describe('Positive', () => {
     });
 
     it('On multiple operation failures, output error(s) and operation failure(s)', async () => {
-      const operation2 = new OASOperation({
-        operationId: 'getHobbit',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'name',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            example: 'Frodo',
-          },
-        ],
-      });
-      const operation3 = new OASOperation({
-        operationId: 'getTomBombadil',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'times',
-            in: 'query',
-            example: 2,
-            schema: {
-              type: 'number',
-            },
-          },
-        ],
-      });
+      const operation2 = new OASOperation(getHobbit);
+      const operation3 = new OASOperation(getTomBombadil);
       mockGetOperations.mockResolvedValue([operation2, operation3]);
 
       mockExecute.mockResolvedValue({
@@ -794,34 +519,8 @@ describe('Positive', () => {
     });
 
     it('On single non-ok response status, output error and failure', async () => {
-      const operation2 = new OASOperation({
-        operationId: 'getHobbit',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'name',
-            in: 'query',
-            schema: {
-              type: 'string',
-            },
-            example: 'Frodo',
-          },
-        ],
-      });
-      const operation3 = new OASOperation({
-        operationId: 'getTomBombadil',
-        responses: defaultResponses,
-        parameters: [
-          {
-            name: 'times',
-            in: 'query',
-            example: 2,
-            schema: {
-              type: 'number',
-            },
-          },
-        ],
-      });
+      const operation2 = new OASOperation(getHobbit);
+      const operation3 = new OASOperation(getTomBombadil);
       mockGetOperations.mockResolvedValue([operation2, operation3]);
 
       mockExecute.mockResolvedValueOnce({
