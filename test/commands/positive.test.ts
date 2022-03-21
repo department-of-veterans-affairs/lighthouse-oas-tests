@@ -249,6 +249,7 @@ describe('Positive', () => {
           operation,
           operation.exampleGroups[0],
           {},
+          {},
           'https://lotr.com/services/the-fellowship/v0',
         );
       });
@@ -285,6 +286,7 @@ describe('Positive', () => {
             operation,
             operation.exampleGroups[0],
             {},
+            {},
             undefined,
           );
         });
@@ -307,6 +309,7 @@ describe('Positive', () => {
           expect(mockExecute).toHaveBeenCalledWith(
             operation,
             operation.exampleGroups[0],
+            {},
             {},
             'https://lotr.com/services/the-fellowship/v0',
           );
