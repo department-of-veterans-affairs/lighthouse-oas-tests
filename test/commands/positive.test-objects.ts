@@ -128,11 +128,11 @@ const walkIntoMordorSingleStringTest: OperationObject = {
 };
 
 const walkIntoMordorMultiIntegerTest: OperationObject = {
-  operationId: 'walkIntoMordor',
+  operationId: 'walkIntoMordorWithAnInvalidDoor',
   responses: defaultResponses,
   parameters: [
     {
-      name: 'door',
+      name: 'doorWithAnInvalidExample',
       in: 'query',
       schema: {
         type: 'string',
