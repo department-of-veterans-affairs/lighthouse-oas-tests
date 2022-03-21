@@ -96,7 +96,7 @@ const getTomBombadil: OperationObject = {
 };
 
 const walkIntoMordorSingleIntegerTest: OperationObject = {
-  operationId: 'walkIntoMordor',
+  operationId: 'walkIntoMordorWithAnInvalidGuide',
   responses: defaultResponses,
   parameters: [
     {

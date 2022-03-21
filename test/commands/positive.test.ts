@@ -492,7 +492,7 @@ describe('Positive', () => {
       }).rejects.toThrow('1 operation failed');
 
       expect(result).toEqual([
-        'walkIntoMordor - default: Failed\n',
+        'walkIntoMordorWithAnInvalidGuide - default: Failed\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: parameters -> guide -> example. Found 1 time\n',
       ]);
     });
