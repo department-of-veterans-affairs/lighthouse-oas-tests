@@ -11,8 +11,11 @@ CLI for testing Lighthouse APIs using OpenAPI specs
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 <!-- toc -->
+* [LOAST](#loast)
 * [Usage](#usage)
 * [Commands](#commands)
+* [OpenApi Spec Setup](#openapi-spec-setup)
+* [Validation Failures](#validation-failures)
 * [Local Development](#local-development)
 <!-- tocstop -->
 # Usage
@@ -22,7 +25,7 @@ $ npm install -g loast
 $ loast COMMAND
 running command...
 $ loast (-v|--version|version)
-loast/0.2.0 darwin-x64 node-v12.19.0
+loast/0.0.0-development darwin-x64 node-v14.15.1
 $ loast --help [COMMAND]
 USAGE
   $ loast COMMAND
@@ -49,7 +52,7 @@ OPTIONS
   --all  see all commands in CLI
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.0/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.2/src/commands/help.ts)_
 
 ## `loast positive PATH`
 
@@ -66,6 +69,7 @@ OPTIONS
   -a, --apiKey=apiKey            API key to use
   -b, --bearerToken=bearerToken  Bearer token to use
   -h, --help                     show CLI help
+  -s, --server=server            Server URL to use
 ```
 
 _See code: [src/commands/positive.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/src/commands/positive.ts)_
@@ -287,7 +291,7 @@ See our [contribution guide](CONTRIBUTING.MD)
 ## Running Commands
 Before running any commands locally and after any code changes, the code will need to be built using `npm run build`.
 While developing locally, `$ ./bin/run` is the equivalent of running `$ loast` with the CLI installed.
-- e.g.: `$ ./bin/run positive -a YOUR_API_KEY test/fixtures/facilities_oas.json` will run positive tests against the facilities OAS present in our test fixtures.
+- e.g.: `$ ./bin/run positive -a YOUR_API_KEY -s https://sandbox-api.va.gov/services/va_facilities/{version} test/fixtures/facilities_oas.json` will run positive tests against the facilities OAS present in our test fixtures.
 
 ## Testing
 Tests are setup with [Jest](https://jestjs.io/). Run tests using the `npm run test` command.
@@ -317,6 +321,8 @@ Debugging with Visual Studio Code can be accomplished by adding or updating `./.
         "positive",
         "-a",
         "YOUR_API_KEY",
+        "-s",
+        "https://sandbox-api.va.gov/services/va_facilities/{version}"
         "test/fixtures/facilities_oas.json"
       ],
       "preLaunchTask": "npm: build"
@@ -336,13 +342,13 @@ If it is preferred to execute the application until a breakpoint is hit, then ch
 
 The `Attach` configuration will attach the debugger to a loast instance that is already running.  Loast can be launched for debugging like so:
 
-`$ node --inspect-brk ./bin/run positive -a YOUR_API_KEY test/fixtures/facilities_oas.json`
+`$ node --inspect-brk ./bin/run positive -a YOUR_API_KEY test/fixtures/facilities_oas.json -s https://sandbox-api.va.gov/services/va_facilities/{version}`
 
 ### With WebStorm
 
 Debugging with WebStorm can be accomplished by creating a Node.js run/debug configuration as described [here](https://www.jetbrains.com/help/webstorm/running-and-debugging-node-js.html#Node.js_run).   
 Set the **JavaScript File** field to: `bin/run`  
-Set the **Application Parameters** field to: `positive -a YOUR_API_KEY test/fixtures/facilities_oas.json`  
+Set the **Application Parameters** field to: `positive -a YOUR_API_KEY test/fixtures/facilities_oas.json -s https://sandbox-api.va.gov/services/va_facilities/{version}`  
 
 To build the application automatically, configure a before-launch task of type **Run npm script**.  
 Set the **Command** field to: `run`  
