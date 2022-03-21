@@ -6,10 +6,10 @@ import {
   getHobbit,
   getHobbits,
   getTomBombadil,
-  walkIntoMordorIntEx,
-  walkIntoMordorStrEx,
-  walkIntoMordorIntExs,
-  walkIntoMordorStrExs,
+  walkIntoMordorSingleIntegerTest,
+  walkIntoMordorSingleStringTest,
+  walkIntoMordorMultiIntegerTest,
+  walkIntoMordorMultiStringTest,
 } from './positive.test-objects';
 
 const mockGetOperations = jest.fn();
@@ -48,7 +48,9 @@ describe('Positive', () => {
     mockPrompt.mockReset();
     mockGetOperations.mockReset();
     mockGetOperations.mockResolvedValue([
-      new OASOperation(walkIntoMordorStrEx, [{ 'boromir-security': [] }]),
+      new OASOperation(walkIntoMordorSingleStringTest, [
+        { 'boromir-security': [] },
+      ]),
       new OASOperation(getHobbit, [{ 'boromir-security': [] }]),
       new OASOperation(getTomBombadil, [{ 'faramir-security': [] }]),
     ]);
@@ -85,7 +87,7 @@ describe('Positive', () => {
 
   describe('OAS operation has parameter groups', () => {
     it('does not execute a request for a parameter group that fails parameter validation', async () => {
-      const operation1 = new OASOperation(walkIntoMordorIntExs);
+      const operation1 = new OASOperation(walkIntoMordorMultiIntegerTest);
       const operation2 = new OASOperation(getHobbit);
       const operation3 = new OASOperation(getTomBombadil);
       mockGetOperations.mockResolvedValue([operation1, operation2, operation3]);
@@ -126,7 +128,7 @@ describe('Positive', () => {
     });
 
     it('Validate response(s) for each parameter group', async () => {
-      const operation1 = new OASOperation(walkIntoMordorStrExs);
+      const operation1 = new OASOperation(walkIntoMordorMultiStringTest);
       const operation2 = new OASOperation(getHobbit);
       const operation3 = new OASOperation(getTomBombadil);
       mockGetOperations.mockResolvedValue([operation1, operation2, operation3]);
@@ -474,7 +476,7 @@ describe('Positive', () => {
 
     it('On parameter validation failure, output operation failure', async () => {
       mockGetOperations.mockResolvedValue([
-        new OASOperation(walkIntoMordorIntEx),
+        new OASOperation(walkIntoMordorSingleIntegerTest),
       ]);
 
       await expect(async () => {

@@ -95,7 +95,7 @@ const getTomBombadil: OperationObject = {
   ],
 };
 
-const walkIntoMordorIntEx: OperationObject = {
+const walkIntoMordorSingleIntegerTest: OperationObject = {
   operationId: 'walkIntoMordor',
   responses: defaultResponses,
   parameters: [
@@ -111,7 +111,7 @@ const walkIntoMordorIntEx: OperationObject = {
   ],
 };
 
-const walkIntoMordorStrEx: OperationObject = {
+const walkIntoMordorSingleStringTest: OperationObject = {
   operationId: 'walkIntoMordor',
   responses: defaultResponses,
   parameters: [
@@ -127,7 +127,7 @@ const walkIntoMordorStrEx: OperationObject = {
   ],
 };
 
-const walkIntoMordorIntExs: OperationObject = {
+const walkIntoMordorMultiIntegerTest: OperationObject = {
   operationId: 'walkIntoMordor',
   responses: defaultResponses,
   parameters: [
@@ -158,7 +158,7 @@ const walkIntoMordorIntExs: OperationObject = {
   ],
 };
 
-const walkIntoMordorStrExs: OperationObject = {
+const walkIntoMordorMultiStringTest: OperationObject = {
   operationId: 'walkIntoMordor',
   responses: defaultResponses,
   parameters: [
@@ -193,8 +193,8 @@ export {
   getHobbit,
   getHobbits,
   getTomBombadil,
-  walkIntoMordorIntEx,
-  walkIntoMordorStrEx,
-  walkIntoMordorIntExs,
-  walkIntoMordorStrExs,
+  walkIntoMordorSingleIntegerTest,
+  walkIntoMordorSingleStringTest,
+  walkIntoMordorMultiIntegerTest,
+  walkIntoMordorMultiStringTest,
 };
