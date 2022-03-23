@@ -40,6 +40,10 @@ export default class Positive extends Command {
       description: 'Bearer token to use',
       env: 'LOAST_BEARER_TOKEN',
     }),
+    noPrompt: flags.string({
+      char: 'n',
+      description: 'Prevent prompt for api key or token',
+    }),
     server: flags.string({
       char: 's',
       description: 'Server URL to use',
@@ -229,6 +233,7 @@ export default class Positive extends Command {
   promptForSecurityValues = async (flags: {
     apiKey: string | undefined;
     bearerToken: string | undefined;
+    noPrompt: string | undefined;
   }): Promise<void> => {
     const securitySchemes = await this.schema.getSecuritySchemes();
     if (securitySchemes.length === 0) {
@@ -253,46 +258,49 @@ export default class Positive extends Command {
     // Wrap if statements in loop to iterate over securities array to check for apiKey or bearer_token(s)
     let apiKey = flags.apiKey;
     let token = flags.bearerToken;
-    for (const security of securities) {
-      if (security.type === OASSecurityType.APIKEY) {
-        const apiSecurityName = security.key;
-        const apiKeyValue =
-          apiKey ??
-          // eslint-disable-next-line no-await-in-loop
-          (await cli.prompt('Please provide your API Key', {
-            type: 'mask',
-          }));
-        if (!apiKey) {
-          apiKey = apiKeyValue;
-        }
+    const noPrompt = flags.noPrompt;
+    if (!noPrompt) {
+      for (const security of securities) {
+        if (security.type === OASSecurityType.APIKEY) {
+          const apiSecurityName = security.key;
+          const apiKeyValue =
+            apiKey ??
+            // eslint-disable-next-line no-await-in-loop
+            (await cli.prompt('Please provide your API Key', {
+              type: 'mask',
+            }));
+          if (!apiKey) {
+            apiKey = apiKeyValue;
+          }
 
-        this.securityValues[apiSecurityName] = { value: apiKeyValue };
-      }
-      // Refactor logic to nest HTTP and OAUTH2 together in the same statement
-      if (
-        (security.type === OASSecurityType.HTTP &&
-          security.scheme === BEARER_SECURITY_SCHEME) ||
-        security.type === OASSecurityType.OAUTH2
-      ) {
-        const tokenSecurityName = security.key;
-        const tokenValue =
-          token ??
-          // eslint-disable-next-line no-await-in-loop
-          (await cli.prompt('Please provide your token', {
-            type: 'mask',
-          }));
-        if (!token) {
-          token = tokenValue;
+          this.securityValues[apiSecurityName] = { value: apiKeyValue };
         }
+        // Refactor logic to nest HTTP and OAUTH2 together in the same statement
+        if (
+          (security.type === OASSecurityType.HTTP &&
+            security.scheme === BEARER_SECURITY_SCHEME) ||
+          security.type === OASSecurityType.OAUTH2
+        ) {
+          const tokenSecurityName = security.key;
+          const tokenValue =
+            token ??
+            // eslint-disable-next-line no-await-in-loop
+            (await cli.prompt('Please provide your token', {
+              type: 'mask',
+            }));
+          if (!token) {
+            token = tokenValue;
+          }
 
-        if (security.type === OASSecurityType.HTTP) {
-          this.securityValues[tokenSecurityName] = { value: tokenValue };
-        }
+          if (security.type === OASSecurityType.HTTP) {
+            this.securityValues[tokenSecurityName] = { value: tokenValue };
+          }
 
-        if (security.type === OASSecurityType.OAUTH2) {
-          this.securityValues[tokenSecurityName] = {
-            token: { access_token: tokenValue },
-          };
+          if (security.type === OASSecurityType.OAUTH2) {
+            this.securityValues[tokenSecurityName] = {
+              token: { access_token: tokenValue },
+            };
+          }
         }
       }
     }
