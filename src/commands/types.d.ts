@@ -6,3 +6,10 @@ export interface OperationExample {
   operation: OASOperation;
   exampleGroup: ExampleGroup;
 }
+
+export interface OASConfig {
+  path: string;
+  apiKey: string;
+  bearerToken: string;
+  server: string;
+}

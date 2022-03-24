@@ -4,13 +4,7 @@ import { Json } from 'swagger-client';
 import { extname } from 'path';
 import loadJsonFile from 'load-json-file';
 import parseUrl from 'parse-url';
-
-interface OASConfig {
-  path: string;
-  apiKey: string;
-  bearerToken: string;
-  server: string;
-}
+import { OASConfig } from './types';
 
 export default class PositiveAll extends Command {
   static description =
