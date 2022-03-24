@@ -40,8 +40,9 @@ export default class Positive extends Command {
       description: 'Bearer token to use',
       env: 'LOAST_BEARER_TOKEN',
     }),
-    noPrompt: flags.string({
+    noPrompt: flags.boolean({
       char: 'n',
+      default: false,
       description: 'Prevent prompt for api key or token',
     }),
     server: flags.string({
@@ -233,7 +234,7 @@ export default class Positive extends Command {
   promptForSecurityValues = async (flags: {
     apiKey: string | undefined;
     bearerToken: string | undefined;
-    noPrompt: string | undefined;
+    noPrompt: boolean | undefined;
   }): Promise<void> => {
     const securitySchemes = await this.schema.getSecuritySchemes();
     if (securitySchemes.length === 0) {
