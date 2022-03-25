@@ -1,7 +1,9 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "noEmit": true
+    // Note: The name of this directory must be different from the outDir in the root tsconfig,
+    // otherwise the debugger may pick up the wrong sourcemaps when debugging tests.
+    "outDir": "lib-test",
   },
   "include": ["./**/*", "../src/**/*", "../@types/**/*"]
 }

@@ -41,10 +41,12 @@ typings/
 
 # IntelliJ/WebStorm/etc project folder
 .idea
+.run
 
 #
 dist
 lib
+test/lib-test
 .bash_history
 .lesshst
 .config
