@@ -1,4 +1,4 @@
-import Command from '@oclif/command';
+import Command, { flags } from '@oclif/command';
 import Positive from './positive';
 import { Json } from 'swagger-client';
 import { extname } from 'path';
@@ -9,6 +9,10 @@ import { OASConfig } from './types';
 export default class PositiveAll extends Command {
   static description =
     'Runs positive smoke tests for all Lighthouse APIs in config based on OAS';
+
+  static flags = {
+    help: flags.help({ char: 'h' }),
+  };
 
   static args = [
     {
@@ -29,8 +33,7 @@ export default class PositiveAll extends Command {
     const argObjects: OASConfig[] = Object.values(config);
     await Promise.all(
       argObjects.map(async (arg: OASConfig): Promise<string> => {
-        const arr: string[] = [];
-        arr.push(arg.path);
+        const arr: string[] = [arg.path, '-n'];
         if (arg.apiKey) {
           arr.push('-a', arg.apiKey);
         }
