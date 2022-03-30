@@ -57,7 +57,7 @@ export default class PositiveAll extends Command {
         spec = await loadJsonFile(path);
         return spec;
       } catch (error) {
-        return this.error('unable to load json file');
+        return this.error('Unable to load json file');
       }
     } else {
       this.error('Only file type .json is supported.');
