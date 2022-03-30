@@ -30,23 +30,27 @@ export default class PositiveAll extends Command {
     if (path.protocol === 'file') {
       config = await this.loadConfigFromFile(args.path);
     }
-    const argObjects: OASConfig[] = Object.values(config);
+    const oasConfigs: OASConfig[] = Object.values(config);
     await Promise.all(
-      argObjects.map(async (arg: OASConfig): Promise<string> => {
-        const arr: string[] = [arg.path, '-n'];
-        if (arg.apiKey) {
-          arr.push('-a', arg.apiKey);
-        }
-        if (arg.bearerToken) {
-          arr.push('-b', arg.bearerToken);
-        }
-        if (arg.server) {
-          arr.push('-s', arg.server);
-        }
-        return Positive.run(arr);
+      oasConfigs.map(async (oasConfig: OASConfig): Promise<void> => {
+        return Positive.run(this.convertConfigObjectsToArray(oasConfig));
       }),
     );
   }
+
+  convertConfigObjectsToArray = (oasConfig: OASConfig): string[] => {
+    const arr: string[] = [oasConfig.path, '-n'];
+    if (oasConfig.apiKey) {
+      arr.push('-a', oasConfig.apiKey);
+    }
+    if (oasConfig.bearerToken) {
+      arr.push('-b', oasConfig.bearerToken);
+    }
+    if (oasConfig.server) {
+      arr.push('-s', oasConfig.server);
+    }
+    return arr;
+  };
 
   loadConfigFromFile = async (path): Promise<Json> => {
     let spec;
