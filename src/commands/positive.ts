@@ -280,6 +280,7 @@ export default class Positive extends Command {
         apiKeyValue = apiKey;
         if (!apiKey) {
           apiKey = apiKeyValue;
+          this.log('API key is undefined or empty.');
         }
 
         this.securityValues[apiSecurityName] = { value: apiKeyValue };
@@ -304,6 +305,7 @@ export default class Positive extends Command {
 
         if (!token) {
           token = tokenValue;
+          this.log('Bearer token is undefined or empty.');
         }
 
         if (security.type === OASSecurityType.HTTP) {
