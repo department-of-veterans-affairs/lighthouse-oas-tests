@@ -6,13 +6,13 @@ module.exports = {
       diagnostics: false,
     },
   },
-  coveragePathIgnorePatterns: ["/node_modules/", "/lib/"],
+  coveragePathIgnorePatterns: ["/node_modules/", "/lib/", "/test/lib-test/"],
   coverageThreshold: {
     '**/*.ts': {
       statements: 80,
     },
   },
-  testPathIgnorePatterns: ['/node_modules/', '/lib/'],
+  testPathIgnorePatterns: ['/node_modules/', '/lib/', "/test/lib-test/"],
   testEnvironment: 'node',
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec|integration))\\.[jt]s?$',
   testTimeout: 15000, // milliseconds
