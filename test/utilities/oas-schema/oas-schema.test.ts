@@ -86,7 +86,13 @@ describe('OASSchema', () => {
       const server =
         'https://sandbox-api.va.gov/services/va_facilities/{version}';
 
-      await schema.execute(operation, exampleGroup, securities, requestBody, server);
+      await schema.execute(
+        operation,
+        exampleGroup,
+        securities,
+        requestBody,
+        server,
+      );
 
       expect(executeMock).toHaveBeenCalledWith({
         operationId: 'getFacilityById',
