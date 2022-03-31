@@ -33,12 +33,15 @@ export default class PositiveAll extends Command {
     const oasConfigs: OASConfig[] = Object.values(config);
     await Promise.all(
       oasConfigs.map(async (oasConfig: OASConfig): Promise<void> => {
-        return Positive.run(this.convertConfigObjectsToArray(oasConfig));
+        if (oasConfig.path) {
+          return Positive.run(this.convertConfigObjectsToArray(oasConfig));
+        }
+        this.log('No paths present in config.');
       }),
     );
   }
 
-  convertConfigObjectsToArray = (oasConfig: OASConfig): string[] => {
+  convertConfigObjectsToArray(oasConfig: OASConfig): string[] {
     const arr: string[] = [oasConfig.path, '-n'];
     if (oasConfig.apiKey) {
       arr.push('-a', oasConfig.apiKey);
@@ -50,7 +53,7 @@ export default class PositiveAll extends Command {
       arr.push('-s', oasConfig.server);
     }
     return arr;
-  };
+  }
 
   loadConfigFromFile = async (path): Promise<Json> => {
     let spec;
