@@ -189,6 +189,95 @@ const walkIntoMordorMultiStringTest: OperationObject = {
   ],
 };
 
+const flyIntoMordorInvalid: OperationObject = {
+  operationId: 'flyIntoMordorWithInvalidCargo',
+  responses: defaultResponses,
+  requestBody: {
+    required: true,
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          required: ['eagle', 'hobbit', 'cargo', 'difficult'],
+          properties: {
+            eagle: {
+              type: 'string',
+              example: 'Gwaihir',
+            },
+            hobbit: {
+              type: 'string',
+              example: 'Frodo',
+            },
+            cargo: {
+              type: 'string',
+              example: 0,
+            },
+            difficult: {
+              type: 'string',
+              enum: ['Y', 'N'],
+              example: 'N',
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+const flyIntoMordorInvalidContent: OperationObject = {
+  operationId: 'flyIntoMordorWithMoreThanOneContent',
+  responses: defaultResponses,
+  requestBody: {
+    required: true,
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          required: [],
+        },
+      },
+      'text/plain': {
+        schema: {},
+      },
+    },
+  },
+};
+
+const flyIntoMordor: OperationObject = {
+  operationId: 'flyIntoMordor',
+  responses: defaultResponses,
+  requestBody: {
+    required: true,
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          required: ['eagle', 'hobbit', 'cargo', 'difficult'],
+          properties: {
+            eagle: {
+              type: 'string',
+              example: 'Gwaihir',
+            },
+            hobbit: {
+              type: 'string',
+              example: 'Frodo',
+            },
+            cargo: {
+              type: 'string',
+              example: 'The One Ring',
+            },
+            difficult: {
+              type: 'string',
+              enum: ['Y', 'N'],
+              example: 'N',
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
 export {
   getHobbit,
   getHobbits,
@@ -197,4 +286,7 @@ export {
   walkIntoMordorSingleStringTest,
   walkIntoMordorMultiIntegerTest,
   walkIntoMordorMultiStringTest,
+  flyIntoMordorInvalid,
+  flyIntoMordorInvalidContent,
+  flyIntoMordor,
 };
