@@ -203,10 +203,6 @@ export default class Positive extends Command {
       server = await cli.prompt('Please provide the server URL to use');
     }
 
-    // if (noPrompt) {
-    //   throw an error here to let user know.
-    // }
-
     if (server && !this.isServerValid(server, servers)) {
       this.error('Server value must match one of the server URLs in the OAS');
     }
@@ -260,7 +256,7 @@ export default class Positive extends Command {
           scheme: scheme.scheme,
         };
       });
-    // Wrap if statements in loop to itera`te over securities array to check for apiKey or bearer_token(s)
+
     let apiKey = flags.apiKey;
     let token = flags.bearerToken;
     const noPrompt = flags.noPrompt;
