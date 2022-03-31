@@ -6,10 +6,10 @@ import {
   getHobbit,
   getHobbits,
   getTomBombadil,
-  walkIntoMordorSingleIntegerTest,
-  walkIntoMordorSingleStringTest,
-  walkIntoMordorMultiIntegerTest,
-  walkIntoMordorMultiStringTest,
+  walkIntoMordorSingleParameterInvalid,
+  walkIntoMordorSingleParameter,
+  walkIntoMordorMultiParameterInvalid,
+  walkIntoMordorMultiParameter,
   flyIntoMordorInvalid,
   flyIntoMordorInvalidContent,
   flyIntoMordor,
@@ -51,7 +51,7 @@ describe('Positive', () => {
     mockPrompt.mockReset();
     mockGetOperations.mockReset();
     mockGetOperations.mockResolvedValue([
-      new OASOperation(walkIntoMordorSingleStringTest, [
+      new OASOperation(walkIntoMordorSingleParameter, [
         { 'boromir-security': [] },
       ]),
       new OASOperation(getHobbit, [{ 'boromir-security': [] }]),
@@ -90,7 +90,7 @@ describe('Positive', () => {
 
   describe('OAS operation has parameter groups', () => {
     it('does not execute a request for a parameter group that fails parameter validation', async () => {
-      const operation1 = new OASOperation(walkIntoMordorMultiIntegerTest);
+      const operation1 = new OASOperation(walkIntoMordorMultiParameterInvalid);
       const operation2 = new OASOperation(getHobbit);
       const operation3 = new OASOperation(getTomBombadil);
       mockGetOperations.mockResolvedValue([operation1, operation2, operation3]);
@@ -136,7 +136,7 @@ describe('Positive', () => {
     });
 
     it('Validate response(s) for each parameter group', async () => {
-      const operation1 = new OASOperation(walkIntoMordorMultiStringTest);
+      const operation1 = new OASOperation(walkIntoMordorMultiParameter);
       const operation2 = new OASOperation(getHobbit);
       const operation3 = new OASOperation(getTomBombadil);
       mockGetOperations.mockResolvedValue([operation1, operation2, operation3]);
@@ -537,7 +537,7 @@ describe('Positive', () => {
 
     it('On parameter validation failure, output operation failure', async () => {
       mockGetOperations.mockResolvedValue([
-        new OASOperation(walkIntoMordorSingleIntegerTest),
+        new OASOperation(walkIntoMordorSingleParameterInvalid),
       ]);
 
       await expect(async () => {

@@ -95,7 +95,7 @@ const getTomBombadil: OperationObject = {
   ],
 };
 
-const walkIntoMordorSingleIntegerTest: OperationObject = {
+const walkIntoMordorSingleParameterInvalid: OperationObject = {
   operationId: 'walkIntoMordorWithAnInvalidGuide',
   responses: defaultResponses,
   parameters: [
@@ -111,7 +111,7 @@ const walkIntoMordorSingleIntegerTest: OperationObject = {
   ],
 };
 
-const walkIntoMordorSingleStringTest: OperationObject = {
+const walkIntoMordorSingleParameter: OperationObject = {
   operationId: 'walkIntoMordor',
   responses: defaultResponses,
   parameters: [
@@ -127,7 +127,7 @@ const walkIntoMordorSingleStringTest: OperationObject = {
   ],
 };
 
-const walkIntoMordorMultiIntegerTest: OperationObject = {
+const walkIntoMordorMultiParameterInvalid: OperationObject = {
   operationId: 'walkIntoMordorWithAnInvalidDoor',
   responses: defaultResponses,
   parameters: [
@@ -158,7 +158,7 @@ const walkIntoMordorMultiIntegerTest: OperationObject = {
   ],
 };
 
-const walkIntoMordorMultiStringTest: OperationObject = {
+const walkIntoMordorMultiParameter: OperationObject = {
   operationId: 'walkIntoMordor',
   responses: defaultResponses,
   parameters: [
@@ -282,10 +282,10 @@ export {
   getHobbit,
   getHobbits,
   getTomBombadil,
-  walkIntoMordorSingleIntegerTest,
-  walkIntoMordorSingleStringTest,
-  walkIntoMordorMultiIntegerTest,
-  walkIntoMordorMultiStringTest,
+  walkIntoMordorSingleParameterInvalid,
+  walkIntoMordorSingleParameter,
+  walkIntoMordorMultiParameterInvalid,
+  walkIntoMordorMultiParameter,
   flyIntoMordorInvalid,
   flyIntoMordorInvalidContent,
   flyIntoMordor,
