@@ -1,65 +1,45 @@
+import Positive from '../../src/commands/positive';
 import PositiveAll from '../../src/commands/positive-all';
 
-const mockPrompt = jest.fn();
-const mockExecute = jest.fn();
-
-jest.mock('cli-ux', () => {
-  return {
-    cli: {
-      prompt: mockPrompt,
-    },
-  };
-});
-
-jest.mock('', () => {
-  return function (): Record<string, jest.Mock> {
-    return {
-      execute: mockExecute,
-    };
-  };
-});
-
 describe('PositiveAll', () => {
+  beforeEach(() => {
+    Positive.run = jest.fn();
+  });
+  // let testConfig;
   describe('convert array of config objects to array of configs', () => {
-    // Use toContain() matcher function to verify an item is in an array
-    it('config array contains api key', async () => {
+    it('config array contains api key flag & path', async () => {
       const expectedApiKeyArray: Array<string> = [
-        'https://westeros.dragonstone/underground/scrolls/catacombs/v0/openapi.json',
+        'https://westeros.kingslanding/underground/scrolls/catacombs/v0/openapi.json',
         '-n',
         '-a',
         'sillyFakeApiKey',
         '-s',
-        'https://sandbox-westeros.dragonstone/duties/castles/{version}',
+        'https://sandbox-westeros.kingslanding/duties/castles/{version}',
       ];
-      const actualApiKeyArray = [];
-
-      expect(actualApiKeyArray).toContainEqual(expectedApiKeyArray);
+      await PositiveAll.run(['./test/configs/test-config.json']);
+      expect(Positive.run).toHaveBeenCalledWith(expectedApiKeyArray);
     });
-    it('config array contains bearer token', async () => {
-      const expectedBearerArray: Array<string> = [
-        'https://westeros.stormsend/underground/scrolls/catacombs/v0/openapi.json',
+    it('config array contains bearer token flag & path', async () => {
+      const expectedBearerTokenArray: Array<string> = [
+        'https://westeros.dragonstone/underground/scrolls/catacombs/v0/openapi.json',
         '-n',
         '-b',
         'sillyFakeBearerToken',
         '-s',
-        'https://sandbox-westeros.stormsend/duties/castles/{version}',
-      ];
-      const actualBearerArray = [];
-
-      expect(actualBearerArray).toContainEqual(expectedBearerArray);
-    });
-    it('config array contains server', async () => {
-      const expectedServerArray: Array<string> = [
-        'https://westeros.dragonstone/underground/scrolls/catacombs/v0/openapi.json',
-        '-n',
-        '-a',
-        'sillyFakeApiKey',
-        '-s',
         'https://sandbox-westeros.dragonstone/duties/castles/{version}',
       ];
-      const actualServerArray = [];
-
-      expect(actualServerArray).toContainEqual(expectedServerArray);
+      await PositiveAll.run(['./test/configs/test-config.json']);
+      expect(Positive.run).toHaveBeenCalledWith(expectedBearerTokenArray);
+    });
+    it('config array contains server flag & path', async () => {
+      const expectedBearerTokenArray: Array<string> = [
+        'https://westeros.stormsend/underground/scrolls/catacombs/v0/openapi.json',
+        '-n',
+        '-s',
+        'https://sandbox-westeros.stormsend/duties/castles/{version}',
+      ];
+      await PositiveAll.run(['./test/configs/test-config.json']);
+      expect(Positive.run).toHaveBeenCalledWith(expectedBearerTokenArray);
     });
   });
 

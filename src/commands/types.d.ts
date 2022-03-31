@@ -9,7 +9,7 @@ export interface OperationExample {
 
 export interface OASConfig {
   path: string;
-  apiKey: string;
-  bearerToken: string;
-  server: string;
+  apiKey?: string;
+  bearerToken?: string;
+  server?: string;
 }
