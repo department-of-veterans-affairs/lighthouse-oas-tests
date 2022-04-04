@@ -5,9 +5,9 @@ describe('PositiveAll', () => {
   beforeEach(() => {
     Positive.run = jest.fn();
   });
-  // let testConfig;
+
   describe('convert array of config objects to array of configs', () => {
-    it('config array contains api key flag & path', async () => {
+    it('config array contains api key, bearer token and server flags & paths', async () => {
       const expectedApiKeyArray: Array<string> = [
         'https://westeros.kingslanding/underground/scrolls/catacombs/v0/openapi.json',
         '-n',
@@ -16,10 +16,6 @@ describe('PositiveAll', () => {
         '-s',
         'https://sandbox-westeros.kingslanding/duties/castles/{version}',
       ];
-      await PositiveAll.run(['./test/configs/test-config.json']);
-      expect(Positive.run).toHaveBeenCalledWith(expectedApiKeyArray);
-    });
-    it('config array contains bearer token flag & path', async () => {
       const expectedBearerTokenArray: Array<string> = [
         'https://westeros.dragonstone/underground/scrolls/catacombs/v0/openapi.json',
         '-n',
@@ -28,26 +24,21 @@ describe('PositiveAll', () => {
         '-s',
         'https://sandbox-westeros.dragonstone/duties/castles/{version}',
       ];
-      await PositiveAll.run(['./test/configs/test-config.json']);
-      expect(Positive.run).toHaveBeenCalledWith(expectedBearerTokenArray);
-    });
-    it('config array contains server flag & path', async () => {
-      const expectedBearerTokenArray: Array<string> = [
+      const expectedServerArray: Array<string> = [
         'https://westeros.stormsend/underground/scrolls/catacombs/v0/openapi.json',
         '-n',
         '-s',
         'https://sandbox-westeros.stormsend/duties/castles/{version}',
       ];
       await PositiveAll.run(['./test/configs/test-config.json']);
+      expect(Positive.run).toHaveBeenCalledTimes(3);
+      expect(Positive.run).toHaveBeenCalledWith(expectedApiKeyArray);
       expect(Positive.run).toHaveBeenCalledWith(expectedBearerTokenArray);
+      expect(Positive.run).toHaveBeenCalledWith(expectedServerArray);
     });
   });
 
   describe('loadSpecFromFile', () => {
-    beforeEach(() => {
-      process.env.API_KEY = 'fakeApiKey';
-    });
-
     it('JSON file does not exist', async () => {
       await expect(async () => {
         await PositiveAll.run(['fileDoesNotExist.json']);

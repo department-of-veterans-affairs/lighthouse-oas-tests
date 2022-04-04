@@ -84,6 +84,7 @@ export default class Positive extends Command {
 
     const server: string | undefined = await this.promptForServerValue(
       flags.server,
+      flags.noPrompt,
     );
 
     this.securities = await this.getSecurities();
@@ -194,13 +195,18 @@ export default class Positive extends Command {
 
   promptForServerValue = async (
     serverParameter: string | undefined,
+    noPrompt: boolean | undefined,
   ): Promise<string | undefined> => {
     const servers = await this.schema.getServers();
     const numServers = servers.length;
     let server = serverParameter;
 
     if (!server && numServers > 1) {
-      server = await cli.prompt('Please provide the server URL to use');
+      if (noPrompt) {
+        this.log('Server value is null or undefined.');
+      } else {
+        server = await cli.prompt('Please provide the server URL to use');
+      }
     }
 
     if (server && !this.isServerValid(server, servers)) {
@@ -257,25 +263,24 @@ export default class Positive extends Command {
         };
       });
 
-    let apiKey = flags.apiKey;
-    let token = flags.bearerToken;
+    const apiKey = flags.apiKey;
+    const token = flags.bearerToken;
     const noPrompt = flags.noPrompt;
     for (const security of securities) {
       if (security.type === OASSecurityType.APIKEY) {
         const apiSecurityName = security.key;
         let apiKeyValue;
-        if (!noPrompt) {
+        if (!noPrompt && !apiKey) {
           apiKeyValue =
-            apiKey ??
             // eslint-disable-next-line no-await-in-loop
-            (await cli.prompt('Please provide your API Key', {
+            await cli.prompt('Please provide your API Key', {
               type: 'mask',
-            }));
+            });
+        } else {
+          apiKeyValue = apiKey;
         }
         // if apiKey is undefined, throw an error and provide a message to the user
-        apiKeyValue = apiKey;
-        if (!apiKey) {
-          apiKey = apiKeyValue;
+        if (!apiKeyValue) {
           this.log('API key is undefined or empty.');
         }
 
@@ -289,18 +294,17 @@ export default class Positive extends Command {
       ) {
         const tokenSecurityName = security.key;
         let tokenValue;
-        if (!noPrompt) {
+        if (!noPrompt && !token) {
           tokenValue =
-            token ??
             // eslint-disable-next-line no-await-in-loop
-            (await cli.prompt('Please provide your token', {
+            await cli.prompt('Please provide your token', {
               type: 'mask',
-            }));
+            });
+        } else {
+          tokenValue = token;
         }
-        tokenValue = token;
 
-        if (!token) {
-          token = tokenValue;
+        if (!tokenValue) {
           this.log('Bearer token is undefined or empty.');
         }
 

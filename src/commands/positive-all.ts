@@ -7,8 +7,7 @@ import parseUrl from 'parse-url';
 import { OASConfig } from './types';
 
 export default class PositiveAll extends Command {
-  static description =
-    'Runs OAS tests for all APIs in config file';
+  static description = 'Runs OAS tests for all APIs in config file';
 
   static flags = {
     help: flags.help({ char: 'h' }),
@@ -25,6 +24,9 @@ export default class PositiveAll extends Command {
   async run(): Promise<void> {
     const { args } = this.parse(PositiveAll);
     const path = parseUrl(args.path);
+    if (path.protocol !== 'file') {
+      throw new Error('Path protocol is not a file.');
+    }
     let config;
 
     if (path.protocol === 'file') {
@@ -36,7 +38,7 @@ export default class PositiveAll extends Command {
         if (oasConfig.path) {
           return Positive.run(this.convertConfigObjectsToArray(oasConfig));
         }
-        this.log('No paths present in config.');
+        this.log(`No paths present in ${oasConfig}.`);
       }),
     );
   }
@@ -56,13 +58,13 @@ export default class PositiveAll extends Command {
   }
 
   loadConfigFromFile = async (path): Promise<Json> => {
-    let spec;
+    let config;
     const extension = extname(path);
 
     if (extension === '.json') {
       try {
-        spec = await loadJsonFile(path);
-        return spec;
+        config = await loadJsonFile(path);
+        return config;
       } catch (error) {
         return this.error('Unable to load json file');
       }
