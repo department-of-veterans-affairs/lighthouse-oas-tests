@@ -249,8 +249,69 @@ Example Groups are built from Parameter objects in both the Path Item Object and
     ```
   </details>
 
+## Example Request Body
+An Example Request Body is built from Property objects in the Request Body's Content schema.
+All properties listed as required will be included in the example request body.
+Properties that are not required will not be included, even if a property example is provided.
+
+<details><summary>Sample JSON</summary>
+
+  ```json
+    "schemas": {
+      "VeteranStatusRequest": {
+        "type": "object",
+        "required": [
+          "ssn",
+          "first_name",
+          "last_name",
+          "birth_date"
+        ],
+        "properties": {
+          "ssn": {
+            "type": "string",
+            "example": "555-55-5555"
+          },
+          "first_name": {
+            "type": "string",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "birth_date": {
+            "type": "string",
+            "example": "1965-01-01"
+          },
+          "middle_name": {
+            "type": "string",
+            "example": "Theodore"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "M",
+              "F"
+            ],
+            "example": "M"
+          }
+        }
+      }
+    }
+
+    //Example Request Body
+    {
+      "ssn": "555-55-5555",
+      "first_name": "John",
+      "last_name": "Doe",
+      "birth_date": "1965-01-01"
+    }
+  ```
+</details>
+
 # Validation Failures
 The sections below contain details about validation failures that can be produced by loast and how to fix them. Failures will include a path to the place in the schema where the failure occured.
+
 ## Parameter Validation Failures
 If a parameter validation failure occurs the positive command will not attempt to send a request that includes the parameter that failed.
 Parameter validation failures include the following as well as the schema failures listed below.
@@ -261,6 +322,14 @@ Parameter validation failures include the following as well as the schema failur
 | Invalid parameter object      | The parameter object does not contain either a schema or content field, or contains both fields | Add either a schema or content field to the parameter, but not both                                       |
 | Invalid parameter content     | The parameter object's content field contains zero or more than one keys                        | Ensure the content field contains only one key specifying the media type                                  |
 | Missing content schema object | A valid schema object is missing from the media object in the content field                     | Add the missing schema object to the media type object associated with the content field of the parameter |
+
+## Request Body Validation Failures
+If a request body validation failure occurs the positive command will not attempt to send a request that includes the request body that failed.
+Request body validation failures include the following as well as the schema failures listed below.
+
+| Failure                      | Description                                                                  | Fix                                                                     |
+|------------------------------|-----------------------------------------------------------------------------| ------------------------------------------------------------------------ |
+| Invalid request body content | The request body object's content field contains zero or more than one keys | Ensure the content field contains only one key specifying the media type |
 
 ## Response Validation Failures
 If one of these validation failures occur the rest of the response will not be validated.
