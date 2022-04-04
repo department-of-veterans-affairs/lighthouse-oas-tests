@@ -43,7 +43,7 @@ export default class Positive extends Command {
     noPrompt: flags.boolean({
       char: 'n',
       default: false,
-      description: 'Prevent prompt for api key or token',
+      description: 'Prevent user prompts',
     }),
     server: flags.string({
       char: 's',

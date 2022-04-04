@@ -8,7 +8,7 @@ import { OASConfig } from './types';
 
 export default class PositiveAll extends Command {
   static description =
-    'Runs positive smoke tests for all Lighthouse APIs in config based on OAS';
+    'Runs OAS tests for all APIs in config file';
 
   static flags = {
     help: flags.help({ char: 'h' }),
@@ -18,7 +18,7 @@ export default class PositiveAll extends Command {
     {
       name: 'path',
       required: true,
-      description: 'Url or local file path containing the OpenAPI spec',
+      description: 'Local file path for the JSON config file',
     },
   ];
 
