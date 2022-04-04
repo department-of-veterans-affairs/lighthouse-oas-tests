@@ -421,7 +421,7 @@ describe('Positive', () => {
 
       await Positive.run(['https://url-does-not-matter.com']);
 
-      expect(mockPrompt).toHaveBeenCalledTimes(2);
+      expect(mockPrompt).toHaveBeenCalledTimes(1);
       expect(mockPrompt).toHaveBeenCalledWith('Please provide your token', {
         type: 'mask',
       });

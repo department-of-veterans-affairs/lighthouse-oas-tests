@@ -27,11 +27,7 @@ export default class PositiveAll extends Command {
     if (path.protocol !== 'file') {
       throw new Error('Path protocol is not a file.');
     }
-    let config;
-
-    if (path.protocol === 'file') {
-      config = await this.loadConfigFromFile(args.path);
-    }
+    const config = await this.loadConfigFromFile(args.path);
     const oasConfigs: OASConfig[] = Object.values(config);
     await Promise.all(
       oasConfigs.map(async (oasConfig: OASConfig): Promise<void> => {

@@ -264,7 +264,7 @@ export default class Positive extends Command {
       });
 
     const apiKey = flags.apiKey;
-    const token = flags.bearerToken;
+    let token = flags.bearerToken;
     const noPrompt = flags.noPrompt;
     for (const security of securities) {
       if (security.type === OASSecurityType.APIKEY) {
@@ -300,6 +300,7 @@ export default class Positive extends Command {
             await cli.prompt('Please provide your token', {
               type: 'mask',
             });
+          token = tokenValue;
         } else {
           tokenValue = token;
         }
