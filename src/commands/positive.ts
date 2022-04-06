@@ -131,8 +131,16 @@ export default class Positive extends Command {
             failures = new Map([...failures, ...responseValidator.failures]);
             warnings = new Map([...warnings, ...responseValidator.warnings]);
           } else if (response) {
-            const failure = new InvalidResponse();
+            const failure = new InvalidResponse(response.status);
             failures.set(failure.hash, failure);
+
+            // eslint-disable-next-line no-console
+            console.warn(
+              `Response status code was a non 2XX value\n` +
+                `Status: ${response.status}\n` +
+                `Url: ${response.url}\n` +
+                `Body: ${JSON.stringify(response.body)}`,
+            );
           }
         }
 
