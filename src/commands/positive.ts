@@ -134,8 +134,7 @@ export default class Positive extends Command {
             const failure = new InvalidResponse(response.status);
             failures.set(failure.hash, failure);
 
-            // eslint-disable-next-line no-console
-            console.warn(
+            this.warn(
               `Response status code was a non 2XX value\n` +
                 `Status: ${response.status}\n` +
                 `Url: ${response.url}\n` +
