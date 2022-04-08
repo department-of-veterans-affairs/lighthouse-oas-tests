@@ -539,7 +539,7 @@ describe('Positive', () => {
 
       expect(result).toEqual([
         'getHobbit - default: Failed\n',
-        '  - Response status code was a non 2XX value. Found 1 time\n',
+        '  - Response status code was a non 2XX value: 404. Found 1 time\n',
         'getTomBombadil - default: Succeeded\n',
       ]);
     });
