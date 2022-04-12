@@ -211,7 +211,6 @@ describe('Positive', () => {
         'flyIntoMordorWithInvalidCargo - default: Failed\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: requestBody -> example -> cargo. Found 1 time\n',
         'flyIntoMordorWithMoreThanOneContent - default: Failed\n',
-        '  - Request body content object should only have one key. Path: requestBody -> content. Found 1 time\n',
         '  - The properties property is required for object schemas. Path: requestBody -> example. Found 1 time\n',
         'flyIntoMordor - default: Succeeded\n',
       ]);

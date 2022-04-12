@@ -15,6 +15,7 @@ import { OASSecurityType } from '../utilities/oas-security';
 import OASServer from '../utilities/oas-server/oas-server';
 import {
   ParameterSchemaValidator,
+  RequestBodyValidator,
   ExampleGroupValidator,
   ResponseValidator,
 } from '../utilities/validators';
@@ -93,8 +94,8 @@ export default class Positive extends Command {
       this.operationExamples.map(async (operationExample) => {
         let failures: Map<string, ValidationFailure> = new Map();
         let warnings: Map<string, ValidationWarning> = new Map();
-
         const { operation, exampleGroup, requestBody } = operationExample;
+
         const parameterSchemaValidator = new ParameterSchemaValidator(
           operation,
         );
@@ -102,9 +103,13 @@ export default class Positive extends Command {
         failures = new Map([...failures, ...parameterSchemaValidator.failures]);
         warnings = new Map([...warnings, ...parameterSchemaValidator.warnings]);
 
+        const requestBodyValidator = new RequestBodyValidator(operation);
+        requestBodyValidator.validate();
+        failures = new Map([...failures, ...requestBodyValidator.failures]);
+        warnings = new Map([...warnings, ...requestBodyValidator.warnings]);
+
         const exampleGroupValidator = new ExampleGroupValidator(exampleGroup);
         exampleGroupValidator.validate();
-
         failures = new Map([...failures, ...exampleGroupValidator.failures]);
         warnings = new Map([...warnings, ...exampleGroupValidator.warnings]);
 
