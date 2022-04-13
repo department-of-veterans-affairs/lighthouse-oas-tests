@@ -1,10 +1,9 @@
 import ExampleGroup from '../../../src/utilities/example-group';
-import OASOperation from '../../../src/utilities/oas-operation';
 
 describe('ExampleGroup', () => {
   describe('getName', () => {
     it('returns the name', () => {
-      const group = new ExampleGroup({} as OASOperation, 'test', {});
+      const group = new ExampleGroup('test', {});
 
       expect(group.name).toEqual('test');
     });
@@ -12,7 +11,7 @@ describe('ExampleGroup', () => {
 
   describe('getExamples', () => {
     it('returns the examples', () => {
-      const group = new ExampleGroup({} as OASOperation, 'test', {
+      const group = new ExampleGroup('test', {
         hello: 'arda',
       });
 

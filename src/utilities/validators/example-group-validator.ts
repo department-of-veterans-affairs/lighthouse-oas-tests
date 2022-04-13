@@ -10,10 +10,10 @@ class ExampleGroupValidator extends BaseValidator {
 
   private operation: OASOperation;
 
-  constructor(exampleGroup: ExampleGroup) {
+  constructor(exampleGroup: ExampleGroup, operation: OASOperation) {
     super();
     this.exampleGroup = exampleGroup;
-    this.operation = exampleGroup.operation;
+    this.operation = operation;
   }
 
   performValidation = (): void => {

@@ -22,8 +22,8 @@ describe('ExampleGroupValidator', () => {
           ],
           responses: {},
         });
-        const exampleGroup = new ExampleGroup(operation, 'default', {});
-        const validator = new ExampleGroupValidator(exampleGroup);
+        const exampleGroup = new ExampleGroup('default', {});
+        const validator = new ExampleGroupValidator(exampleGroup, operation);
 
         validator.validate();
 
@@ -62,10 +62,10 @@ describe('ExampleGroupValidator', () => {
             ],
             responses: {},
           });
-          const exampleGroup = new ExampleGroup(operation, 'default', {
+          const exampleGroup = new ExampleGroup('default', {
             family: 1,
           });
-          const validator = new ExampleGroupValidator(exampleGroup);
+          const validator = new ExampleGroupValidator(exampleGroup, operation);
           validator.validate();
 
           const failures = validator.failures;
@@ -96,8 +96,8 @@ describe('ExampleGroupValidator', () => {
         ],
         responses: {},
       });
-      const exampleGroup = new ExampleGroup(operation, 'default', { fit: 123 });
-      const validator = new ExampleGroupValidator(exampleGroup);
+      const exampleGroup = new ExampleGroup('default', { fit: 123 });
+      const validator = new ExampleGroupValidator(exampleGroup, operation);
 
       validator.validate();
 
@@ -125,8 +125,8 @@ describe('ExampleGroupValidator', () => {
         ],
         responses: {},
       });
-      const exampleGroup = new ExampleGroup(operation, 'default', {});
-      const validator = new ExampleGroupValidator(exampleGroup);
+      const exampleGroup = new ExampleGroup('default', {});
+      const validator = new ExampleGroupValidator(exampleGroup, operation);
 
       validator.validate();
 
