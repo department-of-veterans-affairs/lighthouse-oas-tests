@@ -102,7 +102,6 @@ describe('OASSchema', () => {
         securities: {
           authorized: {},
         },
-        requestBody: {},
         server,
       });
     });
