@@ -39,8 +39,11 @@ class OASSchema {
       securities: {
         authorized: securities,
       },
-      requestBody: requestBody,
     };
+
+    if (Object.keys(requestBody).length > 0) {
+      options = { requestBody, ...options };
+    }
 
     if (server) {
       options = { server, ...options };
