@@ -109,17 +109,15 @@ export default class Positive extends Command {
         failures = new Map([...failures, ...parameterSchemaValidator.failures]);
         warnings = new Map([...warnings, ...parameterSchemaValidator.warnings]);
 
-        const parameterValidator = new ExampleGroupValidator(
-          exampleGroup,
-          operation,
-        );
-        parameterValidator.validate();
         const requestBodyValidator = new RequestBodyValidator(operation);
         requestBodyValidator.validate();
         failures = new Map([...failures, ...requestBodyValidator.failures]);
         warnings = new Map([...warnings, ...requestBodyValidator.warnings]);
 
-        const exampleGroupValidator = new ExampleGroupValidator(exampleGroup);
+        const exampleGroupValidator = new ExampleGroupValidator(
+          exampleGroup,
+          operation,
+        );
         exampleGroupValidator.validate();
         failures = new Map([...failures, ...exampleGroupValidator.failures]);
         warnings = new Map([...warnings, ...exampleGroupValidator.warnings]);

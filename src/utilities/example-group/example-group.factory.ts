@@ -14,7 +14,7 @@ class ExampleGroupFactory {
 
     if (!parameters) {
       // create an empty default parameter group and return
-      return [new ExampleGroup(operation, DEFAULT_PARAMETER_GROUP, {})];
+      return [new ExampleGroup(DEFAULT_PARAMETER_GROUP, {})];
     }
 
     const groupNames = this.getGroupNames(parameters);
