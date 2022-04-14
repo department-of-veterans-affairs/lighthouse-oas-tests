@@ -8,3 +8,10 @@ export interface OperationExample {
   exampleGroup: ExampleGroup;
   requestBody: RequestBody;
 }
+
+export interface OASConfig {
+  path: string;
+  apiKey?: string;
+  bearerToken?: string;
+  server?: string;
+}

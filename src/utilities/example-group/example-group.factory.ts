@@ -53,11 +53,10 @@ class ExampleGroupFactory {
     }
 
     if (!groupNames.includes(DEFAULT_PARAMETER_GROUP)) {
-      const defaultGroup = new ExampleGroup(
-        operation,
-        DEFAULT_PARAMETER_GROUP,
-        { ...requiredExamples, ...nonRequiredExamplesWithExampleField },
-      );
+      const defaultGroup = new ExampleGroup(DEFAULT_PARAMETER_GROUP, {
+        ...requiredExamples,
+        ...nonRequiredExamplesWithExampleField,
+      });
       exampleGroups.push(defaultGroup);
     }
 
@@ -165,7 +164,7 @@ class ExampleGroupFactory {
         }
       }
     }
-    return new ExampleGroup(operation, groupName, {
+    return new ExampleGroup(groupName, {
       ...otherExamples,
       ...examples,
     });

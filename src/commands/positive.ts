@@ -41,6 +41,11 @@ export default class Positive extends Command {
       description: 'Bearer token to use',
       env: 'LOAST_BEARER_TOKEN',
     }),
+    noPrompt: flags.boolean({
+      char: 'n',
+      default: false,
+      description: 'Prevent user prompts',
+    }),
     server: flags.string({
       char: 's',
       description: 'Server URL to use',
@@ -80,6 +85,7 @@ export default class Positive extends Command {
 
     const server: string | undefined = await this.promptForServerValue(
       flags.server,
+      flags.noPrompt,
     );
 
     this.securities = await this.getSecurities();
@@ -103,6 +109,11 @@ export default class Positive extends Command {
         failures = new Map([...failures, ...parameterSchemaValidator.failures]);
         warnings = new Map([...warnings, ...parameterSchemaValidator.warnings]);
 
+        const parameterValidator = new ExampleGroupValidator(
+          exampleGroup,
+          operation,
+        );
+        parameterValidator.validate();
         const requestBodyValidator = new RequestBodyValidator(operation);
         requestBodyValidator.validate();
         failures = new Map([...failures, ...requestBodyValidator.failures]);
@@ -131,8 +142,15 @@ export default class Positive extends Command {
             failures = new Map([...failures, ...responseValidator.failures]);
             warnings = new Map([...warnings, ...responseValidator.warnings]);
           } else if (response) {
-            const failure = new InvalidResponse();
+            const failure = new InvalidResponse(response.status);
             failures.set(failure.hash, failure);
+
+            this.warn(
+              `Response status code was a non 2XX value\n` +
+                `Status: ${response.status}\n` +
+                `Url: ${response.url}\n` +
+                `Body: ${JSON.stringify(response.body)}`,
+            );
           }
         }
 
@@ -196,13 +214,18 @@ export default class Positive extends Command {
 
   promptForServerValue = async (
     serverParameter: string | undefined,
+    noPrompt: boolean | undefined,
   ): Promise<string | undefined> => {
     const servers = await this.schema.getServers();
     const numServers = servers.length;
     let server = serverParameter;
 
     if (!server && numServers > 1) {
-      server = await cli.prompt('Please provide the server URL to use');
+      if (noPrompt) {
+        this.log('Server value is null or undefined.');
+      } else {
+        server = await cli.prompt('Please provide the server URL to use');
+      }
     }
 
     if (server && !this.isServerValid(server, servers)) {
@@ -236,6 +259,7 @@ export default class Positive extends Command {
   promptForSecurityValues = async (flags: {
     apiKey: string | undefined;
     bearerToken: string | undefined;
+    noPrompt: boolean | undefined;
   }): Promise<void> => {
     const securitySchemes = await this.schema.getSecuritySchemes();
     if (securitySchemes.length === 0) {
@@ -257,20 +281,26 @@ export default class Positive extends Command {
           scheme: scheme.scheme,
         };
       });
-    // Wrap if statements in loop to iterate over securities array to check for apiKey or bearer_token(s)
-    let apiKey = flags.apiKey;
+
+    const apiKey = flags.apiKey;
     let token = flags.bearerToken;
+    const noPrompt = flags.noPrompt;
     for (const security of securities) {
       if (security.type === OASSecurityType.APIKEY) {
         const apiSecurityName = security.key;
-        const apiKeyValue =
-          apiKey ??
-          // eslint-disable-next-line no-await-in-loop
-          (await cli.prompt('Please provide your API Key', {
-            type: 'mask',
-          }));
-        if (!apiKey) {
-          apiKey = apiKeyValue;
+        let apiKeyValue;
+        if (!noPrompt && !apiKey) {
+          apiKeyValue =
+            // eslint-disable-next-line no-await-in-loop
+            await cli.prompt('Please provide your API Key', {
+              type: 'mask',
+            });
+        } else {
+          apiKeyValue = apiKey;
+        }
+        // if apiKey is undefined, throw an error and provide a message to the user
+        if (!apiKeyValue) {
+          this.log('API key is undefined or empty.');
         }
 
         this.securityValues[apiSecurityName] = { value: apiKeyValue };
@@ -282,14 +312,20 @@ export default class Positive extends Command {
         security.type === OASSecurityType.OAUTH2
       ) {
         const tokenSecurityName = security.key;
-        const tokenValue =
-          token ??
-          // eslint-disable-next-line no-await-in-loop
-          (await cli.prompt('Please provide your token', {
-            type: 'mask',
-          }));
-        if (!token) {
+        let tokenValue;
+        if (!noPrompt && !token) {
+          tokenValue =
+            // eslint-disable-next-line no-await-in-loop
+            await cli.prompt('Please provide your token', {
+              type: 'mask',
+            });
           token = tokenValue;
+        } else {
+          tokenValue = token;
+        }
+
+        if (!tokenValue) {
+          this.log('Bearer token is undefined or empty.');
         }
 
         if (security.type === OASSecurityType.HTTP) {
