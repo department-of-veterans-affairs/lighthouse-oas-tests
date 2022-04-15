@@ -21,6 +21,10 @@ class ParameterSchemaValidator extends BaseValidator {
   }
 
   performValidation = (): void => {
+    if (this.operation.parameters === undefined) {
+      return;
+    }
+
     this.operation.parameters.forEach((parameter) => {
       this.checkParameterObject(parameter, ['parameters', parameter.name]);
     });

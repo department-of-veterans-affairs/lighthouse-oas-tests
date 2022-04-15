@@ -15,6 +15,7 @@ import { OASSecurityType } from '../utilities/oas-security';
 import OASServer from '../utilities/oas-server/oas-server';
 import {
   ParameterSchemaValidator,
+  RequestBodyValidator,
   ExampleGroupValidator,
   ResponseValidator,
 } from '../utilities/validators';
@@ -99,8 +100,8 @@ export default class Positive extends Command {
       this.operationExamples.map(async (operationExample) => {
         let failures: Map<string, ValidationFailure> = new Map();
         let warnings: Map<string, ValidationWarning> = new Map();
+        const { operation, exampleGroup, requestBody } = operationExample;
 
-        const { operation, exampleGroup } = operationExample;
         const parameterSchemaValidator = new ParameterSchemaValidator(
           operation,
         );
@@ -108,20 +109,25 @@ export default class Positive extends Command {
         failures = new Map([...failures, ...parameterSchemaValidator.failures]);
         warnings = new Map([...warnings, ...parameterSchemaValidator.warnings]);
 
-        const parameterValidator = new ExampleGroupValidator(
+        const requestBodyValidator = new RequestBodyValidator(operation);
+        requestBodyValidator.validate();
+        failures = new Map([...failures, ...requestBodyValidator.failures]);
+        warnings = new Map([...warnings, ...requestBodyValidator.warnings]);
+
+        const exampleGroupValidator = new ExampleGroupValidator(
           exampleGroup,
           operation,
         );
-        parameterValidator.validate();
-
-        failures = new Map([...failures, ...parameterValidator.failures]);
-        warnings = new Map([...warnings, ...parameterValidator.warnings]);
+        exampleGroupValidator.validate();
+        failures = new Map([...failures, ...exampleGroupValidator.failures]);
+        warnings = new Map([...warnings, ...exampleGroupValidator.warnings]);
 
         if (failures.size === 0) {
           const response = await this.schema.execute(
             operation,
             exampleGroup,
             this.securityValues,
+            requestBody,
             server,
           );
           if (response?.ok) {
@@ -174,6 +180,7 @@ export default class Positive extends Command {
           id: operationExampleId,
           operation,
           exampleGroup,
+          requestBody: operation.exampleRequestBody,
         });
       }
     }

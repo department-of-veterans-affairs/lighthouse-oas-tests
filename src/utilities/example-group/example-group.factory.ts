@@ -12,7 +12,10 @@ class ExampleGroupFactory {
   static buildFromOperation(operation: OASOperation): ExampleGroup[] | [] {
     const parameters = operation.parameters;
 
-    if (!parameters) return [];
+    if (!parameters) {
+      // create an empty default parameter group and return
+      return [new ExampleGroup(DEFAULT_PARAMETER_GROUP, {})];
+    }
 
     const groupNames = this.getGroupNames(parameters);
 

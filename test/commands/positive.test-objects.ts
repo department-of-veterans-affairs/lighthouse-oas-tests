@@ -95,8 +95,8 @@ const getTomBombadil: OperationObject = {
   ],
 };
 
-const walkIntoMordorSingleIntegerTest: OperationObject = {
-  operationId: 'walkIntoMordor',
+const walkIntoMordorSingleParameterInvalid: OperationObject = {
+  operationId: 'walkIntoMordorWithAnInvalidGuide',
   responses: defaultResponses,
   parameters: [
     {
@@ -111,7 +111,7 @@ const walkIntoMordorSingleIntegerTest: OperationObject = {
   ],
 };
 
-const walkIntoMordorSingleStringTest: OperationObject = {
+const walkIntoMordorSingleParameter: OperationObject = {
   operationId: 'walkIntoMordor',
   responses: defaultResponses,
   parameters: [
@@ -127,12 +127,12 @@ const walkIntoMordorSingleStringTest: OperationObject = {
   ],
 };
 
-const walkIntoMordorMultiIntegerTest: OperationObject = {
-  operationId: 'walkIntoMordor',
+const walkIntoMordorMultiParameterInvalid: OperationObject = {
+  operationId: 'walkIntoMordorWithAnInvalidDoor',
   responses: defaultResponses,
   parameters: [
     {
-      name: 'door',
+      name: 'doorWithAnInvalidExample',
       in: 'query',
       schema: {
         type: 'string',
@@ -158,7 +158,7 @@ const walkIntoMordorMultiIntegerTest: OperationObject = {
   ],
 };
 
-const walkIntoMordorMultiStringTest: OperationObject = {
+const walkIntoMordorMultiParameter: OperationObject = {
   operationId: 'walkIntoMordor',
   responses: defaultResponses,
   parameters: [
@@ -189,12 +189,104 @@ const walkIntoMordorMultiStringTest: OperationObject = {
   ],
 };
 
+const flyIntoMordorInvalid: OperationObject = {
+  operationId: 'flyIntoMordorWithInvalidCargo',
+  responses: defaultResponses,
+  requestBody: {
+    required: true,
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          required: ['eagle', 'hobbit', 'cargo', 'difficult'],
+          properties: {
+            eagle: {
+              type: 'string',
+              example: 'Gwaihir',
+            },
+            hobbit: {
+              type: 'string',
+              example: 'Frodo',
+            },
+            cargo: {
+              type: 'string',
+              example: 0,
+            },
+            difficult: {
+              type: 'string',
+              enum: ['Y', 'N'],
+              example: 'N',
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+const flyIntoMordorInvalidContent: OperationObject = {
+  operationId: 'flyIntoMordorWithMoreThanOneContent',
+  responses: defaultResponses,
+  requestBody: {
+    required: true,
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          required: [],
+        },
+      },
+      'text/plain': {
+        schema: {},
+      },
+    },
+  },
+};
+
+const flyIntoMordor: OperationObject = {
+  operationId: 'flyIntoMordor',
+  responses: defaultResponses,
+  requestBody: {
+    required: true,
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          required: ['eagle', 'hobbit', 'cargo', 'difficult'],
+          properties: {
+            eagle: {
+              type: 'string',
+              example: 'Gwaihir',
+            },
+            hobbit: {
+              type: 'string',
+              example: 'Frodo',
+            },
+            cargo: {
+              type: 'string',
+              example: 'The One Ring',
+            },
+            difficult: {
+              type: 'string',
+              enum: ['Y', 'N'],
+              example: 'N',
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
 export {
   getHobbit,
   getHobbits,
   getTomBombadil,
-  walkIntoMordorSingleIntegerTest,
-  walkIntoMordorSingleStringTest,
-  walkIntoMordorMultiIntegerTest,
-  walkIntoMordorMultiStringTest,
+  walkIntoMordorSingleParameterInvalid,
+  walkIntoMordorSingleParameter,
+  walkIntoMordorMultiParameterInvalid,
+  walkIntoMordorMultiParameter,
+  flyIntoMordorInvalid,
+  flyIntoMordorInvalidContent,
+  flyIntoMordor,
 };

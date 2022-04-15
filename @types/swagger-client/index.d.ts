@@ -16,6 +16,7 @@ declare module 'swagger-client' {
     parameters: { [name: string]: Json };
     operationId: string;
     securities?: Securities;
+    requestBody?: RequestBody;
     server?: string;
     requestInterceptor?: (request: Request) => Request;
   }
@@ -33,6 +34,8 @@ declare module 'swagger-client' {
     headers: { [header: string]: string };
     body: Json;
   }
+
+  export type RequestBody = { [name: string]: Json };
 
   type Api = {
     [operationId: string]: (options: {

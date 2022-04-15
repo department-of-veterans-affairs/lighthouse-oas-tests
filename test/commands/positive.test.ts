@@ -6,10 +6,13 @@ import {
   getHobbit,
   getHobbits,
   getTomBombadil,
-  walkIntoMordorSingleIntegerTest,
-  walkIntoMordorSingleStringTest,
-  walkIntoMordorMultiIntegerTest,
-  walkIntoMordorMultiStringTest,
+  walkIntoMordorSingleParameterInvalid,
+  walkIntoMordorSingleParameter,
+  walkIntoMordorMultiParameterInvalid,
+  walkIntoMordorMultiParameter,
+  flyIntoMordorInvalid,
+  flyIntoMordorInvalidContent,
+  flyIntoMordor,
 } from './positive.test-objects';
 
 const mockGetOperations = jest.fn();
@@ -48,7 +51,7 @@ describe('Positive', () => {
     mockPrompt.mockReset();
     mockGetOperations.mockReset();
     mockGetOperations.mockResolvedValue([
-      new OASOperation(walkIntoMordorSingleStringTest, [
+      new OASOperation(walkIntoMordorSingleParameter, [
         { 'boromir-security': [] },
       ]),
       new OASOperation(getHobbit, [{ 'boromir-security': [] }]),
@@ -87,12 +90,13 @@ describe('Positive', () => {
 
   describe('OAS operation has parameter groups', () => {
     it('does not execute a request for a parameter group that fails parameter validation', async () => {
-      const operation1 = new OASOperation(walkIntoMordorMultiIntegerTest);
+      const operation1 = new OASOperation(walkIntoMordorMultiParameterInvalid);
       const operation2 = new OASOperation(getHobbit);
       const operation3 = new OASOperation(getTomBombadil);
       mockGetOperations.mockResolvedValue([operation1, operation2, operation3]);
 
       const security = {};
+      const requestBody = {};
 
       await expect(async () => {
         await Positive.run(['http://urldoesnotmatter.com']);
@@ -102,6 +106,7 @@ describe('Positive', () => {
         operation1,
         operation1.exampleGroups[0],
         security,
+        requestBody,
         undefined,
       );
 
@@ -109,6 +114,7 @@ describe('Positive', () => {
         operation1,
         operation1.exampleGroups[1],
         security,
+        requestBody,
         undefined,
       );
 
@@ -116,6 +122,7 @@ describe('Positive', () => {
         operation2,
         operation2.exampleGroups[0],
         security,
+        requestBody,
         undefined,
       );
 
@@ -123,12 +130,13 @@ describe('Positive', () => {
         operation3,
         operation3.exampleGroups[0],
         security,
+        requestBody,
         undefined,
       );
     });
 
     it('Validate response(s) for each parameter group', async () => {
-      const operation1 = new OASOperation(walkIntoMordorMultiStringTest);
+      const operation1 = new OASOperation(walkIntoMordorMultiParameter);
       const operation2 = new OASOperation(getHobbit);
       const operation3 = new OASOperation(getTomBombadil);
       mockGetOperations.mockResolvedValue([operation1, operation2, operation3]);
@@ -156,6 +164,55 @@ describe('Positive', () => {
         'walkIntoMordor - default: Succeeded\n',
         'getHobbit - default: Succeeded\n',
         'getTomBombadil - default: Succeeded\n',
+      ]);
+    });
+  });
+
+  describe('OAS operation has a request body', () => {
+    it('does not execute a request for a request body that fails parameter validation', async () => {
+      const operation1 = new OASOperation(flyIntoMordorInvalid);
+      const operation2 = new OASOperation(flyIntoMordor);
+      mockGetOperations.mockResolvedValue([operation1, operation2]);
+
+      const security = {};
+
+      await expect(async () => {
+        await Positive.run(['http://urldoesnotmatter.com']);
+      }).rejects.toThrow('1 operation failed');
+
+      expect(mockExecute).not.toHaveBeenCalledWith(
+        operation1,
+        operation1.exampleGroups[0],
+        security,
+        operation1.exampleRequestBody,
+        undefined,
+      );
+
+      expect(mockExecute).toHaveBeenCalledWith(
+        operation2,
+        operation2.exampleGroups[0],
+        security,
+        operation2.exampleRequestBody,
+        undefined,
+      );
+    });
+
+    it('Validate response(s) for each request body', async () => {
+      const operation1 = new OASOperation(flyIntoMordorInvalid);
+      const operation2 = new OASOperation(flyIntoMordorInvalidContent);
+      const operation3 = new OASOperation(flyIntoMordor);
+      mockGetOperations.mockResolvedValue([operation1, operation2, operation3]);
+
+      await expect(async () => {
+        await Positive.run(['http://urldoesnotmatter.com']);
+      }).rejects.toThrow('2 operations failed');
+
+      expect(result).toEqual([
+        'flyIntoMordorWithInvalidCargo - default: Failed\n',
+        '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: requestBody -> example -> cargo. Found 1 time\n',
+        'flyIntoMordorWithMoreThanOneContent - default: Failed\n',
+        '  - The properties property is required for object schemas. Path: requestBody -> example. Found 1 time\n',
+        'flyIntoMordor - default: Succeeded\n',
       ]);
     });
   });
@@ -244,6 +301,7 @@ describe('Positive', () => {
           operation,
           operation.exampleGroups[0],
           {},
+          {},
           'https://lotr.com/services/the-fellowship/v0',
         );
       });
@@ -280,6 +338,7 @@ describe('Positive', () => {
             operation,
             operation.exampleGroups[0],
             {},
+            {},
             undefined,
           );
         });
@@ -302,6 +361,7 @@ describe('Positive', () => {
           expect(mockExecute).toHaveBeenCalledWith(
             operation,
             operation.exampleGroups[0],
+            {},
             {},
             'https://lotr.com/services/the-fellowship/v0',
           );
@@ -476,7 +536,7 @@ describe('Positive', () => {
 
     it('On parameter validation failure, output operation failure', async () => {
       mockGetOperations.mockResolvedValue([
-        new OASOperation(walkIntoMordorSingleIntegerTest),
+        new OASOperation(walkIntoMordorSingleParameterInvalid),
       ]);
 
       await expect(async () => {
@@ -484,7 +544,7 @@ describe('Positive', () => {
       }).rejects.toThrow('1 operation failed');
 
       expect(result).toEqual([
-        'walkIntoMordor - default: Failed\n',
+        'walkIntoMordorWithAnInvalidGuide - default: Failed\n',
         '  - Actual type did not match schema. Schema type: string. Actual type: number. Path: parameters -> guide -> example. Found 1 time\n',
       ]);
     });

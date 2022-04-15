@@ -1,5 +1,6 @@
 import swaggerClient, {
   ExecuteOptions,
+  RequestBody,
   Response,
   Security,
   Swagger,
@@ -28,6 +29,7 @@ class OASSchema {
     operation: OASOperation,
     exampleGroup: ExampleGroup,
     securities: Security,
+    requestBody: RequestBody,
     server: string | undefined,
   ): Promise<Response> => {
     const schema = await this._client;
@@ -38,6 +40,10 @@ class OASSchema {
         authorized: securities,
       },
     };
+
+    if (Object.keys(requestBody).length > 0) {
+      options = { requestBody, ...options };
+    }
 
     if (server) {
       options = { server, ...options };

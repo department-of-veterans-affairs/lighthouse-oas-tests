@@ -1,5 +1,5 @@
 import loadJsonFile from 'load-json-file';
-import { Swagger, Security } from 'swagger-client';
+import { Swagger, Security, RequestBody } from 'swagger-client';
 import OASOperation from '../../../src/utilities/oas-operation';
 import OASSchema from '../../../src/utilities/oas-schema';
 import OASServer from '../../../src/utilities/oas-server/oas-server';
@@ -82,10 +82,17 @@ describe('OASSchema', () => {
 
       const [exampleGroup] = operation.exampleGroups;
       const securities: Security = {};
+      const requestBody: RequestBody = {};
       const server =
         'https://sandbox-api.va.gov/services/va_facilities/{version}';
 
-      await schema.execute(operation, exampleGroup, securities, server);
+      await schema.execute(
+        operation,
+        exampleGroup,
+        securities,
+        requestBody,
+        server,
+      );
 
       expect(executeMock).toHaveBeenCalledWith({
         operationId: 'getFacilityById',
