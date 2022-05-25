@@ -1,0 +1,272 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "0.0.0",
+    "title": "Harry Potter Characters",
+    "description": "An API for Harry Potter Characters\n",
+    "contact": {
+      "name": "Quokka"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://sandbox-hp.com/services/characters/{version}",
+      "description": "API sandbox environment",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    },
+    {
+      "url": "https://hp.com/services/characters/{version}",
+      "description": "API production environment",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/students/{last_name}": {
+      "get": {
+        "summary": "Find students by last name",
+        "description": "Returns an array of students matching the last name provided",
+        "operationId": "GET:/students/{last_name}",
+        "security": [
+          {
+            "apikey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "last_name",
+            "in": "path",
+            "description": "The last name of the students being requested",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "Weasley"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data"],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Student"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/students/{id}": {
+      "get": {
+        "summary": "Get student by id",
+        "description": "Gets the student matching the provided id",
+        "operationId": "GET:/students/{id}",
+        "security": [
+          {
+            "teacher": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the student to be updated",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "123456"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data"],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Student"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Student": {
+        "description": "Data for a particular student",
+        "properties": {
+          "id": {
+            "description": "Identifier",
+            "type": "string",
+            "example": "123456"
+          },
+          "first_name": {
+            "type": "string",
+            "example": "Ron"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Weasley"
+          },
+          "house": {
+            "type": "string",
+            "enum": ["Ravenclaw", "Hufflepuff", "Gryffindor", "Slytherin"],
+            "example": "Gryffindor"
+          },
+          "year": {
+            "description": "Year in school",
+            "type": "integer",
+            "example": 1
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "apikey": {
+        "type": "apiKey",
+        "name": "apikey",
+        "in": "header"
+      },
+      "teacher": {
+        "type": "apiKey",
+        "name": "teacherapikey",
+        "in": "header"
+      }
+    }
+  }
+}

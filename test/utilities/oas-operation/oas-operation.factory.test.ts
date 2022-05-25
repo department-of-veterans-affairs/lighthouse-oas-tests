@@ -7,7 +7,6 @@ describe('OASOperationFactory', () => {
         '/hobbits/all': {
           get: {
             operationId: 'getAllHobbits',
-            parameters: [],
             responses: {},
           },
         },
@@ -22,12 +21,10 @@ describe('OASOperationFactory', () => {
         '/hobbits': {
           get: {
             operationId: 'getAHobbit',
-            parameters: [],
             responses: {},
           },
           post: {
             operationId: 'postAHobbit',
-            parameters: [],
             responses: {},
           },
         },
@@ -43,19 +40,16 @@ describe('OASOperationFactory', () => {
         '/hobbits': {
           get: {
             operationId: 'getAHobbit',
-            parameters: [],
             responses: {},
           },
           post: {
             operationId: 'postAHobbit',
-            parameters: [],
             responses: {},
           },
         },
         '/hobbits/all': {
           get: {
             operationId: 'getAllHobbits',
-            parameters: [],
             responses: {},
           },
         },
