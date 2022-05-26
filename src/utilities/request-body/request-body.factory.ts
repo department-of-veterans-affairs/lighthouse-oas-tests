@@ -14,6 +14,10 @@ class RequestBodyFactory {
     const [key] = Object.keys(content);
     const schema = content[key].schema;
 
+    if (!schema) {
+      return {};
+    }
+
     const requiredProperties = schema.required;
 
     if (requiredProperties && schema.properties) {
