@@ -1,19 +1,19 @@
 import OASSchema from '../../src/utilities/oas-schema';
-import ValidationConductor from '../../src/validation-conductors';
+import { ValidationConductor } from '../../src/validation-conductors';
 import {
   emptyFailureMap,
   requestBodyFailureMap,
-  twoFailureMap,
+  responseFailuresMap,
 } from '../fixtures/results/failures';
 import {
-  noRequestValidationFailuresOperationExampleResult,
-  requestValidationFailuresOperationExampleResult,
+  operationExampleResultNoRequestValidationFailures,
+  operationExampleResultRequestValidationFailures,
 } from '../fixtures/results/operation-example-results';
 import {
   requestBodyWarningMap,
-  twoWarningMap,
+  responseWarningsMap,
 } from '../fixtures/results/warnings';
-import { harryPotterDefaultOperationExample } from '../fixtures/utilities/operation-examples';
+import { operationExampleSimpleGetDefault } from '../fixtures/utilities/operation-examples';
 import { securityValuesAPIKeyBearerOauth } from '../fixtures/utilities/security-values';
 
 const mockRequestValidate = jest.fn();
@@ -70,7 +70,7 @@ describe('ValidationConductor', () => {
 
     const validationConductor = new ValidationConductor(
       oasSchema,
-      harryPotterDefaultOperationExample,
+      operationExampleSimpleGetDefault,
       securityValuesAPIKeyBearerOauth,
       undefined,
     );
@@ -92,7 +92,7 @@ describe('ValidationConductor', () => {
         const operationExampleResult = await validationConductor.validate();
 
         expect(operationExampleResult).toEqual(
-          requestValidationFailuresOperationExampleResult,
+          operationExampleResultRequestValidationFailures,
         );
       });
     });
@@ -104,7 +104,10 @@ describe('ValidationConductor', () => {
           requestBodyWarningMap,
         ]);
 
-        mockResponseValidate.mockReturnValue([twoFailureMap, twoWarningMap]);
+        mockResponseValidate.mockReturnValue([
+          responseFailuresMap,
+          responseWarningsMap,
+        ]);
       });
 
       it('executes an API call', async () => {
@@ -116,7 +119,7 @@ describe('ValidationConductor', () => {
         const operationExampleResult = await validationConductor.validate();
 
         expect(operationExampleResult).toEqual(
-          noRequestValidationFailuresOperationExampleResult,
+          operationExampleResultNoRequestValidationFailures,
         );
       });
     });

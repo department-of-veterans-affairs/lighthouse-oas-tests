@@ -1,6 +1,6 @@
 import { RequestBodyObject } from 'swagger-client';
 
-export const validRequestBody: RequestBodyObject = {
+export const requestBodyValid: RequestBodyObject = {
   required: true,
   content: {
     'application/json': {
@@ -38,7 +38,7 @@ export const requestBodyMissingSchema: RequestBodyObject = {
   },
 } as unknown as RequestBodyObject;
 
-export const requestBodyWithBadExamples: RequestBodyObject = {
+export const requestBodyWithFailures: RequestBodyObject = {
   required: true,
   content: {
     'application/json': {

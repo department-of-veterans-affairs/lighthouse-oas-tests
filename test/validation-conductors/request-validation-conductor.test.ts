@@ -9,8 +9,8 @@ import {
   emptyWarningMap,
   requestBodyWarningMap,
 } from '../fixtures/results/warnings';
-import { emptyDefaultExampleGroup } from '../fixtures/utilities/example-groups';
-import { harryPotterOperation } from '../fixtures/utilities/oas-operations';
+import { exampleGroupEmptyDefault } from '../fixtures/utilities/example-groups';
+import { operationSimpleGet } from '../fixtures/utilities/oas-operations';
 
 const mockParameterValidate = jest.fn();
 const mockRequestBodyValidate = jest.fn();
@@ -71,8 +71,8 @@ describe('RequestValidationConductor', () => {
       ]);
 
       const requestValidationConductor = new RequestValidationConductor(
-        harryPotterOperation,
-        emptyDefaultExampleGroup,
+        operationSimpleGet,
+        exampleGroupEmptyDefault,
       );
       const [failures, warnings] = requestValidationConductor.validate();
 

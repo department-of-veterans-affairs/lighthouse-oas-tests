@@ -1,9 +1,9 @@
 import { PositiveBatchConductor } from '../../src/conductors';
-import FileIn from '../../src/utilities/file-in';
+import { FileIn } from '../../src/utilities/file-in';
 import { configWithOneMissingPath } from '../fixtures/configs/configs';
 import {
-  missingPathOASResult,
-  oasResultWithError,
+  oasResultMissingPath,
+  oasResultError,
   oasResultMixedResults,
 } from '../fixtures/results/oas-results';
 
@@ -51,9 +51,9 @@ describe('PositiveBatchConductor', () => {
       const results = await positiveBatchConductor.conduct();
 
       expect(results.length).toBe(3);
-      expect(results).toContainEqual(missingPathOASResult);
+      expect(results).toContainEqual(oasResultMissingPath);
       expect(results).toContainEqual(oasResultMixedResults);
-      expect(results).toContainEqual(oasResultWithError);
+      expect(results).toContainEqual(oasResultError);
     });
   });
 });

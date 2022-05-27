@@ -1,63 +1,62 @@
 import { OASResult } from '../../../src/results';
 import {
-  harryPotterDefaultOperationExampleResult,
-  harryPotterDefaultResultString,
-  heWhoMustNotBeNamedTomRiddleOperationExampleResult,
-  heWhoMustNotBeNamedTomRiddleResultString,
-  heWhoMustNotBeNamedVoldermortOperationExampleResult,
-  heWhoMustNotBeNamedVoldermortResultString,
-  ronWeasleyDefaultOperationExampleResult,
-  ronWeasleyDefaultResultString,
+  operationExampleResultFailuresWarnings,
+  operationExampleResultFailuresWarningsString,
+  operationExampleResultFailuresNoWarnings,
+  operationExampleResultFailuresNoWarningsString,
+  operationExampleResultNoFailuresWarnings,
+  operationExampleResultNoFailuresWarningsString,
 } from './operation-example-results';
 
 export const oasResultSuccess = new OASResult(
   'winterfell',
-  [heWhoMustNotBeNamedVoldermortOperationExampleResult],
+  [operationExampleResultNoFailuresWarnings],
   undefined,
 );
 
 export const oasResultSuccessString =
-  'winterfell: Succeeded\n' + heWhoMustNotBeNamedVoldermortResultString;
+  'winterfell: Succeeded\n' + operationExampleResultNoFailuresWarningsString;
 
 export const oasResultFailure = new OASResult(
   'riverrun',
-  [harryPotterDefaultOperationExampleResult],
+  [operationExampleResultFailuresWarnings],
   undefined,
 );
 
 export const oasResultFailureString =
-  'riverrun: 1/1 operation failed\n' + harryPotterDefaultResultString;
+  'riverrun: 1/1 operation failed\n' +
+  operationExampleResultFailuresWarningsString;
 
 export const oasResultMixedResults = new OASResult(
   'dragonstone',
   [
-    harryPotterDefaultOperationExampleResult,
-    heWhoMustNotBeNamedTomRiddleOperationExampleResult,
-    heWhoMustNotBeNamedVoldermortOperationExampleResult,
+    operationExampleResultFailuresWarnings,
+    operationExampleResultFailuresNoWarnings,
+    operationExampleResultNoFailuresWarnings,
   ],
   undefined,
 );
 
 export const oasResultMixedResultsString =
   'dragonstone: 2/3 operations failed\n' +
-  harryPotterDefaultResultString +
-  heWhoMustNotBeNamedTomRiddleResultString +
-  heWhoMustNotBeNamedVoldermortResultString;
+  operationExampleResultFailuresWarningsString +
+  operationExampleResultFailuresNoWarningsString +
+  operationExampleResultNoFailuresWarningsString;
 
-export const oasResultWithError = new OASResult(
+export const oasResultError = new OASResult(
   'stormsend',
   undefined,
   'Server value must be specified if OAS contains more than one server',
 );
 
-export const oasResultWithErrorString =
+export const oasResultErrorString =
   'stormsend: Skipped - Server value must be specified if OAS contains more than one server\n';
 
-export const missingPathOASResult = new OASResult(
+export const oasResultMissingPath = new OASResult(
   'kinglanding',
   undefined,
   'Config kinglanding missing path',
 );
 
-export const missingPathOASResultString =
+export const oasResultMissingPathString =
   'kinglanding: Skipped - Config kinglanding missing path\n';

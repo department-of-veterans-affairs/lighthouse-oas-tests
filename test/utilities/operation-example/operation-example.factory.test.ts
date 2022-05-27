@@ -1,30 +1,28 @@
 import { OperationExampleFactory } from '../../../src/utilities/operation-example';
 import {
-  harryPotterOperation,
-  heWhoMustNotBeNamedOperation,
+  operationSimpleGet,
+  operationGetWithExampleGroups,
 } from '../../fixtures/utilities/oas-operations';
 import {
-  harryPotterDefaultOperationExample,
-  heWhoMustNotBeNamedDefaultOperationExample,
-  heWhoMustNotBeNamedTomRiddleOperationExample,
+  operationExampleSimpleGetDefault,
+  operationExampleDefaultExGroup,
+  operationExampleTomRiddleExGroup,
 } from '../../fixtures/utilities/operation-examples';
 
 describe('OperationExampleFactory', () => {
   describe('buildFromOperations', () => {
     it('returns the expected OperationExamples', () => {
       const operationExamples = OperationExampleFactory.buildFromOperations([
-        harryPotterOperation,
-        heWhoMustNotBeNamedOperation,
+        operationSimpleGet,
+        operationGetWithExampleGroups,
       ]);
       expect(operationExamples).toHaveLength(3);
       expect(operationExamples).toContainEqual(
-        harryPotterDefaultOperationExample,
+        operationExampleSimpleGetDefault,
       );
+      expect(operationExamples).toContainEqual(operationExampleDefaultExGroup);
       expect(operationExamples).toContainEqual(
-        heWhoMustNotBeNamedDefaultOperationExample,
-      );
-      expect(operationExamples).toContainEqual(
-        heWhoMustNotBeNamedTomRiddleOperationExample,
+        operationExampleTomRiddleExGroup,
       );
     });
   });

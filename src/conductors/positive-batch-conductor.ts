@@ -1,7 +1,7 @@
-import FileIn from '../utilities/file-in';
 import { OASResult } from '../results';
 import PositiveConductor from './positive-conductor';
 import { Config } from '../config';
+import { FileIn } from '../utilities/file-in';
 
 export default class PositiveBatchConductor {
   private config: Config;

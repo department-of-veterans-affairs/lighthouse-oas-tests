@@ -1,20 +1,17 @@
 import { PositiveConductor } from '../../src/conductors';
-import FileIn from '../../src/utilities/file-in';
+import { FileIn } from '../../src/utilities/file-in';
+import OASServer from '../../src/utilities/oas-server/oas-server';
 import { OperationExampleFactory } from '../../src/utilities/operation-example';
 import {
-  harryPotterDefaultOperationExampleResult,
-  heWhoMustNotBeNamedTomRiddleOperationExampleResult,
-  heWhoMustNotBeNamedVoldermortOperationExampleResult,
+  operationExampleResultFailuresWarnings,
+  operationExampleResultFailuresNoWarnings,
+  operationExampleResultNoFailuresWarnings,
 } from '../fixtures/results/operation-example-results';
-import { apiKeyScheme } from '../fixtures/utilities/oas-security-schemes';
+import { securitySchemeAPIKey } from '../fixtures/utilities/oas-security-schemes';
 import {
-  chamberOfSecretsServer,
-  prisonerOfAzkabanServer,
-} from '../fixtures/utilities/oas-servers';
-import {
-  harryPotterDefaultOperationExample,
-  heWhoMustNotBeNamedTomRiddleOperationExample,
-  heWhoMustNotBeNamedDefaultOperationExample,
+  operationExampleSimpleGetDefault,
+  operationExampleTomRiddleExGroup,
+  operationExampleDefaultExGroup,
 } from '../fixtures/utilities/operation-examples';
 
 const mockGetServers = jest.fn();
@@ -77,6 +74,13 @@ describe('PositiveConductor', () => {
   });
 
   describe('conduct', () => {
+    const chamberOfSecretsServer = new OASServer(
+      'https://the-chamber-of-secrets.com',
+    );
+    const prisonerOfAzkabanServer = new OASServer(
+      'https://the-prisoner-of-azkaban.com',
+    );
+
     describe('validateServerOption', () => {
       beforeEach(() => {
         mockGetServers.mockResolvedValue([
@@ -123,22 +127,22 @@ describe('PositiveConductor', () => {
 
     it('returns an OASResult', async () => {
       mockGetServers.mockResolvedValue([chamberOfSecretsServer]);
-      mockGetRelevantSecuritySchemes.mockResolvedValue([apiKeyScheme]);
+      mockGetRelevantSecuritySchemes.mockResolvedValue([securitySchemeAPIKey]);
 
       mockBuildFromOperations.mockReturnValue([
-        harryPotterDefaultOperationExample,
-        heWhoMustNotBeNamedTomRiddleOperationExample,
-        heWhoMustNotBeNamedDefaultOperationExample,
+        operationExampleSimpleGetDefault,
+        operationExampleTomRiddleExGroup,
+        operationExampleDefaultExGroup,
       ]);
 
       mockValidate.mockResolvedValueOnce(
-        harryPotterDefaultOperationExampleResult,
+        operationExampleResultFailuresWarnings,
       );
       mockValidate.mockResolvedValueOnce(
-        heWhoMustNotBeNamedTomRiddleOperationExampleResult,
+        operationExampleResultFailuresNoWarnings,
       );
       mockValidate.mockResolvedValueOnce(
-        heWhoMustNotBeNamedVoldermortOperationExampleResult,
+        operationExampleResultNoFailuresWarnings,
       );
 
       const testOptions = {
@@ -152,13 +156,13 @@ describe('PositiveConductor', () => {
       expect(oasResult.testName).toEqual('test');
       expect(oasResult.results?.length).toBe(3);
       expect(oasResult.results).toContainEqual(
-        harryPotterDefaultOperationExampleResult,
+        operationExampleResultFailuresWarnings,
       );
       expect(oasResult.results).toContainEqual(
-        heWhoMustNotBeNamedTomRiddleOperationExampleResult,
+        operationExampleResultFailuresNoWarnings,
       );
       expect(oasResult.results).toContainEqual(
-        heWhoMustNotBeNamedVoldermortOperationExampleResult,
+        operationExampleResultNoFailuresWarnings,
       );
       expect(oasResult.error).toBeUndefined();
     });

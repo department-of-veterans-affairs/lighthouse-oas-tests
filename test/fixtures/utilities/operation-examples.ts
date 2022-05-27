@@ -1,31 +1,26 @@
 import { OperationExample } from '../../../src/utilities/operation-example';
-import ExampleGroup from '../../../src/utilities/example-group';
 import {
-  harryPotterOperation,
-  heWhoMustNotBeNamedOperation,
+  operationSimpleGet,
+  operationGetWithExampleGroups,
 } from './oas-operations';
 import {
-  defaultExampleGroup,
-  emptyDefaultExampleGroup,
-  tomRiddleExampleGroup,
+  exampleGroupDefault,
+  exampleGroupEmptyDefault,
+  exampleGroupTomRiddle,
 } from './example-groups';
 
-export const harryPotterDefaultOperationExample = new OperationExample(
-  'GET:/harryPotter:default',
-  harryPotterOperation,
-  emptyDefaultExampleGroup,
+export const operationExampleSimpleGetDefault = new OperationExample(
+  operationSimpleGet,
+  exampleGroupEmptyDefault,
   {},
 );
-export const heWhoMustNotBeNamedTomRiddleOperationExample =
-  new OperationExample(
-    'GET:/he-who-must-not-be-named:tomRiddle',
-    heWhoMustNotBeNamedOperation,
-    tomRiddleExampleGroup,
-    {},
-  );
-export const heWhoMustNotBeNamedDefaultOperationExample = new OperationExample(
-  'GET:/he-who-must-not-be-named:default',
-  heWhoMustNotBeNamedOperation,
-  defaultExampleGroup,
+export const operationExampleTomRiddleExGroup = new OperationExample(
+  operationGetWithExampleGroups,
+  exampleGroupTomRiddle,
+  {},
+);
+export const operationExampleDefaultExGroup = new OperationExample(
+  operationGetWithExampleGroups,
+  exampleGroupDefault,
   {},
 );

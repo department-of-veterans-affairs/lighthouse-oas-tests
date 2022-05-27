@@ -1,15 +1,15 @@
 import PositiveBatch from '../../src/commands/positive-batch';
 import {
-  missingPathOASResult,
-  missingPathOASResultString,
+  oasResultMissingPath,
+  oasResultMissingPathString,
   oasResultFailure,
   oasResultFailureString,
   oasResultMixedResults,
   oasResultMixedResultsString,
   oasResultSuccess,
   oasResultSuccessString,
-  oasResultWithError,
-  oasResultWithErrorString,
+  oasResultError,
+  oasResultErrorString,
 } from '../fixtures/results/oas-results';
 
 const mockConduct = jest.fn();
@@ -73,7 +73,7 @@ describe('PositiveBatch', () => {
   describe('all tests are skipped', () => {
     describe('one test', () => {
       beforeEach(() => {
-        mockConduct.mockResolvedValue([oasResultWithError]);
+        mockConduct.mockResolvedValue([oasResultError]);
       });
 
       it('outputs test results as expected', async () => {
@@ -81,7 +81,7 @@ describe('PositiveBatch', () => {
           PositiveBatch.run(['pathDoesNotMatter.json']),
         ).rejects.toThrow('0/1 test failed; 1/1 test skipped; 0/1 test passed');
 
-        expect(result).toEqual([oasResultWithErrorString + '\n']);
+        expect(result).toEqual([oasResultErrorString + '\n']);
       });
     });
   });
@@ -108,7 +108,7 @@ describe('PositiveBatch', () => {
         oasResultSuccess,
         oasResultFailure,
         oasResultMixedResults,
-        missingPathOASResult,
+        oasResultMissingPath,
       ]);
     });
 
@@ -123,7 +123,7 @@ describe('PositiveBatch', () => {
         oasResultSuccessString + '\n',
         oasResultFailureString + '\n',
         oasResultMixedResultsString + '\n',
-        missingPathOASResultString + '\n',
+        oasResultMissingPathString + '\n',
       ]);
     });
   });

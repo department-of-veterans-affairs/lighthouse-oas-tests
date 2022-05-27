@@ -1,1 +1,1 @@
-export { default } from './security-values.factory';
+export { default as SecurityValuesFactory } from './security-values.factory';

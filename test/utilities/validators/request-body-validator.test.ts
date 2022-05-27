@@ -1,14 +1,14 @@
 import { RequestBodyValidator } from '../../../src/utilities/validators';
 import {
-  harryPotterOperation,
-  updateStudentRequestBodyMissingSchemaOperation,
-  updateStudentRequestBodyWithBadExamplesOperation,
-  updateStudentValidRequestBodyOperation,
+  operationSimpleGet,
+  operationPutStudentRequestBodyMissingSchema,
+  operationPutStudentRequestBodyFailures,
+  operationPutStudentValidRequestBody,
 } from '../../fixtures/utilities/oas-operations';
 
 describe('RequestBodyValidator', () => {
   it('contains no failures or warnings when the operation does not have a request body', () => {
-    const validator = new RequestBodyValidator(harryPotterOperation);
+    const validator = new RequestBodyValidator(operationSimpleGet);
     validator.validate();
 
     expect(validator.failures.size).toEqual(0);
@@ -17,7 +17,7 @@ describe('RequestBodyValidator', () => {
 
   it('contains no failures or warnings for a valid request body', () => {
     const validator = new RequestBodyValidator(
-      updateStudentValidRequestBodyOperation,
+      operationPutStudentValidRequestBody,
     );
     validator.validate();
 
@@ -27,7 +27,7 @@ describe('RequestBodyValidator', () => {
 
   it('adds a validation failure if content does not contain a schema object', () => {
     const validator = new RequestBodyValidator(
-      updateStudentRequestBodyMissingSchemaOperation,
+      operationPutStudentRequestBodyMissingSchema,
     );
     validator.validate();
 
@@ -43,7 +43,7 @@ describe('RequestBodyValidator', () => {
 
   it('adds validation failures and warnings from validateObjectAgainstSchema', () => {
     const validator = new RequestBodyValidator(
-      updateStudentRequestBodyWithBadExamplesOperation,
+      operationPutStudentRequestBodyFailures,
     );
     validator.validate();
 

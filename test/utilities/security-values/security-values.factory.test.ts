@@ -1,8 +1,8 @@
-import SecurityValuesFactory from '../../../src/utilities/security-values';
+import { SecurityValuesFactory } from '../../../src/utilities/security-values';
 import {
-  apiKeyScheme,
-  httpBearerScheme,
-  oauthScheme,
+  securitySchemeAPIKey,
+  securitySchemeHTTPBearer,
+  securitySchemeOauth,
 } from '../../fixtures/utilities/oas-security-schemes';
 import { securityValuesAPIKeyBearerOauth } from '../../fixtures/utilities/security-values';
 
@@ -20,7 +20,7 @@ describe('SecurityValuesFactory', () => {
     it('throws an error if there is an apiKey security scheme and apiKey is undefined', () => {
       expect(() =>
         SecurityValuesFactory.buildFromSecuritySchemes(
-          [apiKeyScheme],
+          [securitySchemeAPIKey],
           undefined,
           'token',
         ),
@@ -32,7 +32,7 @@ describe('SecurityValuesFactory', () => {
     it('throws an error if there is an http bearer security scheme and token is undefined', () => {
       expect(() =>
         SecurityValuesFactory.buildFromSecuritySchemes(
-          [httpBearerScheme],
+          [securitySchemeHTTPBearer],
           'apikey',
           undefined,
         ),
@@ -43,7 +43,7 @@ describe('SecurityValuesFactory', () => {
 
     it('returns the expected SecurityValues object', () => {
       const securityValues = SecurityValuesFactory.buildFromSecuritySchemes(
-        [apiKeyScheme, httpBearerScheme, oauthScheme],
+        [securitySchemeAPIKey, securitySchemeHTTPBearer, securitySchemeOauth],
         'apikey',
         'token',
       );

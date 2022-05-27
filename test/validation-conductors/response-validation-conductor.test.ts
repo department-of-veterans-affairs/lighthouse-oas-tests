@@ -1,7 +1,7 @@
 import { ResponseValidationConductor } from '../../src/validation-conductors';
-import { twoFailureMap } from '../fixtures/results/failures';
-import { oneWarningMap } from '../fixtures/results/warnings';
-import { harryPotterOperation } from '../fixtures/utilities/oas-operations';
+import { responseFailuresMap } from '../fixtures/results/failures';
+import { responseOneWarningMap } from '../fixtures/results/warnings';
+import { operationSimpleGet } from '../fixtures/utilities/oas-operations';
 
 const mockValidate = jest.fn();
 
@@ -11,8 +11,8 @@ jest.mock('../../src/utilities/validators/response-validator', () => {
     default: jest.fn().mockImplementation(() => {
       return {
         validate: mockValidate,
-        failures: twoFailureMap,
-        warnings: oneWarningMap,
+        failures: responseFailuresMap,
+        warnings: responseOneWarningMap,
       };
     }),
   };
@@ -33,7 +33,7 @@ describe('ResponseValidationConductor', () => {
 
       const responseValidationConductor = new ResponseValidationConductor(
         response,
-        harryPotterOperation,
+        operationSimpleGet,
       );
       const [failures, warnings] = responseValidationConductor.validate();
 
@@ -59,7 +59,7 @@ describe('ResponseValidationConductor', () => {
 
       const responseValidationConductor = new ResponseValidationConductor(
         response,
-        harryPotterOperation,
+        operationSimpleGet,
       );
       const [failures, warnings] = responseValidationConductor.validate();
 

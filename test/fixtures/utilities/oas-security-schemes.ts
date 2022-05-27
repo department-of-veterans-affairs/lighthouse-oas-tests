@@ -1,23 +1,23 @@
 import { OASSecurityScheme } from '../../../src/utilities/oas-security';
 
-export const apiKeyScheme = new OASSecurityScheme('apikey', {
+export const securitySchemeAPIKey = new OASSecurityScheme('apikey', {
   type: 'apiKey',
   in: 'header',
   name: 'apikey',
 });
 
-export const teacherAPIKeyScheme = new OASSecurityScheme('teacher', {
+export const securitySchemeTeacherAPIKey = new OASSecurityScheme('teacher', {
   type: 'apiKey',
   in: 'header',
   name: 'teacherapikey',
 });
 
-export const httpBearerScheme = new OASSecurityScheme('bearer_token', {
+export const securitySchemeHTTPBearer = new OASSecurityScheme('bearer_token', {
   type: 'http',
   scheme: 'bearer',
   bearerFormat: 'JWT',
 });
 
-export const oauthScheme = new OASSecurityScheme('oauth', {
+export const securitySchemeOauth = new OASSecurityScheme('oauth', {
   type: 'oauth2',
 });

@@ -19,12 +19,12 @@ const requestBodyMissingProperties = new MissingProperties(
   ['requestBody', 'example', 'horcruxes', 'location'],
 );
 
-export const twoWarningMap = new Map<string, ValidationWarning>([
+export const responseWarningsMap = new Map<string, ValidationWarning>([
   [missingPropertyMiddleName.hash, missingPropertyMiddleName],
   [missingPropertyAddress2.hash, missingPropertyAddress2],
 ]);
 
-export const oneWarningMap = new Map<string, ValidationWarning>([
+export const responseOneWarningMap = new Map<string, ValidationWarning>([
   [missingPropertyMiddleName.hash, missingPropertyMiddleName],
 ]);
 
@@ -36,5 +36,5 @@ export const requestBodyWarningMap = new Map<string, ValidationWarning>([
 
 export const requestResponseWarningMap = new Map<string, ValidationWarning>([
   ...requestBodyWarningMap,
-  ...twoWarningMap,
+  ...responseWarningsMap,
 ]);

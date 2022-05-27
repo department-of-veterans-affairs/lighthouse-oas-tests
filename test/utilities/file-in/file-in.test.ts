@@ -1,4 +1,4 @@
-import FileIn from '../../../src/utilities/file-in';
+import { FileIn } from '../../../src/utilities/file-in';
 
 describe('FileIn', () => {
   describe('loadSpecFromFile', () => {
@@ -23,7 +23,7 @@ describe('FileIn', () => {
 
       it('successfully loads the file', () => {
         const spec = FileIn.loadSpecFromFile(
-          './test/fixtures/simple_forms_oas.json',
+          './test/fixtures/oas/simple_forms_oas.json',
         );
         expect(spec).toBeTruthy();
         expect(spec.info.title).toEqual('VA Forms');
@@ -38,7 +38,9 @@ describe('FileIn', () => {
       });
 
       it('successfully loads the file', () => {
-        const spec = FileIn.loadSpecFromFile('./test/fixtures/forms_oas.yaml');
+        const spec = FileIn.loadSpecFromFile(
+          './test/fixtures/oas/forms_oas.yaml',
+        );
         expect(spec).toBeTruthy();
         expect(spec.info.title).toEqual('VA Forms');
       });

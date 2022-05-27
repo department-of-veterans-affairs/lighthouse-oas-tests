@@ -11,9 +11,7 @@ export default class OperationExampleFactory {
       const exampleGroups = operation.exampleGroups;
 
       for (const exampleGroup of exampleGroups) {
-        const operationExampleId = `${operation.operationId}:${exampleGroup.name}`;
         operationExamples.push({
-          id: operationExampleId,
           operation,
           exampleGroup,
           requestBody: operation.exampleRequestBody,

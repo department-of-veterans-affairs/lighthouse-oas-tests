@@ -3,8 +3,8 @@ import {
   oasResultFailureString,
   oasResultSuccess,
   oasResultSuccessString,
-  oasResultWithError,
-  oasResultWithErrorString,
+  oasResultError,
+  oasResultErrorString,
   oasResultMixedResults,
   oasResultMixedResultsString,
 } from '../fixtures/results/oas-results';
@@ -12,7 +12,7 @@ import {
 describe('OASResult', () => {
   describe('toString', () => {
     it('returns the expected string when the result is an error', () => {
-      expect(oasResultWithError.toString()).toEqual(oasResultWithErrorString);
+      expect(oasResultError.toString()).toEqual(oasResultErrorString);
     });
 
     it('returns the expected string for a successful result', () => {

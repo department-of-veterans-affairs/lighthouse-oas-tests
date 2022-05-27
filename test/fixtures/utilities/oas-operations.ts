@@ -1,16 +1,16 @@
 import OASOperation from '../../../src/utilities/oas-operation';
 import {
   requestBodyMissingSchema,
-  requestBodyWithBadExamples,
-  validRequestBody,
+  requestBodyWithFailures,
+  requestBodyValid,
 } from './request-bodies';
 
-export const harryPotterOperation = new OASOperation({
+export const operationSimpleGet = new OASOperation({
   operationId: 'GET:/harryPotter',
   responses: {},
 });
 
-export const heWhoMustNotBeNamedOperation = new OASOperation({
+export const operationGetWithExampleGroups = new OASOperation({
   operationId: 'GET:/he-who-must-not-be-named',
   responses: {},
   parameters: [
@@ -26,7 +26,7 @@ export const heWhoMustNotBeNamedOperation = new OASOperation({
   ],
 });
 
-export const updateStudentValidRequestBodyOperation = new OASOperation({
+export const operationPutStudentValidRequestBody = new OASOperation({
   operationId: 'PUT:/student/{id}',
   responses: {},
   parameters: [
@@ -38,10 +38,10 @@ export const updateStudentValidRequestBodyOperation = new OASOperation({
       required: true,
     },
   ],
-  requestBody: validRequestBody,
+  requestBody: requestBodyValid,
 });
 
-export const updateStudentRequestBodyMissingSchemaOperation = new OASOperation({
+export const operationPutStudentRequestBodyMissingSchema = new OASOperation({
   operationId: 'PUT:/student/{id}',
   responses: {},
   parameters: [
@@ -56,18 +56,17 @@ export const updateStudentRequestBodyMissingSchemaOperation = new OASOperation({
   requestBody: requestBodyMissingSchema,
 });
 
-export const updateStudentRequestBodyWithBadExamplesOperation =
-  new OASOperation({
-    operationId: 'PUT:/student/{id}',
-    responses: {},
-    parameters: [
-      {
-        name: 'id',
-        in: 'path',
-        schema: { type: 'string' },
-        example: '123456',
-        required: true,
-      },
-    ],
-    requestBody: requestBodyWithBadExamples,
-  });
+export const operationPutStudentRequestBodyFailures = new OASOperation({
+  operationId: 'PUT:/student/{id}',
+  responses: {},
+  parameters: [
+    {
+      name: 'id',
+      in: 'path',
+      schema: { type: 'string' },
+      example: '123456',
+      required: true,
+    },
+  ],
+  requestBody: requestBodyWithFailures,
+});

@@ -1,22 +1,22 @@
 import {
-  harryPotterDefaultOperationExampleResult,
-  harryPotterDefaultResultString,
-  heWhoMustNotBeNamedVoldermortOperationExampleResult,
-  heWhoMustNotBeNamedVoldermortResultString,
+  operationExampleResultFailuresWarnings,
+  operationExampleResultFailuresWarningsString,
+  operationExampleResultNoFailuresWarnings,
+  operationExampleResultNoFailuresWarningsString,
 } from '../fixtures/results/operation-example-results';
 
 describe('OperationExampleResult', () => {
   describe('toString', () => {
     it('returns the expected string when the operation fails', () => {
-      expect(harryPotterDefaultOperationExampleResult.toString()).toEqual(
-        harryPotterDefaultResultString,
+      expect(operationExampleResultFailuresWarnings.toString()).toEqual(
+        operationExampleResultFailuresWarningsString,
       );
     });
 
     it('returns the expected string when the operation succeeds', () => {
-      expect(
-        heWhoMustNotBeNamedVoldermortOperationExampleResult.toString(),
-      ).toEqual(heWhoMustNotBeNamedVoldermortResultString);
+      expect(operationExampleResultNoFailuresWarnings.toString()).toEqual(
+        operationExampleResultNoFailuresWarningsString,
+      );
     });
   });
 });

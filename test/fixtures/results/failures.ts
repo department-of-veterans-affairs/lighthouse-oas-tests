@@ -53,12 +53,12 @@ const missingRequiredParameters = new MissingRequiredParameters([
   'age',
 ]);
 
-export const twoFailureMap = new Map<string, ValidationFailure>([
+export const responseFailuresMap = new Map<string, ValidationFailure>([
   [responseTypeMisMatch.hash, responseTypeMisMatch],
   [requiredGlassesProperty.hash, requiredGlassesProperty],
 ]);
 
-export const oneFailureMap = new Map<string, ValidationFailure>([
+export const responseOneFailureMap = new Map<string, ValidationFailure>([
   [requiredHouseProperty.hash, requiredHouseProperty],
 ]);
 

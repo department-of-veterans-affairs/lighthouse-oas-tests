@@ -1,11 +1,11 @@
 import ExampleGroup from '../../../src/utilities/example-group';
 
-export const emptyDefaultExampleGroup = new ExampleGroup('default', {});
+export const exampleGroupEmptyDefault = new ExampleGroup('default', {});
 
-export const tomRiddleExampleGroup = new ExampleGroup('tomRiddle', {
+export const exampleGroupTomRiddle = new ExampleGroup('tomRiddle', {
   name: 'tomRiddle',
 });
 
-export const defaultExampleGroup = new ExampleGroup('default', {
+export const exampleGroupDefault = new ExampleGroup('default', {
   name: 'voldermort',
 });

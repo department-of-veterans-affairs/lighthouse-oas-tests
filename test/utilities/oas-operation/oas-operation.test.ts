@@ -1,6 +1,6 @@
 import OASOperation from '../../../src/utilities/oas-operation';
 import { OperationObject } from 'swagger-client';
-import { harryPotterOperation } from '../../fixtures/utilities/oas-operations';
+import { operationSimpleGet } from '../../fixtures/utilities/oas-operations';
 
 describe('OASOperation', () => {
   const baseOperation = {
@@ -110,7 +110,7 @@ describe('OASOperation', () => {
     });
 
     it('returns an empty array if there are no parameters', () => {
-      expect(harryPotterOperation.requiredParameterNames).toEqual([]);
+      expect(operationSimpleGet.requiredParameterNames).toEqual([]);
     });
   });
 
@@ -176,7 +176,7 @@ describe('OASOperation', () => {
     });
 
     it('returns null if there are no parameters', () => {
-      expect(harryPotterOperation.getParameter('middleName')).toBeNull();
+      expect(operationSimpleGet.getParameter('middleName')).toBeNull();
     });
   });
 
