@@ -8,9 +8,9 @@ import {
 import { ValidationWarning } from '../validation-messages/warnings';
 
 export default class ResponseValidationConductor {
-  readonly response: Response;
+  private response: Response;
 
-  readonly operation: OASOperation;
+  private operation: OASOperation;
 
   constructor(response: Response, operation: OASOperation) {
     this.response = response;

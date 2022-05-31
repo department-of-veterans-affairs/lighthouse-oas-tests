@@ -9,9 +9,9 @@ import { ValidationFailure } from '../validation-messages/failures';
 import { ValidationWarning } from '../validation-messages/warnings';
 
 export default class RequestValidationConductor {
-  readonly operation: OASOperation;
+  private operation: OASOperation;
 
-  readonly exampleGroup: ExampleGroup;
+  private exampleGroup: ExampleGroup;
 
   constructor(operation: OASOperation, exampleGroup: ExampleGroup) {
     this.operation = operation;

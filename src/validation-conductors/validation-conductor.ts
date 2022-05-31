@@ -8,17 +8,17 @@ import ResponseValidationConductor from './response-validation-conductor';
 import { OperationExample } from '../utilities/operation-example';
 
 export default class ValidationConductor {
-  readonly schema: OASSchema;
+  private schema: OASSchema;
 
-  readonly operation: OASOperation;
+  private operation: OASOperation;
 
-  readonly exampleGroup: ExampleGroup;
+  private exampleGroup: ExampleGroup;
 
-  readonly requestBody: RequestBody;
+  private requestBody: RequestBody;
 
-  readonly securityValues: SecurityValues;
+  private securityValues: SecurityValues;
 
-  readonly server: string | undefined;
+  private server: string | undefined;
 
   constructor(
     schema: OASSchema,
