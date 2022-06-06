@@ -150,8 +150,7 @@ describe('OASSchema', () => {
       await expect(async () =>
         schema.getRelevantSecuritySchemes(),
       ).rejects.toThrow(
-        'The following security requirements exist but no corresponding security scheme exists on the components object: teacher.\n' +
-          '  See more at: https://swagger.io/specification/#security-requirement-object',
+        `The following security requirements exist but no corresponding security scheme exists on the components object: teacher.\n  See more at: https://swagger.io/specification/#security-requirement-object`,
       );
     });
 

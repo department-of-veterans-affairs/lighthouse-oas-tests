@@ -47,7 +47,7 @@ describe('PositiveBatch', () => {
         await PositiveBatch.run(['pathDoesNotMatter.json']);
 
         expect(result).toEqual([
-          oasResultSuccessString + '\n',
+          `${oasResultSuccessString}\n`,
           '1/1 test passed\n',
         ]);
       });
@@ -62,8 +62,8 @@ describe('PositiveBatch', () => {
         await PositiveBatch.run(['pathDoesNotMatter.json']);
 
         expect(result).toEqual([
-          oasResultSuccessString + '\n',
-          oasResultSuccessString + '\n',
+          `${oasResultSuccessString}\n`,
+          `${oasResultSuccessString}\n`,
           '2/2 tests passed\n',
         ]);
       });
@@ -81,7 +81,7 @@ describe('PositiveBatch', () => {
           PositiveBatch.run(['pathDoesNotMatter.json']),
         ).rejects.toThrow('0/1 test failed; 1/1 test skipped; 0/1 test passed');
 
-        expect(result).toEqual([oasResultErrorString + '\n']);
+        expect(result).toEqual([`${oasResultErrorString}\n`]);
       });
     });
   });
@@ -97,7 +97,7 @@ describe('PositiveBatch', () => {
           PositiveBatch.run(['pathDoesNotMatter.json']),
         ).rejects.toThrow('1/1 test failed; 0/1 test skipped; 0/1 test passed');
 
-        expect(result).toEqual([oasResultFailureString + '\n']);
+        expect(result).toEqual([`${oasResultFailureString}\n`]);
       });
     });
   });
@@ -120,10 +120,10 @@ describe('PositiveBatch', () => {
       );
 
       expect(result).toEqual([
-        oasResultSuccessString + '\n',
-        oasResultFailureString + '\n',
-        oasResultMixedResultsString + '\n',
-        oasResultMissingPathString + '\n',
+        `${oasResultSuccessString}\n`,
+        `${oasResultFailureString}\n`,
+        `${oasResultMixedResultsString}\n`,
+        `${oasResultMissingPathString}\n`,
       ]);
     });
   });

@@ -49,7 +49,7 @@ describe('Positive', () => {
 
       await Positive.run(['pathDoesNotMatter.json']);
 
-      expect(result).toEqual([oasResultSuccessString + '\n']);
+      expect(result).toEqual([`${oasResultSuccessString}\n`]);
     });
   });
 
@@ -61,7 +61,7 @@ describe('Positive', () => {
         Positive.run(['pathDoesNotMatter.json']),
       ).rejects.toThrow('1/1 operation failed; 0/1 operation passed');
 
-      expect(result).toEqual([oasResultFailureString + '\n']);
+      expect(result).toEqual([`${oasResultFailureString}\n`]);
     });
   });
 
@@ -73,7 +73,7 @@ describe('Positive', () => {
         Positive.run(['pathDoesNotMatter.json']),
       ).rejects.toThrow('2/3 operations failed; 1/3 operations passed');
 
-      expect(result).toEqual([oasResultMixedResultsString + '\n']);
+      expect(result).toEqual([`${oasResultMixedResultsString}\n`]);
     });
   });
 });

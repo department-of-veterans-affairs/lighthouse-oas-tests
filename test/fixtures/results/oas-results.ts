@@ -14,8 +14,8 @@ export const oasResultSuccess = new OASResult(
   undefined,
 );
 
-export const oasResultSuccessString =
-  'winterfell: Succeeded\n' + operationExampleResultNoFailuresWarningsString;
+export const oasResultSuccessString = `winterfell: Succeeded
+${operationExampleResultNoFailuresWarningsString}`;
 
 export const oasResultFailure = new OASResult(
   'riverrun',
@@ -23,9 +23,8 @@ export const oasResultFailure = new OASResult(
   undefined,
 );
 
-export const oasResultFailureString =
-  'riverrun: 1/1 operation failed\n' +
-  operationExampleResultFailuresWarningsString;
+export const oasResultFailureString = `riverrun: 1/1 operation failed
+${operationExampleResultFailuresWarningsString}`;
 
 export const oasResultMixedResults = new OASResult(
   'dragonstone',
@@ -37,11 +36,8 @@ export const oasResultMixedResults = new OASResult(
   undefined,
 );
 
-export const oasResultMixedResultsString =
-  'dragonstone: 2/3 operations failed\n' +
-  operationExampleResultFailuresWarningsString +
-  operationExampleResultFailuresNoWarningsString +
-  operationExampleResultNoFailuresWarningsString;
+export const oasResultMixedResultsString = `dragonstone: 2/3 operations failed
+${operationExampleResultFailuresWarningsString}${operationExampleResultFailuresNoWarningsString}${operationExampleResultNoFailuresWarningsString}`;
 
 export const oasResultError = new OASResult(
   'stormsend',
