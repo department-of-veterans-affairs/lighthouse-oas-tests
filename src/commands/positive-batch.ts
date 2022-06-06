@@ -14,7 +14,8 @@ export default class PositiveBatch extends Command {
     {
       name: 'path',
       required: true,
-      description: 'Local file path for the JSON config file',
+      description:
+        'Local file path for the JSON config file. See example file at https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/batch-configs/example-batch-config.json',
     },
   ];
 

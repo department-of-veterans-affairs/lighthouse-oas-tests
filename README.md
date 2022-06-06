@@ -36,6 +36,7 @@ USAGE
 <!-- commands -->
 * [`loast help [COMMAND]`](#loast-help-command)
 * [`loast positive PATH`](#loast-positive-path)
+* [`loast positive-batch PATH`](#loast-positive-batch-path)
 
 ## `loast help [COMMAND]`
 
@@ -56,7 +57,7 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.2
 
 ## `loast positive PATH`
 
-Runs positive smoke tests for Lighthouse APIs based on OpenAPI specs
+Runs happy-path tests for an API based on the OpenAPI spec
 
 ```
 USAGE
@@ -72,7 +73,26 @@ OPTIONS
   -s, --server=server            Server URL to use
 ```
 
-_See code: [src/commands/positive.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/src/commands/positive.ts)_
+_See code: [src/commands/positive.ts](src/commands/positive.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/src/commands/positive.ts)_
+
+## `loast positive-batch PATH`
+
+Runs happy-path tests for all APIs in the config file based on their OpenAPI specs
+
+```
+USAGE
+  $ loast positive-batch PATH
+
+ARGUMENTS
+  PATH  Local file path for the JSON config file. See example file at
+        https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/batch-configs/example-batch-c
+        onfig.json
+
+OPTIONS
+  -h, --help  show CLI help
+```
+
+_See code: [src/commands/positive-batch.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/src/commands/positive-batch.ts)_
 <!-- commandsstop -->
 
 # OpenApi Spec Setup
