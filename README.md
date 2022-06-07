@@ -73,7 +73,7 @@ OPTIONS
   -s, --server=server            Server URL to use
 ```
 
-_See code: [src/commands/positive.ts](src/commands/positive.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/src/commands/positive.ts)_
+_See code: [src/commands/positive.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/src/commands/positive.ts)_
 
 ## `loast positive-batch PATH`
 
@@ -85,8 +85,7 @@ USAGE
 
 ARGUMENTS
   PATH  Local file path for the JSON config file. See example file at
-        https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/batch-configs/example-batch-c
-        onfig.json
+        https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/batch-configs/example-batch-config.json
 
 OPTIONS
   -h, --help  show CLI help
