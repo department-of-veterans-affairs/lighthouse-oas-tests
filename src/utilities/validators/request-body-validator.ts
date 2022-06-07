@@ -36,11 +36,13 @@ class RequestBodyValidator extends BaseValidator {
     }
 
     // validate example content against the schema
-    const example = this.operation.exampleRequestBody;
     const content = requestBody.content;
     const [key] = Object.keys(content);
     const schema = content[key].schema;
-    this.validateObjectAgainstSchema(example, schema, [...path, 'example']);
+    if (schema) {
+      const example = this.operation.exampleRequestBody;
+      this.validateObjectAgainstSchema(example, schema, [...path, 'example']);
+    }
   }
 }
 

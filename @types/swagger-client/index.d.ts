@@ -53,16 +53,16 @@ declare module 'swagger-client' {
     token: { access_token: string };
   }
 
-  export interface Securities {
-    authorized: Security;
+  interface Securities {
+    authorized: SecurityValues;
   }
 
-  export interface Security {
+  export interface SecurityValues {
     [securityKey: string]: ApiKey | BearerToken | OauthToken;
   }
 
   interface Opts {
-    authorizations?: Security;
+    authorizations?: SecurityValues;
     spec?: Json;
     url?: string;
   }

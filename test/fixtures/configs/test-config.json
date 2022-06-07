@@ -1,7 +1,6 @@
 {
-  "kinglanding": {
+  "kingslanding": {
     "apiKey": "sillyFakeApiKey",
-    "path": "https://westeros.kingslanding/underground/scrolls/catacombs/v0/openapi.json",
     "server": "https://sandbox-westeros.kingslanding/duties/castles/{version}"
   },
   "dragonstone": {

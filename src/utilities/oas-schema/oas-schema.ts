@@ -2,7 +2,7 @@ import swaggerClient, {
   ExecuteOptions,
   RequestBody,
   Response,
-  Security,
+  SecurityValues,
   Swagger,
 } from 'swagger-client';
 import OASOperation, { OASOperationFactory } from '../oas-operation';
@@ -10,6 +10,7 @@ import ExampleGroup from '../example-group';
 import { OASSecurityScheme, OASSecurityFactory } from '../oas-security';
 import OASServerFactory from '../oas-server/oas-server.factory';
 import OASServer from '../oas-server/oas-server';
+import { uniq } from 'lodash';
 
 class OASSchema {
   private _client: Promise<Swagger>;
@@ -28,7 +29,7 @@ class OASSchema {
   execute = async (
     operation: OASOperation,
     exampleGroup: ExampleGroup,
-    securities: Security,
+    securities: SecurityValues,
     requestBody: RequestBody,
     server: string | undefined,
   ): Promise<Response> => {
@@ -55,8 +56,8 @@ class OASSchema {
   };
 
   getOperations = async (): Promise<OASOperation[]> => {
-    const schema = await this._client;
     if (this.operations.length === 0) {
+      const schema = await this._client;
       this.operations = OASOperationFactory.buildFromPaths(
         schema.spec.paths,
         schema.spec.security,
@@ -65,11 +66,45 @@ class OASSchema {
     return this.operations;
   };
 
-  getSecuritySchemes = async (): Promise<OASSecurityScheme[]> => {
-    const schema = await this._client;
+  getRelevantSecuritySchemes = async (): Promise<OASSecurityScheme[]> => {
+    const operations = await this.getOperations();
+    const uniqueSecurities = uniq(
+      operations.flatMap((operation) => {
+        return operation.security.map((security) => security.key);
+      }),
+    );
 
-    return OASSecurityFactory.getSecuritySchemes(
+    if (uniqueSecurities.length === 0) {
+      return [];
+    }
+
+    const schema = await this._client;
+    const securitySchemes = OASSecurityFactory.getSecuritySchemes(
       schema.spec.components?.securitySchemes ?? {},
+    );
+
+    const missingSecuritySchemes: string[] = [];
+    for (const security of uniqueSecurities) {
+      if (
+        securitySchemes.filter(
+          (securityScheme) => securityScheme.key === security,
+        ).length !== 1
+      ) {
+        missingSecuritySchemes.push(security);
+      }
+    }
+
+    if (missingSecuritySchemes.length > 0) {
+      throw new Error(
+        `The following security requirements exist but no corresponding security scheme exists on the components object: ${missingSecuritySchemes.join(
+          ', ',
+        )}.
+  See more at: https://swagger.io/specification/#security-requirement-object`,
+      );
+    }
+
+    return securitySchemes.filter((scheme) =>
+      uniqueSecurities.includes(scheme.key),
     );
   };
 

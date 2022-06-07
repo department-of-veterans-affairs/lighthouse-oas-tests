@@ -1,0 +1,12 @@
+{
+  "facilities": {
+    "apiKey": "yourAPIkey",
+    "path": "https://api.va.gov/internal/docs/facilities/v0/openapi.json",
+    "server": "https://sandbox-api.va.gov/services/va_facilities/{version}"
+  },
+  "forms": {
+    "apiKey": "yourAPIkey",
+    "path": "https://api.va.gov/internal/docs/forms/v0/openapi.json",
+    "server": "https://sandbox-api.va.gov/services/va_forms/{version}"
+  }
+}

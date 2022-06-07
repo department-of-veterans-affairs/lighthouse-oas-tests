@@ -1,5 +1,6 @@
 import OASOperation from '../../../src/utilities/oas-operation';
 import { OperationObject } from 'swagger-client';
+import { operationSimpleGet } from '../../fixtures/utilities/oas-operations';
 
 describe('OASOperation', () => {
   const baseOperation = {
@@ -35,6 +36,34 @@ describe('OASOperation', () => {
         },
       },
     ],
+    requestBody: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            description: 'Request body to submit to get hobbits',
+            type: 'object',
+            required: ['age', 'home'],
+            properties: {
+              age: {
+                type: 'string',
+                description: 'Age as a string',
+                example: 'eleventy one',
+              },
+              home: {
+                type: 'string',
+                example: 'The Shire',
+              },
+              hobby: {
+                type: 'string',
+                description: "Hobbit's favorite hobby",
+                example: 'eating',
+              },
+            },
+          },
+        },
+      },
+    },
     responses: {
       '200': {
         description: 'Success',
@@ -66,9 +95,22 @@ describe('OASOperation', () => {
     });
   });
 
+  describe('getExampleRequestBody', () => {
+    it('returns the example request body', () => {
+      const exampleRequestBody = operation.exampleRequestBody;
+      expect(Object.keys(exampleRequestBody)).toHaveLength(2);
+      expect(exampleRequestBody.age).toEqual('eleventy one');
+      expect(exampleRequestBody.home).toEqual('The Shire');
+    });
+  });
+
   describe('getRequiredParameters', () => {
     it('returns the names of all required parameters', () => {
       expect(operation.requiredParameterNames).toEqual(['family']);
+    });
+
+    it('returns an empty array if there are no parameters', () => {
+      expect(operationSimpleGet.requiredParameterNames).toEqual([]);
     });
   });
 
@@ -131,6 +173,10 @@ describe('OASOperation', () => {
 
     it('returns null if parameter is not found', () => {
       expect(operation.getParameter('idk, elf or something')).toBeNull();
+    });
+
+    it('returns null if there are no parameters', () => {
+      expect(operationSimpleGet.getParameter('middleName')).toBeNull();
     });
   });
 

@@ -1,8 +1,12 @@
 import loadJsonFile from 'load-json-file';
-import { Swagger, Security, RequestBody } from 'swagger-client';
+import { Swagger, SecurityValues } from 'swagger-client';
 import OASOperation from '../../../src/utilities/oas-operation';
 import OASSchema from '../../../src/utilities/oas-schema';
 import OASServer from '../../../src/utilities/oas-server/oas-server';
+import {
+  securitySchemeAPIKey,
+  securitySchemeTeacherAPIKey,
+} from '../../fixtures/utilities/oas-security-schemes';
 
 describe('OASSchema', () => {
   const generateSchema = async (filePath: string): Promise<OASSchema> => {
@@ -21,7 +25,7 @@ describe('OASSchema', () => {
     };
 
     it('gets parameters from forms_oas.json', async () => {
-      const filePath = 'test/fixtures/forms_oas.json';
+      const filePath = 'test/fixtures/oas/forms_oas.json';
 
       const operations = await callGetOperations(filePath);
 
@@ -31,7 +35,7 @@ describe('OASSchema', () => {
     });
 
     it('gets parameters from facitilities_oas.json', async () => {
-      const filePath = 'test/fixtures/facilities_oas.json';
+      const filePath = 'test/fixtures/oas/facilities_oas.json';
 
       const operations = await callGetOperations(filePath);
 
@@ -63,15 +67,36 @@ describe('OASSchema', () => {
             },
           },
         ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['id'],
+                properties: {
+                  id: {
+                    type: 'string',
+                    example: 'secondTestId',
+                  },
+                  zip: {
+                    type: 'string',
+                    example: '00000',
+                  },
+                },
+              },
+            },
+          },
+        },
       };
     });
 
-    it('calls the provided operation with the provided parameters without apiKey', async () => {
+    it('calls the provided operation with the provided parameters and request body without apiKey', async () => {
       const operation = new OASOperation(operationObject);
       const executeMock = jest.fn(
         (_arg) => new Promise((resolve) => resolve(_arg)),
       );
-      const filePath = 'test/fixtures/facilities_oas.json';
+      const filePath = 'test/fixtures/oas/facilities_oas.json';
       const schema = await generateSchema(filePath);
 
       schema.client = new Promise((resolve) => {
@@ -81,8 +106,8 @@ describe('OASSchema', () => {
       });
 
       const [exampleGroup] = operation.exampleGroups;
-      const securities: Security = {};
-      const requestBody: RequestBody = {};
+      const securities: SecurityValues = {};
+      const requestBody = operation.exampleRequestBody;
       const server =
         'https://sandbox-api.va.gov/services/va_facilities/{version}';
 
@@ -99,6 +124,9 @@ describe('OASSchema', () => {
         parameters: {
           id: 'testId',
         },
+        requestBody: {
+          id: 'secondTestId',
+        },
         securities: {
           authorized: {},
         },
@@ -107,40 +135,39 @@ describe('OASSchema', () => {
     });
   });
 
-  describe('getSecuritySchemes', () => {
-    describe('with securitySchemes set in the components object', () => {
-      it('returns all security schemes', async () => {
-        const filePath = 'test/fixtures/facilities_oas.json';
-        const schema = await generateSchema(filePath);
-        const securitySchemes = await schema.getSecuritySchemes();
-
-        expect(securitySchemes).toEqual([
-          {
-            description: undefined,
-            key: 'apikey',
-            type: 'apiKey',
-            name: 'apikey',
-            in: 'header',
-          },
-        ]);
-      });
+  describe('getRelevantSecuritySchemes', () => {
+    it('returns an empty string when no operations use security', async () => {
+      const filePath = 'test/fixtures/oas/security/no_security_oas.json';
+      const schema = await generateSchema(filePath);
+      const securitySchemes = await schema.getRelevantSecuritySchemes();
+      expect(securitySchemes).toEqual([]);
     });
 
-    describe('without any securitySchemes set in the components object', () => {
-      it('returns an empty array', async () => {
-        const filePath = 'test/fixtures/simple_forms_oas.json';
-        const schema = await generateSchema(filePath);
-        const securitySchemes = await schema.getSecuritySchemes();
+    it('throws an error if securitySchemes are missing', async () => {
+      const filePath =
+        'test/fixtures/oas/security/missing_security_scheme_oas.json';
+      const schema = await generateSchema(filePath);
+      await expect(async () =>
+        schema.getRelevantSecuritySchemes(),
+      ).rejects.toThrow(
+        `The following security requirements exist but no corresponding security scheme exists on the components object: teacher.\n  See more at: https://swagger.io/specification/#security-requirement-object`,
+      );
+    });
 
-        expect(securitySchemes).toEqual([]);
-      });
+    it('returns relevant securitySchemes', async () => {
+      const filePath = 'test/fixtures/oas/security/valid_securities_oas.json';
+      const schema = await generateSchema(filePath);
+      const securitySchemes = await schema.getRelevantSecuritySchemes();
+      expect(securitySchemes).toHaveLength(2);
+      expect(securitySchemes).toContainEqual(securitySchemeAPIKey);
+      expect(securitySchemes).toContainEqual(securitySchemeTeacherAPIKey);
     });
   });
 
   describe('getServers', () => {
     describe('servers is set in the OAS', () => {
       it('returns OASServers', async () => {
-        const filePath = 'test/fixtures/facilities_oas.json';
+        const filePath = 'test/fixtures/oas/facilities_oas.json';
         const schema = await generateSchema(filePath);
         const oasServers = await schema.getServers();
 
@@ -154,7 +181,7 @@ describe('OASSchema', () => {
     });
     describe('servers is not set in the OAS', () => {
       it('returns an empty array', async () => {
-        const filePath = 'test/fixtures/simple_forms_oas.json';
+        const filePath = 'test/fixtures/oas/simple_forms_oas.json';
         const schema = await generateSchema(filePath);
         const oasServers = await schema.getServers();
 
