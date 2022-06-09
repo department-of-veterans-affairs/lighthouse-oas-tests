@@ -1,9 +1,5 @@
-import { OASResult } from '../../results';
-import {
-  ExampleGroupError,
-  ExampleGroupWarning,
-  StructuredOutput,
-} from './structured-output.interface';
+import { OASResult, OperationExampleResult } from '../../results';
+import { StructuredOutput } from './structured-output.interface';
 
 class StructuredOutputFactory {
   static buildFromOASResult(input: OASResult): StructuredOutput {
@@ -27,119 +23,145 @@ class StructuredOutputFactory {
     };
 
     if (!input.error && testResults) {
-      // assemble api-level results
+      // assemble api-level output
+      this.assembleApiLevel(testResults, output);
+    }
 
-      // calculate pass/warn/fail totals
-      const passCount = testResults.filter(
-        (result) => result.failures.size === 0,
-      ).length;
-      const warnCount = testResults.filter(
-        (result) => result.warnings.size > 0,
-      ).length;
-      const failCount = testResults.filter(
-        (result) => result.failures.size > 0,
-      ).length;
-      const totalCount = testResults.length;
+    return output;
+  }
 
-      // assemble api summary
-      output.results = {
-        apiSummary: {
+  private static assembleApiLevel(
+    testResults: OperationExampleResult[],
+    output: StructuredOutput,
+  ) {
+    // calculate pass/warn/fail totals
+    const passCount = testResults.filter(
+      (result) => result.failures.size === 0,
+    ).length;
+    const warnCount = testResults.filter(
+      (result) => result.warnings.size > 0,
+    ).length;
+    const failCount = testResults.filter(
+      (result) => result.failures.size > 0,
+    ).length;
+    const totalCount = testResults.length;
+
+    // assemble api summary
+    output.results = {
+      apiSummary: {
+        totalPass: Number(passCount),
+        totalWarn: Number(warnCount),
+        totalFail: Number(failCount),
+        totalRun: Number(totalCount),
+        runDateTime: new Date(),
+      },
+    };
+
+    const operationIds = [
+      ...new Set(testResults.map((result) => result.operationId)),
+    ];
+    operationIds.forEach((operationId) => {
+      // iterate through all distinct operation IDs in the results
+
+      // get just the results that apply to the current operation ID (endpoint)
+      const operationResults = testResults.filter(
+        (result) => result.operationId === operationId,
+      );
+
+      // assemble output for this endpoint
+      this.assembleEndpointLevel(operationResults, output);
+    });
+  }
+
+  private static assembleEndpointLevel(
+    operationResults: OperationExampleResult[],
+    output: StructuredOutput,
+  ) {
+    // calculate pass/warn/fail totals for this endpoint
+    const passCount = operationResults.filter(
+      (result) => result.failures.size === 0,
+    ).length;
+    const warnCount = operationResults.filter(
+      (result) => result.warnings.size > 0,
+    ).length;
+    const failCount = operationResults.filter(
+      (result) => result.failures.size > 0,
+    ).length;
+    const totalCount = operationResults.length;
+
+    const endpointId =
+      operationResults[0].originalOperationId ??
+      operationResults[0].operationId;
+
+    // assemble endpoint summary
+    if (output.results) {
+      output.results[endpointId] = {
+        endpointSummary: {
           totalPass: Number(passCount),
           totalWarn: Number(warnCount),
           totalFail: Number(failCount),
           totalRun: Number(totalCount),
-          runDateTime: new Date(),
         },
       };
-
-      const operationIds = [
-        ...new Set(testResults.map((result) => result.operationId)),
-      ];
-      operationIds.forEach((operationId) => {
-        // iterate through all distinct operation IDs in the results
-
-        // get just the results that apply to the current operation ID (endpoint)
-        const operationResults = testResults.filter(
-          (result) => result.operationId === operationId,
-        );
-
-        // calculate pass/warn/fail totals for this endpoint
-        const passCount = operationResults.filter(
-          (result) => result.failures.size === 0,
-        ).length;
-        const warnCount = operationResults.filter(
-          (result) => result.warnings.size > 0,
-        ).length;
-        const failCount = operationResults.filter(
-          (result) => result.failures.size > 0,
-        ).length;
-        const totalCount = operationResults.length;
-
-        // decide which format we are to use for the endpoint ID
-        let endpointId;
-        if (operationResults[0].originalOperationId) {
-          endpointId = operationResults[0].originalOperationId;
-        } else {
-          endpointId = operationResults[0].operationId;
-        }
-
-        // assemble endpoint summary
-        if (output.results) {
-          output.results[endpointId] = {
-            endpointSummary: {
-              totalPass: Number(passCount),
-              totalWarn: Number(warnCount),
-              totalFail: Number(failCount),
-              totalRun: Number(totalCount),
-            },
-          };
-        }
-
-        const exampleGroupNames = [
-          ...new Set(operationResults.map((result) => result.exampleGroupName)),
-        ];
-        exampleGroupNames.forEach((exampleGroupName) => {
-          // iterate through all distinct example group names for this operation ID
-
-          // get just the results that apply to the current operation ID (endpoint) and example group name
-          const exampleGroupResults = operationResults.filter(
-            (result) => result.exampleGroupName === exampleGroupName,
-          );
-
-          // at this point we should be down to a single result
-          // sl00 todo make this safer
-          const theResult = exampleGroupResults[0];
-
-          // assemble errors
-          const errors: ExampleGroupError[] = [];
-          theResult.failures.forEach((value) => {
-            errors.push({
-              message: value.message,
-              count: value.count,
-            });
-          });
-
-          // assemble warnings
-          const warnings: ExampleGroupWarning[] = [];
-          theResult.warnings.forEach((value) => {
-            warnings.push({
-              message: value.message,
-              count: value.count,
-            });
-          });
-
-          // assemble example group
-          if (output.results) {
-            output.results[endpointId][exampleGroupName] = {
-              errors: errors,
-              warnings: warnings,
-            };
-          }
-        });
-      });
     }
 
-    return output;
+    const exampleGroupNames = [
+      ...new Set(operationResults.map((result) => result.exampleGroupName)),
+    ];
+    exampleGroupNames.forEach((exampleGroupName) => {
+      // iterate through all distinct example group names for this operation ID
+
+      // get just the results that apply to the current operation ID (endpoint) and example group name
+      const exampleGroupResults = operationResults.filter(
+        (result) => result.exampleGroupName === exampleGroupName,
+      );
+
+      // at this point we should be down to a single result, let's make sure of that
+      if (exampleGroupResults.length === 0) {
+        throw new Error(
+          `Unable to assemble StructuredOutput, no result found for operationID: ${endpointId}, exampleGroup: ${exampleGroupName}`,
+        );
+      } else if (exampleGroupResults.length > 1) {
+        throw new Error(
+          `Unable to assemble StructuredOutput, multiple results found for operationID: ${endpointId}, exampleGroup: ${exampleGroupName}`,
+        );
+      }
+
+      // assemble output for this example group
+      this.assembleExampleGroupLevel(
+        endpointId,
+        exampleGroupName,
+        exampleGroupResults[0],
+        output,
+      );
+    });
+  }
+
+  private static assembleExampleGroupLevel(
+    endpointId: string,
+    exampleGroupName: string,
+    exampleGroupResult: OperationExampleResult,
+    output: StructuredOutput,
+  ) {
+    // assemble errors
+    const errors = [...exampleGroupResult.failures].map(([, value]) => ({
+      message: value.message,
+      count: value.count,
+    }));
+
+    // assemble warnings
+    const warnings = [...exampleGroupResult.warnings].map(([, value]) => ({
+      message: value.message,
+      count: value.count,
+    }));
+
+    // assemble example group
+    if (output.results) {
+      output.results[endpointId][exampleGroupName] = {
+        errors: errors,
+        warnings: warnings,
+      };
+    }
   }
 }
 
