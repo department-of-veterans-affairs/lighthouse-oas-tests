@@ -1,6 +1,5 @@
 import { ValidationFailure } from '../validation-messages/failures';
 import { ValidationWarning } from '../validation-messages/warnings';
-import { EndpointResult, StructuredOutput } from './results.interface';
 
 export default class OperationExampleResult {
   readonly operationId: string;

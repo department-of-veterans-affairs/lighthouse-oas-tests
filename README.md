@@ -69,8 +69,9 @@ ARGUMENTS
 OPTIONS
   -a, --apiKey=apiKey            API key to use
   -b, --bearerToken=bearerToken  Bearer token to use
-  -h, --help                     show CLI help
+  -h, --help                     Show CLI help
   -s, --server=server            Server URL to use
+  -j, --jsonOutput               Format output as JSON
 ```
 
 _See code: [src/commands/positive.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/src/commands/positive.ts)_
@@ -88,7 +89,7 @@ ARGUMENTS
         https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/batch-configs/example-batch-config.json
 
 OPTIONS
-  -h, --help  show CLI help
+  -h, --help  Show CLI help
 ```
 
 _See code: [src/commands/positive-batch.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/src/commands/positive-batch.ts)_

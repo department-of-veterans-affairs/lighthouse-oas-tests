@@ -2,6 +2,7 @@ import Command, { flags } from '@oclif/command';
 import { PositiveConductor } from '../conductors';
 import { OASResult } from '../results';
 import { DEFAULT_TEST_NAME } from '../utilities/constants';
+import StructuredOutputFactory from '../utilities/structured-output';
 
 export default class Positive extends Command {
   static description =
@@ -21,6 +22,10 @@ export default class Positive extends Command {
     server: flags.string({
       char: 's',
       description: 'Server URL to use',
+    }),
+    jsonOutput: flags.boolean({
+      char: 'j',
+      description: 'Format output as JSON',
     }),
   };
 
@@ -42,8 +47,33 @@ export default class Positive extends Command {
       token: flags.bearerToken,
     });
 
-    const result = await positiveConductor.conduct();
-    this.log(result.toString());
+    let result: OASResult;
+    try {
+      result = await positiveConductor.conduct();
+    } catch (error) {
+      if (flags.jsonOutput) {
+        // return the error message as part of the json output
+        result = new OASResult(
+          DEFAULT_TEST_NAME,
+          args.path,
+          flags.server,
+          [],
+          undefined,
+          (error as Error).message,
+        );
+      } else {
+        // otherwise, let the error propagate up
+        throw error;
+      }
+    }
+
+    if (flags.jsonOutput) {
+      const output = StructuredOutputFactory.buildFromOASResult(result);
+      this.log(JSON.stringify(output));
+    } else {
+      this.log(result.toString());
+    }
+
     this.determineFailure(result);
   }
 

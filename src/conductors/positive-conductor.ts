@@ -67,8 +67,6 @@ export default class PositiveConductor {
       }),
     );
 
-    // sl00 todo how do we catch and report exceptions?
-
     return new OASResult(
       this.testName,
       this.path,
