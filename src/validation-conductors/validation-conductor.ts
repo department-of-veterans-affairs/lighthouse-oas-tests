@@ -63,8 +63,14 @@ export default class ValidationConductor {
       warnings = new Map([...warnings, ...responseValidationWarnings]);
     }
 
+    // get the original operation Id if we can
+    const originalOperationId =
+      // eslint-disable-next-line dot-notation
+      this.operation['_operation']['__originalOperationId'];
+
     return new OperationExampleResult(
       this.operation.operationId,
+      originalOperationId,
       this.exampleGroup.name,
       failures,
       warnings,

@@ -19,11 +19,25 @@ export default class PositiveBatchConductor {
             const result = await positiveConductor.conduct();
             return result;
           } catch (error) {
-            return new OASResult(name, undefined, (error as Error).message);
+            return new OASResult(
+              name,
+              testInputs.path,
+              testInputs.server,
+              [],
+              undefined,
+              (error as Error).message,
+            );
           }
         }
 
-        return new OASResult(name, undefined, `Config ${name} missing path`);
+        return new OASResult(
+          name,
+          testInputs.path,
+          testInputs.server,
+          [],
+          undefined,
+          `Config ${name} missing path`,
+        );
       }),
     );
   }

@@ -1,8 +1,11 @@
 import { ValidationFailure } from '../validation-messages/failures';
 import { ValidationWarning } from '../validation-messages/warnings';
+import { EndpointResult, StructuredOutput } from './results.interface';
 
 export default class OperationExampleResult {
   readonly operationId: string;
+
+  readonly originalOperationId: string | undefined;
 
   readonly exampleGroupName: string;
 
@@ -12,11 +15,13 @@ export default class OperationExampleResult {
 
   constructor(
     operationId: string,
+    originalOperationId: string | undefined,
     exampleGroupName: string,
     failures: Map<string, ValidationFailure>,
     warnings: Map<string, ValidationWarning>,
   ) {
     this.operationId = operationId;
+    this.originalOperationId = originalOperationId;
     this.exampleGroupName = exampleGroupName;
     this.failures = failures;
     this.warnings = warnings;
