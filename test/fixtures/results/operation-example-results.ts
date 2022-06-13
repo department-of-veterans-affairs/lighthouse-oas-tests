@@ -16,6 +16,7 @@ import {
 export const operationExampleResultFailuresWarnings =
   new OperationExampleResult(
     'GET:/harryPotter',
+    undefined,
     'default',
     responseFailuresMap,
     responseOneWarningMap,
@@ -30,6 +31,7 @@ export const operationExampleResultFailuresWarningsString = `  GET:/harryPotter 
 export const operationExampleResultFailuresNoWarnings =
   new OperationExampleResult(
     'GET:/he-who-must-not-be-named',
+    undefined,
     'tomRiddle',
     responseOneFailureMap,
     emptyWarningMap,
@@ -42,6 +44,7 @@ export const operationExampleResultFailuresNoWarningsString = `  GET:/he-who-mus
 export const operationExampleResultNoFailuresWarnings =
   new OperationExampleResult(
     'GET:/he-who-must-not-be-named',
+    undefined,
     'voldermort',
     emptyFailureMap,
     responseWarningsMap,
@@ -55,6 +58,7 @@ export const operationExampleResultNoFailuresWarningsString = `  GET:/he-who-mus
 export const operationExampleResultRequestValidationFailures =
   new OperationExampleResult(
     'GET:/harryPotter',
+    undefined,
     'default',
     requestBodyFailureMap,
     requestBodyWarningMap,
@@ -63,6 +67,7 @@ export const operationExampleResultRequestValidationFailures =
 export const operationExampleResultNoRequestValidationFailures =
   new OperationExampleResult(
     'GET:/harryPotter',
+    undefined,
     'default',
     responseFailuresMap,
     requestResponseWarningMap,

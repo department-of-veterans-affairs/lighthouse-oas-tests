@@ -1,4 +1,4 @@
-import { OASResult } from '../../../src/results';
+import {OASResult} from '../../../src/results';
 import {
   operationExampleResultFailuresWarnings,
   operationExampleResultFailuresWarningsString,
@@ -10,6 +10,9 @@ import {
 
 export const oasResultSuccess = new OASResult(
   'winterfell',
+  undefined,
+  undefined,
+  [],
   [operationExampleResultNoFailuresWarnings],
   undefined,
 );
@@ -19,6 +22,9 @@ ${operationExampleResultNoFailuresWarningsString}`;
 
 export const oasResultFailure = new OASResult(
   'riverrun',
+  undefined,
+  undefined,
+  [],
   [operationExampleResultFailuresWarnings],
   undefined,
 );
@@ -28,6 +34,9 @@ ${operationExampleResultFailuresWarningsString}`;
 
 export const oasResultMixedResults = new OASResult(
   'dragonstone',
+  undefined,
+  undefined,
+  [],
   [
     operationExampleResultFailuresWarnings,
     operationExampleResultFailuresNoWarnings,
@@ -41,6 +50,9 @@ ${operationExampleResultFailuresWarningsString}${operationExampleResultFailuresN
 
 export const oasResultError = new OASResult(
   'stormsend',
+  'https://westeros.stormsend/underground/scrolls/catacombs/v0/openapi.json',
+  'https://sandbox-westeros.stormsend/duties/castles/{version}',
+  [],
   undefined,
   'Server value must be specified if OAS contains more than one server',
 );
@@ -50,6 +62,9 @@ export const oasResultErrorString =
 
 export const oasResultMissingPath = new OASResult(
   'kinglanding',
+  undefined,
+  'https://sandbox-westeros.kingslanding/duties/castles/{version}',
+  [],
   undefined,
   'Config kinglanding missing path',
 );
