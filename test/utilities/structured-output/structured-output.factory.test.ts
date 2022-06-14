@@ -8,12 +8,12 @@ import {
   oasResultMixedResults,
   oasResultMixedResultsStructure,
 } from '../../fixtures/results/oas-results';
+import { mockedSystemTime } from '../../fixtures/system-time';
 import StructuredOutputFactory from '../../../src/utilities/structured-output';
-import { MOCKED_SYSTEM_TIME } from '../constants';
 
 describe('StructuredOutputFactory', () => {
   beforeAll(() => {
-    jest.useFakeTimers('modern').setSystemTime(MOCKED_SYSTEM_TIME);
+    jest.useFakeTimers('modern').setSystemTime(mockedSystemTime);
   });
 
   afterAll(() => {

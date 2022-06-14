@@ -12,8 +12,8 @@ import {
   requestResponseWarningMap,
   responseWarningsMap,
 } from './warnings';
+import { mockedSystemTime } from '../system-time';
 import { ApiResults } from '../../../src/utilities/structured-output';
-import { MOCKED_SYSTEM_TIME } from '../../utilities/constants';
 
 export const operationExampleResultFailuresWarnings =
   new OperationExampleResult(
@@ -57,34 +57,37 @@ export const operationExampleResultNoFailuresWarningsString = `  GET:/he-who-mus
     - Warning: This object is missing non-required properties that were unable to be validated, including address2. Path: body -> horcruxes -> location. Found 1 time
 `;
 
-export const operationExampleResultNoFailuresWarningsStructure: ApiResults = {
-  apiSummary: {
-    totalPass: 1,
-    totalWarn: 2,
-    totalFail: 0,
-    totalRun: 1,
-    runDateTime: MOCKED_SYSTEM_TIME,
-  },
-};
-operationExampleResultNoFailuresWarningsStructure[
-  operationExampleResultNoFailuresWarnings.operationId
-] = {
-  endpointSummary: {
-    totalPass: 1,
-    totalWarn: 2,
-    totalFail: 0,
-    totalRun: 1,
-  },
-};
-operationExampleResultNoFailuresWarningsStructure[
-  operationExampleResultNoFailuresWarnings.operationId
-][operationExampleResultNoFailuresWarnings.exampleGroupName] = {
-  errors: [],
-  warnings: [...responseWarningsMap].map(([, value]) => ({
-    message: value.message,
-    count: value.count,
-  })),
-};
+export const operationExampleResultNoFailuresWarningsStructure = (function(){
+  const result: ApiResults = {
+    apiSummary: {
+      totalPass: 1,
+      totalWarn: 2,
+      totalFail: 0,
+      totalRun: 1,
+      runDateTime: mockedSystemTime,
+    },
+  };
+  result[
+    operationExampleResultNoFailuresWarnings.operationId
+    ] = {
+    endpointSummary: {
+      totalPass: 1,
+      totalWarn: 2,
+      totalFail: 0,
+      totalRun: 1,
+    },
+  };
+  result[
+    operationExampleResultNoFailuresWarnings.operationId
+    ][operationExampleResultNoFailuresWarnings.exampleGroupName] = {
+    errors: [],
+    warnings: [...responseWarningsMap].map(([, value]) => ({
+      message: value.message,
+      count: value.count,
+    })),
+  };
+  return result;
+}());
 
 export const operationExampleResultRequestValidationFailures =
   new OperationExampleResult(
