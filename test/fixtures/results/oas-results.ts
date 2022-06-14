@@ -1,4 +1,4 @@
-import {OASResult} from '../../../src/results';
+import { OASResult } from '../../../src/results';
 import {
   operationExampleResultFailuresWarnings,
   operationExampleResultFailuresWarningsString,
@@ -6,7 +6,9 @@ import {
   operationExampleResultFailuresNoWarningsString,
   operationExampleResultNoFailuresWarnings,
   operationExampleResultNoFailuresWarningsString,
+  operationExampleResultNoFailuresWarningsStructure,
 } from './operation-example-results';
+import { StructuredOutput } from '../../../src/utilities/structured-output';
 
 export const oasResultSuccess = new OASResult(
   'winterfell',
@@ -20,6 +22,17 @@ export const oasResultSuccess = new OASResult(
 export const oasResultSuccessString = `winterfell: Succeeded
 ${operationExampleResultNoFailuresWarningsString}`;
 
+export const oasResultSuccessStructure: StructuredOutput = {
+  id: oasResultSuccess.testName,
+  config: {
+    oasPath: String(oasResultSuccess.oasPath),
+    server: String(oasResultSuccess.server),
+    authenticationType: '',
+  },
+  error: undefined,
+  results: operationExampleResultNoFailuresWarningsStructure,
+};
+
 export const oasResultFailure = new OASResult(
   'riverrun',
   undefined,
@@ -31,6 +44,8 @@ export const oasResultFailure = new OASResult(
 
 export const oasResultFailureString = `riverrun: 1/1 operation failed
 ${operationExampleResultFailuresWarningsString}`;
+
+export const oasResultFailureStructure = undefined;
 
 export const oasResultMixedResults = new OASResult(
   'dragonstone',
@@ -48,6 +63,8 @@ export const oasResultMixedResults = new OASResult(
 export const oasResultMixedResultsString = `dragonstone: 2/3 operations failed
 ${operationExampleResultFailuresWarningsString}${operationExampleResultFailuresNoWarningsString}${operationExampleResultNoFailuresWarningsString}`;
 
+export const oasResultMixedResultsStructure = undefined;
+
 export const oasResultError = new OASResult(
   'stormsend',
   'https://westeros.stormsend/underground/scrolls/catacombs/v0/openapi.json',
@@ -59,6 +76,13 @@ export const oasResultError = new OASResult(
 
 export const oasResultErrorString =
   'stormsend: Skipped - Server value must be specified if OAS contains more than one server\n';
+
+export const oasResultErrorJson =
+  `{"id":"${oasResultError.testName}",` +
+  `"config":{"oasPath":"${oasResultError.oasPath}","server":"${oasResultError.server}","authenticationType":""},` +
+  `"error":"${oasResultError.error}"}`;
+
+export const oasResultErrorStructure = undefined;
 
 export const oasResultMissingPath = new OASResult(
   'kinglanding',
