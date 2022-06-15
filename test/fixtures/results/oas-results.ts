@@ -2,13 +2,16 @@ import { OASResult } from '../../../src/results';
 import {
   operationExampleResultFailuresWarnings,
   operationExampleResultFailuresWarningsString,
+  operationExampleResultFailuresWarningsStructure,
   operationExampleResultFailuresNoWarnings,
   operationExampleResultFailuresNoWarningsString,
   operationExampleResultNoFailuresWarnings,
   operationExampleResultNoFailuresWarningsString,
   operationExampleResultNoFailuresWarningsStructure,
+  operationExampleResultMixedStructure,
 } from './operation-example-results';
 import { StructuredOutput } from '../../../src/utilities/structured-output';
+import { OASSecurityScheme } from '../../../src/utilities/oas-security';
 
 export const oasResultSuccess = new OASResult(
   'winterfell',
@@ -45,7 +48,16 @@ export const oasResultFailure = new OASResult(
 export const oasResultFailureString = `riverrun: 1/1 operation failed
 ${operationExampleResultFailuresWarningsString}`;
 
-export const oasResultFailureStructure = undefined;
+export const oasResultFailureStructure: StructuredOutput = {
+  id: oasResultFailure.testName,
+  config: {
+    oasPath: String(oasResultFailure.oasPath),
+    server: String(oasResultFailure.server),
+    authenticationType: '',
+  },
+  error: undefined,
+  results: operationExampleResultFailuresWarningsStructure,
+};
 
 export const oasResultMixedResults = new OASResult(
   'dragonstone',
@@ -63,7 +75,16 @@ export const oasResultMixedResults = new OASResult(
 export const oasResultMixedResultsString = `dragonstone: 2/3 operations failed
 ${operationExampleResultFailuresWarningsString}${operationExampleResultFailuresNoWarningsString}${operationExampleResultNoFailuresWarningsString}`;
 
-export const oasResultMixedResultsStructure = undefined;
+export const oasResultMixedResultsStructure: StructuredOutput = {
+  id: oasResultMixedResults.testName,
+  config: {
+    oasPath: String(oasResultMixedResults.oasPath),
+    server: String(oasResultMixedResults.server),
+    authenticationType: '',
+  },
+  error: undefined,
+  results: operationExampleResultMixedStructure,
+};
 
 export const oasResultError = new OASResult(
   'stormsend',
@@ -77,12 +98,21 @@ export const oasResultError = new OASResult(
 export const oasResultErrorString =
   'stormsend: Skipped - Server value must be specified if OAS contains more than one server\n';
 
+export const oasResultErrorStructure: StructuredOutput = {
+  id: oasResultError.testName,
+  config: {
+    oasPath: String(oasResultError.oasPath),
+    server: String(oasResultError.server),
+    authenticationType: '',
+  },
+  error: oasResultError.error,
+  results: undefined,
+};
+
 export const oasResultErrorJson =
   `{"id":"${oasResultError.testName}",` +
   `"config":{"oasPath":"${oasResultError.oasPath}","server":"${oasResultError.server}","authenticationType":""},` +
   `"error":"${oasResultError.error}"}`;
-
-export const oasResultErrorStructure = undefined;
 
 export const oasResultMissingPath = new OASResult(
   'kinglanding',
@@ -95,3 +125,46 @@ export const oasResultMissingPath = new OASResult(
 
 export const oasResultMissingPathString =
   'kinglanding: Skipped - Config kinglanding missing path\n';
+
+export const oasResultSingleSecurity = new OASResult(
+  'oldanchor',
+  undefined,
+  undefined,
+  [new OASSecurityScheme('canGetIt', { type: 'apiKey' })],
+  undefined,
+  undefined,
+);
+
+export const oasResultSingleSecurityStructure: StructuredOutput = {
+  id: oasResultSingleSecurity.testName,
+  config: {
+    oasPath: String(oasResultSingleSecurity.oasPath),
+    server: String(oasResultSingleSecurity.server),
+    authenticationType: 'apiKey',
+  },
+  results: undefined,
+  error: undefined,
+};
+
+export const oasResultMultipleSecurity = new OASResult(
+  'oldoak',
+  undefined,
+  undefined,
+  [
+    new OASSecurityScheme('canGetIt', { type: 'apiKey' }),
+    new OASSecurityScheme('canAlsoGetIt', { type: 'oauth2' }),
+  ],
+  undefined,
+  undefined,
+);
+
+export const oasResultMultipleSecurityStructure: StructuredOutput = {
+  id: oasResultMultipleSecurity.testName,
+  config: {
+    oasPath: String(oasResultMultipleSecurity.oasPath),
+    server: String(oasResultMultipleSecurity.server),
+    authenticationType: 'apiKey/oauth2',
+  },
+  results: undefined,
+  error: undefined,
+};

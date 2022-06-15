@@ -7,7 +7,7 @@ class StructuredOutputFactory {
 
     // assemble authenticationType string
     const authenticationType = input.securitySchemes
-      .map((x) => x.name)
+      .map((x) => x.type)
       .join('/');
 
     // assemble top-level output
@@ -33,7 +33,7 @@ class StructuredOutputFactory {
   private static assembleApiLevel(
     testResults: OperationExampleResult[],
     output: StructuredOutput,
-  ) {
+  ): void {
     // calculate pass/warn/fail totals
     const passCount = testResults.filter(
       (result) => result.failures.size === 0,
@@ -76,7 +76,7 @@ class StructuredOutputFactory {
   private static assembleEndpointLevel(
     operationResults: OperationExampleResult[],
     output: StructuredOutput,
-  ) {
+  ): void {
     // calculate pass/warn/fail totals for this endpoint
     const passCount = operationResults.filter(
       (result) => result.failures.size === 0,
@@ -116,7 +116,8 @@ class StructuredOutputFactory {
         (result) => result.exampleGroupName === exampleGroupName,
       );
 
-      // at this point we should be down to a single result, let's make sure of that
+      // at this point we should always be down to a single result
+      // let's make sure of that, even though it should be impossible
       if (exampleGroupResults.length === 0) {
         throw new Error(
           `Unable to assemble StructuredOutput, no result found for operationID: ${endpointId}, exampleGroup: ${exampleGroupName}`,
@@ -142,7 +143,7 @@ class StructuredOutputFactory {
     exampleGroupName: string,
     exampleGroupResult: OperationExampleResult,
     output: StructuredOutput,
-  ) {
+  ): void {
     // assemble errors
     const errors = [...exampleGroupResult.failures].map(([, value]) => ({
       message: value.message,

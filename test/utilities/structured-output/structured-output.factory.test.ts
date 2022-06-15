@@ -7,6 +7,8 @@ import {
   oasResultErrorStructure,
   oasResultMixedResults,
   oasResultMixedResultsStructure,
+  oasResultSingleSecurity,
+  oasResultSingleSecurityStructure,
 } from '../../fixtures/results/oas-results';
 import { mockedSystemTime } from '../../fixtures/system-time';
 import StructuredOutputFactory from '../../../src/utilities/structured-output';
@@ -21,7 +23,7 @@ describe('StructuredOutputFactory', () => {
   });
 
   describe('buildFromOASResult', () => {
-    xit('returns the expected structure when the result is an error', () => {
+    it('returns the expected structure when the result is an error', () => {
       expect(
         StructuredOutputFactory.buildFromOASResult(oasResultError),
       ).toEqual(oasResultErrorStructure);
@@ -33,16 +35,26 @@ describe('StructuredOutputFactory', () => {
       ).toEqual(oasResultSuccessStructure);
     });
 
-    xit('returns the expected structure for a failed result', () => {
+    it('returns the expected structure for a failed result', () => {
       expect(
         StructuredOutputFactory.buildFromOASResult(oasResultFailure),
       ).toEqual(oasResultFailureStructure);
     });
 
-    xit('returns the expected structure when there are multiple OperationExampleResults', () => {
+    it('returns the expected structure when there are multiple OperationExampleResults', () => {
       expect(
         StructuredOutputFactory.buildFromOASResult(oasResultMixedResults),
       ).toEqual(oasResultMixedResultsStructure);
+    });
+    it('returns the expected structure when there is one security scheme', () => {
+      expect(
+        StructuredOutputFactory.buildFromOASResult(oasResultSingleSecurity),
+      ).toEqual(oasResultSingleSecurityStructure);
+    });
+    it('returns the expected structure when there are multiple security schemes', () => {
+      expect(
+        StructuredOutputFactory.buildFromOASResult(oasResultSingleSecurity),
+      ).toEqual(oasResultSingleSecurityStructure);
     });
   });
 });
