@@ -9,4 +9,4 @@ export {
   ApiResults,
   TestConfig,
 } from './structured-output.interface';
-export { default } from './structured-output.factory';
+export { default } from './json-structured-output.factory';

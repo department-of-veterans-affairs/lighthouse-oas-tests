@@ -1,7 +1,7 @@
 import { OASResult, OperationExampleResult } from '../../results';
 import { StructuredOutput } from './structured-output.interface';
 
-class StructuredOutputFactory {
+class JSONStructuredOutputFactory {
   static buildFromOASResult(input: OASResult): StructuredOutput {
     const testResults = input.results;
 
@@ -166,4 +166,4 @@ class StructuredOutputFactory {
   }
 }
 
-export default StructuredOutputFactory;
+export default JSONStructuredOutputFactory;

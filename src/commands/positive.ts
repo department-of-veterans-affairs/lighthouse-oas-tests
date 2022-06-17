@@ -2,7 +2,7 @@ import Command, { flags } from '@oclif/command';
 import { PositiveConductor } from '../conductors';
 import { OASResult } from '../results';
 import { DEFAULT_TEST_NAME } from '../utilities/constants';
-import StructuredOutputFactory from '../utilities/structured-output';
+import JSONStructuredOutputFactory from '../utilities/structured-output';
 
 export default class Positive extends Command {
   static description =
@@ -68,7 +68,7 @@ export default class Positive extends Command {
     }
 
     if (flags.jsonOutput) {
-      const output = StructuredOutputFactory.buildFromOASResult(result);
+      const output = JSONStructuredOutputFactory.buildFromOASResult(result);
       this.log(JSON.stringify(output));
     } else {
       this.log(result.toString());

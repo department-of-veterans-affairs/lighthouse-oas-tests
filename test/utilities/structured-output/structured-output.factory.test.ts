@@ -11,9 +11,9 @@ import {
   oasResultSingleSecurityStructure,
 } from '../../fixtures/results/oas-results';
 import { mockedSystemTime } from '../../fixtures/system-time';
-import StructuredOutputFactory from '../../../src/utilities/structured-output';
+import JSONStructuredOutputFactory from '../../../src/utilities/structured-output';
 
-describe('StructuredOutputFactory', () => {
+describe('JSONStructuredOutputFactory', () => {
   beforeAll(() => {
     jest.useFakeTimers('modern').setSystemTime(mockedSystemTime);
   });
@@ -25,35 +25,35 @@ describe('StructuredOutputFactory', () => {
   describe('buildFromOASResult', () => {
     it('returns the expected structure when the result is an error', () => {
       expect(
-        StructuredOutputFactory.buildFromOASResult(oasResultError),
+        JSONStructuredOutputFactory.buildFromOASResult(oasResultError),
       ).toEqual(oasResultErrorStructure);
     });
 
     it('returns the expected structure for a successful result', () => {
       expect(
-        StructuredOutputFactory.buildFromOASResult(oasResultSuccess),
+        JSONStructuredOutputFactory.buildFromOASResult(oasResultSuccess),
       ).toEqual(oasResultSuccessStructure);
     });
 
     it('returns the expected structure for a failed result', () => {
       expect(
-        StructuredOutputFactory.buildFromOASResult(oasResultFailure),
+        JSONStructuredOutputFactory.buildFromOASResult(oasResultFailure),
       ).toEqual(oasResultFailureStructure);
     });
 
     it('returns the expected structure when there are multiple OperationExampleResults', () => {
       expect(
-        StructuredOutputFactory.buildFromOASResult(oasResultMixedResults),
+        JSONStructuredOutputFactory.buildFromOASResult(oasResultMixedResults),
       ).toEqual(oasResultMixedResultsStructure);
     });
     it('returns the expected structure when there is one security scheme', () => {
       expect(
-        StructuredOutputFactory.buildFromOASResult(oasResultSingleSecurity),
+        JSONStructuredOutputFactory.buildFromOASResult(oasResultSingleSecurity),
       ).toEqual(oasResultSingleSecurityStructure);
     });
     it('returns the expected structure when there are multiple security schemes', () => {
       expect(
-        StructuredOutputFactory.buildFromOASResult(oasResultSingleSecurity),
+        JSONStructuredOutputFactory.buildFromOASResult(oasResultSingleSecurity),
       ).toEqual(oasResultSingleSecurityStructure);
     });
   });
