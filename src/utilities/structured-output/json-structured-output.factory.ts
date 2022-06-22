@@ -16,7 +16,7 @@ class JSONStructuredOutputFactory {
       config: {
         oasPath: String(input.oasPath),
         server: String(input.server),
-        authenticationType: String(authenticationType),
+        authenticationType: authenticationType,
       },
       error: input.error,
       results: undefined,
@@ -49,10 +49,10 @@ class JSONStructuredOutputFactory {
     // assemble api summary
     output.results = {
       apiSummary: {
-        totalPass: Number(passCount),
-        totalWarn: Number(warnCount),
-        totalFail: Number(failCount),
-        totalRun: Number(totalCount),
+        totalPass: passCount,
+        totalWarn: warnCount,
+        totalFail: failCount,
+        totalRun: totalCount,
         runDateTime: new Date(),
       },
     };
@@ -97,10 +97,10 @@ class JSONStructuredOutputFactory {
     if (output.results) {
       output.results[endpointId] = {
         endpointSummary: {
-          totalPass: Number(passCount),
-          totalWarn: Number(warnCount),
-          totalFail: Number(failCount),
-          totalRun: Number(totalCount),
+          totalPass: passCount,
+          totalWarn: warnCount,
+          totalFail: failCount,
+          totalRun: totalCount,
         },
       };
     }
