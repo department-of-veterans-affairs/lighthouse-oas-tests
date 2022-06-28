@@ -58,6 +58,7 @@ declare module 'swagger-client/schema' {
     requestBody?: RequestBodyObject;
     responses: { [responseStatus: string]: ResponseObject };
     security?: SecurityRequirementObject[];
+    __originalOperationId?: string
   }
 
   interface RequestBodyObject {
