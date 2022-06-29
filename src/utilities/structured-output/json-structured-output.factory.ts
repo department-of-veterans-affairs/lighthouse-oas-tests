@@ -5,10 +5,8 @@ class JSONStructuredOutputFactory {
   static buildFromOASResult(input: OASResult): StructuredOutput {
     const testResults = input.results;
 
-    // assemble authenticationType string
-    const authenticationType = input.securitySchemes
-      .map((x) => x.type)
-      .join('/');
+    // assemble authenticationType array
+    const authenticationType = input.securitySchemes.map((x) => x.type);
 
     // assemble top-level output
     const output: StructuredOutput = {

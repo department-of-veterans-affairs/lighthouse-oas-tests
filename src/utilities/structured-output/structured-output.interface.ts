@@ -1,3 +1,5 @@
+import { OASSecurityType } from '../oas-security';
+
 export type StructuredOutput = {
   id: string;
   config: TestConfig;
@@ -8,7 +10,7 @@ export type StructuredOutput = {
 export interface TestConfig {
   oasPath: string;
   server: string;
-  authenticationType: string;
+  authenticationType: OASSecurityType[];
 }
 
 export interface ApiResults {

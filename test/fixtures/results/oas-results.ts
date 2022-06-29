@@ -11,7 +11,10 @@ import {
   operationExampleResultMixedStructure,
 } from './operation-example-results';
 import { StructuredOutput } from '../../../src/utilities/structured-output';
-import { OASSecurityScheme } from '../../../src/utilities/oas-security';
+import {
+  OASSecurityScheme,
+  OASSecurityType,
+} from '../../../src/utilities/oas-security';
 
 export const oasResultSuccess = new OASResult(
   'winterfell',
@@ -30,7 +33,7 @@ export const oasResultSuccessStructure: StructuredOutput = {
   config: {
     oasPath: String(oasResultSuccess.oasPath),
     server: String(oasResultSuccess.server),
-    authenticationType: '',
+    authenticationType: [],
   },
   error: undefined,
   results: operationExampleResultNoFailuresWarningsStructure,
@@ -53,7 +56,7 @@ export const oasResultFailureStructure: StructuredOutput = {
   config: {
     oasPath: String(oasResultFailure.oasPath),
     server: String(oasResultFailure.server),
-    authenticationType: '',
+    authenticationType: [],
   },
   error: undefined,
   results: operationExampleResultFailuresWarningsStructure,
@@ -80,7 +83,7 @@ export const oasResultMixedResultsStructure: StructuredOutput = {
   config: {
     oasPath: String(oasResultMixedResults.oasPath),
     server: String(oasResultMixedResults.server),
-    authenticationType: '',
+    authenticationType: [],
   },
   error: undefined,
   results: operationExampleResultMixedStructure,
@@ -103,7 +106,7 @@ export const oasResultErrorStructure: StructuredOutput = {
   config: {
     oasPath: String(oasResultError.oasPath),
     server: String(oasResultError.server),
-    authenticationType: '',
+    authenticationType: [],
   },
   error: oasResultError.error,
   results: undefined,
@@ -111,7 +114,7 @@ export const oasResultErrorStructure: StructuredOutput = {
 
 export const oasResultErrorJson =
   `{"id":"${oasResultError.testName}",` +
-  `"config":{"oasPath":"${oasResultError.oasPath}","server":"${oasResultError.server}","authenticationType":""},` +
+  `"config":{"oasPath":"${oasResultError.oasPath}","server":"${oasResultError.server}","authenticationType":[]},` +
   `"error":"${oasResultError.error}"}`;
 
 export const oasResultMissingPath = new OASResult(
@@ -140,7 +143,7 @@ export const oasResultSingleSecurityStructure: StructuredOutput = {
   config: {
     oasPath: String(oasResultSingleSecurity.oasPath),
     server: String(oasResultSingleSecurity.server),
-    authenticationType: 'apiKey',
+    authenticationType: [OASSecurityType.APIKEY],
   },
   results: undefined,
   error: undefined,
@@ -163,7 +166,7 @@ export const oasResultMultipleSecurityStructure: StructuredOutput = {
   config: {
     oasPath: String(oasResultMultipleSecurity.oasPath),
     server: String(oasResultMultipleSecurity.server),
-    authenticationType: 'apiKey/oauth2',
+    authenticationType: [OASSecurityType.APIKEY, OASSecurityType.OAUTH2],
   },
   results: undefined,
   error: undefined,
