@@ -12,8 +12,8 @@ class JSONStructuredOutputFactory {
     const output: StructuredOutput = {
       id: input.testName,
       config: {
-        oasPath: String(input.oasPath),
-        server: String(input.server),
+        oasPath: input.oasPath,
+        server: input.server,
         authenticationType: authenticationType,
       },
       error: input.error,

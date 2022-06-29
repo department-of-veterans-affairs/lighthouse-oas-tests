@@ -8,8 +8,8 @@ export type StructuredOutput = {
 };
 
 export interface TestConfig {
-  oasPath: string;
-  server: string;
+  oasPath?: string;
+  server?: string;
   authenticationType: OASSecurityType[];
 }
 

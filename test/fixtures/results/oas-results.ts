@@ -31,8 +31,8 @@ ${operationExampleResultNoFailuresWarningsString}`;
 export const oasResultSuccessStructure: StructuredOutput = {
   id: oasResultSuccess.testName,
   config: {
-    oasPath: String(oasResultSuccess.oasPath),
-    server: String(oasResultSuccess.server),
+    oasPath: oasResultSuccess.oasPath,
+    server: oasResultSuccess.server,
     authenticationType: [],
   },
   error: undefined,
@@ -54,8 +54,8 @@ ${operationExampleResultFailuresWarningsString}`;
 export const oasResultFailureStructure: StructuredOutput = {
   id: oasResultFailure.testName,
   config: {
-    oasPath: String(oasResultFailure.oasPath),
-    server: String(oasResultFailure.server),
+    oasPath: oasResultFailure.oasPath,
+    server: oasResultFailure.server,
     authenticationType: [],
   },
   error: undefined,
@@ -81,8 +81,8 @@ ${operationExampleResultFailuresWarningsString}${operationExampleResultFailuresN
 export const oasResultMixedResultsStructure: StructuredOutput = {
   id: oasResultMixedResults.testName,
   config: {
-    oasPath: String(oasResultMixedResults.oasPath),
-    server: String(oasResultMixedResults.server),
+    oasPath: oasResultMixedResults.oasPath,
+    server: oasResultMixedResults.server,
     authenticationType: [],
   },
   error: undefined,
@@ -104,8 +104,8 @@ export const oasResultErrorString =
 export const oasResultErrorStructure: StructuredOutput = {
   id: oasResultError.testName,
   config: {
-    oasPath: String(oasResultError.oasPath),
-    server: String(oasResultError.server),
+    oasPath: oasResultError.oasPath,
+    server: oasResultError.server,
     authenticationType: [],
   },
   error: oasResultError.error,
@@ -141,8 +141,8 @@ export const oasResultSingleSecurity = new OASResult(
 export const oasResultSingleSecurityStructure: StructuredOutput = {
   id: oasResultSingleSecurity.testName,
   config: {
-    oasPath: String(oasResultSingleSecurity.oasPath),
-    server: String(oasResultSingleSecurity.server),
+    oasPath: oasResultSingleSecurity.oasPath,
+    server: oasResultSingleSecurity.server,
     authenticationType: [OASSecurityType.APIKEY],
   },
   results: undefined,
@@ -164,8 +164,8 @@ export const oasResultMultipleSecurity = new OASResult(
 export const oasResultMultipleSecurityStructure: StructuredOutput = {
   id: oasResultMultipleSecurity.testName,
   config: {
-    oasPath: String(oasResultMultipleSecurity.oasPath),
-    server: String(oasResultMultipleSecurity.server),
+    oasPath: oasResultMultipleSecurity.oasPath,
+    server: oasResultMultipleSecurity.server,
     authenticationType: [OASSecurityType.APIKEY, OASSecurityType.OAUTH2],
   },
   results: undefined,
