@@ -1,7 +1,14 @@
 import { OperationExampleResult } from '../results';
+import { OASSecurityScheme } from '../utilities/oas-security';
 
 export default class OASResult {
   readonly testName: string;
+
+  readonly oasPath: string | undefined;
+
+  readonly server: string | undefined;
+
+  readonly securitySchemes: OASSecurityScheme[];
 
   readonly results: OperationExampleResult[] | undefined;
 
@@ -9,10 +16,16 @@ export default class OASResult {
 
   constructor(
     testName: string,
+    oasPath: string | undefined,
+    server: string | undefined,
+    securitySchemes: OASSecurityScheme[],
     results: OperationExampleResult[] | undefined,
     error: string | undefined,
   ) {
     this.testName = testName;
+    this.oasPath = oasPath;
+    this.server = server;
+    this.securitySchemes = securitySchemes;
     this.results = results;
     this.error = error;
   }

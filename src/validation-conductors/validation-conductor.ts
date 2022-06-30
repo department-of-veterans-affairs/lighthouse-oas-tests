@@ -63,8 +63,12 @@ export default class ValidationConductor {
       warnings = new Map([...warnings, ...responseValidationWarnings]);
     }
 
+    // get the original operation ID
+    const originalOperationId = this.operation.operation.__originalOperationId;
+
     return new OperationExampleResult(
       this.operation.operationId,
+      originalOperationId,
       this.exampleGroup.name,
       failures,
       warnings,

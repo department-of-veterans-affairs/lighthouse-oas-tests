@@ -11,16 +11,19 @@ import { ValidationConductor } from '../validation-conductors';
 export default class PositiveConductor {
   private testName: string;
 
-  private apiKey: string | undefined;
+  private path: string | undefined;
 
   private server: string | undefined;
 
-  private schema: OASSchema;
+  private apiKey: string | undefined;
 
   private token: string | undefined;
 
+  private schema: OASSchema;
+
   constructor(testName: string, { path, server, apiKey, token }: TestOptions) {
     this.testName = testName;
+    this.path = path;
     this.server = server;
     this.apiKey = apiKey;
     this.token = token;
@@ -64,7 +67,14 @@ export default class PositiveConductor {
       }),
     );
 
-    return new OASResult(this.testName, results, undefined);
+    return new OASResult(
+      this.testName,
+      this.path,
+      this.server,
+      relevantSecuritySchemes,
+      results,
+      undefined,
+    );
   }
 
   private async validateServerOption(): Promise<void> {

@@ -10,6 +10,8 @@ import OASSecurityFactory from '../oas-security/oas-security.factory';
 import RequestBodyFactory from '../request-body/request-body.factory';
 
 class OASOperation {
+  readonly operation: OperationObject;
+
   readonly operationId: string;
 
   readonly parameters: ParameterObject[] | undefined;
@@ -17,8 +19,6 @@ class OASOperation {
   readonly requestBody: RequestBodyObject | undefined;
 
   readonly security: OASSecurity[];
-
-  private _operation: OperationObject;
 
   private _exampleGroups: ExampleGroup[];
 
@@ -28,7 +28,7 @@ class OASOperation {
     operation: OperationObject,
     securities: SecurityRequirementObject[] = [],
   ) {
-    this._operation = operation;
+    this.operation = operation;
     this.operationId = operation.operationId;
     this.parameters = operation.parameters;
     this.requestBody = operation.requestBody;
@@ -48,11 +48,11 @@ class OASOperation {
   }
 
   get requiredParameterNames(): string[] {
-    if (this._operation.parameters === undefined) {
+    if (this.operation.parameters === undefined) {
       return [];
     }
 
-    return this._operation.parameters
+    return this.operation.parameters
       .filter((parameter) => parameter.required)
       .map((parameter) => parameter.name);
   }
@@ -69,7 +69,7 @@ class OASOperation {
   }
 
   getResponseSchema(statusCode: string | number): ResponseObject | null {
-    const entry = this._operation.responses[statusCode];
+    const entry = this.operation.responses[statusCode];
 
     return entry ?? null;
   }

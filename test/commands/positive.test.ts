@@ -6,6 +6,8 @@ import {
   oasResultFailureString,
   oasResultMixedResults,
   oasResultMixedResultsString,
+  oasResultError,
+  oasResultErrorJson,
 } from '../fixtures/results/oas-results';
 
 const mockConduct = jest.fn();
@@ -33,14 +35,23 @@ describe('Positive', () => {
     mockConduct.mockReset();
   });
 
-  it('throws an error when PositiveConductor encounters an error', async () => {
-    const errorMessage =
-      'Token is undefined or empty but required by the bearer_token security';
-    mockConduct.mockRejectedValue(new Error(errorMessage));
+  describe('when PositiveConductor encounters an error', () => {
+    it('throws an error', async () => {
+      const errorMessage =
+        'Token is undefined or empty but required by the bearer_token security';
+      mockConduct.mockRejectedValue(new Error(errorMessage));
 
-    await expect(async () =>
-      Positive.run(['pathDoesNotMatter.json']),
-    ).rejects.toThrow(errorMessage);
+      await expect(async () =>
+        Positive.run(['pathDoesNotMatter.json']),
+      ).rejects.toThrow(errorMessage);
+    });
+    it('outputs json structure with empty results', async () => {
+      mockConduct.mockResolvedValue(oasResultError);
+
+      await Positive.run(['-j', 'pathDoesNotMatter.json']);
+
+      expect(result).toEqual([`${oasResultErrorJson}\n`]);
+    });
   });
 
   describe('all OperationExamples pass', () => {

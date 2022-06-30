@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 abstract class ValidationMessage {
-  protected message: string;
+  message: string;
 
   private _path: string[];
 

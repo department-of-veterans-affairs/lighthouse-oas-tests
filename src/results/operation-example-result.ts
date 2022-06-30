@@ -4,6 +4,8 @@ import { ValidationWarning } from '../validation-messages/warnings';
 export default class OperationExampleResult {
   readonly operationId: string;
 
+  readonly originalOperationId: string | undefined;
+
   readonly exampleGroupName: string;
 
   readonly failures: Map<string, ValidationFailure>;
@@ -12,11 +14,13 @@ export default class OperationExampleResult {
 
   constructor(
     operationId: string,
+    originalOperationId: string | undefined,
     exampleGroupName: string,
     failures: Map<string, ValidationFailure>,
     warnings: Map<string, ValidationWarning>,
   ) {
     this.operationId = operationId;
+    this.originalOperationId = originalOperationId;
     this.exampleGroupName = exampleGroupName;
     this.failures = failures;
     this.warnings = warnings;
