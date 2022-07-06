@@ -3,7 +3,6 @@ import { SecuritySchemeObject } from 'swagger-client/schema';
 export enum OASSecurityType {
   APIKEY = 'apiKey',
   HTTP = 'http',
-  MUTUAL_TLS = 'mutualTLS',
   OAUTH2 = 'oauth2',
   OPEN_ID_CONNECT = 'openIdConnect',
 }
