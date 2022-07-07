@@ -45,6 +45,11 @@
   "engines": {
     "node": ">=8.0.0"
   },
+  "exports": {
+    ".": "./lib/index.js",
+    "./conductors": "./lib/conductors/index.js",
+    "./results": "./lib/results/index.js"
+  },
   "files": [
     "/bin",
     "/lib",
