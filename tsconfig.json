@@ -5,6 +5,7 @@
     "module": "CommonJS",
     "outDir": "lib",
     "strict": true,
+    "declaration": true,
     "noImplicitAny": false,
     "esModuleInterop": true,
     "experimentalDecorators": true,
