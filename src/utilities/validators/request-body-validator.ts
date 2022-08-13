@@ -1,5 +1,5 @@
 import { RequestBodyObject } from 'swagger-client/schema';
-import { MissingContentSchemaObject } from '../../validation-messages/failures';
+import { Type } from './validation-message';
 import OASOperation from '../oas-operation';
 import BaseValidator from './base-validator';
 
@@ -25,13 +25,11 @@ class RequestBodyValidator extends BaseValidator {
     for (const contentObjectKey of contentObjectKeys) {
       if (!requestBody.content[contentObjectKey].schema) {
         // ERROR: Content Object does not contain a Schema Object.
-        this.addFailure(
-          new MissingContentSchemaObject([
-            ...path,
-            'content',
-            contentObjectKey,
-          ]),
-        );
+        this.addMessage(Type.MissingContentSchemaObject, [
+          ...path,
+          'content',
+          contentObjectKey,
+        ]);
       }
     }
 

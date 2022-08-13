@@ -1,28 +1,10 @@
 import { isEqual, uniqWith } from 'lodash';
 import { Json, SchemaObject } from 'swagger-client/schema';
-import {
-  DuplicateEnum,
-  EnumMismatch,
-  ItemSchemaMissing,
-  NullValueNotAllowed,
-  PropertiesMismatch,
-  PropertySchemaMissing,
-  RequiredProperty,
-  TypeMismatch,
-  ValidationFailure,
-} from '../../validation-messages/failures';
-import ValidationMessage from '../../validation-messages/validation-message';
-import {
-  EmptyArray,
-  MissingProperties,
-  ValidationWarning,
-} from '../../validation-messages/warnings';
+import ValidationMessage, { Type } from './validation-message';
 
 abstract class BaseValidator {
-  protected _failures: Map<string, ValidationFailure>;
-
-  protected _warnings: Map<string, ValidationWarning>;
-
+  protected _failures: Map<string, ValidationMessage>;
+  protected _warnings: Map<string, ValidationMessage>;
   protected validated: boolean;
 
   constructor() {
@@ -31,27 +13,19 @@ abstract class BaseValidator {
     this._warnings = new Map();
   }
 
-  public get failures(): Map<string, ValidationFailure> {
+  public get failures(): Map<string, ValidationMessage> {
     return this._failures;
   }
 
-  public get warnings(): Map<string, ValidationWarning> {
+  public get warnings(): Map<string, ValidationMessage> {
     return this._warnings;
   }
 
-  protected addFailure(failure: ValidationFailure): void {
-    this.addValidationMessage(failure, this._failures);
-  }
-
-  protected addWarning(warning: ValidationWarning): void {
-    this.addValidationMessage(warning, this._warnings);
-  }
-
-  private addValidationMessage(
-    message: ValidationMessage,
-    map: Map<string, ValidationMessage>,
-  ): void {
+  protected addMessage(type: Type, path: string[], props?: string[]): void {
+    const message = new ValidationMessage(type, path, props);
+    const map = message.isError() ? this._failures : this._warnings;
     const existingMessage = map.get(message.hash);
+
     if (existingMessage) {
       existingMessage.incrementCount();
     } else {
@@ -108,7 +82,7 @@ abstract class BaseValidator {
     // if the actual object is null check that null values are allowed
     if (actual === null) {
       if (!expected.nullable) {
-        this.addFailure(new NullValueNotAllowed([...path]));
+        this.addMessage(Type.NullValueNotAllowed, path);
         return true;
       }
     }
@@ -138,7 +112,7 @@ abstract class BaseValidator {
     }
 
     if (isUnexpectedType) {
-      this.addFailure(new TypeMismatch([...path], expected.type, actualType));
+      this.addMessage(Type.TypeMismatch, path, [expected.type, actualType]);
     }
 
     return isUnexpectedType;
@@ -154,13 +128,16 @@ abstract class BaseValidator {
       // check that expected enum does not contain duplicate values
       const uniqueEnumValues = uniqWith(enumValues, isEqual);
       if (uniqueEnumValues.length !== enumValues.length) {
-        this.addFailure(new DuplicateEnum([...path], enumValues));
+        this.addMessage(Type.DuplicateEnum, path, [JSON.stringify(enumValues)]);
       }
 
       // check that the actual object matches an element in the expected enum
       const filteredEnum = enumValues.filter((value) => isEqual(value, actual));
       if (filteredEnum.length === 0) {
-        this.addFailure(new EnumMismatch([...path], enumValues, actual));
+        this.addMessage(Type.EnumMismatch, path, [
+          JSON.stringify(enumValues),
+          JSON.stringify(actual),
+        ]);
       }
     }
   }
@@ -174,7 +151,7 @@ abstract class BaseValidator {
     const itemSchema = expected.items;
     if (itemSchema) {
       if (actual.length === 0) {
-        this.addWarning(new EmptyArray(path));
+        this.addMessage(Type.EmptyArray, path);
       } else {
         // re-run for each item
         actual.forEach((item) => {
@@ -182,7 +159,7 @@ abstract class BaseValidator {
         });
       }
     } else {
-      this.addFailure(new ItemSchemaMissing([...path]));
+      this.addMessage(Type.ItemSchemaMissing, path);
     }
   }
 
@@ -195,7 +172,7 @@ abstract class BaseValidator {
 
     // check that the expected object's properties field is set
     if (!properties) {
-      this.addFailure(new PropertySchemaMissing([...path]));
+      this.addMessage(Type.PropertySchemaMissing, path);
       return;
     }
 
@@ -211,19 +188,23 @@ abstract class BaseValidator {
         (property) => !actualProperties.includes(property),
       );
 
-      this.addFailure(
-        new PropertiesMismatch(
-          [...path],
-          expectedPropertiesNotFound,
-          unexpectedActualProperties,
-        ),
-      );
+      let expectPropStr = ''; //No other messages get this kind of conditional treatment. Should be rewritten
+      if (expectedPropertiesNotFound.length > 0) {
+        expectPropStr = ` Schema properties not found: ${expectedPropertiesNotFound.join(
+          ', ',
+        )}`;
+      }
+
+      this.addMessage(Type.PropertiesMismatch, path, [
+        unexpectedActualProperties.join(', '),
+        expectPropStr,
+      ]);
     }
 
     // check required values are present
     expected.required?.forEach((requiredProperty) => {
       if (!actualProperties.includes(requiredProperty)) {
-        this.addFailure(new RequiredProperty([...path], requiredProperty));
+        this.addMessage(Type.RequiredProperty, path, [requiredProperty]);
       }
     });
 
@@ -236,7 +217,9 @@ abstract class BaseValidator {
     );
 
     if (missingOptionalProperties.length > 0) {
-      this.addWarning(new MissingProperties(missingOptionalProperties, path));
+      this.addMessage(Type.MissingProperties, path, [
+        missingOptionalProperties.join(', '),
+      ]);
     }
 
     // re-un for each property that has a schema present

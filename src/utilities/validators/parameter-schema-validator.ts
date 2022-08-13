@@ -3,12 +3,7 @@ import {
   parameterHasContent,
   parameterHasSchema,
 } from '../../types/typeguards';
-import {
-  InvalidParameterContent,
-  InvalidParameterExample,
-  InvalidParameterObject,
-  MissingContentSchemaObject,
-} from '../../validation-messages/failures';
+import { Type } from './validation-message';
 import OASOperation from '../oas-operation';
 import BaseValidator from './base-validator';
 
@@ -35,33 +30,31 @@ class ParameterSchemaValidator extends BaseValidator {
     path: string[],
   ): void {
     if (parameter.example && parameter.examples) {
-      this.addFailure(new InvalidParameterExample(path));
+      this.addMessage(Type.InvalidParameterExample, path);
     } else if (parameterHasContent(parameter)) {
       // Parameter Object contains field: content
       if (parameterHasSchema(parameter)) {
         // ERROR: Parameter Object also contains field: schema.
-        this.addFailure(new InvalidParameterObject(path));
+        this.addMessage(Type.InvalidParameterObject, path);
       }
 
       const [contentObjectKey, ...invalidKeys] = Object.keys(parameter.content);
       if (invalidKeys.length > 0) {
         // ERROR: Content Object contains more than one entry.
-        this.addFailure(new InvalidParameterContent([...path, 'content']));
+        this.addMessage(Type.InvalidParameterContent, [...path, 'content']);
       }
 
       if (!parameter.content[contentObjectKey].schema) {
         // ERROR: Content Object does not contain a Schema Object.
-        this.addFailure(
-          new MissingContentSchemaObject([
-            ...path,
-            'content',
-            contentObjectKey,
-          ]),
-        );
+        this.addMessage(Type.MissingContentSchemaObject, [
+          ...path,
+          'content',
+          contentObjectKey,
+        ]);
       }
     } else if (!parameterHasSchema(parameter)) {
       // ERROR: Parameter Object must contain one of the following: schema, or content.
-      this.addFailure(new InvalidParameterObject(path));
+      this.addMessage(Type.InvalidParameterObject, path);
     }
   }
 }

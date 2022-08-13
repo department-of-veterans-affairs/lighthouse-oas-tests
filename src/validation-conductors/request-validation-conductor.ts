@@ -5,8 +5,7 @@ import {
   ParameterSchemaValidator,
   RequestBodyValidator,
 } from '../utilities/validators';
-import { ValidationFailure } from '../validation-messages/failures';
-import { ValidationWarning } from '../validation-messages/warnings';
+import ValidationMessage from '../utilities/validators/validation-message';
 
 export default class RequestValidationConductor {
   private operation: OASOperation;
@@ -18,9 +17,9 @@ export default class RequestValidationConductor {
     this.exampleGroup = exampleGroup;
   }
 
-  validate(): [Map<string, ValidationFailure>, Map<string, ValidationWarning>] {
-    let failures: Map<string, ValidationFailure> = new Map();
-    let warnings: Map<string, ValidationWarning> = new Map();
+  validate(): [Map<string, ValidationMessage>, Map<string, ValidationMessage>] {
+    let failures: Map<string, ValidationMessage> = new Map();
+    let warnings: Map<string, ValidationMessage> = new Map();
 
     const parameterSchemaValidator = new ParameterSchemaValidator(
       this.operation,

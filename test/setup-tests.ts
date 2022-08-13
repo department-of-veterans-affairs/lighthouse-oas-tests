@@ -1,9 +1,8 @@
-import { ValidationFailure } from '../src/validation-messages/failures';
-import { ValidationWarning } from '../src/validation-messages/warnings';
+import ValidationMessage from '../src/utilities/validators/validation-message';
 
 expect.extend({
   toContainValidationFailure(
-    received: Map<string, ValidationFailure>,
+    received: Map<string, ValidationMessage>,
     argument: string,
   ) {
     let pass = false;
@@ -34,7 +33,7 @@ expect.extend({
     };
   },
   toContainValidationWarning(
-    received: Map<string, ValidationWarning>,
+    received: Map<string, ValidationMessage>,
     argument: string,
   ) {
     let pass = false;
