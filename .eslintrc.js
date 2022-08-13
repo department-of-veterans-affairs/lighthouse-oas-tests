@@ -25,6 +25,9 @@ module.exports = {
     "comma-dangle": ["error", "always-multiline"],
     indent: ["error", 2],
     "prettier/prettier": ["error"],
+    'lines-between-class-members': [
+      'never'
+    ]
   },
   overrides: [
     {

@@ -1,11 +1,9 @@
 import { Response } from 'swagger-client';
 import OASOperation from '../utilities/oas-operation';
 import { ResponseValidator } from '../utilities/validators';
-import {
-  InvalidResponse,
-  ValidationFailure,
-} from '../validation-messages/failures';
-import { ValidationWarning } from '../validation-messages/warnings';
+import ValidationMessage, {
+  Type,
+} from '../utilities/validators/validation-message';
 
 export default class ResponseValidationConductor {
   private response: Response;
@@ -17,9 +15,9 @@ export default class ResponseValidationConductor {
     this.operation = operation;
   }
 
-  validate(): [Map<string, ValidationFailure>, Map<string, ValidationWarning>] {
-    let failures: Map<string, ValidationFailure> = new Map();
-    let warnings: Map<string, ValidationWarning> = new Map();
+  validate(): [Map<string, ValidationMessage>, Map<string, ValidationMessage>] {
+    let failures: Map<string, ValidationMessage> = new Map();
+    let warnings: Map<string, ValidationMessage> = new Map();
 
     if (this.response.ok) {
       const responseValidator = new ResponseValidator(
@@ -31,8 +29,13 @@ export default class ResponseValidationConductor {
       failures = responseValidator.failures;
       warnings = responseValidator.warnings;
     } else {
-      const failure = new InvalidResponse(this.response.status);
-      failures.set(failure.hash, failure);
+      const messageMessage = new ValidationMessage(
+        Type.InvalidResponse,
+        [],
+        [this.response.status?.toString()],
+      );
+
+      failures.set(messageMessage.hash, messageMessage);
     }
 
     return [failures, warnings];

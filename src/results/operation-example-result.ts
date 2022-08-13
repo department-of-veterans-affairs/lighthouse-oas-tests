@@ -1,23 +1,18 @@
-import { ValidationFailure } from '../validation-messages/failures';
-import { ValidationWarning } from '../validation-messages/warnings';
+import ValidationMessage from '../utilities/validators/validation-message';
 
 export default class OperationExampleResult {
   readonly operationId: string;
-
   readonly originalOperationId: string | undefined;
-
   readonly exampleGroupName: string;
-
-  readonly failures: Map<string, ValidationFailure>;
-
-  readonly warnings: Map<string, ValidationWarning>;
+  readonly failures: Map<string, ValidationMessage>;
+  readonly warnings: Map<string, ValidationMessage>;
 
   constructor(
     operationId: string,
     originalOperationId: string | undefined,
     exampleGroupName: string,
-    failures: Map<string, ValidationFailure>,
-    warnings: Map<string, ValidationWarning>,
+    failures: Map<string, ValidationMessage>,
+    warnings: Map<string, ValidationMessage>,
   ) {
     this.operationId = operationId;
     this.originalOperationId = originalOperationId;

@@ -1,5 +1,5 @@
 import { RequestValidationConductor } from '../../src/validation-conductors';
-import { ValidationFailure } from '../../src/validation-messages/failures';
+import ValidationMessage from '../../src/utilities/validators/validation-message';
 import {
   exampleGroupFailureMap,
   parameterSchemaFailureMap,
@@ -64,7 +64,7 @@ describe('RequestValidationConductor', () => {
 
   describe('validate', () => {
     it('returns the expected failures and warnings', () => {
-      const expectedFailures = new Map<string, ValidationFailure>([
+      const expectedFailures = new Map<string, ValidationMessage>([
         ...parameterSchemaFailureMap,
         ...requestBodyFailureMap,
         ...exampleGroupFailureMap,

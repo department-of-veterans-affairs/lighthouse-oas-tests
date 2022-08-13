@@ -1,9 +1,6 @@
 import { parse } from 'content-type';
 import { Response } from 'swagger-client';
-import {
-  ContentTypeMismatch,
-  StatusCodeMismatch,
-} from '../../validation-messages/failures';
+import { Type } from './validation-message';
 import OASOperation from '../oas-operation';
 import BaseValidator from './base-validator';
 
@@ -28,7 +25,7 @@ class ResponseValidator extends BaseValidator {
       const contentTypeSchema = responseSchema.content[contentType];
 
       if (!contentTypeSchema) {
-        this.addFailure(new ContentTypeMismatch(contentType));
+        this.addMessage(Type.ContentTypeMismatch, [], [contentType]);
         return;
       }
 
@@ -38,7 +35,7 @@ class ResponseValidator extends BaseValidator {
         ['body'],
       );
     } else {
-      this.addFailure(new StatusCodeMismatch(this.response.status));
+      this.addMessage(Type.StatusCodeMismatch, [], [`${this.response.status}`]);
     }
   };
 }

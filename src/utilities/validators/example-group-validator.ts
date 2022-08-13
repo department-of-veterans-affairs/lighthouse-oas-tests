@@ -1,6 +1,6 @@
 import { Json, ParameterObject } from 'swagger-client/schema';
 import { parameterHasSchema } from '../../types/typeguards';
-import { MissingRequiredParameters } from '../../validation-messages/failures';
+import { Type } from './validation-message';
 import ExampleGroup from '../example-group';
 import OASOperation from '../oas-operation';
 import BaseValidator from './base-validator';
@@ -34,7 +34,11 @@ class ExampleGroupValidator extends BaseValidator {
     );
 
     if (missingRequiredParameters.length > 0) {
-      this.addFailure(new MissingRequiredParameters(missingRequiredParameters));
+      this.addMessage(
+        Type.MissingRequiredParameters,
+        [],
+        [JSON.stringify(missingRequiredParameters)],
+      );
     }
   }
 

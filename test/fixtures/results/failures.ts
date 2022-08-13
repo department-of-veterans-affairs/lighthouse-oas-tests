@@ -1,70 +1,71 @@
-import {
-  DuplicateEnum,
-  InvalidParameterExample,
-  MissingContentSchemaObject,
-  MissingRequiredParameters,
-  RequiredProperty,
-  TypeMismatch,
-  ValidationFailure,
-} from '../../../src/validation-messages/failures';
+import ValidationMessage, {
+  Type,
+} from '../../../src/utilities/validators/validation-message';
 
-const responseTypeMisMatch = new TypeMismatch(
+const responseTypeMisMatch = new ValidationMessage(
+  Type.TypeMismatch,
   ['body', 'age'],
-  'number',
-  'string',
+  ['number', 'string'],
 );
 responseTypeMisMatch.incrementCount();
 
-const requiredGlassesProperty = new RequiredProperty(['body'], 'glasses');
+const requiredGlassesProperty = new ValidationMessage(
+  Type.RequiredProperty,
+  ['body'],
+  ['glasses'],
+);
 
-const requiredHouseProperty = new RequiredProperty(['body'], 'house');
+const requiredHouseProperty = new ValidationMessage(
+  Type.RequiredProperty,
+  ['body'],
+  ['house'],
+);
 
-const invalidParameterExample = new InvalidParameterExample([
-  'parameters',
-  'name',
-]);
+const invalidParameterExample = new ValidationMessage(
+  Type.InvalidParameterExample,
+  ['parameters', 'name'],
+);
 
-const parameterMissingContentSchemaObject = new MissingContentSchemaObject([
-  'parameters',
-  'howler',
-  'content',
-  'application/json',
-]);
+const parameterMissingContentSchemaObject = new ValidationMessage(
+  Type.MissingContentSchemaObject,
+  ['parameters', 'howler', 'content', 'application/json'],
+);
 
-const requestBodyMissingContentSchemaObject = new MissingContentSchemaObject([
-  'requestBody',
-  'content',
-  'application/json',
-]);
+const requestBodyMissingContentSchemaObject = new ValidationMessage(
+  Type.MissingContentSchemaObject,
+  ['requestBody', 'content', 'application/json'],
+);
 
-const requestBodyTypeMismatch = new TypeMismatch(
+const requestBodyTypeMismatch = new ValidationMessage(
+  Type.TypeMismatch,
   ['requestBody', 'example', 'colors'],
-  'array',
-  'string',
+  ['array', 'string'],
 );
 
-const duplicateEnum = new DuplicateEnum(
+const duplicateEnum = new ValidationMessage(
+  Type.DuplicateEnum,
   ['requestBody', 'example', 'house'],
-  ['Gryffindor', 'Hufflepuff', 'Slytherin', 'Hufflepuff'],
+  [JSON.stringify(['Gryffindor', 'Hufflepuff', 'Slytherin', 'Hufflepuff'])],
 );
 
-const missingRequiredParameters = new MissingRequiredParameters([
-  'name',
-  'age',
-]);
+const missingRequiredParameters = new ValidationMessage(
+  Type.MissingRequiredParameters,
+  [],
+  ['name', 'age'],
+);
 
-export const responseFailuresMap = new Map<string, ValidationFailure>([
+export const responseFailuresMap = new Map<string, ValidationMessage>([
   [responseTypeMisMatch.hash, responseTypeMisMatch],
   [requiredGlassesProperty.hash, requiredGlassesProperty],
 ]);
 
-export const responseOneFailureMap = new Map<string, ValidationFailure>([
+export const responseOneFailureMap = new Map<string, ValidationMessage>([
   [requiredHouseProperty.hash, requiredHouseProperty],
 ]);
 
-export const emptyFailureMap = new Map<string, ValidationFailure>();
+export const emptyFailureMap = new Map<string, ValidationMessage>();
 
-export const parameterSchemaFailureMap = new Map<string, ValidationFailure>([
+export const parameterSchemaFailureMap = new Map<string, ValidationMessage>([
   [invalidParameterExample.hash, invalidParameterExample],
   [
     parameterMissingContentSchemaObject.hash,
@@ -72,7 +73,7 @@ export const parameterSchemaFailureMap = new Map<string, ValidationFailure>([
   ],
 ]);
 
-export const requestBodyFailureMap = new Map<string, ValidationFailure>([
+export const requestBodyFailureMap = new Map<string, ValidationMessage>([
   [
     requestBodyMissingContentSchemaObject.hash,
     requestBodyMissingContentSchemaObject,
@@ -81,6 +82,6 @@ export const requestBodyFailureMap = new Map<string, ValidationFailure>([
   [duplicateEnum.hash, duplicateEnum],
 ]);
 
-export const exampleGroupFailureMap = new Map<string, ValidationFailure>([
+export const exampleGroupFailureMap = new Map<string, ValidationMessage>([
   [missingRequiredParameters.hash, missingRequiredParameters],
 ]);
