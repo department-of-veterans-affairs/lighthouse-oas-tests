@@ -5,7 +5,7 @@ import { operationSimpleGet } from '../../fixtures/utilities/oas-operations';
 
 const mockValidate = jest.fn();
 
-jest.mock('../../src/validation/conductors/validation-conductor', () => {
+jest.mock('../../../src/validation/validators/response-validator', () => {
   return {
     __esModule: true,
     default: jest.fn().mockImplementation(() => {

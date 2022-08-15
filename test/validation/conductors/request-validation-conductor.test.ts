@@ -16,20 +16,23 @@ const mockParameterValidate = jest.fn();
 const mockRequestBodyValidate = jest.fn();
 const mockExampleGroupValidate = jest.fn();
 
-jest.mock('../../src/validation/validators/parameter-schema-validator', () => {
-  return {
-    __esModule: true,
-    default: jest.fn().mockImplementation(() => {
-      return {
-        validate: mockParameterValidate,
-        failures: parameterSchemaFailureMap,
-        warnings: emptyWarningMap,
-      };
-    }),
-  };
-});
+jest.mock(
+  '../../../src/validation/validators/parameter-schema-validator',
+  () => {
+    return {
+      __esModule: true,
+      default: jest.fn().mockImplementation(() => {
+        return {
+          validate: mockParameterValidate,
+          failures: parameterSchemaFailureMap,
+          warnings: emptyWarningMap,
+        };
+      }),
+    };
+  },
+);
 
-jest.mock('../../src/validation/validators/request-body-validator', () => {
+jest.mock('../../../src/validation/validators/request-body-validator', () => {
   return {
     __esModule: true,
     default: jest.fn().mockImplementation(() => {
@@ -42,7 +45,7 @@ jest.mock('../../src/validation/validators/request-body-validator', () => {
   };
 });
 
-jest.mock('../../src/validation/validators/example-group-validator', () => {
+jest.mock('../../../src/validation/validators/example-group-validator', () => {
   return {
     __esModule: true,
     default: jest.fn().mockImplementation(() => {
