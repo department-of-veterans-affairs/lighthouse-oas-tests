@@ -22,18 +22,21 @@ const mockExecute = jest.fn();
 
 const mockResponseValidate = jest.fn();
 
-jest.mock('../../src/validation/conductors/validation-conductor', () => {
-  return {
-    __esModule: true,
-    default: jest.fn().mockImplementation(() => {
-      return {
-        validate: mockRequestValidate,
-      };
-    }),
-  };
-});
+jest.mock(
+  '../../../src/validation/conductors/request-validation-conductor',
+  () => {
+    return {
+      __esModule: true,
+      default: jest.fn().mockImplementation(() => {
+        return {
+          validate: mockRequestValidate,
+        };
+      }),
+    };
+  },
+);
 
-jest.mock('../../src/oas-parsing/schema', () => {
+jest.mock('../../../src/oas-parsing/schema', () => {
   return function (): Record<string, jest.Mock> {
     return {
       execute: mockExecute,
@@ -42,7 +45,7 @@ jest.mock('../../src/oas-parsing/schema', () => {
 });
 
 jest.mock(
-  '../../src/validation/conductors/response-validation-conductor',
+  '../../../src/validation/conductors/response-validation-conductor',
   () => {
     return {
       __esModule: true,
