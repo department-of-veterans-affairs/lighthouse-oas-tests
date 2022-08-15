@@ -1,4 +1,4 @@
-import OASOperation from '../../../src/utilities/oas-operation';
+import OASOperation from '../../../src/oas-parsing/operation';
 import {
   requestBodyMissingSchema,
   requestBodyWithFailures,

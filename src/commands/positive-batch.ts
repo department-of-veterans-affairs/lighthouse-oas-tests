@@ -1,6 +1,6 @@
 import Command, { flags } from '@oclif/command';
 import { PositiveBatchConductor } from '../conductors';
-import { OASResult } from '../results';
+import { OASResult } from '../validation/results';
 
 export default class PositiveBatch extends Command {
   static description =

@@ -1,12 +1,12 @@
 import parseUrl from 'parse-url';
 import { FILE_PROTOCOL } from '../utilities/constants';
-import OASSchema from '../utilities/oas-schema';
-import { OASResult } from '../results';
+import OASSchema from '../oas-parsing/schema';
+import { OASResult } from '../validation/results';
 import { TestOptions } from '../config';
-import { OperationExampleFactory } from '../utilities/operation-example';
+import { OperationExampleFactory } from '../oas-parsing/operation-example';
 import { FileIn } from '../utilities/file-in';
-import { SecurityValuesFactory } from '../utilities/security-values';
-import { ValidationConductor } from '../validation-conductors';
+import { SecurityValuesFactory } from '../oas-parsing/security-values';
+import { ValidationConductor } from '../validation/conductors';
 
 export default class PositiveConductor {
   private testName: string;

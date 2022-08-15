@@ -1,4 +1,4 @@
-import ExampleGroup from '../../../src/utilities/example-group';
+import ExampleGroup from '../../../src/oas-parsing/example-group';
 
 export const exampleGroupEmptyDefault = new ExampleGroup('default', {});
 

@@ -1,4 +1,4 @@
-import { OperationExample } from '../../../src/utilities/operation-example';
+import { OperationExample } from '../../../src/oas-parsing/operation-example';
 import {
   operationSimpleGet,
   operationGetWithExampleGroups,

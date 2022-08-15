@@ -1,4 +1,4 @@
-import { OASSecurityScheme } from '../../../src/utilities/oas-security';
+import { OASSecurityScheme } from '../../../src/oas-parsing/security';
 
 export const securitySchemeAPIKey = new OASSecurityScheme('apikey', {
   type: 'apiKey',

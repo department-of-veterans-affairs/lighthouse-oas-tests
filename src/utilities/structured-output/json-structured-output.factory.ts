@@ -1,4 +1,4 @@
-import { OASResult, OperationExampleResult } from '../../results';
+import { OASResult, OperationExampleResult } from '../../validation/results';
 import { StructuredOutput } from './structured-output.interface';
 
 class JSONStructuredOutputFactory {

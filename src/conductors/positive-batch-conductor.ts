@@ -1,4 +1,4 @@
-import { OASResult } from '../results';
+import { OASResult } from '../validation/results';
 import PositiveConductor from './positive-conductor';
 import { Config } from '../config';
 import { FileIn } from '../utilities/file-in';

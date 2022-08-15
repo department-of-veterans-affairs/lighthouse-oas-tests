@@ -1,7 +1,7 @@
 import { PositiveConductor } from '../../src/conductors';
 import { FileIn } from '../../src/utilities/file-in';
-import OASServer from '../../src/utilities/oas-server/oas-server';
-import { OperationExampleFactory } from '../../src/utilities/operation-example';
+import OASServer from '../../src/oas-parsing/server/oas-server';
+import { OperationExampleFactory } from '../../src/oas-parsing/operation-example';
 import {
   operationExampleResultFailuresWarnings,
   operationExampleResultFailuresNoWarnings,
@@ -22,7 +22,7 @@ const mockBuildFromOperations = jest.fn();
 
 const mockValidate = jest.fn();
 
-jest.mock('../../src/utilities/oas-schema', () => {
+jest.mock('../../src/oas-parsing/schema', () => {
   return function (): Record<string, jest.Mock> {
     return {
       getServers: mockGetServers,
@@ -32,7 +32,7 @@ jest.mock('../../src/utilities/oas-schema', () => {
   };
 });
 
-jest.mock('../../src/validation-conductors/validation-conductor', () => {
+jest.mock('../../src/validation/conductors/validation-conductor', () => {
   return {
     __esModule: true,
     default: jest.fn().mockImplementation(() => {
