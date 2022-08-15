@@ -26,7 +26,10 @@ module.exports = {
     indent: ["error", 2],
     "prettier/prettier": ["error"],
     'lines-between-class-members': [
-      'never'
+      'off'
+    ],
+    'max-params': [
+      'off'
     ]
   },
   overrides: [

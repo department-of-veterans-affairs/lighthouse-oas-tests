@@ -37,7 +37,7 @@ class ExampleGroupValidator extends BaseValidator {
       this.addMessage(
         Type.MissingRequiredParameters,
         [],
-        [JSON.stringify(missingRequiredParameters)],
+        [`${missingRequiredParameters}`],
       );
     }
   }

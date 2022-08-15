@@ -188,11 +188,11 @@ abstract class BaseValidator {
         (property) => !actualProperties.includes(property),
       );
 
-      let expectPropStr = ''; //No other messages get this kind of conditional treatment. Should be rewritten
+      let expectPropStr = ''; // No other messages get this kind of conditional treatment. Should be rewritten
       if (expectedPropertiesNotFound.length > 0) {
         expectPropStr = ` Schema properties not found: ${expectedPropertiesNotFound.join(
           ', ',
-        )}`;
+        )}.`;
       }
 
       this.addMessage(Type.PropertiesMismatch, path, [
