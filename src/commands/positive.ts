@@ -1,6 +1,6 @@
 import Command, { flags } from '@oclif/command';
 import { PositiveConductor } from '../conductors';
-import { OASResult } from '../results';
+import { OASResult } from '../validation/results';
 import { DEFAULT_TEST_NAME } from '../utilities/constants';
 import JSONStructuredOutputFactory from '../utilities/structured-output';
 

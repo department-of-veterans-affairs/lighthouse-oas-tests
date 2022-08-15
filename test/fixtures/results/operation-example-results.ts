@@ -1,4 +1,4 @@
-import { OperationExampleResult } from '../../../src/results';
+import { OperationExampleResult } from '../../../src/validation/results';
 import {
   emptyFailureMap,
   responseOneFailureMap,

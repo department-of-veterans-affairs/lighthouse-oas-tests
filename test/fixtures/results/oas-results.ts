@@ -1,4 +1,4 @@
-import { OASResult } from '../../../src/results';
+import { OASResult } from '../../../src/validation/results';
 import {
   operationExampleResultFailuresWarnings,
   operationExampleResultFailuresWarningsString,
@@ -14,7 +14,7 @@ import { StructuredOutput } from '../../../src/utilities/structured-output';
 import {
   OASSecurityScheme,
   OASSecurityType,
-} from '../../../src/utilities/oas-security';
+} from '../../../src/oas-parsing/security';
 
 export const oasResultSuccess = new OASResult(
   'winterfell',

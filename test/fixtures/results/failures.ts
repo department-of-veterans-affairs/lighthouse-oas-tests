@@ -1,6 +1,6 @@
 import ValidationMessage, {
   Type,
-} from '../../../src/utilities/validators/validation-message';
+} from '../../../src/validation/validation-message';
 
 const responseTypeMisMatch = new ValidationMessage(
   Type.TypeMismatch,

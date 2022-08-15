@@ -1,4 +1,4 @@
-import { OASSecurityType } from '../oas-security';
+import { OASSecurityType } from '../../oas-parsing/security';
 
 export type StructuredOutput = {
   id: string;

@@ -1,4 +1,4 @@
-import ValidationMessage from '../src/utilities/validators/validation-message';
+import ValidationMessage from '../src/validation/validation-message';
 
 expect.extend({
   toContainValidationFailure(
