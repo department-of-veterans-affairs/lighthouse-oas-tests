@@ -49,12 +49,12 @@ const messageTemplates: Record<Type, MessageTemplate> = {
   },
   [Type.DuplicateEnum]: {
     severity: Severity.ERROR,
-    details: 'Schema enum contains duplicate values. Enum values: {0}',
+    details: 'Schema enum contains duplicate values. Enum values: {0}.',
   },
   [Type.EnumMismatch]: {
     severity: Severity.ERROR,
     details:
-      'Actual value does not match schema enum. Enum values: {0}. Actual value: {1}',
+      'Actual value does not match schema enum. Enum values: {0}. Actual value: {1}.',
   },
   [Type.InvalidParameterContent]: {
     severity: Severity.ERROR,
@@ -101,7 +101,7 @@ const messageTemplates: Record<Type, MessageTemplate> = {
   },
   [Type.RequiredProperty]: {
     severity: Severity.ERROR,
-    details: 'Actual object missing required property. Required property: {0}',
+    details: 'Actual object missing required property. Required property: {0}.',
   },
   [Type.StatusCodeMismatch]: {
     severity: Severity.ERROR,
@@ -115,20 +115,21 @@ const messageTemplates: Record<Type, MessageTemplate> = {
   },
 };
 
-const MESSAGE_PATTERN = '{DETAILS} Path: {PATH}';
-const BREADCRUMB_SEPARATOR = ' -> ';
+const MESSAGE_PATTERN = '{DETAILS}{PATH}';
+const PATH_LABEL = ' Path: ';
+const PATH_SEPARATOR = ' -> ';
 
 class ValidationMessage {
   message: string;
 
   private template: MessageTemplate;
-  private _breadcrumb: string[];
+  private _path: string[];
   private _hash: string;
   private _count: number;
 
-  constructor(type: Type, breadcrumb: string[], properties?: string[]) {
+  constructor(type: Type, path: string[], properties?: string[]) {
     this.template = messageTemplates[type];
-    this._breadcrumb = breadcrumb;
+    this._path = path;
     this._count = 1;
 
     this.message = this.resolveMessage(properties);
@@ -162,14 +163,16 @@ class ValidationMessage {
   private resolveMessage(properties: string[] | undefined): string {
     let details = this.template.details;
 
-    for (let x = 0; properties && x < properties.length; x++) {
-      details = details.replace(`{${x}}`, properties[x]);
+    if (properties) {
+      for (let x = 0; x < properties.length; x++) {
+        details = details.replace(`{${x}}`, properties[x]);
+      }
     }
 
     let path = '';
 
-    if (this._breadcrumb.length > 0) {
-      path = this._breadcrumb.join(BREADCRUMB_SEPARATOR);
+    if (this._path.length > 0) {
+      path = `${PATH_LABEL}${this._path.join(PATH_SEPARATOR)}`;
     }
 
     return MESSAGE_PATTERN.replace('{DETAILS}', details).replace(
