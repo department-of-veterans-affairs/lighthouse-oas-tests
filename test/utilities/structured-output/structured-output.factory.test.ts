@@ -9,7 +9,7 @@ import {
   oasResultMixedResultsStructure,
   oasResultSingleSecurity,
   oasResultSingleSecurityStructure,
-} from '../../fixtures/results/oas-results';
+} from '../../fixtures/validation/oas-results';
 import { mockedSystemTime } from '../../fixtures/system-time';
 import JSONStructuredOutputFactory from '../../../src/utilities/structured-output';
 

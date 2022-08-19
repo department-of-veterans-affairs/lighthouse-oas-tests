@@ -7,4 +7,5 @@ export interface TestOptions {
   apiKey?: string;
   token?: string;
   server?: string;
+  loastType?: string[];
 }
