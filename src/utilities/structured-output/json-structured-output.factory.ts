@@ -1,4 +1,4 @@
-import { OASResult, OperationExampleResult } from '../../validation/results';
+import { OASResult, OperationResult } from '../../validation';
 import { StructuredOutput } from './structured-output.interface';
 
 class JSONStructuredOutputFactory {
@@ -29,7 +29,7 @@ class JSONStructuredOutputFactory {
   }
 
   private static assembleApiLevel(
-    testResults: OperationExampleResult[],
+    testResults: OperationResult[],
     output: StructuredOutput,
   ): void {
     // calculate pass/warn/fail totals
@@ -72,7 +72,7 @@ class JSONStructuredOutputFactory {
   }
 
   private static assembleEndpointLevel(
-    operationResults: OperationExampleResult[],
+    operationResults: OperationResult[],
     output: StructuredOutput,
   ): void {
     // calculate pass/warn/fail totals for this endpoint
@@ -104,14 +104,14 @@ class JSONStructuredOutputFactory {
     }
 
     const exampleGroupNames = [
-      ...new Set(operationResults.map((result) => result.exampleGroupName)),
+      ...new Set(operationResults.map((result) => result.testGroupName)),
     ];
     exampleGroupNames.forEach((exampleGroupName) => {
       // iterate through all distinct example group names for this operation ID
 
       // get just the results that apply to the current operation ID (endpoint) and example group name
       const exampleGroupResults = operationResults.filter(
-        (result) => result.exampleGroupName === exampleGroupName,
+        (result) => result.testGroupName === exampleGroupName,
       );
 
       // at this point we should always be down to a single result
@@ -139,7 +139,7 @@ class JSONStructuredOutputFactory {
   private static assembleExampleGroupLevel(
     endpointId: string,
     exampleGroupName: string,
-    exampleGroupResult: OperationExampleResult,
+    exampleGroupResult: OperationResult,
     output: StructuredOutput,
   ): void {
     // assemble errors
