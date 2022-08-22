@@ -4,23 +4,34 @@ import SpectralValidator from './validation/spectral-validator';
 
 export default class SpectralSuite extends Suite {
   public static suiteId = 'spectral';
-  public static label = '(Spetral)';
+  public static label = '(Spectral)';
 
   async conduct(): Promise<OperationResult[]> {
-    const operations = await this.suiteConfig.schema.getOperations(); // TODO remove
+    const operations = await this.suiteConfig.schema.getOperations();
+    const results: OperationResult[] = [];
 
-    const spectralValidator = new SpectralValidator();
-    spectralValidator.validate();
+    for (let x = 0; x < operations.length; x++) {
+      const operation = operations[x];
+      const operationId = operations[x].operationId;
 
-    // Run spectral test
+      // get the original operation ID
+      const originalOperationId = operation.operation.__originalOperationId;
 
-    // Parse results
+      const spectralValidator = new SpectralValidator(operation);
+      spectralValidator.validate();
 
-    // Map parts of results to new OperationResult()
+      const result = new OperationResult(
+        operationId,
+        originalOperationId,
+        'Generic Spectral validation',
+        spectralValidator.failures,
+        spectralValidator.warnings,
+      );
 
-    // Map final results to new returned value
+      results.push(result);
+    }
 
-    return [];
+    return results;
   }
 
   public getLabel(): string {
