@@ -26,8 +26,8 @@ export default class SuitesBatch extends Command {
     const config: Config = FileIn.loadConfigFromFile(args.path);
     const batchResults = await this.getBatchResults(config);
 
-    for (let x = 0; x < batchResults.length; x++) {
-      this.logTestResults(batchResults[x]);
+    for (let api = 0; api < batchResults.length; api++) {
+      this.logTestResults(batchResults[api]);
     }
   }
 
@@ -85,7 +85,7 @@ export default class SuitesBatch extends Command {
     const passedTestCount = totalTestCount - failedTestCount - skippedTestCount;
 
     if (failedTestCount > 0 || skippedTestCount > 0) {
-      this.error(
+      this.log(
         `${failedTestCount}/${totalTestCount} test${
           totalTestCount > 1 ? 's' : ''
         } failed; ${skippedTestCount}/${totalTestCount} test${

@@ -72,6 +72,11 @@ export default class Loast {
       oasSchemaOptions.url = this.options.path;
     }
 
+    this.suiteConfig = {
+      options: this.options,
+      schema: new OASSchema(oasSchemaOptions),
+    };
+
     this.relevantSecuritySchemes =
       await this.suiteConfig.schema.getRelevantSecuritySchemes();
 
@@ -81,10 +86,6 @@ export default class Loast {
       this.options.token,
     );
 
-    this.suiteConfig = {
-      options: this.options,
-      schema: new OASSchema(oasSchemaOptions),
-      securityValues: securityValues,
-    };
+    this.suiteConfig.securityValues = securityValues;
   }
 }

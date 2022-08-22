@@ -46,7 +46,7 @@ describe('Suites', () => {
       ).rejects.toThrow(errorMessage);
     });
     it('outputs json structure with empty results', async () => {
-      mockGetResults.mockResolvedValue(oasResultError);
+      mockGetResults.mockResolvedValue([oasResultError]);
 
       await Suites.run(['-j', 'pathDoesNotMatter.json']);
 
@@ -56,7 +56,7 @@ describe('Suites', () => {
 
   describe('all OperationExamples pass', () => {
     it('outputs test results as expected', async () => {
-      mockGetResults.mockResolvedValue(oasResultSuccess);
+      mockGetResults.mockResolvedValue([oasResultSuccess]);
 
       await Suites.run(['pathDoesNotMatter.json']);
 
@@ -66,25 +66,27 @@ describe('Suites', () => {
 
   describe('all OperationExamples fail', () => {
     it('outputs test results as expected', async () => {
-      mockGetResults.mockResolvedValue(oasResultFailure);
+      mockGetResults.mockResolvedValue([oasResultFailure]);
 
-      await expect(async () =>
-        Suites.run(['pathDoesNotMatter.json']),
-      ).rejects.toThrow('1/1 operation failed; 0/1 operation passed');
+      await Suites.run(['pathDoesNotMatter.json']);
 
-      expect(result).toEqual([`${oasResultFailureString}\n`]);
+      expect(result).toEqual([
+        `${oasResultFailureString}\n`,
+        `1/1 operation failed; 0/1 operation passed\n`,
+      ]);
     });
   });
 
   describe('mixed results', () => {
     it('outputs test results as expected', async () => {
-      mockGetResults.mockResolvedValue(oasResultMixedResults);
+      mockGetResults.mockResolvedValue([oasResultMixedResults]);
 
-      await expect(async () =>
-        Suites.run(['pathDoesNotMatter.json']),
-      ).rejects.toThrow('2/3 operations failed; 1/3 operations passed');
+      await Suites.run(['pathDoesNotMatter.json']);
 
-      expect(result).toEqual([`${oasResultMixedResultsString}\n`]);
+      expect(result).toEqual([
+        `${oasResultMixedResultsString}\n`,
+        `2/3 operations failed; 1/3 operations passed\n`,
+      ]);
     });
   });
 });

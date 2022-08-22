@@ -79,10 +79,8 @@ export default class Suites extends Command {
         const output = JSONStructuredOutputFactory.buildFromOASResult(
           results[x],
         );
-        this.log('----------- Suite Results -----------');
         this.log(JSON.stringify(output));
       } else {
-        this.log('----------- Suite Results -----------');
         this.log(results[x].toString());
       }
 
@@ -100,7 +98,7 @@ export default class Suites extends Command {
     const passedOperationCount = totalOperationCount - failedOperationCount;
 
     if (failedOperationCount > 0) {
-      this.error(
+      this.log(
         `${failedOperationCount}/${totalOperationCount} operation${
           totalOperationCount > 1 ? 's' : ''
         } failed; ${passedOperationCount}/${totalOperationCount} operation${
