@@ -88,11 +88,12 @@ describe('SuitesBatch', () => {
       });
 
       it('outputs test results as expected', async () => {
-        await expect(async () =>
-          SuitesBatch.run(['pathDoesNotMatter.json']),
-        ).rejects.toThrow('0/1 test failed; 1/1 test skipped; 0/1 test passed');
+        await SuitesBatch.run(['pathDoesNotMatter.json']);
 
-        expect(result).toEqual([`${oasResultErrorString}\n`]);
+        expect(result).toEqual([
+          `${oasResultErrorString}\n`,
+          `0/1 test failed; 1/1 test skipped; 0/1 test passed\n`,
+        ]);
       });
     });
   });
@@ -104,11 +105,12 @@ describe('SuitesBatch', () => {
       });
 
       it('outputs test results as expected', async () => {
-        await expect(async () =>
-          SuitesBatch.run(['pathDoesNotMatter.json']),
-        ).rejects.toThrow('1/1 test failed; 0/1 test skipped; 0/1 test passed');
+        await SuitesBatch.run(['pathDoesNotMatter.json']);
 
-        expect(result).toEqual([`${oasResultFailureString}\n`]);
+        expect(result).toEqual([
+          `${oasResultFailureString}\n`,
+          `1/1 test failed; 0/1 test skipped; 0/1 test passed\n`,
+        ]);
       });
     });
   });
@@ -130,15 +132,17 @@ describe('SuitesBatch', () => {
     });
 
     it('outputs test results as expected', async () => {
-      await expect(async () =>
-        SuitesBatch.run(['pathDoesNotMatter.json']),
-      ).rejects.toThrow('1/1 test failed; 0/1 test skipped; 0/1 test passed');
+      await SuitesBatch.run(['pathDoesNotMatter.json']);
 
       expect(result).toEqual([
         `${oasResultSuccessString}\n`,
+        '1/1 test passed\n',
         `${oasResultFailureString}\n`,
+        '1/1 test failed; 0/1 test skipped; 0/1 test passed\n',
         `${oasResultMixedResultsString}\n`,
+        '1/1 test failed; 0/1 test skipped; 0/1 test passed\n',
         `${oasResultMissingPathString}\n`,
+        '0/1 test failed; 1/1 test skipped; 0/1 test passed\n',
       ]);
     });
   });
