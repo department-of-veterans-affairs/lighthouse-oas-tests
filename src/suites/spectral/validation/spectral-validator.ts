@@ -1,9 +1,17 @@
+import OASOperation from '../../../oas-parsing/operation/oas-operation';
 import { BaseValidator } from '../../../validation';
 import SpectralMessage, { Type } from './spectral-message';
 
 class SpectralValidator extends BaseValidator {
+  private operation: OASOperation;
+
+  constructor(operation: OASOperation) {
+    super();
+    this.operation = operation;
+  }
+
   performValidation = (): void => {
-    this.testValidate([]);
+    this.exampleValidation([this.operation.operationId]);
   };
 
   public addMessage(type: unknown, path: string[], props?: string[]): void {
@@ -18,10 +26,17 @@ class SpectralValidator extends BaseValidator {
     }
   }
 
-  public testValidate(path: string[]): void {
+  //  TODO this should be replaced with genuin validation soon
+  public exampleValidation(path: string[]): void {
     this.addMessage(Type.GenericSpectralWarning, path);
     this.addMessage(Type.GenericSpectralError, path);
   }
+
+  // Run spectral test
+
+  // Parse results
+
+  // Map final results to new returned value
 }
 
 export default SpectralValidator;
