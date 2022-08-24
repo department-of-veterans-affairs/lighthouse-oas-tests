@@ -15,13 +15,10 @@ export default class SpectralSuite extends Suite {
     const results: OperationResult[] = [];
 
     const spectralValidator = new SpectralValidator(this.suiteConfig.schema);
-    spectralValidator.validate();
-    await spectralValidator.getOperationResults();
+    await spectralValidator.validate();
 
     const operationMap = spectralValidator.operationMap;
     const operations = operationMap.keys();
-
-    // TODO Issue is this doesn't wait for results yet...
 
     for (const operationId of operations) {
       const ruleMap = operationMap.get(operationId);

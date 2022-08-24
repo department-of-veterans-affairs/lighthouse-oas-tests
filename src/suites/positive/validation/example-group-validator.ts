@@ -16,7 +16,8 @@ class ExampleGroupValidator extends PositiveValidator {
     this.operation = operation;
   }
 
-  performValidation = (): void => {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  performValidation = async (): Promise<void> => {
     this.checkMissingRequiredParameters();
     const examples = this.exampleGroup.examples;
 

@@ -25,7 +25,7 @@ class SpectralValidator extends BaseValidator {
   }
 
   // Spectral results are for the OAS as a whole and not specifically for an individual operation or rule
-  //  To aid creating OpertaionResult[] method stores error/warning based on the two keys 'operation' & 'rule'
+  //  To aid creating OpertaionResult[] going to store error/warning based on the two keys 'operation' & 'rule'
   public addMessage(
     operation: string,
     ruleName: string,
@@ -58,26 +58,22 @@ class SpectralValidator extends BaseValidator {
     }
   }
 
-  performValidation = (): void => {};
-
-  public async getOperationResults(): Promise<void> {
+  performValidation = async (): Promise<void> => {
     const rawResults = await this.runSpectral(this.schema);
     this.sanitizeResults(rawResults);
-  }
+  };
 
   private async runSpectral(schema: any): Promise<SpectralResult[]> {
     const spectral = new Spectral();
     const rulesetFilepath = path.resolve(
-      path.join(__dirname, '../../../../spectral.yaml'), // TODO lets avoid this approach
+      path.join(__dirname, './spectral.yaml'),
     );
     spectral.setRuleset(await getRuleset(rulesetFilepath));
 
     return spectral.run(schema);
   }
 
-  // Spectral results are for the OAS as a whole and not specifically for a operation or rule
-  //  Need to prepare the message to include information to create OperationResult[] down the road
-  //  Unneeded information also needs to be removed
+  //  sanitizeResults() Need to classify results and clean the paths for messages
   private sanitizeResults(results: SpectralResult[]): void {
     for (const result of results) {
       const ruleName = result.code;
