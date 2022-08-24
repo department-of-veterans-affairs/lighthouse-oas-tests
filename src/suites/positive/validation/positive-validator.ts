@@ -1,9 +1,27 @@
 import { isEqual, uniqWith } from 'lodash';
 import { Json, SchemaObject } from 'swagger-client/schema';
 import { BaseValidator } from '../../../validation';
+import { Message } from '../../../validation';
 import PositiveMessage, { Type } from './positive-message';
 
 abstract class PositiveValidator extends BaseValidator {
+  protected _failures: Map<string, Message>;
+  protected _warnings: Map<string, Message>;
+
+  constructor() {
+    super();
+    this._failures = new Map();
+    this._warnings = new Map();
+  }
+
+  public get failures(): Map<string, Message> {
+    return this._failures;
+  }
+
+  public get warnings(): Map<string, Message> {
+    return this._warnings;
+  }
+
   public addMessage(type: unknown, path: string[], props?: string[]): void {
     const message = new PositiveMessage(type, path, props);
     const map = message.isError() ? this._failures : this._warnings;

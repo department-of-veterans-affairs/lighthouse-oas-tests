@@ -15,7 +15,8 @@ class ResponseValidator extends PositiveValidator {
     this.response = response;
   }
 
-  performValidation = (): void => {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  performValidation = async (): Promise<void> => {
     const responseSchema = this.operation.getResponseSchema(
       this.response.status,
     );

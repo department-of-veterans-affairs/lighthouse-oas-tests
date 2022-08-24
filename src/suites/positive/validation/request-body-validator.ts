@@ -11,7 +11,8 @@ class RequestBodyValidator extends PositiveValidator {
     this.operation = operation;
   }
 
-  performValidation = (): void => {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  performValidation = async (): Promise<void> => {
     if (this.operation.requestBody !== undefined) {
       this.checkRequestBody(this.operation.requestBody);
     }

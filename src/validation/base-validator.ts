@@ -1,32 +1,18 @@
-import Message from './message';
-
 abstract class BaseValidator {
-  protected _failures: Map<string, Message>;
-  protected _warnings: Map<string, Message>;
   protected validated: boolean;
 
   constructor() {
     this.validated = false;
-    this._failures = new Map();
-    this._warnings = new Map();
   }
 
-  public get failures(): Map<string, Message> {
-    return this._failures;
-  }
+  abstract performValidation(): Promise<void>;
 
-  public get warnings(): Map<string, Message> {
-    return this._warnings;
-  }
-
-  abstract performValidation(): void;
-
-  public validate = (): void => {
+  public validate = async (): Promise<void> => {
     if (this.validated) {
       return;
     }
 
-    this.performValidation();
+    await this.performValidation();
     this.validated = true;
   };
 }
