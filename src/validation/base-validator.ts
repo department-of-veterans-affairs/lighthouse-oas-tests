@@ -19,11 +19,6 @@ abstract class BaseValidator {
     return this._warnings;
   }
 
-  public abstract addMessage(
-    type: unknown,
-    path: string[],
-    props?: string[],
-  ): void;
   abstract performValidation(): void;
 
   public validate = (): void => {

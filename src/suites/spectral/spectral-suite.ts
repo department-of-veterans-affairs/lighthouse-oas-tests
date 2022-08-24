@@ -1,34 +1,50 @@
 import { OperationResult } from '../../validation';
-import Suite from '../suite';
+import Suite, { SuiteConfig } from '../suite';
 import SpectralValidator from './validation/spectral-validator';
 
 export default class SpectralSuite extends Suite {
   public static suiteId = 'spectral';
   public static label = '(Spectral)';
 
+  constructor(suiteConfig: SuiteConfig) {
+    super(suiteConfig);
+    this.suiteConfig = suiteConfig;
+  }
+
   async conduct(): Promise<OperationResult[]> {
-    const operations = await this.suiteConfig.schema.getOperations();
     const results: OperationResult[] = [];
 
-    for (let x = 0; x < operations.length; x++) {
-      const operation = operations[x];
-      const operationId = operations[x].operationId;
+    const spectralValidator = new SpectralValidator(this.suiteConfig.schema);
+    spectralValidator.validate();
+    await spectralValidator.getOperationResults();
 
-      // get the original operation ID
-      const originalOperationId = operation.operation.__originalOperationId;
+    const operationMap = spectralValidator.operationMap;
+    const operations = operationMap.keys();
 
-      const spectralValidator = new SpectralValidator(operation);
-      spectralValidator.validate();
+    // TODO Issue is this doesn't wait for results yet...
 
-      const result = new OperationResult(
-        operationId,
-        originalOperationId,
-        'Generic Spectral validation',
-        spectralValidator.failures,
-        spectralValidator.warnings,
-      );
+    for (const operationId of operations) {
+      const ruleMap = operationMap.get(operationId);
 
-      results.push(result);
+      if (ruleMap) {
+        const rules = ruleMap.keys();
+
+        for (const testGroupName of rules) {
+          const messageSet = ruleMap.get(testGroupName);
+          const failures = messageSet ? messageSet?.failures : new Map();
+          const warnings = messageSet ? messageSet?.warnings : new Map();
+
+          results.push(
+            new OperationResult(
+              operationId,
+              operationId,
+              testGroupName,
+              failures,
+              warnings,
+            ),
+          );
+        }
+      }
     }
 
     return results;
