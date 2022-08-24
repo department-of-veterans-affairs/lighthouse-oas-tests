@@ -51,6 +51,12 @@ describe('ResponseValidator', () => {
               },
             },
           },
+          'text/csv': {
+            schema: {
+              type: 'string',
+              example: 'there,are,spiders,',
+            },
+          },
         },
       },
     },
@@ -83,7 +89,7 @@ describe('ResponseValidator', () => {
         status: 200,
         url: 'http://anything.com',
         headers: {
-          'content-type': 'text/csv',
+          'content-type': 'image/bmp',
         },
         body: {},
       });
@@ -93,7 +99,27 @@ describe('ResponseValidator', () => {
 
       expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
-        'Response content type not present in schema. Actual content type: text/csv',
+        'Response content type not present in schema. Actual content type: image/bmp',
+      );
+    });
+
+    it('adds a validation warning when response body is not parsed', () => {
+      const validator = new ResponseValidator(operation, {
+        ok: false,
+        status: 200,
+        url: 'http://anything.com',
+        headers: {
+          'content-type': 'text/csv',
+        },
+        body: undefined,
+      });
+
+      validator.validate();
+      const warnings = validator.warnings;
+
+      expect(warnings.size).toEqual(1);
+      expect(warnings).toContainValidationFailure(
+        'Unable to auto-parse response body, skipping schema validation. Only JSON and YAML are supported. Body content type: text/csv',
       );
     });
 
