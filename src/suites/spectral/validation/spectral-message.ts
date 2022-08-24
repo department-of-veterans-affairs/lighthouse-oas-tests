@@ -1,18 +1,19 @@
 import { Severity, MessageTemplate, Message } from '../../../validation';
 
 export enum Type {
-  GenericSpectralWarning,
-  GenericSpectralError,
+  SpectralWarning,
+  SpectralError,
 }
 
+//  For Spectral the templates are based on the originally provided message given from the tool
 const messageTemplates: Record<Type, MessageTemplate> = {
-  [Type.GenericSpectralWarning]: {
+  [Type.SpectralWarning]: {
     severity: Severity.WARNING,
-    details: 'Warning: Spectral warning...',
+    details: '{0}',
   },
-  [Type.GenericSpectralError]: {
+  [Type.SpectralError]: {
     severity: Severity.ERROR,
-    details: 'Spectral error...',
+    details: '{0}',
   },
 };
 

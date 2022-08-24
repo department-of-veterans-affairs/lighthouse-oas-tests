@@ -17,7 +17,6 @@ export default class SuiteFactory {
   }
 
   public static availableSuiteIds(): string[] {
-    return [PositiveSuite.suiteId];
-    // return [PositiveSuite.suiteId, SpectralSuite.suiteId]; // TODO uncomment when spectral is ready
+    return [PositiveSuite.suiteId, SpectralSuite.suiteId];
   }
 }

@@ -1,0 +1,48 @@
+extends: [[spectral:oas, recommended]]
+# Useful links when writing rules:
+#
+# Custom Rulesets
+# https://meta.stoplight.io/docs/spectral/e5b9616d6d50c-custom-rulesets
+#
+# JSONPath Online Evaluator
+# http://jsonpath.com/
+#
+# JSONPath
+# https://goessner.net/articles/JsonPath/index.html#e2
+#
+# Core Functions
+# https://meta.stoplight.io/docs/spectral/ZG9jOjExNg-core-functions
+#
+rules:
+  loast-info-description-maximum-length:
+    description: description object under info object should be at most 1000 characters
+    given: $.info.description
+    severity: error
+    then:
+      function: length
+      functionOptions:
+        max: 1000
+  loast-info-description-minimum-length:
+    description: description object under info object should be at least 1000 characters
+    given: $.info.description
+    severity: error
+    then:
+      function: length
+      functionOptions:
+        min: 1000
+  loast-content-whitelist:
+    description: content media type name must be one of the whitelisted options
+    given: $..responses.*.content.*~
+    severity: error
+    then:
+      function: enumeration
+      # field:
+      functionOptions:
+        values:
+          - application/json
+          #- text/csv
+          - another/type
+          - yet/another
+  # A blacklist rule does not look doable out of the box, but we could presumably write
+  # a custom function for this
+  # https://meta.stoplight.io/docs/spectral/ZG9jOjI1MTkw-custom-functions

@@ -14,7 +14,8 @@
     "downlevelIteration": true,
     "resolveJsonModule": true,
     "typeRoots": ["./node_modules/@types", "./@types"],
-    "sourceMap": true
+    "sourceMap": true,
+    "allowJs": true,
   },
   "include": ["src/**/*", "./@types/**/*"]
 }
