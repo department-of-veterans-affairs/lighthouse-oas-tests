@@ -16,7 +16,9 @@ CLI for testing Lighthouse APIs using OpenAPI specs
 - [Usage](#usage)
 - [Commands](#commands)
 - [OpenApi Spec Setup](#openapi-spec-setup)
-- [Validation Failures](#validation-failures)
+- [Validation](#validation)
+  - [Example Group Validation](#example-group-validation)
+  - [Spectral Linting](#spectral-linting)
 - [Local Development](#local-development)
 <!-- tocstop -->
 
@@ -348,7 +350,11 @@ Properties that are not required will not be included, even if a property exampl
 
 </details>
 
-# Validation Failures
+# Validation
+
+Currently validation is broken up into two testing suites. One performs `example group testing` and the other performs linting using [Spectral](https://github.com/stoplightio/spectral) rulesets.
+
+## Example Group Validation
 
 The sections below contain details about validation failures that can be produced by loast and how to fix them. Failures will include a path to the place in the schema where the failure occured.
 
@@ -397,6 +403,10 @@ These failures can occur for parameters and responses.
 | Properties mismatch        | Actual object contains properties not present in the schema                | Update the schema so all valid properties are included                                        |
 | Missing required property  | Actual object does not contain a property marked as required in the schema | Update the schema so that only required properties are marked as required                     |
 | Invalid `operationId`      | There is no operation with that id                                         | Check for misspellings or add the missing `operationId` to the schema                         |
+
+## Spectral Linting
+
+[Spectral](https://github.com/stoplightio/spectral) drives the OAS linting using the yaml at `src\suites\spectral\validation\spectral.yaml`. This file can be used to configure additional rules against an OAS if needed.
 
 # Local Development
 
