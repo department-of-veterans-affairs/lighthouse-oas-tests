@@ -15,7 +15,7 @@ import JSONStructuredOutputFactory from '../../../src/utilities/structured-outpu
 
 describe('JSONStructuredOutputFactory', () => {
   beforeAll(() => {
-    jest.useFakeTimers('modern').setSystemTime(mockedSystemTime);
+    jest.useFakeTimers({ advanceTimers: true }).setSystemTime(mockedSystemTime);
   });
 
   afterAll(() => {

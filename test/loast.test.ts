@@ -2,6 +2,7 @@ import { TestOptions } from '../src/config';
 import { OASResult } from '../src/validation';
 import SuiteFactory from '../src/suites/suite-factory';
 import PositiveSuite from '../src/suites/positive/positive-suite';
+import SpectralSuite from '../src/suites/spectral/spectral-suite';
 import { securitySchemeAPIKey } from './fixtures/utilities/oas-security-schemes';
 import { operationExampleResultFailuresWarnings } from './fixtures/validation/operation-results';
 import { FileIn } from '../src/utilities/file-in';
@@ -12,7 +13,16 @@ const mockGetRelevantSecuritySchemes = jest.fn();
 const mockGetOperations = jest.fn();
 
 jest.mock('../src/utilities/file-in/file-in');
-jest.mock('../src/suites/suite-factory');
+
+// ruleset-wrapper needs be mocked to avoid Jest conflict with
+//  3rd party packages when they use package.json 'export'
+jest.mock('../src/suites/spectral/validation/ruleset-wrapper', () => {
+  return function (): Record<string, jest.Mock> {
+    return {
+      getRuleset: jest.fn(),
+    };
+  };
+});
 
 jest.mock('../src/oas-parsing/schema', () => {
   return function (): Record<string, jest.Mock> {
@@ -31,6 +41,7 @@ describe('Loast', () => {
   beforeEach(() => {
     options = {
       path: 'https://westeros.dragonstone/underground/scrolls/catacombs/v0/openapi.json',
+      server: 'https://westeros.dragonstone/v1/{version}',
       apiKey: 'fake-key',
       loastType: [PositiveSuite.suiteId],
     };
@@ -50,7 +61,8 @@ describe('Loast', () => {
 
     FileIn.loadConfigFromFile = jest.fn().mockReturnValue({
       api_one: {
-        path: 'path',
+        path: 'https://westeros.dragonstone/underground/scrolls/catacombs/v0/openapi.json',
+        server: 'https://westeros.dragonstone/v1/{version}',
         apiKey: 'fakeKey',
         loastType: [PositiveSuite.suiteId],
       },
@@ -78,7 +90,7 @@ describe('Loast', () => {
     });
 
     it('test api with multiple suites', async () => {
-      options.loastType = [PositiveSuite.suiteId, PositiveSuite.suiteId];
+      options.loastType = [PositiveSuite.suiteId, SpectralSuite.suiteId];
       const results = await new Loast('winterfell', options).getResults();
 
       expect(results.length).toEqual(2);

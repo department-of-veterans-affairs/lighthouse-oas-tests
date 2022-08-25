@@ -23,6 +23,16 @@ jest.mock('../../src/loast', () => {
   };
 });
 
+// ruleset-wrapper needs be mocked to avoid Jest conflict with
+//  3rd party packages when they use package.json 'export'
+jest.mock('../../src/suites/spectral/validation/ruleset-wrapper', () => {
+  return function (): Record<string, jest.Mock> {
+    return {
+      getRuleset: jest.fn(),
+    };
+  };
+});
+
 describe('Suites', () => {
   let result;
 
