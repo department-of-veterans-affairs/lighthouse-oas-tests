@@ -9,7 +9,7 @@ import OASOperation from '../operation';
 import ExampleGroup from './example-group';
 
 class ExampleGroupFactory {
-  static buildFromOperation(operation: OASOperation): ExampleGroup[] | [] {
+  static buildFromOperation(operation: OASOperation): ExampleGroup[] {
     const parameters = operation.parameters;
 
     if (!parameters) {
