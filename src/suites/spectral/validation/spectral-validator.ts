@@ -63,6 +63,7 @@ class SpectralValidator extends BaseValidator {
     this.sanitizeResults(rawResults);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async runSpectral(schema: any): Promise<SpectralResult[]> {
     const spectral = new Spectral();
     const rulesetFilepath = path.resolve(

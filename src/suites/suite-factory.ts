@@ -1,9 +1,8 @@
-/* eslint-disable indent */
 import { Suite, SuiteConfig } from '../suites';
 import PositiveSuite from './positive/positive-suite';
 import SpectralSuite from './spectral/spectral-suite';
 
-//  Additional test suites simply need to be defined here to be included in Loast
+// Additional test suites simply need to be defined here to be included in Loast
 export default class SuiteFactory {
   public static build(suiteId: string, config: SuiteConfig): Suite {
     switch (suiteId) {
