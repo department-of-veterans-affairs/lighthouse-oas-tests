@@ -14,7 +14,7 @@ export default class ResponseValidationConductor {
     this.operation = operation;
   }
 
-  validate(): [Map<string, Message>, Map<string, Message>] {
+  validate(): Map<string, Message>[] {
     let failures: Map<string, Message> = new Map();
     let warnings: Map<string, Message> = new Map();
 
