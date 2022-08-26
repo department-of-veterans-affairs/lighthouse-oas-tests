@@ -14,19 +14,45 @@ jest.mock('../../src/suites/spectral/validation/ruleset-wrapper', () => {
   };
 });
 
+const oasSchemaOptions: ConstructorParameters<typeof OASSchema>[0] = {};
+const suiteConfig = {
+  schema: new OASSchema(oasSchemaOptions),
+  securityValues: securityValuesAPIKeyBearerOauth,
+};
+
 describe('SuiteFactory', () => {
   describe('build', () => {
-    it('provides suite without error', () => {
+    it('provides positive suite without error', () => {
       const options = { path: 'fake-path', apikey: 'fake-key' };
-      const oasSchemaOptions: ConstructorParameters<typeof OASSchema>[0] = {};
 
       expect(() =>
         SuiteFactory.build(PositiveSuite.suiteId, {
+          ...suiteConfig,
           options: options,
-          schema: new OASSchema(oasSchemaOptions),
-          securityValues: securityValuesAPIKeyBearerOauth,
         }),
       ).not.toThrowError();
+    });
+
+    it('provides spectral suite without error', () => {
+      const options = { path: 'fake-path', apikey: 'fake-key' };
+
+      expect(() =>
+        SuiteFactory.build(SpectralSuite.suiteId, {
+          ...suiteConfig,
+          options: options,
+        }),
+      ).not.toThrowError();
+    });
+
+    it('throws error for unknown suites', () => {
+      const options = { path: 'fake-path', apikey: 'fake-key' };
+
+      expect(() =>
+        SuiteFactory.build('gibberishSuiteId', {
+          ...suiteConfig,
+          options: options,
+        }),
+      ).toThrowError();
     });
   });
 
