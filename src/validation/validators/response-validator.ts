@@ -29,11 +29,15 @@ class ResponseValidator extends BaseValidator {
         return;
       }
 
-      this.validateObjectAgainstSchema(
-        this.response.body,
-        contentTypeSchema.schema,
-        ['body'],
-      );
+      if (this.response.body === undefined) {
+        this.addMessage(Type.UnableToParseResponseBody, [], [contentType]);
+      } else {
+        this.validateObjectAgainstSchema(
+          this.response.body,
+          contentTypeSchema.schema,
+          ['body'],
+        );
+      }
     } else {
       this.addMessage(Type.StatusCodeMismatch, [], [`${this.response.status}`]);
     }
