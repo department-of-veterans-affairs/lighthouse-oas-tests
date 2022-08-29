@@ -19,6 +19,7 @@ export enum Type {
   RequiredProperty,
   StatusCodeMismatch,
   TypeMismatch,
+  UnableToParseResponseBody,
 }
 
 const messageTemplates: Record<Type, MessageTemplate> = {
@@ -102,6 +103,11 @@ const messageTemplates: Record<Type, MessageTemplate> = {
     severity: Severity.ERROR,
     details:
       'Actual type did not match schema. Schema type: {0}. Actual type: {1}.',
+  },
+  [Type.UnableToParseResponseBody]: {
+    severity: Severity.WARNING,
+    details:
+      'Unable to auto-parse response body, skipping schema validation. Only JSON and YAML are supported. Body content type: {0}',
   },
 };
 
