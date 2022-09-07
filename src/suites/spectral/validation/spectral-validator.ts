@@ -29,7 +29,7 @@ class SpectralValidator extends BaseValidator {
   public addMessage(
     operation: string,
     ruleName: string,
-    type: unknown,
+    type: Type,
     path: string[],
     props?: string[],
   ): void {

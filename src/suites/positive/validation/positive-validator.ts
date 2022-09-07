@@ -22,7 +22,7 @@ abstract class PositiveValidator extends BaseValidator {
     return this._warnings;
   }
 
-  public addMessage(type: unknown, path: string[], props?: string[]): void {
+  public addMessage(type: Type, path: string[], props?: string[]): void {
     const message = new PositiveMessage(type, path, props);
     const map = message.isError() ? this._failures : this._warnings;
     const existingMessage = map.get(message.hash);

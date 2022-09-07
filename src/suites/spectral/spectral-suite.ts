@@ -1,15 +1,10 @@
 import { OperationResult } from '../../validation';
-import Suite, { SuiteConfig } from '../suite';
+import Suite from '../suite';
 import SpectralValidator from './validation/spectral-validator';
 
 export default class SpectralSuite extends Suite {
   public static suiteId = 'spectral';
-  public static label = '(Spectral)';
-
-  constructor(suiteConfig: SuiteConfig) {
-    super(suiteConfig);
-    this.suiteConfig = suiteConfig;
-  }
+  protected static label = '(Spectral)';
 
   async conduct(): Promise<OperationResult[]> {
     const results: OperationResult[] = [];

@@ -6,7 +6,7 @@ import JSONStructuredOutputFactory from '../utilities/structured-output';
 
 export default class Suites extends Command {
   static description =
-    'Runs happy-path tests for an API based on the OpenAPI spec';
+    'Runs a set of test suites for an API based on the OpenAPI spec';
 
   // TODO Add support for command to cherry pick suites
   static flags = {
@@ -74,18 +74,16 @@ export default class Suites extends Command {
   }
 
   private logTestResults(results: OASResult[], isJsonOutput: boolean): void {
-    for (let x = 0; x < results.length; x++) {
+    results.forEach((result) => {
       if (isJsonOutput) {
-        const output = JSONStructuredOutputFactory.buildFromOASResult(
-          results[x],
-        );
+        const output = JSONStructuredOutputFactory.buildFromOASResult(result);
         this.log(JSON.stringify(output));
       } else {
-        this.log(results[x].toString());
+        this.log(result.toString());
       }
 
-      this.determineFailure(results[x]);
-    }
+      this.determineFailure(result);
+    });
   }
 
   determineFailure(result: OASResult): void {

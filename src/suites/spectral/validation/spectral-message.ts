@@ -18,10 +18,10 @@ const messageTemplates: Record<Type, MessageTemplate> = {
 };
 
 class SpectralMessage extends Message {
-  constructor(type: unknown, path: string[], _properties?: string[]) {
+  constructor(type: Type, path: string[], _properties?: string[]) {
     super(type, path, _properties);
 
-    this.template = messageTemplates[type as Type];
+    this.template = messageTemplates[type];
 
     this.message = this.resolveMessage(_properties);
     this._hash = this.generateHash();

@@ -12,7 +12,7 @@ export interface SuiteConfig {
 // New test suites should be added under the '/suites/<suite name>' folder and defined in the SuiteFactory
 abstract class Suite {
   public static suiteId = 'default-suite'; // Should be overriden in child suite
-  public static label = ''; // Should be overriden in child suite
+  protected static label = ''; // Should be overriden in child suite
   protected suiteConfig: SuiteConfig;
 
   constructor(suiteConfig: SuiteConfig) {
