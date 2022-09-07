@@ -6,7 +6,7 @@ import Loast from '../loast';
 
 export default class SuitesBatch extends Command {
   static description =
-    'Runs happy-path tests for all APIs in the config file based on their OpenAPI specs';
+    'Runs a set of test suites against multiple OAS for all APIs in the config file based on their OpenAPI specs';
 
   static flags = {
     help: flags.help({ char: 'h' }),
@@ -26,9 +26,7 @@ export default class SuitesBatch extends Command {
     const config: Config = FileIn.loadConfigFromFile(args.path);
     const batchResults = await this.getBatchResults(config);
 
-    for (let api = 0; api < batchResults.length; api++) {
-      this.logTestResults(batchResults[api]);
-    }
+    batchResults.forEach((result) => this.logTestResults(result));
   }
 
   // returns an array of batch configs by array of suite results

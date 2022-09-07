@@ -52,7 +52,9 @@ describe('SuiteFactory', () => {
           ...suiteConfig,
           options: options,
         }),
-      ).toThrowError();
+      ).toThrowError(
+        new Error(`Unable to find suite with ID gibberishSuiteId`),
+      );
     });
   });
 
