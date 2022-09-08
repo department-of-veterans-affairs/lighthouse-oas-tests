@@ -56,7 +56,7 @@ describe('PositiveSuite', () => {
     it('returns label', () => {
       const suite = new PositiveSuite(suiteConfig);
 
-      expect(suite.getLabel()).toEqual('(Example Group: Positive)');
+      expect(suite.getLabel()).toEqual('(Example Group: 2xx Response)');
     });
   });
 });

@@ -1,6 +1,6 @@
 import OASSchema from '../../../../src/oas-parsing/schema/oas-schema';
-import { Type } from '../../../../src/suites/spectral/validation/spectral-message';
-import SpectralValidator from '../../../../src/suites/spectral/validation/spectral-validator';
+import { Type } from '../../../../src/suites/oas-ruleset/validation/oas-ruleset-message';
+import OasRulesetValidator from '../../../../src/suites/oas-ruleset/validation/oas-ruleset-validator';
 
 const mockSpectralRun = jest.fn();
 const spectralResults = [
@@ -40,17 +40,20 @@ mockSpectralRun.mockResolvedValue(spectralResults);
 
 // ruleset-wrapper needs be mocked to avoid Jest conflict with
 //  3rd party packages when they use package.json 'export'
-jest.mock('../../../../src/suites/spectral/validation/ruleset-wrapper', () => {
-  return {
-    getRuleset: jest.fn(),
-  };
-});
+jest.mock(
+  '../../../../src/suites/oas-ruleset/validation/ruleset-wrapper',
+  () => {
+    return {
+      getRuleset: jest.fn(),
+    };
+  },
+);
 
 let oasSchema: OASSchema;
 let operation: string;
 let ruleName: string;
 
-describe('SpectralValidator', () => {
+describe('OasRulesetValidator', () => {
   beforeEach(() => {
     oasSchema = new OASSchema({ spec: {} });
     operation = '/findTheRing:GET';
@@ -59,8 +62,8 @@ describe('SpectralValidator', () => {
 
   describe('addMessage', () => {
     it('adds a validation failure', () => {
-      const validator = new SpectralValidator(oasSchema);
-      validator.addMessage(operation, ruleName, Type.SpectralError, [
+      const validator = new OasRulesetValidator(oasSchema);
+      validator.addMessage(operation, ruleName, Type.OasRulesetError, [
         'The ring has not be found',
       ]);
 
@@ -70,8 +73,8 @@ describe('SpectralValidator', () => {
     });
 
     it('adds a validation warning', () => {
-      const validator = new SpectralValidator(oasSchema);
-      validator.addMessage(operation, ruleName, Type.SpectralWarning, [
+      const validator = new OasRulesetValidator(oasSchema);
+      validator.addMessage(operation, ruleName, Type.OasRulesetWarning, [
         'The ring has not be found',
       ]);
 
@@ -81,11 +84,11 @@ describe('SpectralValidator', () => {
     });
 
     it('adds a repeated message', () => {
-      const validator = new SpectralValidator(oasSchema);
-      validator.addMessage(operation, ruleName, Type.SpectralWarning, [
+      const validator = new OasRulesetValidator(oasSchema);
+      validator.addMessage(operation, ruleName, Type.OasRulesetWarning, [
         'The ring has not be found',
       ]);
-      validator.addMessage(operation, ruleName, Type.SpectralWarning, [
+      validator.addMessage(operation, ruleName, Type.OasRulesetWarning, [
         'The ring has not be found',
       ]);
 
@@ -96,8 +99,8 @@ describe('SpectralValidator', () => {
   });
 
   describe('performValidation', () => {
-    it('run spectral and sanitizes three results', async () => {
-      const validator = new SpectralValidator(oasSchema);
+    it('run oas-ruleset and sanitizes three results', async () => {
+      const validator = new OasRulesetValidator(oasSchema);
       await validator.validate();
 
       expect(validator.operationMap.size).toEqual(3);
