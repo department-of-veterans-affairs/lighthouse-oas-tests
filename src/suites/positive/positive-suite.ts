@@ -5,7 +5,8 @@ import Suite from '../suite';
 
 export default class PositiveSuite extends Suite {
   public static suiteId = 'positive';
-  protected static label = '(Example Group: Positive)';
+
+  protected static label = '(Example Group: 2xx Response)';
 
   async conduct(): Promise<OperationResult[]> {
     this.checkTargetServer();

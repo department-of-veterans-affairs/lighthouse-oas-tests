@@ -1,18 +1,24 @@
 import { OperationResult } from '../../validation';
 import Suite from '../suite';
-import SpectralValidator from './validation/spectral-validator';
+import OasRulesetValidator from './validation/oas-ruleset-validator';
 
-export default class SpectralSuite extends Suite {
-  public static suiteId = 'spectral';
-  protected static label = '(Spectral)';
+/**
+ * Reviews the OAS following the rules defined.
+ * This uses spectral to define the rules.
+ */
+export default class OasRulesetSuite extends Suite {
+  public static suiteId = 'oas-ruleset';
+  protected static label = '(oas-ruleset)';
 
   async conduct(): Promise<OperationResult[]> {
     const results: OperationResult[] = [];
 
-    const spectralValidator = new SpectralValidator(this.suiteConfig.schema);
-    await spectralValidator.validate();
+    const oasRulesetValidator = new OasRulesetValidator(
+      this.suiteConfig.schema,
+    );
+    await oasRulesetValidator.validate();
 
-    const operationMap = spectralValidator.operationMap;
+    const operationMap = oasRulesetValidator.operationMap;
     const operations = operationMap.keys();
 
     for (const operationId of operations) {
@@ -43,6 +49,6 @@ export default class SpectralSuite extends Suite {
   }
 
   public getLabel(): string {
-    return SpectralSuite.label;
+    return OasRulesetSuite.label;
   }
 }

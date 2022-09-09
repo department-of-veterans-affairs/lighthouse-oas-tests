@@ -1,7 +1,7 @@
 import path from 'path';
 import { BaseValidator, Message } from '../../../validation';
 import OASSchema from '../../../oas-parsing/schema';
-import SpectralMessage, { Type } from './spectral-message';
+import OasRulesetMessage, { Type } from './oas-ruleset-message';
 import {
   Spectral,
   ISpectralDiagnostic as SpectralResult,
@@ -14,7 +14,7 @@ declare type MessageSet = {
   warnings: Map<string, Message>;
 };
 
-class SpectralValidator extends BaseValidator {
+class OasRulesetValidator extends BaseValidator {
   private schema: OASSchema;
   public operationMap: Map<string, Map<string, MessageSet>>;
 
@@ -43,7 +43,7 @@ class SpectralValidator extends BaseValidator {
       ruleMap?.set(ruleName, { failures: new Map(), warnings: new Map() });
     }
 
-    const message = new SpectralMessage(type, path, props);
+    const message = new OasRulesetMessage(type, path, props);
     const messageSet = ruleMap?.get(ruleName);
 
     if (messageSet) {
@@ -78,10 +78,10 @@ class SpectralValidator extends BaseValidator {
   private sanitizeResults(results: SpectralResult[]): void {
     for (const result of results) {
       const ruleName = result.code;
-      let msgType = Type.SpectralError;
+      let msgType = Type.OasRulesetError;
 
       if (result.severity === DiagnosticSeverity.Warning) {
-        msgType = Type.SpectralWarning;
+        msgType = Type.OasRulesetWarning;
       }
 
       const newPath = this.sanitizePath(result.path as string[]);
@@ -108,4 +108,4 @@ class SpectralValidator extends BaseValidator {
   }
 }
 
-export default SpectralValidator;
+export default OasRulesetValidator;
