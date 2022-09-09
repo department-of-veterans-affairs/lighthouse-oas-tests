@@ -11,10 +11,6 @@ export default class PositiveSuite extends Suite {
   async conduct(): Promise<OperationResult[]> {
     this.checkTargetServer();
 
-    if (!this.suiteConfig.securityValues) {
-      throw new Error('Unable to run suite due to missing securityValues');
-    }
-
     const securityValues = this.suiteConfig.securityValues;
     const operations = await this.suiteConfig.schema.getOperations();
     const operationExamples =

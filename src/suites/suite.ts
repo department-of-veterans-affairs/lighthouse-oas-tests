@@ -6,7 +6,7 @@ import OASSchema from '../oas-parsing/schema';
 export interface SuiteConfig {
   options: TestOptions;
   schema: OASSchema;
-  securityValues?: SecurityValues;
+  securityValues: SecurityValues;
 }
 
 // New test suites should be added under the '/suites/<suite name>' folder and defined in the SuiteFactory
