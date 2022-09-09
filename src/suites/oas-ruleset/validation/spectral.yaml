@@ -1,4 +1,5 @@
-extends: [[spectral:oas, recommended]]
+extends:
+  - "spectral:oas"
 # Useful links when writing rules:
 #
 # Custom Rulesets
@@ -14,14 +15,6 @@ extends: [[spectral:oas, recommended]]
 # https://meta.stoplight.io/docs/spectral/ZG9jOjExNg-core-functions
 #
 rules:
-  loast-info-description-maximum-length:
-    description: description object under info object should be at most 1000 characters
-    given: $.info.description
-    severity: error
-    then:
-      function: length
-      functionOptions:
-        max: 1000
   loast-info-description-minimum-length:
     description: description object under info object should be at least 1000 characters
     given: $.info.description
@@ -36,13 +29,12 @@ rules:
     severity: error
     then:
       function: enumeration
-      # field:
       functionOptions:
         values:
           - application/json
-          #- text/csv
-          - another/type
-          - yet/another
+          - text/csv
+          - application/geo+json
+          - application/vnd.geo+json
   # A blacklist rule does not look doable out of the box, but we could presumably write
   # a custom function for this
   # https://meta.stoplight.io/docs/spectral/ZG9jOjI1MTkw-custom-functions
