@@ -53,7 +53,11 @@ operationResults.set(
 describe('OasRulesetSuite', () => {
   beforeEach(() => {
     oasSchema = new OASSchema({ spec: {} });
-    suiteConfig = { options: { path: 'pathToTheRing' }, schema: oasSchema };
+    suiteConfig = {
+      options: { path: 'pathToTheRing' },
+      schema: oasSchema,
+      securityValues: {},
+    };
   });
 
   describe('conduct', () => {
