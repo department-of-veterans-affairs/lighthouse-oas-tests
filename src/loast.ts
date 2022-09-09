@@ -30,10 +30,11 @@ export default class Loast {
       suiteIds = SuiteFactory.availableSuiteIds();
     }
 
-    for (let x = 0; x < suiteIds.length; x++) {
-      // eslint-disable-next-line no-await-in-loop
-      results.push(await this.getSuiteResults(suiteIds[x]));
-    }
+    await Promise.all(
+      suiteIds.map(async (suiteId) => {
+        results.push(await this.getSuiteResults(suiteId));
+      }),
+    );
 
     return results;
   }

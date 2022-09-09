@@ -1,5 +1,5 @@
 import { OperationResult } from '../../validation';
-import Suite, { SuiteConfig } from '../suite';
+import Suite from '../suite';
 import OasRulesetValidator from './validation/oas-ruleset-validator';
 
 /**
@@ -8,12 +8,7 @@ import OasRulesetValidator from './validation/oas-ruleset-validator';
  */
 export default class OasRulesetSuite extends Suite {
   public static suiteId = 'oas-ruleset';
-  public static label = '(oas-ruleset)';
-
-  constructor(suiteConfig: SuiteConfig) {
-    super(suiteConfig);
-    this.suiteConfig = suiteConfig;
-  }
+  protected static label = '(oas-ruleset)';
 
   async conduct(): Promise<OperationResult[]> {
     const results: OperationResult[] = [];
