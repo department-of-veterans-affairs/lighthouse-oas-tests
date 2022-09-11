@@ -23,14 +23,15 @@ module.exports = {
     semi: ["error", "always"],
     "@typescript-eslint/camelcase": "off",
     "comma-dangle": ["error", "always-multiline"],
-    indent: ["error", 2],
+    indent: ["off"],
     "prettier/prettier": ["error"],
     'lines-between-class-members': [
       'off'
     ],
     'max-params': [
       'off'
-    ]
+    ],
+    'unicorn/no-abusive-eslint-disable': [ 'off' ],
   },
   overrides: [
     {

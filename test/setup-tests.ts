@@ -1,10 +1,7 @@
-import ValidationMessage from '../src/validation/validation-message';
+import Message from '../src/validation/message';
 
 expect.extend({
-  toContainValidationFailure(
-    received: Map<string, ValidationMessage>,
-    argument: string,
-  ) {
+  toContainValidationFailure(received: Map<string, Message>, argument: string) {
     let pass = false;
     const failures = [...received.values()];
     failures
@@ -32,10 +29,7 @@ expect.extend({
       pass: false,
     };
   },
-  toContainValidationWarning(
-    received: Map<string, ValidationMessage>,
-    argument: string,
-  ) {
+  toContainValidationWarning(received: Map<string, Message>, argument: string) {
     let pass = false;
     const warnings = [...received.values()];
     warnings
