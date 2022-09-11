@@ -20,7 +20,7 @@ export enum Type {
   StatusCodeMismatch,
   TypeMismatch,
   UnableToParseResponseBody,
-  MediaTypeMismatch = 19,
+  MediaTypeMismatch,
 }
 
 const messageTemplates: Record<Type, MessageTemplate> = {
