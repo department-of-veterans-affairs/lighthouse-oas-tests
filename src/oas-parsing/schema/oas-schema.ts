@@ -14,10 +14,17 @@ import { uniq } from 'lodash';
 
 class OASSchema {
   private _client: Promise<Swagger>;
-
   private operations: OASOperation[];
+  private url: string | undefined;
+  private rawSpec: any;
 
   constructor(options: Parameters<typeof swaggerClient>[0]) {
+    this.url = options.url;
+    if (options.spec) {
+      // store a deep clone before client adds its own normalization and reference handling
+      this.rawSpec = JSON.parse(JSON.stringify(options.spec));
+    }
+
     this._client = swaggerClient(options);
     this.operations = [];
   }
@@ -111,6 +118,23 @@ class OASSchema {
   getServers = async (): Promise<OASServer[]> => {
     const schema = await this._client;
     return OASServerFactory.getServers(schema.spec.servers);
+  };
+
+  getRawSchema = async (): Promise<any> => {
+    if (!this.rawSpec && this.url) {
+      // Attempting to get raw spec from URL if not already available
+      const spec = await fetch(this.url).then((res) => {
+        if (!res.ok) {
+          throw new Error('Unable to get OASSchema from URL');
+        }
+
+        return res.text();
+      });
+
+      this.rawSpec = spec;
+    }
+
+    return this.rawSpec;
   };
 }
 
