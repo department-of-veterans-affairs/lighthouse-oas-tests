@@ -63,15 +63,14 @@ class OasRulesetValidator extends BaseValidator {
     this.sanitizeResults(rawResults);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async runSpectral(schema: any): Promise<SpectralResult[]> {
+  private async runSpectral(schema: OASSchema): Promise<SpectralResult[]> {
     const spectral = new Spectral();
     const rulesetFilepath = path.resolve(
       path.join(__dirname, './spectral.yaml'),
     );
     spectral.setRuleset(await getRuleset(rulesetFilepath));
 
-    return spectral.run(schema);
+    return spectral.run(await schema.getRawSchema());
   }
 
   //  sanitizeResults() Need to classify results and clean the paths for messages
