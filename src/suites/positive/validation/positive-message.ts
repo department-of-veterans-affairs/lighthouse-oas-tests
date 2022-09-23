@@ -20,6 +20,7 @@ export enum Type {
   StatusCodeMismatch,
   TypeMismatch,
   UnableToParseResponseBody,
+  MediaTypeMismatch,
 }
 
 const messageTemplates: Record<Type, MessageTemplate> = {
@@ -108,6 +109,11 @@ const messageTemplates: Record<Type, MessageTemplate> = {
     severity: Severity.WARNING,
     details:
       'Unable to auto-parse response body, skipping schema validation. Only JSON and YAML are supported. Body content type: {0}',
+  },
+  [Type.MediaTypeMismatch]: {
+    severity: Severity.ERROR,
+    details:
+      'Response Content-Type is incompatible with what was requested via Accept. Accept type(s): {0}. Response type: {1}',
   },
 };
 

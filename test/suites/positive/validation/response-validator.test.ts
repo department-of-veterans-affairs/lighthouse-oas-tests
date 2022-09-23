@@ -2,64 +2,67 @@ import OASOperation from '../../../../src/oas-parsing/operation';
 import { ResponseValidator } from '../../../../src/suites/positive/validation';
 
 describe('ResponseValidator', () => {
-  const operation = new OASOperation({
-    operationId: 'getHobbits',
-    parameters: [
-      {
-        name: 'family',
-        in: 'query',
-        description: '',
-        schema: {
+  let operation;
+  beforeEach(() => {
+    operation = new OASOperation({
+      operationId: 'getHobbits',
+      parameters: [
+        {
+          name: 'family',
+          in: 'query',
           description: '',
-          type: 'string',
-        },
-        required: true,
-        examples: {
-          baggins: {
-            value: 'baggins',
+          schema: {
+            description: '',
+            type: 'string',
+          },
+          required: true,
+          examples: {
+            baggins: {
+              value: 'baggins',
+            },
           },
         },
-      },
-      {
-        name: 'age',
-        in: 'query',
-        description: '',
-        schema: {
+        {
+          name: 'age',
+          in: 'query',
           description: '',
-          type: 'integer',
-        },
-        examples: {
-          baggins: {
-            value: 111,
+          schema: {
+            description: '',
+            type: 'integer',
+          },
+          examples: {
+            baggins: {
+              value: 111,
+            },
           },
         },
-      },
-    ],
-    responses: {
-      '200': {
-        description: 'Success',
-        content: {
-          'application/json': {
-            schema: {
-              description: '',
-              type: 'object',
-              properties: {
-                data: {
-                  type: 'string',
-                  description: '',
+      ],
+      responses: {
+        '200': {
+          description: 'Success',
+          content: {
+            'application/json': {
+              schema: {
+                description: '',
+                type: 'object',
+                properties: {
+                  data: {
+                    type: 'string',
+                    description: '',
+                  },
                 },
               },
             },
-          },
-          'text/csv': {
-            schema: {
-              type: 'string',
-              example: 'there,are,spiders,',
+            'text/csv': {
+              schema: {
+                type: 'string',
+                example: 'there,are,spiders,',
+              },
             },
           },
         },
       },
-    },
+    });
   });
 
   describe('validate', () => {
@@ -101,6 +104,97 @@ describe('ResponseValidator', () => {
       expect(failures).toContainValidationFailure(
         'Response content type not present in schema. Actual content type: image/bmp',
       );
+    });
+
+    it('adds a validation failure when Response content type does not match the Accept header', () => {
+      operation.parameters?.push({
+        name: 'Accept',
+        in: 'header',
+        schema: {
+          type: 'string',
+        },
+        example: 'application/json',
+      });
+
+      const validator = new ResponseValidator(operation, {
+        ok: true,
+        status: 200,
+        url: 'http://anything.com',
+        headers: {
+          'content-type': 'text/csv',
+        },
+        body: 'Breakfast,Second Breakfast,Elevenses,Luncheon,Afternoon Tea,Dinner,Supper',
+      });
+
+      validator.validate();
+      const failures = validator.failures;
+
+      expect(failures.size).toEqual(1);
+      expect(failures).toContainValidationFailure(
+        'Response Content-Type is incompatible with what was requested via Accept. Accept type(s): application/json. Response type: text/csv',
+      );
+    });
+
+    it('does not add a validation failure when Response content type matches the Accept header', () => {
+      operation.parameters?.push({
+        name: 'Accept',
+        in: 'header',
+        schema: {
+          type: 'string',
+        },
+        example: 'text/csv',
+      });
+
+      const validator = new ResponseValidator(operation, {
+        ok: true,
+        status: 200,
+        url: 'http://anything.com',
+        headers: {
+          'content-type': 'text/csv',
+        },
+        body: 'Breakfast,Second Breakfast,Elevenses,Luncheon,Afternoon Tea,Dinner,Supper',
+      });
+
+      validator.validate();
+      const failures = validator.failures;
+
+      expect(failures.size).toEqual(0);
+    });
+
+    it('does not compare Response content type to Accept header when there is no Accept header', () => {
+      const validator = new ResponseValidator(operation, {
+        ok: true,
+        status: 200,
+        url: 'http://anything.com',
+        headers: {
+          'content-type': 'text/csv',
+        },
+        body: 'Breakfast,Second Breakfast,Elevenses,Luncheon,Afternoon Tea,Dinner,Supper',
+      });
+
+      validator.validate();
+      const failures = validator.failures;
+
+      expect(failures.size).toEqual(0);
+    });
+
+    it('does not compare Response content type to Accept header when there are no parameters', () => {
+      operation.parameters = undefined;
+
+      const validator = new ResponseValidator(operation, {
+        ok: true,
+        status: 200,
+        url: 'http://anything.com',
+        headers: {
+          'content-type': 'text/csv',
+        },
+        body: 'Breakfast,Second Breakfast,Elevenses,Luncheon,Afternoon Tea,Dinner,Supper',
+      });
+
+      validator.validate();
+      const failures = validator.failures;
+
+      expect(failures.size).toEqual(0);
     });
 
     it('adds a validation warning when response body is not parsed', () => {

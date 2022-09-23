@@ -20,6 +20,7 @@
     "lodash.isequal": "^4.5.0",
     "lodash.uniq": "^4.5.0",
     "lodash.uniqwith": "^4.5.0",
+    "medium-type": "^1.0.0",
     "parse-url": "^6.0.1",
     "swagger-client": "^3.12.0"
   },
