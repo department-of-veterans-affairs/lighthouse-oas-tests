@@ -66,7 +66,7 @@ class OasRulesetValidator extends BaseValidator {
   private async runSpectral(schema: OASSchema): Promise<SpectralResult[]> {
     const spectral = new Spectral();
     const rulesetFilepath = path.resolve(
-      path.join(__dirname, './spectral.yaml'),
+      path.join(__dirname, './ruleset.yaml'),
     );
     spectral.setRuleset(await getRuleset(rulesetFilepath));
 
