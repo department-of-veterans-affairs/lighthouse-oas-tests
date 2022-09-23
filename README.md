@@ -406,7 +406,30 @@ These failures can occur for parameters and responses.
 
 ## Spectral Linting
 
-[Spectral](https://github.com/stoplightio/spectral) drives the OAS linting using the yaml at `src\suites\spectral\validation\spectral.yaml`. This file can be used to configure additional rules against an OAS if needed.
+[Spectral](https://github.com/stoplightio/spectral) drives the OAS linting behavior in LOAST based on a set of highly configurable rulesets.
+
+### Configuration
+
+All ruleset behavior is controlled by the yaml at `src\suites\oas-ruleset\validation\ruleset.yaml`. This yaml extends the `default` or `core rulesets` provided by Spectral and includes additional `custom rulesets` intended to tailor validation for the VA.
+
+Details surrounding the `core ruleset` can be found at [Spectral's OpenAPI-Rules](https://github.com/stoplightio/spectral/blob/develop/docs/reference/openapi-rules.md)
+
+### Custom Rulesets
+
+| Name                                     | Severity | Description                                                                 |
+| ---------------------------------------- | -------- | --------------------------------------------------------------------------- |
+| va-openapi-supported-versions            | Error    | Platform tooling requires openapi version 3.x.x                             |
+| va-info-description-minimum-length       | Warning  | Info's description appears to be short on details. Expected 1000+ chars     |
+| va-one-path-required                     | Error    | At least one path must exist                                                |
+| va-one-operation-required                | Error    | Each path must have at least one operation                                  |
+| va-endpoint-summary-required             | Error    | Endpoints must have a summary                                               |
+| va-endpoint-summary-minimum-length       | Warning  | Endpoint summary is too short. Expected 10+ chars                           |
+| va-endpoint-description-required         | Error    | Endpoints must have a description                                           |
+| va-endpoint-description-minimum-length   | Warning  | Endpoint descripting is too short. Expected 30+ chars                       |
+| va-param-description-required            | Error    | Parameters must have a description                                          |
+| va-params-example-required               | Error    | Parameters marked as required must have an 'example' or 'examples' property |
+| va-request-content-supported-mediatypes  | Error    | Insure content's media type under request is expected/supported             |
+| va-response-content-supported-mediatypes | Error    | Insure content's media type under response is expected/supported            |
 
 # Local Development
 
