@@ -1,48 +1,122 @@
 extends:
   - 'spectral:oas'
 #Extending Spectral core ruleset: https://github.com/stoplightio/spectral/blob/develop/docs/reference/openapi-rules.md
+#Custom rulesets are prefixed by "va-" to help distinguish from core ruleset
 
 rules:
-  operation-operationId-valid-in-url: off
+  operation-operationId-valid-in-url: off #Disabled due to APIs following operation ID pattern "<HTTP Operation>:<Endpoint path>"
   va-openapi-supported-versions:
-    description: Platform tooling requires openapi 3.x.x
+    description: Platform tooling requires openapi version 3.x.x
     given: $.openapi
     severity: error
     then:
       function: pattern
       functionOptions:
         match: "^3\\.\\d\\.\\d$"
-  va-ensure-endpoint-summary:
+  va-info-description-minimum-length:
+    description: Info's description appears to be short on details. Should be more than 1000 characters
+    given: $.info.description
+    severity: warn
+    then:
+      function: length
+      functionOptions:
+        min: 1000
+  va-one-path-required:
+    description: At least one path must exist
+    given: $.paths
+    severity: error
+    then:
+      function: length
+      functionOptions:
+        min: 1
+  va-one-operation-required:
+    description: Each path must have at least one operation
+    given: $.paths[*]
+    severity: error
+    then:
+      function: length
+      functionOptions:
+        min: 1
+  va-endpoint-summary-required:
     description: Endpoints must have a summary
     given: $.paths[*][*]
     severity: error
     then:
       field: summary
       function: truthy
-  va-ensure-param-description:
+  va-endpoint-summary-minimum-length:
+    description: Endpoint's summary appears to be short on details. Should be more than 10 characters
+    given: $.paths[*][*]
+    severity: warn
+    then:
+      field: summary
+      function: length
+      functionOptions:
+        min: 10
+  va-endpoint-description-required:
+    description: Endpoints must have a description
+    given: $.paths[*][*]
+    severity: error
+    then:
+      field: description
+      function: truthy
+  va-endpoint-description-minimum-length:
+    description: Endpoint's description appears to be short on details. Should be more than 30 characters
+    given: $.paths[*][*]
+    severity: warn
+    then:
+      field: description
+      function: length
+      functionOptions:
+        min: 30
+  va-param-description-required:
     description: Parameters must have a description
     given: $..*.parameters[*]
     severity: error
     then:
       field: description
       function: truthy
-  va-info-description-minimum-length:
-    description: description object under info object should be at least 1000 characters
-    given: $.info.description
+  va-params-example-required:
+    description: Parameters marked as required must have an example or examples property
+    given: $..*.parameters[?(@.required == true)]
     severity: error
     then:
-      function: length
+      function: xor
       functionOptions:
-        min: 1000
-  va-content-whitelist:
-    description: content media type name must be one of the whitelisted options
+        properties:
+          - example
+          - examples
+  va-request-content-supported-mediatypes:
+    description: Content's media type name must be one of the supported options
+    given: $..*.requestBody.content.*~
+    severity: error
+    then:
+      function: enumeration
+      functionOptions:
+        values:
+          - application/fhir+json
+          - application/geo+json
+          - application/json
+          - application/json+fhir
+          - application/json+geo
+          - application/json+vnd.geo
+          - application/vnd.geo+json
+          - application/jwt
+          - text/csv
+  va-response-content-supported-mediatypes:
+    description: Content's media type name must be one of the supported options
     given: $..responses.*.content.*~
     severity: error
     then:
       function: enumeration
       functionOptions:
         values:
-          - application/json
-          - text/csv
+          - application/fhir+json
           - application/geo+json
+          - application/json
+          - application/json+fhir
+          - application/json+geo
+          - application/json+vnd.geo
           - application/vnd.geo+json
+          - application/jwt
+          - text/csv
