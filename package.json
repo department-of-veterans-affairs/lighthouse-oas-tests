@@ -70,10 +70,10 @@
   },
   "repository": "department-of-veterans-affairs/lighthouse-oas-tests",
   "scripts": {
-    "build": "rm -rf lib && tsc && cp ./src/suites/oas-ruleset/validation/spectral.yaml ./lib/suites/oas-ruleset/validation/spectral.yaml",
+    "build": "rm -rf lib && tsc && cp ./src/suites/oas-ruleset/validation/ruleset.yaml ./lib/suites/oas-ruleset/validation/ruleset.yaml",
     "build:tests": "rm -rf test/lib-test && tsc --project test/tsconfig.json",
     "postpack": "rm -f oclif.manifest.json",
-    "prepack": "rm -rf lib && tsc -b && cp ./src/suites/oas-ruleset/validation/spectral.yaml ./lib/suites/oas-ruleset/validation/spectral.yaml && oclif-dev manifest && oclif-dev readme",
+    "prepack": "rm -rf lib && tsc -b && cp ./src/suites/oas-ruleset/validation/ruleset.yaml ./lib/suites/oas-ruleset/validation/ruleset.yaml && oclif-dev manifest && oclif-dev readme",
     "test": "npm run build:tests && jest",
     "test:ci": "npm run build:tests && jest --coverage",
     "test:clear": "jest --clearCache",

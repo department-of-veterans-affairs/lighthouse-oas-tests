@@ -1,0 +1,48 @@
+extends:
+  - 'spectral:oas'
+#Extending Spectral core ruleset: https://github.com/stoplightio/spectral/blob/develop/docs/reference/openapi-rules.md
+
+rules:
+  operation-operationId-valid-in-url: off
+  va-openapi-supported-versions:
+    description: Platform tooling requires openapi 3.x.x
+    given: $.openapi
+    severity: error
+    then:
+      function: pattern
+      functionOptions:
+        match: "^3\\.\\d\\.\\d$"
+  va-ensure-endpoint-summary:
+    description: Endpoints must have a summary
+    given: $.paths[*][*]
+    severity: error
+    then:
+      field: summary
+      function: truthy
+  va-ensure-param-description:
+    description: Parameters must have a description
+    given: $..*.parameters[*]
+    severity: error
+    then:
+      field: description
+      function: truthy
+  va-info-description-minimum-length:
+    description: description object under info object should be at least 1000 characters
+    given: $.info.description
+    severity: error
+    then:
+      function: length
+      functionOptions:
+        min: 1000
+  va-content-whitelist:
+    description: content media type name must be one of the whitelisted options
+    given: $..responses.*.content.*~
+    severity: error
+    then:
+      function: enumeration
+      functionOptions:
+        values:
+          - application/json
+          - text/csv
+          - application/geo+json
+          - application/vnd.geo+json
