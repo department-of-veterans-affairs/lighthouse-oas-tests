@@ -73,7 +73,7 @@ class OasRulesetValidator extends BaseValidator {
     return spectral.run(await schema.getRawSchema());
   }
 
-  //  sanitizeResults() Need to classify results and clean the paths for messages
+  //  sanitizeResults() Need to classify results, determine operation, and clean the paths for messages
   private sanitizeResults(results: SpectralResult[]): void {
     for (const result of results) {
       const ruleName = result.code;
@@ -83,27 +83,50 @@ class OasRulesetValidator extends BaseValidator {
         msgType = Type.OasRulesetWarning;
       }
 
-      const newPath = this.sanitizePath(result.path as string[]);
+      const { operation, cleanedPath } = this.extractDetailsFromPath(
+        result.path as string[],
+      );
 
-      // Get operation string (example: /path:GET)
-      let operation = newPath[0];
-      if (newPath.length > 2) {
-        operation = newPath[0] + ':' + newPath[1].toUpperCase();
-      }
-
-      this.addMessage(operation, `${ruleName}`, msgType, newPath, [
+      this.addMessage(operation, `${ruleName}`, msgType, cleanedPath, [
         `${result.message}`,
       ]);
     }
   }
 
-  // sanitizePath() Removes unneeded details provided by Spectral
-  private sanitizePath(path: string[]): string[] {
+  private extractDetailsFromPath(path: string[]): {
+    operation: string;
+    cleanedPath: string[];
+  } {
+    let details = { operation: `ROOT:UNKNOWN`, cleanedPath: [] as string[] };
+
+    if (!path || path.length === 0) {
+      // Spectral should always return path with length > 0
+      return details;
+    }
+
     if (path.length > 4 && path[0] === '_client') {
+      // _client paths appear from major issues with document/validation
+      //  and include unneeded details
       path.splice(0, 4);
     }
 
-    return path;
+    if (path.length < 2) {
+      // Root level property scenarios
+      details = {
+        operation: `ROOT:${path[0].toUpperCase()}`,
+        cleanedPath: [] as string[],
+      };
+    } else {
+      const operation = path[0].toUpperCase() + ':' + path[1].toUpperCase();
+      path.shift();
+
+      details = {
+        operation: operation,
+        cleanedPath: path,
+      };
+    }
+
+    return details;
   }
 }
 
