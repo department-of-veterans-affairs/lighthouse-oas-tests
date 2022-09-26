@@ -87,6 +87,11 @@ class OasRulesetValidator extends BaseValidator {
         result.path as string[],
       );
 
+      if (operation === `ROOT:GENERAL`) {
+        // Indicates some manner of high level validation error
+        msgType = Type.OasRulesetError;
+      }
+
       this.addMessage(operation, `${ruleName}`, msgType, cleanedPath, [
         `${result.message}`,
       ]);
@@ -97,10 +102,11 @@ class OasRulesetValidator extends BaseValidator {
     operation: string;
     cleanedPath: string[];
   } {
-    let details = { operation: `ROOT:UNKNOWN`, cleanedPath: [] as string[] };
+    let details = { operation: `ROOT:GENERAL`, cleanedPath: [] as string[] };
 
     if (!path || path.length === 0) {
-      // Spectral should always return path with length > 0
+      // Some major validation problems return no path.
+      //  Example: openapi version cannot be determined
       return details;
     }
 

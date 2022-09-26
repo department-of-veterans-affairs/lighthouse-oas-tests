@@ -4,7 +4,7 @@ extends:
 #Custom rulesets are prefixed by "va-" to help distinguish from core ruleset
 
 rules:
-  operation-operationId-valid-in-url: off #Disabled due to APIs following operation ID pattern "<HTTP Operation>:<Endpoint path>"
+  operation-operationId-valid-in-url: off # Disabled due to APIs following operation ID pattern "<HTTP Operation>:<Endpoint path>"
   operation-description: error # Missing operation descriptions are treated as errors instead of warnings
   va-openapi-supported-versions:
     description: Platform tooling requires openapi version 3.x.x
