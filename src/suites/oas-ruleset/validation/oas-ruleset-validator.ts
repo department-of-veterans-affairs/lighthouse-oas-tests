@@ -102,11 +102,11 @@ class OasRulesetValidator extends BaseValidator {
     operation: string;
     cleanedPath: string[];
   } {
-    let details = { operation: `ROOT:GENERAL`, cleanedPath: [] as string[] };
+    let details = { operation: `ROOT:OpenAPIDoc`, cleanedPath: [] as string[] };
 
     if (!path || path.length === 0) {
-      // Some major validation problems return no path.
-      //  Example: openapi version cannot be determined
+      // Some OpenAPIDoc validation problems return no path.
+      //  Example: When openapi version cannot be determined
       return details;
     }
 
@@ -117,14 +117,23 @@ class OasRulesetValidator extends BaseValidator {
     }
 
     if (path.length < 2) {
-      // Root level property scenarios
+      // Root level scenario: info, tags, openapi, or paths
       details = {
-        operation: `ROOT:${path[0].toUpperCase()}`,
+        operation: `ROOT:${path[0]}`,
         cleanedPath: [] as string[],
       };
     } else {
-      const operation = path[0].toUpperCase() + ':' + path[1].toUpperCase();
-      path.shift();
+      let operation = path[0].toUpperCase() + ':' + path[1];
+
+      if (path.length >= 3 && path[0] === 'paths') {
+        // Endpoint scenario: 'paths' => '/apiPath' => 'get' => ...
+        //  Removing 'paths'
+        path.splice(0, 1);
+        operation = path[1].toUpperCase() + ':' + path[0];
+      }
+
+      // Remove first two parts of path since its included in operation
+      path.splice(0, 2);
 
       details = {
         operation: operation,

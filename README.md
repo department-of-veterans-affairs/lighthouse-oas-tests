@@ -424,7 +424,6 @@ Details surrounding the `core ruleset` can be found at [Spectral's OpenAPI-Rules
 | va-one-operation-required                | Error    | Each path must have at least one operation                                  |
 | va-endpoint-summary-required             | Error    | Endpoints must have a summary                                               |
 | va-endpoint-summary-minimum-length       | Warning  | Endpoint summary is too short. Expected 10+ chars                           |
-| va-endpoint-description-required         | Error    | Endpoints must have a description                                           |
 | va-endpoint-description-minimum-length   | Warning  | Endpoint descripting is too short. Expected 30+ chars                       |
 | va-param-description-required            | Error    | Parameters must have a description                                          |
 | va-params-example-required               | Error    | Parameters marked as required must have an 'example' or 'examples' property |
