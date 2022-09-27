@@ -193,7 +193,7 @@ class OasRulesetValidator extends BaseValidator {
         result.path as string[],
       );
 
-      if (operation === `ROOT:GENERAL`) {
+      if (operation === operationEnum.openapidoc) {
         // Indicates some manner of high level validation error
         msgType = Type.OasRulesetError;
       }

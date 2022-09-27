@@ -22,6 +22,42 @@ const spectralResults = [
     path: ['_client', 'client', 'too', 'far', 'away'],
     message: 'That journey is too long',
   },
+  {
+    code: 'high-level-error',
+    severity: 1,
+    path: [],
+    message: 'Journey cannot be decided',
+  },
+  {
+    code: 'info-error',
+    severity: 1,
+    path: ['info', 'moat'],
+    message: 'Info missing property',
+  },
+  {
+    code: 'servers-error',
+    severity: 1,
+    path: ['servers', 'moat'],
+    message: 'Servers missing property',
+  },
+  {
+    code: 'tags-error',
+    severity: 1,
+    path: ['tags', 'moat'],
+    message: 'Tags missing property',
+  },
+  {
+    code: 'paths-error',
+    severity: 1,
+    path: ['paths', 'moat'],
+    message: 'Paths missing property',
+  },
+  {
+    code: 'endpoint-error',
+    severity: 1,
+    path: ['paths', '/thering', 'GET', 'moat'],
+    message: 'The Rings location is unknown',
+  },
 ];
 
 jest.mock('@stoplight/spectral-core', () => {
@@ -103,7 +139,7 @@ describe('OasRulesetValidator', () => {
       const validator = new OasRulesetValidator(oasSchema);
       await validator.validate();
 
-      expect(validator.operationMap.size).toEqual(3);
+      expect(validator.operationMap.size).toEqual(9);
     });
   });
 });
