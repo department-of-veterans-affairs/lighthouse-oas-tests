@@ -4,9 +4,7 @@ pipeline {
       image 'vasdvp/lighthouse-node-application-base:node14'
     }
   }
-  environment {
-    NPM_TOKEN = credentials('LIGHTHOUSE_NPM_REGISTRY_TOKEN')
-  }
+  environment {}
 
   stages {
     stage('Setup') {
