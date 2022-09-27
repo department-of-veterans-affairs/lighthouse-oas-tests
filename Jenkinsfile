@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Setup') {
       steps {
-        sh 'npm config list -l; env; npm install'
+        sh 'npm install'
       }
     }
     stage('Lint') {
