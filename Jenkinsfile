@@ -11,7 +11,7 @@ pipeline {
   stages {
     stage('Setup') {
       steps {
-        sh 'npm config list -l; npm install'
+        sh 'npm config list -l; env | grep -i proxy; npm install'
       }
     }
     stage('Lint') {
