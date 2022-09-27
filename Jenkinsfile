@@ -4,7 +4,6 @@ pipeline {
       image 'vasdvp/lighthouse-node-application-base:node14'
     }
   }
-  environment {}
 
   stages {
     stage('Setup') {
