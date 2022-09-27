@@ -4,8 +4,12 @@ extends:
 #Custom rulesets are prefixed by "va-" to help distinguish from core ruleset
 
 rules:
-  operation-operationId-valid-in-url: off # Disabled due to APIs following operation ID pattern "<HTTP Operation>:<Endpoint path>"
+  no-eval-in-markdown: error # Potential hack checks reports error instead of warning
+  no-script-tags-in-markdown: error
+  oas3-api-servers: error # Empty server array reports error instead of warning
   operation-description: error # Missing operation descriptions are treated as errors instead of warnings
+  operation-operationId-valid-in-url: off # Disabled due to APIs following operation ID pattern "<HTTP Operation>:<Endpoint path>"
+  operation-success-response: error # Raising error for operations without at least one success type reponse
   va-openapi-supported-versions:
     description: Platform tooling requires openapi version 3.x.x
     given: $.openapi
