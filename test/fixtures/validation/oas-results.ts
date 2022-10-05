@@ -17,6 +17,7 @@ import {
 } from '../../../src/oas-parsing/security';
 
 export const oasResultSuccess = new OASResult(
+  'oas-ruleset',
   'winterfell',
   undefined,
   undefined,
@@ -25,10 +26,11 @@ export const oasResultSuccess = new OASResult(
   undefined,
 );
 
-export const oasResultSuccessString = `winterfell: Succeeded
+export const oasResultSuccessString = `oas-ruleset winterfell: Succeeded
 ${operationExampleResultNoFailuresWarningsString}`;
 
 export const oasResultSuccessStructure: StructuredOutput = {
+  suiteId: oasResultSuccess.suiteId,
   id: oasResultSuccess.testName,
   config: {
     oasPath: oasResultSuccess.oasPath,
@@ -40,6 +42,7 @@ export const oasResultSuccessStructure: StructuredOutput = {
 };
 
 export const oasResultFailure = new OASResult(
+  'oas-ruleset',
   'riverrun',
   undefined,
   undefined,
@@ -48,10 +51,11 @@ export const oasResultFailure = new OASResult(
   undefined,
 );
 
-export const oasResultFailureString = `riverrun: 1/1 operation failed
+export const oasResultFailureString = `oas-ruleset riverrun: 1/1 operation failed
 ${operationExampleResultFailuresWarningsString}`;
 
 export const oasResultFailureStructure: StructuredOutput = {
+  suiteId: oasResultSuccess.suiteId,
   id: oasResultFailure.testName,
   config: {
     oasPath: oasResultFailure.oasPath,
@@ -63,6 +67,7 @@ export const oasResultFailureStructure: StructuredOutput = {
 };
 
 export const oasResultMixedResults = new OASResult(
+  'oas-ruleset',
   'dragonstone',
   undefined,
   undefined,
@@ -75,10 +80,11 @@ export const oasResultMixedResults = new OASResult(
   undefined,
 );
 
-export const oasResultMixedResultsString = `dragonstone: 2/3 operations failed
+export const oasResultMixedResultsString = `oas-ruleset dragonstone: 2/3 operations failed
 ${operationExampleResultFailuresWarningsString}${operationExampleResultFailuresNoWarningsString}${operationExampleResultNoFailuresWarningsString}`;
 
 export const oasResultMixedResultsStructure: StructuredOutput = {
+  suiteId: oasResultSuccess.suiteId,
   id: oasResultMixedResults.testName,
   config: {
     oasPath: oasResultMixedResults.oasPath,
@@ -90,6 +96,7 @@ export const oasResultMixedResultsStructure: StructuredOutput = {
 };
 
 export const oasResultError = new OASResult(
+  'oas-ruleset',
   'stormsend',
   'https://westeros.stormsend/underground/scrolls/catacombs/v0/openapi.json',
   'https://sandbox-westeros.stormsend/duties/castles/{version}',
@@ -99,9 +106,10 @@ export const oasResultError = new OASResult(
 );
 
 export const oasResultErrorString =
-  'stormsend: Skipped - Server value must be specified if OAS contains more than one server\n';
+  'oas-ruleset stormsend: Skipped - Server value must be specified if OAS contains more than one server\n';
 
 export const oasResultErrorStructure: StructuredOutput = {
+  suiteId: oasResultSuccess.suiteId,
   id: oasResultError.testName,
   config: {
     oasPath: oasResultError.oasPath,
@@ -113,11 +121,12 @@ export const oasResultErrorStructure: StructuredOutput = {
 };
 
 export const oasResultErrorJson =
-  `{"id":"${oasResultError.testName}",` +
+  `{"suiteId":"oas-ruleset","id":"${oasResultError.testName}",` +
   `"config":{"oasPath":"${oasResultError.oasPath}","server":"${oasResultError.server}","authenticationType":[]},` +
   `"error":"${oasResultError.error}"}`;
 
 export const oasResultMissingPath = new OASResult(
+  'oas-ruleset',
   'kinglanding',
   undefined,
   'https://sandbox-westeros.kingslanding/duties/castles/{version}',
@@ -127,9 +136,10 @@ export const oasResultMissingPath = new OASResult(
 );
 
 export const oasResultMissingPathString =
-  'kinglanding: Skipped - Config kinglanding missing path\n';
+  'oas-ruleset kinglanding: Skipped - Config kinglanding missing path\n';
 
 export const oasResultSingleSecurity = new OASResult(
+  'oas-ruleset',
   'oldanchor',
   undefined,
   undefined,
@@ -139,6 +149,7 @@ export const oasResultSingleSecurity = new OASResult(
 );
 
 export const oasResultSingleSecurityStructure: StructuredOutput = {
+  suiteId: oasResultSuccess.suiteId,
   id: oasResultSingleSecurity.testName,
   config: {
     oasPath: oasResultSingleSecurity.oasPath,
@@ -150,6 +161,7 @@ export const oasResultSingleSecurityStructure: StructuredOutput = {
 };
 
 export const oasResultMultipleSecurity = new OASResult(
+  'oas-ruleset',
   'oldoak',
   undefined,
   undefined,
@@ -162,6 +174,7 @@ export const oasResultMultipleSecurity = new OASResult(
 );
 
 export const oasResultMultipleSecurityStructure: StructuredOutput = {
+  suiteId: oasResultSuccess.suiteId,
   id: oasResultMultipleSecurity.testName,
   config: {
     oasPath: oasResultMultipleSecurity.oasPath,
