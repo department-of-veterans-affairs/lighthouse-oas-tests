@@ -148,7 +148,7 @@ class OasRulesetValidator extends BaseValidator {
 
         // Populating endpoint level rules
         if (endpointRules.includes(ruleName)) {
-          Object.entries(operations).forEach(([, operation]) => {
+          operations.forEach((operation) => {
             if (operation.operation.__originalOperationId) {
               this.registerRule(
                 operation.operation.__originalOperationId,
