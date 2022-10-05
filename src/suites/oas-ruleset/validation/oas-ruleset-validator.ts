@@ -255,6 +255,11 @@ class OasRulesetValidator extends BaseValidator {
           //  Removing 'paths' element
           path.splice(0, 1);
           operation = path[1].toUpperCase() + ':' + path[0];
+
+          if (path.length > 5 && path[4] === 'content') {
+            // Grouping media types togather to reduce duplicates
+            path[5] = 'media_type';
+          }
         } else {
           // High level path scenario: 'paths' => '/apiPath'
           operation = operationEnum.paths;
