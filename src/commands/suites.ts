@@ -1,6 +1,6 @@
 import Command, { flags } from '@oclif/command';
 import { OASResult } from '../validation';
-import { DEFAULT_TEST_NAME } from '../utilities/constants';
+import { DEFAULT_TEST_NAME, DEFAULT_SUITE_ID } from '../utilities/constants';
 import Loast from '../loast';
 import JSONStructuredOutputFactory from '../utilities/structured-output';
 
@@ -56,6 +56,7 @@ export default class Suites extends Command {
         // return the error message as part of the json output
         results = [
           new OASResult(
+            DEFAULT_SUITE_ID,
             DEFAULT_TEST_NAME,
             args.path,
             flags.server,

@@ -2,6 +2,7 @@ import { OperationResult } from '.';
 import { OASSecurityScheme } from '../oas-parsing/security';
 
 export default class OASResult {
+  readonly suiteId: string;
   readonly testName: string;
   readonly oasPath: string | undefined;
   readonly server: string | undefined;
@@ -10,6 +11,7 @@ export default class OASResult {
   readonly error: string | undefined;
 
   constructor(
+    suiteId: string,
     testName: string,
     oasPath: string | undefined,
     server: string | undefined,
@@ -17,6 +19,7 @@ export default class OASResult {
     results: OperationResult[] | undefined,
     error: string | undefined,
   ) {
+    this.suiteId = suiteId;
     this.testName = testName;
     this.oasPath = oasPath;
     this.server = server;
@@ -29,7 +32,7 @@ export default class OASResult {
     let resultString = '';
 
     if (this.error) {
-      resultString += `${this.testName}: Skipped - ${this.error}\n`;
+      resultString += `${this.suiteId} ${this.testName}: Skipped - ${this.error}\n`;
     }
     if (this.results) {
       const failingOperationCount = this.results.filter(
@@ -39,9 +42,9 @@ export default class OASResult {
       const totalOperationCount = this.results.length;
 
       if (failingOperationCount === 0) {
-        resultString += `${this.testName}: Succeeded\n`;
+        resultString += `${this.suiteId} ${this.testName}: Succeeded\n`;
       } else {
-        resultString += `${
+        resultString += `${this.suiteId} ${
           this.testName
         }: ${failingOperationCount}/${totalOperationCount} operation${
           totalOperationCount > 1 ? 's' : ''

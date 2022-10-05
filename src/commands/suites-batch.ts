@@ -2,6 +2,7 @@ import Command, { flags } from '@oclif/command';
 import { OASResult } from '../validation';
 import { Config } from '../config';
 import { FileIn } from '../utilities/file-in';
+import { DEFAULT_SUITE_ID } from '../utilities/constants';
 import Loast from '../loast';
 
 export default class SuitesBatch extends Command {
@@ -42,6 +43,7 @@ export default class SuitesBatch extends Command {
           } catch (error) {
             return [
               new OASResult(
+                DEFAULT_SUITE_ID,
                 name,
                 testInputs.path,
                 testInputs.server,
@@ -55,6 +57,7 @@ export default class SuitesBatch extends Command {
 
         return [
           new OASResult(
+            DEFAULT_SUITE_ID,
             name,
             testInputs.path,
             testInputs.server,
