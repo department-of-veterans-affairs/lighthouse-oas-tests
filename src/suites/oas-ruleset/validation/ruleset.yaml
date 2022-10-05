@@ -74,7 +74,7 @@ rules:
     then:
       field: description
       function: truthy
-  va-params-example-required:
+  va-param-example-required:
     description: Parameters marked as required must have an example or examples property
     given: $..*.parameters[?(@.required == true)]
     severity: error
