@@ -71,7 +71,7 @@ const endpointRules = [
   'va-endpoint-summary-minimum-length',
   'va-endpoint-description-minimum-length',
   'va-param-description-required',
-  'va-params-example-required',
+  'va-param-example-required',
   'va-request-content-supported-mediatypes',
   'va-response-content-supported-mediatypes',
 ];
