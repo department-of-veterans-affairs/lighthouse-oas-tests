@@ -4,7 +4,6 @@ import parseUrl from 'parse-url';
 import { FILE_PROTOCOL } from './utilities/constants';
 import OASSchema from './oas-parsing/schema';
 import { FileIn } from './utilities/file-in';
-import { SecurityValuesFactory } from './oas-parsing/security-values';
 import { SuiteFactory, SuiteConfig } from './suites';
 
 export default class Loast {
@@ -46,7 +45,7 @@ export default class Loast {
     let errorMsg: string | undefined;
 
     try {
-      const suite = SuiteFactory.build(suiteId, this.suiteConfig);
+      const suite = await SuiteFactory.build(suiteId, this.suiteConfig);
       suiteName += ' ' + suite.getLabel();
       results = await suite.conduct();
     } catch (error) {
@@ -76,16 +75,9 @@ export default class Loast {
     const schema = new OASSchema(oasSchemaOptions);
     this.relevantSecuritySchemes = await schema.getRelevantSecuritySchemes();
 
-    const securityValues = SecurityValuesFactory.buildFromSecuritySchemes(
-      this.relevantSecuritySchemes,
-      this.options.apiKey,
-      this.options.token,
-    );
-
     this.suiteConfig = {
       options: this.options,
       schema: schema,
-      securityValues: securityValues,
     };
   }
 }

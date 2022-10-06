@@ -1,21 +1,20 @@
 import { OperationResult } from '../validation';
 import { TestOptions } from '../config/config.interface';
-import { SecurityValues } from 'swagger-client';
 import OASSchema from '../oas-parsing/schema';
 
 export interface SuiteConfig {
   options: TestOptions;
   schema: OASSchema;
-  securityValues: SecurityValues;
 }
 
 // New test suites should be added under the '/suites/<suite name>' folder and defined in the SuiteFactory
 abstract class Suite {
   public static suiteId = 'default-suite'; // Should be overriden in child suite
   protected static label = ''; // Should be overriden in child suite
-  protected suiteConfig: SuiteConfig;
+  protected suiteConfig!: SuiteConfig;
 
-  constructor(suiteConfig: SuiteConfig) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  public async setup(suiteConfig: SuiteConfig): Promise<void> {
     this.suiteConfig = suiteConfig;
   }
 

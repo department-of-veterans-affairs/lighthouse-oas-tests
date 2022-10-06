@@ -1,5 +1,5 @@
 import { OperationResult } from '../../validation';
-import Suite from '../suite';
+import Suite, { SuiteConfig } from '../suite';
 import OasRulesetValidator from './validation/oas-ruleset-validator';
 
 /**
@@ -9,16 +9,20 @@ import OasRulesetValidator from './validation/oas-ruleset-validator';
 export default class OasRulesetSuite extends Suite {
   public static suiteId = 'oas-ruleset';
   protected static label = '(oas-ruleset)';
+  private oasRulesetValidator!: OasRulesetValidator;
+
+  public async setup(suiteConfig: SuiteConfig): Promise<void> {
+    await super.setup(suiteConfig);
+
+    this.oasRulesetValidator = new OasRulesetValidator(suiteConfig.schema);
+  }
 
   async conduct(): Promise<OperationResult[]> {
     const results: OperationResult[] = [];
 
-    const oasRulesetValidator = new OasRulesetValidator(
-      this.suiteConfig.schema,
-    );
-    await oasRulesetValidator.validate();
+    await this.oasRulesetValidator.validate();
 
-    const operationMap = oasRulesetValidator.operationMap;
+    const operationMap = this.oasRulesetValidator.operationMap;
     const operations = operationMap.keys();
 
     for (const operationId of operations) {
