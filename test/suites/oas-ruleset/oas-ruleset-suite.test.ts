@@ -56,21 +56,22 @@ describe('OasRulesetSuite', () => {
     suiteConfig = {
       options: { path: 'pathToTheRing' },
       schema: oasSchema,
-      securityValues: {},
     };
   });
 
   describe('conduct', () => {
     it('calls oas-ruleset validator and returns results', async () => {
-      const suite = new OasRulesetSuite(suiteConfig);
+      const suite = new OasRulesetSuite();
+      await suite.setup(suiteConfig);
 
       expect(await suite.conduct()).toEqual(oasResults);
     });
   });
 
   describe('getLabel', () => {
-    it('returns label', () => {
-      const suite = new OasRulesetSuite(suiteConfig);
+    it('returns label', async () => {
+      const suite = new OasRulesetSuite();
+      await suite.setup(suiteConfig);
 
       expect(suite.getLabel()).toEqual('(oas-ruleset)');
     });

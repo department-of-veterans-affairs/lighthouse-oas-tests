@@ -38,23 +38,25 @@ describe('PositiveSuite', () => {
       options: {
         path: 'https://westeros.stormsend/underground/scrolls/catacombs/v0/openapi.json',
         server: 'https://sandbox-api.va.gov/services/va_forms/{version}',
+        apiKey: 'fake_api_key',
       },
       schema: oasSchema,
-      securityValues: {},
     };
   });
 
   describe('conduct', () => {
     it('calls positive validation conductor and returns results', async () => {
-      const suite = new PositiveSuite(suiteConfig);
+      const suite = new PositiveSuite();
+      await suite.setup(suiteConfig);
 
       expect(await suite.conduct()).toEqual(oasResults);
     });
   });
 
   describe('getLabel', () => {
-    it('returns label', () => {
-      const suite = new PositiveSuite(suiteConfig);
+    it('returns label', async () => {
+      const suite = new PositiveSuite();
+      await suite.setup(suiteConfig);
 
       expect(suite.getLabel()).toEqual('(Example Group: 2xx Response)');
     });

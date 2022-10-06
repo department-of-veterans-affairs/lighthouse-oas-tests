@@ -11,14 +11,17 @@ export default class SuiteFactory {
     let suite;
 
     switch (suiteId) {
-      case PositiveSuite.suiteId:
+      case PositiveSuite.suiteId: {
         suite = new PositiveSuite();
         break;
-      case OasRulesetSuite.suiteId:
+      }
+      case OasRulesetSuite.suiteId: {
         suite = new OasRulesetSuite();
         break;
-      default:
+      }
+      default: {
         throw new Error(`Unable to find suite with ID ${suiteId}`);
+      }
     }
 
     await suite.setup(config);
