@@ -43,7 +43,7 @@ describe('Loast', () => {
       path: 'https://westeros.dragonstone/underground/scrolls/catacombs/v0/openapi.json',
       server: 'https://westeros.dragonstone/v1/{version}',
       apiKey: 'fake-key',
-      loastType: [PositiveSuite.suiteId],
+      suiteIds: [PositiveSuite.suiteId],
     };
 
     expectedOASResult = new OASResult(
@@ -64,7 +64,7 @@ describe('Loast', () => {
         path: 'https://westeros.dragonstone/underground/scrolls/catacombs/v0/openapi.json',
         server: 'https://westeros.dragonstone/v1/{version}',
         apiKey: 'fakeKey',
-        loastType: [PositiveSuite.suiteId],
+        suiteIds: [PositiveSuite.suiteId],
       },
     });
 
@@ -90,7 +90,7 @@ describe('Loast', () => {
     });
 
     it('test api with multiple suites', async () => {
-      options.loastType = [PositiveSuite.suiteId, OasRulesetSuite.suiteId];
+      options.suiteIds = [PositiveSuite.suiteId, OasRulesetSuite.suiteId];
       const results = await new Loast('winterfell', options).getResults();
 
       expect(results.length).toEqual(2);
@@ -99,7 +99,7 @@ describe('Loast', () => {
     });
 
     it('test api with all test suites', async () => {
-      options.loastType = undefined;
+      options.suiteIds = undefined;
       const totalSuites = SuiteFactory.availableSuiteIds();
       const results = await new Loast('test', options).getResults();
 
