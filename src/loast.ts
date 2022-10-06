@@ -19,12 +19,12 @@ export default class Loast {
   }
 
   // getResults(): Entry point for all LOAST testing (Whether by command line or by Node import).
-  //  Conducts choosen test suites based on 'loastType' option and returns a set of test results per suite.
+  //  Conducts choosen test suites based on 'suiteIds' option and returns a set of test results per suite.
   public async getResults(): Promise<OASResult[]> {
     await this.populateSuiteConfig();
 
     const results: OASResult[] = [];
-    let suiteIds = this.options.loastType;
+    let suiteIds = this.options.suiteIds;
 
     if (!suiteIds || suiteIds.length === 0) {
       suiteIds = SuiteFactory.availableSuiteIds();
