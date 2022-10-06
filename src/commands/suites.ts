@@ -8,7 +8,6 @@ export default class Suites extends Command {
   static description =
     'Runs a set of test suites for an API based on the OpenAPI spec';
 
-  // TODO Add support for command to cherry pick suites
   static flags = {
     help: flags.help({ char: 'h' }),
     apiKey: flags.string({
@@ -23,6 +22,11 @@ export default class Suites extends Command {
     server: flags.string({
       char: 's',
       description: 'Server URL to use',
+    }),
+    id: flags.string({
+      char: 'i',
+      multiple: true,
+      description: 'Suite Ids to use',
     }),
     jsonOutput: flags.boolean({
       char: 'j',
@@ -46,6 +50,7 @@ export default class Suites extends Command {
       server: flags.server,
       apiKey: flags.apiKey,
       token: flags.bearerToken,
+      suiteIds: flags.id,
     });
 
     let results: OASResult[];

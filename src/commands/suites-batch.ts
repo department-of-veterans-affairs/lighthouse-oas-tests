@@ -10,6 +10,11 @@ export default class SuitesBatch extends Command {
 
   static flags = {
     help: flags.help({ char: 'h' }),
+    id: flags.string({
+      char: 'i',
+      multiple: true,
+      description: 'Suite Ids to use',
+    }),
   };
 
   static args = [
@@ -22,17 +27,25 @@ export default class SuitesBatch extends Command {
   ];
 
   async run(): Promise<void> {
-    const { args } = this.parse(SuitesBatch);
+    const { args, flags } = this.parse(SuitesBatch);
+    const suiteIds: string[] = flags.id;
     const config: Config = FileIn.loadConfigFromFile(args.path);
-    const batchResults = await this.getBatchResults(config);
+    const batchResults = await this.getBatchResults(config, suiteIds);
 
     batchResults.forEach((result) => this.logTestResults(result));
   }
 
   // returns an array of batch configs by array of suite results
-  async getBatchResults(config: Config): Promise<OASResult[][]> {
+  async getBatchResults(
+    config: Config,
+    suiteIds: string[] | undefined,
+  ): Promise<OASResult[][]> {
     return Promise.all(
       Object.entries(config).map(async ([name, testInputs]) => {
+        if (suiteIds) {
+          testInputs.suiteIds = suiteIds;
+        }
+
         if (testInputs.path) {
           try {
             const loast = new Loast(name, testInputs);
