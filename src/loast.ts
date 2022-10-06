@@ -41,7 +41,7 @@ export default class Loast {
 
   private async getSuiteResults(suiteId: string): Promise<OASResult> {
     const options = this.suiteConfig.options;
-    let results: OperationResult[] = [];
+    let results: OperationResult[] | undefined;
     let suiteName = this.testName;
     let errorMsg: string | undefined;
 
