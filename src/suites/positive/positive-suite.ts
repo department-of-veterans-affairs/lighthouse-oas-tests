@@ -33,7 +33,7 @@ export default class PositiveSuite extends Suite {
       suiteConfig.options.token,
     );
 
-    const operations = await suiteConfig.schema.getOperations();
+    const operations = await this.schema.getOperations();
     this.operationExamples =
       OperationExampleFactory.buildFromOperations(operations);
   }
