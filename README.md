@@ -80,6 +80,7 @@ OPTIONS
   -a, --apiKey=apiKey            API key to use
   -b, --bearerToken=bearerToken  Bearer token to use
   -h, --help                     Show CLI help
+  -i, --id=id                    Suite Ids to use
   -s, --server=server            Server URL to use
   -j, --jsonOutput               Format output as JSON
 ```
@@ -100,6 +101,7 @@ ARGUMENTS
 
 OPTIONS
   -h, --help  Show CLI help
+  -i, --id=id  Suite Ids to use
 ```
 
 _See code: [src/commands/suites-batch.ts](https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/src/commands/suites-batch.ts)_
@@ -352,7 +354,7 @@ Properties that are not required will not be included, even if a property exampl
 
 # Validation
 
-Currently validation is broken up into two testing suites. One performs `example group testing` and the other performs linting using [Spectral](https://github.com/stoplightio/spectral) rulesets.
+Currently validation is broken up into two testing suites. One performs `example group testing` and has suite Id `positive` and the other performs linting using [Spectral](https://github.com/stoplightio/spectral) rulesets and has suite Id `oas-ruleset`.
 
 ## Example Group Validation
 
@@ -439,7 +441,8 @@ See our [contribution guide](CONTRIBUTING.MD)
 Before running any commands locally and after any code changes, the code will need to be built using `npm run build`.
 While developing locally, `$ ./bin/run` is the equivalent of running `$ loast` with the CLI installed.
 
-- e.g.: `$ ./bin/run suites -a YOUR_API_KEY -s https://sandbox-api.va.gov/services/va_facilities/{version} test/fixtures/facilities_oas.json` will run suites tests against the facilities OAS present in our test fixtures.
+- e.g.: `$ ./bin/run suites -a YOUR_API_KEY -s https://sandbox-api.va.gov/services/va_facilities/{version} test/fixtures/facilities_oas.json` will validate with all suites against the facilities OAS present in our test fixtures.
+- To run particular suites provide 'id' or 'i' flag with the ID a suite as the value e.g.: `$ ./bin/run suites -a YOUR_API_KEY -s https://sandbox-api.va.gov/services/va_facilities/{version} test/fixtures/facilities_oas.json -i oas-ruleset -i positive`
 
 ## Testing
 
