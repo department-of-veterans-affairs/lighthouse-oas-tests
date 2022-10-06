@@ -23,6 +23,7 @@ const spectralResults = [
     message: 'That journey is too long',
   },
   {
+    // Special case should get converted to error even with severity: 1
     code: 'high-level-error',
     severity: 1,
     path: [],
@@ -59,6 +60,109 @@ const spectralResults = [
     message: 'The Rings location is unknown',
   },
 ];
+
+const emptyMap = new Map();
+const case1 = new Map().set('bad-properties', {
+  failures: new Map().set(
+    '405373e4797f2011d4abb89eba621602681e2f01',
+    expect.objectContaining({
+      message: 'Ring was not found',
+      _path: [],
+    }),
+  ),
+  warnings: emptyMap,
+});
+const case2 = new Map().set('missing-properties', {
+  failures: emptyMap,
+  warnings: new Map().set(
+    '5af72338e7d380ef0e06a02db6a2c58b067b9484',
+    expect.objectContaining({
+      message: 'Ring is hidden Path: moat',
+      _path: ['moat'],
+    }),
+  ),
+});
+const case3 = new Map().set('extra-long-path', {
+  failures: emptyMap,
+  warnings: new Map().set(
+    '90540b1ac12004d4762f5b4b2a37aac7a59d6758',
+    expect.objectContaining({
+      message: 'That journey is too long',
+      _path: [],
+    }),
+  ),
+});
+const case4 = new Map().set('high-level-error', {
+  failures: new Map().set(
+    'a31be1fb2dcc42cab8b67b414bde2d2c94a851ba',
+    expect.objectContaining({
+      message: 'Journey cannot be decided',
+      _path: [],
+    }),
+  ),
+  warnings: emptyMap,
+});
+const case5 = new Map().set('info-error', {
+  failures: emptyMap,
+  warnings: new Map().set(
+    'df9f0ea7d750210d67b0c5ba0d2ff428a80b153b',
+    expect.objectContaining({
+      message: 'Info missing property',
+      _path: [],
+    }),
+  ),
+});
+const case6 = new Map().set('servers-error', {
+  failures: emptyMap,
+  warnings: new Map().set(
+    '27622803297ebc61e62310fdb55fd36a81b5488f',
+    expect.objectContaining({
+      message: 'Servers missing property',
+      _path: [],
+    }),
+  ),
+});
+const case7 = new Map().set('tags-error', {
+  failures: emptyMap,
+  warnings: new Map().set(
+    '84ed1bf17c4c68fc59c68ea968684da3b406a993',
+    expect.objectContaining({
+      message: 'Tags missing property',
+      _path: [],
+    }),
+  ),
+});
+const case8 = new Map().set('paths-error', {
+  failures: emptyMap,
+  warnings: new Map().set(
+    '8f1796be9ee67d74567c5d44f808caf72874c3d8',
+    expect.objectContaining({
+      message: 'Paths missing property',
+      _path: [],
+    }),
+  ),
+});
+const case9 = new Map().set('endpoint-error', {
+  failures: emptyMap,
+  warnings: new Map().set(
+    '98201d88f9e9a7b7f591e75866b74fd4096b7dcf',
+    expect.objectContaining({
+      message: 'The Rings location is unknown Path: moat',
+      _path: ['moat'],
+    }),
+  ),
+});
+
+const resultOperationMap = new Map();
+resultOperationMap.set('ROOT:tower', case1);
+resultOperationMap.set('TOWER:rampart', case2);
+resultOperationMap.set('ROOT:away', case3);
+resultOperationMap.set('ROOT:openapidoc', case4);
+resultOperationMap.set('ROOT:info', case5);
+resultOperationMap.set('ROOT:servers', case6);
+resultOperationMap.set('ROOT:tags', case7);
+resultOperationMap.set('ROOT:paths', case8);
+resultOperationMap.set('GET:/thering', case9);
 
 jest.mock('@stoplight/spectral-core', () => {
   return {
@@ -135,11 +239,12 @@ describe('OasRulesetValidator', () => {
   });
 
   describe('performValidation', () => {
-    it('run oas-ruleset and sanitizes three results', async () => {
+    it('run oas-ruleset and sanitizes nine results', async () => {
       const validator = new OasRulesetValidator(oasSchema);
       await validator.validate();
 
       expect(validator.operationMap.size).toEqual(9);
+      expect(validator.operationMap).toMatchObject(resultOperationMap);
     });
   });
 });
