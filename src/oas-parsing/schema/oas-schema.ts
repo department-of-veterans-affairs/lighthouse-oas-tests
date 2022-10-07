@@ -72,7 +72,7 @@ class OASSchema {
 
   getOperations = async (): Promise<OASOperation[]> => {
     if (this.operations.length === 0) {
-      const schema = await this.getClient();;
+      const schema = await this.getClient();
       this.operations = OASOperationFactory.buildFromPaths(
         schema.spec.paths,
         schema.spec.security,
