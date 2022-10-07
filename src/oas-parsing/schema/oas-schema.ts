@@ -13,7 +13,8 @@ import OASServer from '../server/oas-server';
 import { uniq } from 'lodash';
 
 class OASSchema {
-  private _client: Promise<Swagger>;
+  private _client?: Swagger;
+  private clientOptions: Parameters<typeof swaggerClient>[0];
   private operations: OASOperation[];
   private url: string | undefined;
   private rawSpec: any;
@@ -25,12 +26,19 @@ class OASSchema {
       this.rawSpec = JSON.parse(JSON.stringify(options.spec));
     }
 
-    this._client = swaggerClient(options);
+    this.clientOptions = options;
     this.operations = [];
   }
 
-  public set client(client: Promise<Swagger>) {
+  public set client(client: Swagger) {
     this._client = client;
+  }
+
+  private async getClient(): Promise<Swagger> {
+    if (!this._client) {
+      this._client = await swaggerClient(this.clientOptions);
+    }
+    return this._client;
   }
 
   execute = async (
@@ -40,7 +48,7 @@ class OASSchema {
     requestBody: RequestBody,
     server: string | undefined,
   ): Promise<Response> => {
-    const schema = await this._client;
+    const schema = await this.getClient();
     let options: ExecuteOptions = {
       operationId: operation.operationId,
       parameters: exampleGroup.examples,
@@ -64,7 +72,7 @@ class OASSchema {
 
   getOperations = async (): Promise<OASOperation[]> => {
     if (this.operations.length === 0) {
-      const schema = await this._client;
+      const schema = await this.getClient();;
       this.operations = OASOperationFactory.buildFromPaths(
         schema.spec.paths,
         schema.spec.security,
@@ -85,7 +93,7 @@ class OASSchema {
       return [];
     }
 
-    const schema = await this._client;
+    const schema = await this.getClient();
     const securitySchemes = OASSecurityFactory.getSecuritySchemes(
       schema.spec.components?.securitySchemes ?? {},
     );
@@ -116,7 +124,7 @@ class OASSchema {
   };
 
   getServers = async (): Promise<OASServer[]> => {
-    const schema = await this._client;
+    const schema = await this.getClient();
     return OASServerFactory.getServers(schema.spec.servers);
   };
 

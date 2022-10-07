@@ -99,11 +99,9 @@ describe('OASSchema', () => {
       const filePath = 'test/fixtures/oas/facilities_oas.json';
       const schema = await generateSchema(filePath);
 
-      schema.client = new Promise((resolve) => {
-        resolve({
-          execute: executeMock,
-        } as unknown as Swagger);
-      });
+      schema.client = {
+        execute: executeMock,
+      } as unknown as Swagger;
 
       const [exampleGroup] = operation.exampleGroups;
       const securities: SecurityValues = {};
