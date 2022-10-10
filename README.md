@@ -434,7 +434,7 @@ Details surrounding the `core ruleset` can be found at [Spectral's OpenAPI-Rules
 
 # Local Development
 
-See our [contribution guide](CONTRIBUTING.MD)
+See our [contribution guide](CONTRIBUTING.md)
 
 ## Running Commands
 
