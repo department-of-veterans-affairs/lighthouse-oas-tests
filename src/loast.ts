@@ -1,6 +1,6 @@
 import { TestOptions } from './config';
 import { OASResult, OperationResult } from './validation';
-import parseUrl from 'parse-url';
+import parsePath from 'parse-path';
 import { FILE_PROTOCOL } from './utilities/constants';
 import OASSchema from './oas-parsing/schema';
 import { FileIn } from './utilities/file-in';
@@ -65,8 +65,8 @@ export default class Loast {
   private async populateSuiteConfig(): Promise<void> {
     const oasSchemaOptions: ConstructorParameters<typeof OASSchema>[0] = {};
 
-    const url = parseUrl(this.options.path);
-    if (url.protocol === FILE_PROTOCOL) {
+    const parsed = parsePath(this.options.path);
+    if (parsed.protocol === FILE_PROTOCOL) {
       oasSchemaOptions.spec = FileIn.loadSpecFromFile(this.options.path);
     } else {
       oasSchemaOptions.url = this.options.path;
