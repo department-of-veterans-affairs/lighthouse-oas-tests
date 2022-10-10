@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { extname, resolve } from 'path';
 import { Json } from 'swagger-client';
 import yaml from 'js-yaml';
-import parseUrl from 'parse-url';
+import parsePath from 'parse-path';
 import {
   FILE_PROTOCOL,
   JSON_FILE_EXTENSION,
@@ -41,8 +41,8 @@ export default class FileIn {
   }
 
   public static loadConfigFromFile(path: string): Json {
-    const url = parseUrl(path);
-    if (url.protocol !== FILE_PROTOCOL) {
+    const parsed = parsePath(path);
+    if (parsed.protocol !== FILE_PROTOCOL) {
       throw new Error('Path must be to a local file.');
     }
 
