@@ -1,6 +1,7 @@
 import { OASSecurityType } from '../../oas-parsing/security';
 
 export type StructuredOutput = {
+  suiteId: string;
   id: string;
   config: TestConfig;
   error?: string;

@@ -47,6 +47,7 @@ describe('Loast', () => {
     };
 
     expectedOASResult = new OASResult(
+      PositiveSuite.suiteId,
       'winterfell stronghold',
       options.path,
       options.server,
@@ -94,8 +95,14 @@ describe('Loast', () => {
       const results = await new Loast('winterfell', options).getResults();
 
       expect(results.length).toEqual(2);
-      expect(results[0]).toEqual(expectedOASResult);
-      expect(results[1]).toEqual(expectedOASResult);
+      expect(results[0]).toEqual({
+        ...expectedOASResult,
+        suiteId: PositiveSuite.suiteId,
+      });
+      expect(results[1]).toEqual({
+        ...expectedOASResult,
+        suiteId: OasRulesetSuite.suiteId,
+      });
     });
 
     it('test api with all test suites', async () => {

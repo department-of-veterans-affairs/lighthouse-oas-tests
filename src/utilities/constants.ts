@@ -1,4 +1,5 @@
 export const DEFAULT_PARAMETER_GROUP = 'default';
+export const DEFAULT_SUITE_ID = 'suite';
 export const DEFAULT_TEST_NAME = 'test';
 
 export const BEARER_SECURITY_SCHEME = 'bearer';
