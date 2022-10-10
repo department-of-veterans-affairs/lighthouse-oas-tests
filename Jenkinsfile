@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'vasdvp/lighthouse-node-application-base:node14'
+      image 'vasdvp/lighthouse-node-application-base:node16'
     }
   }
 
