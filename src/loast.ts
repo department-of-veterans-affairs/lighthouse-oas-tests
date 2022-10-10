@@ -53,6 +53,7 @@ export default class Loast {
     }
 
     return new OASResult(
+      suiteId,
       suiteName,
       options.path,
       options.server,

@@ -10,6 +10,7 @@ class JSONStructuredOutputFactory {
 
     // assemble top-level output
     const output: StructuredOutput = {
+      suiteId: input.suiteId,
       id: input.testName,
       config: {
         oasPath: input.oasPath,
