@@ -26,7 +26,7 @@ export const oasResultSuccess = new OASResult(
   undefined,
 );
 
-export const oasResultSuccessString = `oas-ruleset winterfell: Succeeded
+export const oasResultSuccessString = `winterfell oas-ruleset: Succeeded
 ${operationExampleResultNoFailuresWarningsString}`;
 
 export const oasResultSuccessStructure: StructuredOutput = {
@@ -51,7 +51,7 @@ export const oasResultFailure = new OASResult(
   undefined,
 );
 
-export const oasResultFailureString = `oas-ruleset riverrun: 1/1 operation failed
+export const oasResultFailureString = `riverrun oas-ruleset: 1/1 operation failed
 ${operationExampleResultFailuresWarningsString}`;
 
 export const oasResultFailureStructure: StructuredOutput = {
@@ -80,7 +80,7 @@ export const oasResultMixedResults = new OASResult(
   undefined,
 );
 
-export const oasResultMixedResultsString = `oas-ruleset dragonstone: 2/3 operations failed
+export const oasResultMixedResultsString = `dragonstone oas-ruleset: 2/3 operations failed
 ${operationExampleResultFailuresWarningsString}${operationExampleResultFailuresNoWarningsString}${operationExampleResultNoFailuresWarningsString}`;
 
 export const oasResultMixedResultsStructure: StructuredOutput = {
@@ -106,7 +106,7 @@ export const oasResultError = new OASResult(
 );
 
 export const oasResultErrorString =
-  'oas-ruleset stormsend: Skipped - Server value must be specified if OAS contains more than one server\n';
+  'stormsend oas-ruleset: Skipped - Server value must be specified if OAS contains more than one server\n';
 
 export const oasResultErrorStructure: StructuredOutput = {
   suiteId: oasResultSuccess.suiteId,
@@ -136,7 +136,7 @@ export const oasResultMissingPath = new OASResult(
 );
 
 export const oasResultMissingPathString =
-  'oas-ruleset kinglanding: Skipped - Config kinglanding missing path\n';
+  'kinglanding oas-ruleset: Skipped - Config kinglanding missing path\n';
 
 export const oasResultSingleSecurity = new OASResult(
   'oas-ruleset',

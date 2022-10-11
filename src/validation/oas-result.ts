@@ -32,7 +32,7 @@ export default class OASResult {
     let resultString = '';
 
     if (this.error) {
-      resultString += `${this.suiteId} ${this.testName}: Skipped - ${this.error}\n`;
+      resultString += `${this.testName} ${this.suiteId}: Skipped - ${this.error}\n`;
     }
     if (this.results) {
       const failingOperationCount = this.results.filter(
@@ -42,10 +42,10 @@ export default class OASResult {
       const totalOperationCount = this.results.length;
 
       if (failingOperationCount === 0) {
-        resultString += `${this.suiteId} ${this.testName}: Succeeded\n`;
+        resultString += `${this.testName} ${this.suiteId}: Succeeded\n`;
       } else {
-        resultString += `${this.suiteId} ${
-          this.testName
+        resultString += `${this.testName} ${
+          this.suiteId
         }: ${failingOperationCount}/${totalOperationCount} operation${
           totalOperationCount > 1 ? 's' : ''
         } failed\n`;
