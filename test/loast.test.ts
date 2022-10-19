@@ -105,6 +105,49 @@ describe('Loast', () => {
       });
     });
 
+    it('test api with invalid positive suite config and valid oas suite', async () => {
+      const optionsWithoutServer = {
+        path: 'https://westeros.dragonstone/underground/scrolls/catacombs/v0/openapi.json',
+        apiKey: 'fake-key',
+        suiteIds: [PositiveSuite.suiteId, OasRulesetSuite.suiteId],
+      };
+
+      const erroredOASResult = new OASResult(
+        PositiveSuite.suiteId,
+        'winterfell stronghold',
+        options.path,
+        undefined,
+        [securitySchemeAPIKey],
+        undefined,
+        'Server value must be specified if OAS contains more than one server',
+      );
+
+      SuiteFactory.build = jest.fn().mockReturnValue({
+        getLabel: jest.fn().mockReturnValue('stronghold'),
+        conduct: jest
+          .fn()
+          .mockRejectedValueOnce(
+            new Error(
+              'Server value must be specified if OAS contains more than one server',
+            ),
+          )
+          .mockResolvedValue([operationExampleResultFailuresWarnings]),
+      });
+
+      const results = await new Loast(
+        'winterfell',
+        optionsWithoutServer,
+      ).getResults();
+
+      expect(results.length).toEqual(2);
+      expect(results[0]).toEqual(erroredOASResult);
+      expect(results[1]).toEqual({
+        ...expectedOASResult,
+        suiteId: OasRulesetSuite.suiteId,
+        server: undefined,
+      });
+    });
+
     it('test api with all test suites', async () => {
       options.suiteIds = undefined;
       const totalSuites = SuiteFactory.availableSuiteIds();
