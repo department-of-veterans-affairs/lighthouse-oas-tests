@@ -39,7 +39,7 @@ export default class PositiveSuite extends Suite {
   }
 
   async conduct(): Promise<OperationResult[]> {
-    this.checkTargetServer();
+    await this.checkTargetServer();
 
     const results = await Promise.all(
       this.operationExamples.map(async (operationExample) => {
