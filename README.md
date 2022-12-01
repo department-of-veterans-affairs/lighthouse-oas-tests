@@ -67,7 +67,7 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.2
 
 ## `loast suites PATH`
 
-Runs happy-path tests for an API based on the OpenAPI spec
+Runs happy-path tests for an API based on the OpenAPI spec.
 
 ```
 USAGE
@@ -89,7 +89,7 @@ _See code: [src/commands/suites.ts](https://github.com/department-of-veterans-af
 
 ## `loast suites-batch PATH`
 
-Runs happy-path tests for all APIs in the config file based on their OpenAPI specs
+Runs happy-path tests for all APIs in the config file based on their OpenAPI specs.
 
 ```
 USAGE
