@@ -509,7 +509,7 @@ Set the **Scripts** field to: `build`
 
 ## Releasing
 
-See [oclif's release documentation](https://oclif.io/docs/releasing) for instructions on how to release new versions of the CLI both to npm and as standalone packages
+See [oclif's release documentation](https://oclif.io/docs/releasing) for instructions on how to release new versions of the CLI both to npm and as standalone packages.
 
 ### Node Version Tools
 
