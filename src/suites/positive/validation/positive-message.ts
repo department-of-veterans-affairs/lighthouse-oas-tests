@@ -135,4 +135,3 @@ class PositiveMessage extends Message {
 }
 
 export default PositiveMessage;
-
