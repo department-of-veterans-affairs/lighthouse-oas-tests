@@ -8,7 +8,7 @@ export enum Type {
   EnumMismatch,
   InvalidParameterContent,
   InvalidParameterExample,
-  InvalidParameterObject,
+  InvalidParameterBothObject,
   InvalidResponse,
   ItemSchemaMissing,
   MissingContentSchemaObject,
@@ -21,6 +21,7 @@ export enum Type {
   TypeMismatch,
   UnableToParseResponseBody,
   MediaTypeMismatch,
+  InvalidParameterNeitherObject,
 }
 
 const messageTemplates: Record<Type, MessageTemplate> = {
@@ -56,7 +57,7 @@ const messageTemplates: Record<Type, MessageTemplate> = {
     severity: Severity.ERROR,
     details: `The 'example' field is mutually exclusive of the 'examples' field, provide one or the other or neither, but not both.`,
   },
-  [Type.InvalidParameterObject]: {
+  [Type.InvalidParameterBothObject]: {
     severity: Severity.ERROR,
     details:
       'Parameter object must have either schema or content set, but not both.',
@@ -114,6 +115,11 @@ const messageTemplates: Record<Type, MessageTemplate> = {
     severity: Severity.ERROR,
     details:
       'Response Content-Type is incompatible with what was requested via Accept. Accept type(s): {0}. Response type: {1}',
+  },
+  [Type.InvalidParameterNeitherObject]: {
+    severity: Severity.ERROR,
+    details:
+      'Parameter object must have either schema or content set, but found neither.',
   },
 };
 

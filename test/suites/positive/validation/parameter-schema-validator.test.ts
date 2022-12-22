@@ -131,7 +131,7 @@ describe('ParameterSchemaValidator', () => {
 
       expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
-        'Parameter object must have either schema or content set, but not both. Path: parameters -> horcrux',
+        'Parameter object must have either schema or content set, but found neither. Path: parameters -> horcrux',
       );
     });
 

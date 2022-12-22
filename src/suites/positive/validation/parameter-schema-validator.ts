@@ -36,7 +36,7 @@ class ParameterSchemaValidator extends PositiveValidator {
       // Parameter Object contains field: content
       if (parameterHasSchema(parameter)) {
         // ERROR: Parameter Object also contains field: schema.
-        this.addMessage(Type.InvalidParameterObject, path);
+        this.addMessage(Type.InvalidParameterBothObject, path);
       }
 
       const [contentObjectKey, ...invalidKeys] = Object.keys(parameter.content);
@@ -55,7 +55,7 @@ class ParameterSchemaValidator extends PositiveValidator {
       }
     } else if (!parameterHasSchema(parameter)) {
       // ERROR: Parameter Object must contain one of the following: schema, or content.
-      this.addMessage(Type.InvalidParameterObject, path);
+      this.addMessage(Type.InvalidParameterNeitherObject, path);
     }
   }
 }
