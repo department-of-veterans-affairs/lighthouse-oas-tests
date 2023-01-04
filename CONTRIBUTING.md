@@ -23,6 +23,8 @@ to release new versions automatically.
 
 All other commit types will trigger no new release.
 
+Note: The keyword, eg. `fix`, must be the first word in the commit message and be followed by a `:` in order to trigger a release.  If the commit is the result of a squash and merge, the auto-generated commit message must be edited so that it starts with the keyword.
+
 ## Creating PR
 
 Include the associated JIRA ticket number so that JIRA hooks will automatically link the two togather.
