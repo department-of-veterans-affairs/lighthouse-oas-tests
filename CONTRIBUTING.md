@@ -23,7 +23,7 @@ to release new versions automatically.
 
 All other commit types will trigger no new release.
 
-Note: The keyword, eg. `fix`, must be the first word in the commit message and be followed by a `:` in order to trigger a release.  If the commit is the result of a squash and merge, the auto-generated commit message must be edited so that it starts with the keyword.
+Note: The keyword, eg. `fix`, must be the first word in the commit message and be followed by a `:` in order to trigger a release.  If the commit is the result of a github pull request being squashed and merged, the title of the pull request must start with the keyword.
 
 ## Creating PR
 
