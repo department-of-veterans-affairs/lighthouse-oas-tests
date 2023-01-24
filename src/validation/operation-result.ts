@@ -5,7 +5,7 @@ export default class OperationResult {
   readonly originalOperationId: string | undefined;
   readonly testGroupName: string;
   readonly failures: Map<string, Message>;
-  readonly warnings: Map<string, Message>;
+  warnings?: Map<string, Message>;
 
   constructor(
     operationId: string,
@@ -36,8 +36,9 @@ export default class OperationResult {
     } else {
       result += `  ${this.operationId} - ${this.testGroupName}: Succeeded\n`;
     }
+    
 
-    this.warnings.forEach((warning, _) => {
+    this.warnings?.forEach((warning, _) => {
       const count = warning.count;
       result += `    - ${warning.toString()}. Found ${count} time${
         count > 1 ? 's' : ''

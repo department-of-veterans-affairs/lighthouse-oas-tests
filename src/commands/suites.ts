@@ -32,6 +32,10 @@ export default class Suites extends Command {
       char: 'j',
       description: 'Format output as JSON',
     }),
+    warning: flags.boolean({
+      char: 'w',
+      description: 'remove warnings',
+    }),
   };
 
   static args = [
@@ -76,11 +80,12 @@ export default class Suites extends Command {
       }
     }
 
-    this.logTestResults(results, flags.jsonOutput);
+    this.logTestResults(results, flags.jsonOutput, flags.warning);
   }
 
-  private logTestResults(results: OASResult[], isJsonOutput: boolean): void {
+  private logTestResults(results: OASResult[], isJsonOutput: boolean, hasWarningFlag: boolean): void {
     results.forEach((result) => {
+      if(hasWarningFlag) this.noWarningsIncluded(result)
       if (isJsonOutput) {
         const output = JSONStructuredOutputFactory.buildFromOASResult(result);
         this.log(JSON.stringify(output));
@@ -110,5 +115,10 @@ export default class Suites extends Command {
         } passed`,
       );
     }
+  }
+
+  noWarningsIncluded(result: OASResult): OASResult {
+    result.results?.map(item => { delete item.warnings})
+    return result
   }
 }

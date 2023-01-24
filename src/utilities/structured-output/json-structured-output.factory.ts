@@ -38,7 +38,7 @@ class JSONStructuredOutputFactory {
       (result) => result.failures.size === 0,
     ).length;
     const warnCount = testResults.filter(
-      (result) => result.warnings.size > 0,
+      (result) => result.warnings ? result.warnings.size > 0 : null
     ).length;
     const failCount = testResults.filter(
       (result) => result.failures.size > 0,
@@ -81,7 +81,7 @@ class JSONStructuredOutputFactory {
       (result) => result.failures.size === 0,
     ).length;
     const warnCount = operationResults.filter(
-      (result) => result.warnings.size > 0,
+      (result) => result.warnings ? result.warnings.size > 0 : null
     ).length;
     const failCount = operationResults.filter(
       (result) => result.failures.size > 0,
@@ -150,10 +150,10 @@ class JSONStructuredOutputFactory {
     }));
 
     // assemble warnings
-    const warnings = [...exampleGroupResult.warnings].map(([, value]) => ({
+    const warnings = exampleGroupResult.warnings ? [...exampleGroupResult.warnings].map(([, value]) => ({
       message: value.message,
       count: value.count,
-    }));
+    })): 0;
 
     // assemble example group
     if (output.results) {
