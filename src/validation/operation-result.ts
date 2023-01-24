@@ -36,7 +36,6 @@ export default class OperationResult {
     } else {
       result += `  ${this.operationId} - ${this.testGroupName}: Succeeded\n`;
     }
-    
 
     this.warnings?.forEach((warning, _) => {
       const count = warning.count;
