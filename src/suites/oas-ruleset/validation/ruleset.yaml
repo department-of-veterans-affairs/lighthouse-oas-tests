@@ -76,7 +76,7 @@ rules:
       function: truthy
   va-param-example-required:
     description: Parameters marked as required must have an example or examples property
-    given: $..*.parameters[?(@.required == true)]
+    given: $..*.parameters[?(@ && @.required == true)]
     severity: error
     then:
       function: xor
