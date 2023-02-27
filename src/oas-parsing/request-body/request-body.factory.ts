@@ -22,8 +22,10 @@ class RequestBodyFactory {
 
     if (requiredProperties && schema.properties) {
       for (const requiredProperty of requiredProperties) {
-        const example = schema.properties[requiredProperty].example;
-        requestBodyExample[requiredProperty] = example;
+        if (schema.properties[requiredProperty]) {
+          const example = schema.properties[requiredProperty].example;
+          requestBodyExample[requiredProperty] = example;
+        }
       }
     }
 
