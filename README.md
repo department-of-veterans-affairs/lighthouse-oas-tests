@@ -2,7 +2,7 @@
 
 # LOAST
 
-CLI for testing Lighthouse APIs using OpenAPI specs
+CLI for testing Lighthouse APIs using OpenAPI specs 
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/loast.svg)](https://npmjs.org/package/loast)
