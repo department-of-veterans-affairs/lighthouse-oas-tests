@@ -16,13 +16,12 @@
     "content-type": "^1.0.4",
     "js-yaml": "^4.1.0",
     "load-json-file": "^6.2.0",
-
     "lodash.isequal": "^4.5.0",
     "lodash.uniq": "^4.5.0",
     "lodash.uniqwith": "^4.5.0",
     "medium-type": "^1.0.0",
     "parse-path": "^7.0.0",
-    "swagger-client": "^3.12.0"
+    "swagger-client": "^3.18.5"
   },
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",
