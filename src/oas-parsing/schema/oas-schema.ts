@@ -65,6 +65,13 @@ class OASSchema {
       options = { server, ...options };
     }
 
+    if (
+      options.parameters?.Accept !== undefined &&
+      options.parameters?.Accept.length > 0
+    ) {
+      options.responseContentType = options.parameters?.Accept;
+    }
+
     return schema.execute(options).catch((error) => {
       return error.response;
     });
