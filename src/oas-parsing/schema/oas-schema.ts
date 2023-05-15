@@ -65,9 +65,13 @@ class OASSchema {
       options = { server, ...options };
     }
 
+    // if the example group contains an Accept header parameter,
+    // copy that over to responseContentType so it gets added to the header by the swagger client
     if (
-      options.parameters?.Accept !== undefined &&
-      options.parameters?.Accept.length > 0
+      options.parameters?.Accept !== undefined && // an inexpensive initial test
+      operation.parameters?.find(
+        (parameter) => parameter.name === 'Accept' && parameter.in === 'header',
+      ) !== undefined
     ) {
       options.responseContentType = options.parameters?.Accept;
     }
