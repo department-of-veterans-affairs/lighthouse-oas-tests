@@ -73,7 +73,7 @@ class OASSchema {
         (parameter) => parameter.name === 'Accept' && parameter.in === 'header',
       ) !== undefined
     ) {
-      options.responseContentType = options.parameters?.Accept;
+      options.responseContentType = options.parameters.Accept;
     }
 
     return schema.execute(options).catch((error) => {
