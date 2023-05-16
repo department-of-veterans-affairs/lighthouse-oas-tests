@@ -66,6 +66,20 @@ describe('OASSchema', () => {
               description: 'a number',
             },
           },
+          {
+            name: 'Accept',
+            in: 'header',
+            required: true,
+            example: 'application/geo+json',
+            schema: {
+              type: 'string',
+              enum: [
+                'application/geo+json',
+                'application/vnd.geo+json',
+                'text/csv',
+              ],
+            },
+          },
         ],
         requestBody: {
           required: true,
@@ -121,6 +135,7 @@ describe('OASSchema', () => {
         operationId: 'getFacilityById',
         parameters: {
           id: 'testId',
+          Accept: 'application/geo+json',
         },
         requestBody: {
           id: 'secondTestId',
@@ -129,6 +144,7 @@ describe('OASSchema', () => {
           authorized: {},
         },
         server,
+        responseContentType: 'application/geo+json',
       });
     });
   });

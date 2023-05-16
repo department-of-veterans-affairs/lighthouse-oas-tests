@@ -19,6 +19,7 @@ declare module 'swagger-client' {
     requestBody?: RequestBody;
     server?: string;
     requestInterceptor?: (request: Request) => Request;
+    responseContentType?: string;
   }
 
   export interface Request {
