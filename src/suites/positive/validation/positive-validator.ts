@@ -1,5 +1,7 @@
 import { isEqual, uniqWith } from 'lodash';
+import SwaggerClient from 'swagger-client';
 import { Json, SchemaObject } from 'swagger-client/schema';
+import OASSchema from '../../../oas-parsing/schema';
 import { BaseValidator } from '../../../validation';
 import { Message } from '../../../validation';
 import PositiveMessage, { Type } from './positive-message';
@@ -34,11 +36,12 @@ abstract class PositiveValidator extends BaseValidator {
     }
   }
 
-  public validateObjectAgainstSchema(
+  public async validateObjectAgainstSchema(
     actual: Json,
     expected: SchemaObject,
     path: string[],
-  ): void {
+    schema?: OASSchema,
+  ): Promise<void> {
     const actualType = typeof actual;
     let returnEarly = false;
 
@@ -57,9 +60,9 @@ abstract class PositiveValidator extends BaseValidator {
     this.checkEnumValue(actual, expected, [...path]);
 
     if (Array.isArray(actual)) {
-      this.checkArrayItemSchema(actual, expected, [...path]);
+      await this.checkArrayItemSchema(actual, expected, [...path], schema);
     } else if (actualType === 'object') {
-      this.checkObjectProperties(actual, expected, [...path]);
+      await this.checkObjectProperties(actual, expected, [...path], schema);
     }
   }
 
@@ -131,11 +134,12 @@ abstract class PositiveValidator extends BaseValidator {
     }
   }
 
-  private checkArrayItemSchema(
+  private async checkArrayItemSchema(
     actual: Json[],
     expected: SchemaObject,
     path: string[],
-  ): void {
+    schema?: OASSchema,
+  ): Promise<void> {
     // check that the expected object's items property is set
     const itemSchema = expected.items;
     if (itemSchema) {
@@ -143,21 +147,60 @@ abstract class PositiveValidator extends BaseValidator {
         this.addMessage(Type.EmptyArray, path);
       } else {
         // re-run for each item
-        actual.forEach((item) => {
-          this.validateObjectAgainstSchema(item, itemSchema, [...path]);
-        });
+        await Promise.all(
+          actual.map(async (item) => {
+            await this.validateObjectAgainstSchema(
+              item,
+              itemSchema,
+              [...path],
+              schema,
+            );
+          }),
+        );
       }
     } else {
       this.addMessage(Type.ItemSchemaMissing, path);
     }
   }
 
-  private checkObjectProperties(
+  private async resolveExpected(
+    expected: SchemaObject,
+    schema?: OASSchema,
+  ): Promise<{ [property: string]: SchemaObject } | undefined> {
+    if (expected.$ref && schema) {
+      // eslint-disable-next-line no-console
+      console.log(expected.$ref);
+
+      const resolvePath = (expected.$ref as string).split('/');
+
+      if (resolvePath.length > 0 && resolvePath[0] === '#') {
+        resolvePath.shift();
+      }
+
+      const client = await schema.getClient();
+      const resolvedElement = await SwaggerClient.resolveSubtree(
+        client.spec,
+        resolvePath,
+      );
+
+      if (resolvedElement) {
+        // eslint-disable-next-line no-console
+        console.log(resolvedElement.spec.properties);
+        return resolvedElement.spec.properties;
+      }
+    }
+
+    return expected.properties;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/require-await
+  private async checkObjectProperties(
     actual: Json,
     expected: SchemaObject,
     path: string[],
-  ): void {
-    const properties = expected.properties;
+    schema?: OASSchema,
+  ): Promise<void> {
+    const properties = await this.resolveExpected(expected, schema);
 
     // check that the expected object's properties field is set
     if (!properties) {
@@ -212,15 +255,18 @@ abstract class PositiveValidator extends BaseValidator {
     }
 
     // re-un for each property that has a schema present
-    Object.entries(actual)
-      .filter(([propertyName]) => properties[propertyName])
-      .forEach(([propertyName, propertyObject]) => {
-        this.validateObjectAgainstSchema(
-          propertyObject,
-          properties[propertyName],
-          [...path, propertyName],
-        );
-      });
+    await Promise.all(
+      Object.entries(actual)
+        .filter(([propertyName]) => properties[propertyName])
+        .map(async ([propertyName, propertyObject]) => {
+          await this.validateObjectAgainstSchema(
+            propertyObject,
+            properties[propertyName],
+            [...path, propertyName],
+            schema,
+          );
+        }),
+    );
   }
 }
 
