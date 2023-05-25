@@ -66,7 +66,7 @@ describe('RequestBodyValidator', () => {
       'Warning: This array was found to be empty and therefore could not be validated. Path: requestBody -> example -> classes',
     );
     expect(warnings).toContainValidationWarning(
-      'Warning: This object is missing non-required properties that were unable to be validated, including hobby. Path: requestBody -> example',
+      'Warning: Response object is missing non-required properties that were unable to be validated, including hobby. Path: requestBody -> example',
     );
   });
 });

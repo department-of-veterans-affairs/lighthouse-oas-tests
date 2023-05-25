@@ -76,7 +76,7 @@ describe('ResponseValidationConductor', () => {
 
       expect(warnings.size).toEqual(1);
       expect(warnings).toContainValidationWarning(
-        'Warning: This object is missing non-required properties that were unable to be validated, including middleName. Path: body',
+        'Warning: Response object is missing non-required properties that were unable to be validated, including middleName. Path: body',
       );
     });
   });
