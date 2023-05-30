@@ -710,7 +710,7 @@ describe('BaseValidator', () => {
           const warnings = validator.warnings;
           expect(warnings.size).toEqual(1);
           expect(warnings).toContainValidationWarning(
-            'Warning: This object is missing non-required properties that were unable to be validated, including value. Path: body -> form',
+            'Warning: Response object is missing non-required properties that were unable to be validated, including value. Path: body -> form',
           );
         });
 
@@ -724,7 +724,7 @@ describe('BaseValidator', () => {
           const warnings = validator.warnings;
           expect(warnings.size).toEqual(0);
           expect(warnings).not.toContainValidationWarning(
-            'Warning: This object is missing non-required properties that were unable to be validated, including value. Path: body -> form',
+            'Warning: Response object is missing non-required properties that were unable to be validated, including value. Path: body -> form',
           );
         });
 

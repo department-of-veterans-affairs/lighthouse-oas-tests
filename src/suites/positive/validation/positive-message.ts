@@ -33,7 +33,7 @@ const messageTemplates: Record<Type, MessageTemplate> = {
   [Type.MissingProperties]: {
     severity: Severity.WARNING,
     details:
-      'Warning: This object is missing non-required properties that were unable to be validated, including {0}.',
+      'Warning: Response object is missing non-required properties that were unable to be validated, including {0}.',
   },
   [Type.ContentTypeMismatch]: {
     severity: Severity.ERROR,
