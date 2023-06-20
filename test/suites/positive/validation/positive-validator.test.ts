@@ -1,6 +1,8 @@
 import { SchemaObject } from 'swagger-client';
 import OASOperation from '../../../../src/oas-parsing/operation';
 import { ParameterSchemaValidator } from '../../../../src/suites/positive/validation';
+import OASSchema from '../../../../src/oas-parsing/schema';
+import loadJsonFile from 'load-json-file';
 
 describe('BaseValidator', () => {
   const operation = new OASOperation({
@@ -8,6 +10,13 @@ describe('BaseValidator', () => {
     parameters: [],
     responses: {},
   });
+
+  const generateSchema = async (filePath: string): Promise<OASSchema> => {
+    const json = await loadJsonFile(filePath);
+    return new OASSchema({
+      spec: json,
+    });
+  };
 
   // here we are only testing the methods implemented on BaseValidator
   // using ParameterSchemaValidator instead of BaseValidator because BaseValidator is abstract
@@ -23,8 +32,8 @@ describe('BaseValidator', () => {
           description: 'a string',
         };
 
-        it('adds a validation failure', () => {
-          validator.validateObjectAgainstSchema(null, schema, [
+        it('adds a validation failure', async () => {
+          await validator.validateObjectAgainstSchema(null, schema, [
             'body',
             'facility',
             'id',
@@ -45,8 +54,8 @@ describe('BaseValidator', () => {
           nullable: false,
         };
 
-        it('adds a validation failure', () => {
-          validator.validateObjectAgainstSchema(null, schema, [
+        it('adds a validation failure', async () => {
+          await validator.validateObjectAgainstSchema(null, schema, [
             'body',
             'facility',
             'id',
@@ -67,8 +76,8 @@ describe('BaseValidator', () => {
           nullable: true,
         };
 
-        it('does not add a validation failure', () => {
-          validator.validateObjectAgainstSchema(null, schema, [
+        it('does not add a validation failure', async () => {
+          await validator.validateObjectAgainstSchema(null, schema, [
             'body',
             'facility',
             'id',
@@ -96,24 +105,28 @@ describe('BaseValidator', () => {
       };
 
       describe('actual object is a string', () => {
-        it('does not add a validation failure', () => {
-          validator.validateObjectAgainstSchema('This is a string', schema, [
+        it('does not add a validation failure', async () => {
+          await validator.validateObjectAgainstSchema(
+            'This is a string',
+            schema,
+            ['test'],
+          );
+          expect(validator.failures.size).toEqual(0);
+        });
+      });
+
+      describe('actual object is an array', () => {
+        it('does not add a validation failure', async () => {
+          await validator.validateObjectAgainstSchema([42, 58], schema, [
             'test',
           ]);
           expect(validator.failures.size).toEqual(0);
         });
       });
 
-      describe('actual object is an array', () => {
-        it('does not add a validation failure', () => {
-          validator.validateObjectAgainstSchema([42, 58], schema, ['test']);
-          expect(validator.failures.size).toEqual(0);
-        });
-      });
-
       describe('actual object is an object', () => {
-        it('does not add a validation failure', () => {
-          validator.validateObjectAgainstSchema(
+        it('does not add a validation failure', async () => {
+          await validator.validateObjectAgainstSchema(
             { value: 'this is a string' },
             schema,
             ['test'],
@@ -130,10 +143,12 @@ describe('BaseValidator', () => {
       };
 
       describe('object is a string', () => {
-        it('does not add a validation failure', () => {
-          validator.validateObjectAgainstSchema('This is a string', schema, [
-            'test',
-          ]);
+        it('does not add a validation failure', async () => {
+          await validator.validateObjectAgainstSchema(
+            'This is a string',
+            schema,
+            ['test'],
+          );
           expect(validator.failures.size).toEqual(0);
         });
 
@@ -149,12 +164,12 @@ describe('BaseValidator', () => {
               schema.enum = ['test', 'test', 'anything'];
             });
 
-            it('adds a validation failure', () => {
-              validator.validateObjectAgainstSchema('does not match', schema, [
-                'body',
-                'facility',
-                'id',
-              ]);
+            it('adds a validation failure', async () => {
+              await validator.validateObjectAgainstSchema(
+                'does not match',
+                schema,
+                ['body', 'facility', 'id'],
+              );
 
               expect(validator.failures).toContainValidationFailure(
                 'Schema enum contains duplicate values. Enum values: ["test","test","anything"]. Path: body -> facility -> id',
@@ -167,8 +182,8 @@ describe('BaseValidator', () => {
           });
 
           describe('object matches enum', () => {
-            it('does not add a validation failure', () => {
-              validator.validateObjectAgainstSchema('test', schema, [
+            it('does not add a validation failure', async () => {
+              await validator.validateObjectAgainstSchema('test', schema, [
                 'body',
                 'facility',
                 'id',
@@ -178,9 +193,9 @@ describe('BaseValidator', () => {
           });
 
           describe('object does not match enum', () => {
-            it('adds a validation failure', () => {
+            it('adds a validation failure', async () => {
               const object = 'does not match';
-              validator.validateObjectAgainstSchema(object, schema, [
+              await validator.validateObjectAgainstSchema(object, schema, [
                 'body',
                 'facility',
                 'id',
@@ -198,9 +213,9 @@ describe('BaseValidator', () => {
       });
 
       describe('object is not a string', () => {
-        it('adds a validation failure', () => {
+        it('adds a validation failure', async () => {
           const object = 42;
-          validator.validateObjectAgainstSchema(object, schema, [
+          await validator.validateObjectAgainstSchema(object, schema, [
             'body',
             'facility',
             'id',
@@ -211,12 +226,12 @@ describe('BaseValidator', () => {
         });
 
         describe('object is an object', () => {
-          it('returns only the type mismatch failure and does not attempt to validate the actual object', () => {
+          it('returns only the type mismatch failure and does not attempt to validate the actual object', async () => {
             const object = {
               key: 'value',
             };
 
-            validator.validateObjectAgainstSchema(object, schema, [
+            await validator.validateObjectAgainstSchema(object, schema, [
               'body',
               'facility',
               'id',
@@ -231,10 +246,10 @@ describe('BaseValidator', () => {
         });
 
         describe('object is an array', () => {
-          it('returns only the type mismatch failure and does not attempt to validate the actual object', () => {
+          it('returns only the type mismatch failure and does not attempt to validate the actual object', async () => {
             const object = [2];
 
-            validator.validateObjectAgainstSchema(object, schema, [
+            await validator.validateObjectAgainstSchema(object, schema, [
               'body',
               'facility',
               'id',
@@ -257,8 +272,8 @@ describe('BaseValidator', () => {
       };
 
       describe('object is a number', () => {
-        it('does not add a validation failure', () => {
-          validator.validateObjectAgainstSchema(42, schema, [
+        it('does not add a validation failure', async () => {
+          await validator.validateObjectAgainstSchema(42, schema, [
             'body',
             'facility',
             'lat',
@@ -272,8 +287,8 @@ describe('BaseValidator', () => {
           });
 
           describe('object matches enum', () => {
-            it('does not add a validation failure', () => {
-              validator.validateObjectAgainstSchema(42, schema, [
+            it('does not add a validation failure', async () => {
+              await validator.validateObjectAgainstSchema(42, schema, [
                 'body',
                 'facility',
                 'lat',
@@ -283,9 +298,9 @@ describe('BaseValidator', () => {
           });
 
           describe('object does not match enum', () => {
-            it('adds a validation failure', () => {
+            it('adds a validation failure', async () => {
               const object = 100;
-              validator.validateObjectAgainstSchema(object, schema, [
+              await validator.validateObjectAgainstSchema(object, schema, [
                 'body',
                 'facility',
                 'lat',
@@ -303,8 +318,8 @@ describe('BaseValidator', () => {
               schema.enum = [42, 42, 56];
             });
 
-            it('adds a validation failure', () => {
-              validator.validateObjectAgainstSchema(100, schema, [
+            it('adds a validation failure', async () => {
+              await validator.validateObjectAgainstSchema(100, schema, [
                 'body',
                 'facility',
                 'lat',
@@ -326,9 +341,9 @@ describe('BaseValidator', () => {
       });
 
       describe('object is not a number', () => {
-        it('adds a validation failure', () => {
+        it('adds a validation failure', async () => {
           const object = 'this is a string';
-          validator.validateObjectAgainstSchema(object, schema, [
+          await validator.validateObjectAgainstSchema(object, schema, [
             'body',
             'facility',
             'lat',
@@ -346,8 +361,8 @@ describe('BaseValidator', () => {
         description: 'an integer',
       };
       describe('object is an integer', () => {
-        it('does not add a validation failure', () => {
-          validator.validateObjectAgainstSchema(42, schema, [
+        it('does not add a validation failure', async () => {
+          await validator.validateObjectAgainstSchema(42, schema, [
             'body',
             'facility',
             'lat',
@@ -361,8 +376,8 @@ describe('BaseValidator', () => {
           });
 
           describe('object matches enum', () => {
-            it('does not add a validation failure', () => {
-              validator.validateObjectAgainstSchema(42, schema, [
+            it('does not add a validation failure', async () => {
+              await validator.validateObjectAgainstSchema(42, schema, [
                 'body',
                 'facility',
                 'lat',
@@ -372,9 +387,9 @@ describe('BaseValidator', () => {
           });
 
           describe('object does not match enum', () => {
-            it('adds a validation failure', () => {
+            it('adds a validation failure', async () => {
               const object = 100;
-              validator.validateObjectAgainstSchema(object, schema, [
+              await validator.validateObjectAgainstSchema(object, schema, [
                 'body',
                 'facility',
                 'lat',
@@ -392,8 +407,8 @@ describe('BaseValidator', () => {
               schema.enum = [42, 42, 56];
             });
 
-            it('adds a validation failure', () => {
-              validator.validateObjectAgainstSchema(100, schema, [
+            it('adds a validation failure', async () => {
+              await validator.validateObjectAgainstSchema(100, schema, [
                 'body',
                 'facility',
                 'lat',
@@ -415,9 +430,9 @@ describe('BaseValidator', () => {
       });
 
       describe('object is not an integer', () => {
-        it('adds a validation failure', () => {
+        it('adds a validation failure', async () => {
           const object = 'this is a string';
-          validator.validateObjectAgainstSchema(object, schema, [
+          await validator.validateObjectAgainstSchema(object, schema, [
             'body',
             'facility',
             'lat',
@@ -440,9 +455,9 @@ describe('BaseValidator', () => {
       };
 
       describe('object is not an array', () => {
-        it('adds a validation failure', () => {
+        it('adds a validation failure', async () => {
           const object = 'this is a string';
-          validator.validateObjectAgainstSchema(object, schema, [
+          await validator.validateObjectAgainstSchema(object, schema, [
             'body',
             'numbers',
           ]);
@@ -460,8 +475,8 @@ describe('BaseValidator', () => {
             schema.items = undefined;
           });
 
-          it('adds a validation failure', () => {
-            validator.validateObjectAgainstSchema([42], schema, [
+          it('adds a validation failure', async () => {
+            await validator.validateObjectAgainstSchema([42], schema, [
               'body',
               'numbers',
             ]);
@@ -481,7 +496,7 @@ describe('BaseValidator', () => {
             tempSchema = { ...schema };
             tempSchema.items = { ...schema.items };
           });
-          it('adds a validation failure', () => {
+          it('adds a validation failure', async () => {
             tempSchema.items = {
               type: 'object',
               required: ['value'],
@@ -493,7 +508,7 @@ describe('BaseValidator', () => {
               },
               description: 'schema for an object',
             };
-            validator.validateObjectAgainstSchema([{}], tempSchema, [
+            await validator.validateObjectAgainstSchema([{}], tempSchema, [
               'body',
               'numbers',
             ]);
@@ -512,8 +527,8 @@ describe('BaseValidator', () => {
           });
 
           describe('object matches enum', () => {
-            it('does not return a valdiation failure', () => {
-              validator.validateObjectAgainstSchema([42, 56], schema, [
+            it('does not return a valdiation failure', async () => {
+              await validator.validateObjectAgainstSchema([42, 56], schema, [
                 'body',
                 'numbers',
               ]);
@@ -522,9 +537,9 @@ describe('BaseValidator', () => {
           });
 
           describe('object does not match enum', () => {
-            it('adds a validation failure', () => {
+            it('adds a validation failure', async () => {
               const object = [42, 100];
-              validator.validateObjectAgainstSchema(object, schema, [
+              await validator.validateObjectAgainstSchema(object, schema, [
                 'body',
                 'numbers',
               ]);
@@ -545,8 +560,8 @@ describe('BaseValidator', () => {
               ];
             });
 
-            it('adds a validation failure', () => {
-              validator.validateObjectAgainstSchema([100, 200], schema, [
+            it('adds a validation failure', async () => {
+              await validator.validateObjectAgainstSchema([100, 200], schema, [
                 'body',
                 'numbers',
               ]);
@@ -565,8 +580,8 @@ describe('BaseValidator', () => {
           });
         });
 
-        it('adds a validation warning when the array is empty', () => {
-          validator.validateObjectAgainstSchema([], schema, [
+        it('adds a validation warning when the array is empty', async () => {
+          await validator.validateObjectAgainstSchema([], schema, [
             'body',
             'numbers',
           ]);
@@ -591,9 +606,9 @@ describe('BaseValidator', () => {
       };
 
       describe('object is not an object', () => {
-        it('adds a validation failure', () => {
+        it('adds a validation failure', async () => {
           const object = 'this is a string';
-          validator.validateObjectAgainstSchema(object, schema, [
+          await validator.validateObjectAgainstSchema(object, schema, [
             'body',
             'form',
           ]);
@@ -611,11 +626,12 @@ describe('BaseValidator', () => {
             schema.properties = undefined;
           });
 
-          it('adds a validation failure', () => {
-            validator.validateObjectAgainstSchema({ value: 'any' }, schema, [
-              'body',
-              'form',
-            ]);
+          it('adds a validation failure', async () => {
+            await validator.validateObjectAgainstSchema(
+              { value: 'any' },
+              schema,
+              ['body', 'form'],
+            );
             expect(validator.failures).toContainValidationFailure(
               'The properties property is required for object schemas. Path: body -> form',
             );
@@ -641,8 +657,8 @@ describe('BaseValidator', () => {
           });
 
           describe('all schema properties are present', () => {
-            it('failure message contains only actual properties that were not expected', () => {
-              validator.validateObjectAgainstSchema(
+            it('failure message contains only actual properties that were not expected', async () => {
+              await validator.validateObjectAgainstSchema(
                 { fake: 'property', value: 'potato', house: 'slytherin' },
                 tempSchema,
                 ['body', 'form'],
@@ -654,8 +670,8 @@ describe('BaseValidator', () => {
           });
 
           describe('not all schema properties are present', () => {
-            it('failure message contains all properties that did not match', () => {
-              validator.validateObjectAgainstSchema(
+            it('failure message contains all properties that did not match', async () => {
+              await validator.validateObjectAgainstSchema(
                 { fake: 'property', value: 'potato' },
                 tempSchema,
                 ['body', 'form'],
@@ -672,9 +688,9 @@ describe('BaseValidator', () => {
             schema.required = ['value'];
           });
 
-          it('adds a validation failure', () => {
+          it('adds a validation failure', async () => {
             const object = {};
-            validator.validateObjectAgainstSchema(object, schema, [
+            await validator.validateObjectAgainstSchema(object, schema, [
               'body',
               'form',
             ]);
@@ -688,8 +704,8 @@ describe('BaseValidator', () => {
           });
         });
 
-        it('validates the properties when object has properties', () => {
-          validator.validateObjectAgainstSchema(
+        it('validates the properties when object has properties', async () => {
+          await validator.validateObjectAgainstSchema(
             {
               value: 42,
             },
@@ -704,8 +720,11 @@ describe('BaseValidator', () => {
           );
         });
 
-        it('adds a warning when an optional property cannot be validated', () => {
-          validator.validateObjectAgainstSchema({}, schema, ['body', 'form']);
+        it('adds a warning when an optional property cannot be validated', async () => {
+          await validator.validateObjectAgainstSchema({}, schema, [
+            'body',
+            'form',
+          ]);
 
           const warnings = validator.warnings;
           expect(warnings.size).toEqual(1);
@@ -714,8 +733,8 @@ describe('BaseValidator', () => {
           );
         });
 
-        it('does not print out the missing property warning when only required properties are missing', () => {
-          validator.validateObjectAgainstSchema(
+        it('does not print out the missing property warning when only required properties are missing', async () => {
+          await validator.validateObjectAgainstSchema(
             {},
             { ...schema, required: ['value'] },
             ['body', 'form'],
@@ -734,19 +753,20 @@ describe('BaseValidator', () => {
           });
 
           describe('object matches enum', () => {
-            it('does not add a validation failure', () => {
-              validator.validateObjectAgainstSchema({ value: 'test' }, schema, [
-                'body',
-                'form',
-              ]);
+            it('does not add a validation failure', async () => {
+              await validator.validateObjectAgainstSchema(
+                { value: 'test' },
+                schema,
+                ['body', 'form'],
+              );
               expect(validator.failures.size).toEqual(0);
             });
           });
 
           describe('object does not match enum', () => {
-            it('adds a validation failure', () => {
+            it('adds a validation failure', async () => {
               const object = { value: 'does not match' };
-              validator.validateObjectAgainstSchema(object, schema, [
+              await validator.validateObjectAgainstSchema(object, schema, [
                 'body',
                 'form',
               ]);
@@ -767,8 +787,8 @@ describe('BaseValidator', () => {
               ];
             });
 
-            it('adds a validation failure', () => {
-              validator.validateObjectAgainstSchema(
+            it('adds a validation failure', async () => {
+              await validator.validateObjectAgainstSchema(
                 { value: 'does not match' },
                 schema,
                 ['body', 'form'],
@@ -787,6 +807,45 @@ describe('BaseValidator', () => {
             schema.enum = undefined;
           });
         });
+      });
+    });
+  });
+
+  describe('on the fly dereferencing', () => {
+    const filePath = 'test/fixtures/oas/provider_directory_oas.json';
+
+    let oas: OASSchema;
+    beforeEach(async () => {
+      oas = await generateSchema(filePath);
+    });
+
+    const actual = {
+      coding: [
+        {
+          system: 'http://terminology.hl7.org/CodeSystem/v2-0203',
+          code: 'MR',
+        },
+      ],
+    };
+
+    const schema: SchemaObject = {
+      $ref: '#/components/schemas/CodeableConcept',
+    };
+
+    const path = ['body', 'entry', 'resource', 'identifier', 'type'];
+
+    describe('schema needs to be dereferenced', () => {
+      it('dereferencing works properly', async () => {
+        await validator.validateObjectAgainstSchema(actual, schema, path, oas);
+        expect(validator.failures.size).toEqual(0);
+      });
+
+      it('omitting the oas bypasses on the fly dereferencing and causes validation to fail', async () => {
+        await validator.validateObjectAgainstSchema(actual, schema, path);
+        expect(validator.failures.size).toEqual(1);
+        expect(validator.failures).toContainValidationFailure(
+          'The properties property is required for object schemas. Path: body -> entry -> resource -> identifier -> type',
+        );
       });
     });
   });

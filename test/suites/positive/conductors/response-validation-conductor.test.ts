@@ -1,4 +1,5 @@
 import { ResponseValidationConductor } from '../../../../src/suites/positive/conductors';
+import OASSchema from '../../../../src/oas-parsing/schema';
 import { responseFailuresMap } from '../fixtures/failures';
 import { responseOneWarningMap } from '../fixtures/warnings';
 import { operationSimpleGet } from '../../../fixtures/utilities/oas-operations';
@@ -21,9 +22,18 @@ jest.mock(
   },
 );
 
+let oasSchema: OASSchema;
+
 describe('ResponseValidationConductor', () => {
+  beforeEach(() => {
+    const json = {};
+    oasSchema = new OASSchema({
+      spec: json,
+    });
+  });
+
   describe('validate', () => {
-    it('returns an InvalidResponse failure if the response is not ok', () => {
+    it('returns an InvalidResponse failure if the response is not ok', async () => {
       const response = {
         ok: false,
         status: 500,
@@ -35,10 +45,11 @@ describe('ResponseValidationConductor', () => {
       };
 
       const responseValidationConductor = new ResponseValidationConductor(
+        oasSchema,
         response,
         operationSimpleGet,
       );
-      const [failures, warnings] = responseValidationConductor.validate();
+      const [failures, warnings] = await responseValidationConductor.validate();
 
       expect(failures.size).toEqual(1);
       expect(failures).toContainValidationFailure(
@@ -48,7 +59,7 @@ describe('ResponseValidationConductor', () => {
       expect(warnings.size).toEqual(0);
     });
 
-    it('returns the failures and warnings from the ResponseValidator', () => {
+    it('returns the failures and warnings from the ResponseValidator', async () => {
       const response = {
         ok: true,
         status: 200,
@@ -61,10 +72,11 @@ describe('ResponseValidationConductor', () => {
       };
 
       const responseValidationConductor = new ResponseValidationConductor(
+        oasSchema,
         response,
         operationSimpleGet,
       );
-      const [failures, warnings] = responseValidationConductor.validate();
+      const [failures, warnings] = await responseValidationConductor.validate();
 
       expect(failures.size).toEqual(2);
       expect(failures).toContainValidationFailure(
