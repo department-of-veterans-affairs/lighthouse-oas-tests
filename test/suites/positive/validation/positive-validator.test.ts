@@ -11,7 +11,7 @@ describe('BaseValidator', () => {
     responses: {},
   });
 
-  const generateSchema = async (filePath: string): Promise<OASSchema> => {
+  const generateOasSchema = async (filePath: string): Promise<OASSchema> => {
     const json = await loadJsonFile(filePath);
     return new OASSchema({
       spec: json,
@@ -816,7 +816,7 @@ describe('BaseValidator', () => {
 
     let oas: OASSchema;
     beforeEach(async () => {
-      oas = await generateSchema(filePath);
+      oas = await generateOasSchema(filePath);
     });
 
     const actual = {
