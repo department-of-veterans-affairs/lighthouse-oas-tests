@@ -168,10 +168,7 @@ abstract class PositiveValidator extends BaseValidator {
     schema?: OASSchema,
   ): Promise<{ [property: string]: SchemaObject } | undefined> {
     if (expected.$ref && schema) {
-      // eslint-disable-next-line no-console
-      console.log(expected.$ref);
-
-      const resolvePath = (expected.$ref as string).split('/');
+      const resolvePath = expected.$ref.split('/');
 
       if (resolvePath.length > 0 && resolvePath[0] === '#') {
         resolvePath.shift();
@@ -184,8 +181,6 @@ abstract class PositiveValidator extends BaseValidator {
       );
 
       if (resolvedElement) {
-        // eslint-disable-next-line no-console
-        console.log(resolvedElement.spec.properties);
         return resolvedElement.spec.properties;
       }
     }

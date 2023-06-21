@@ -50,7 +50,7 @@ declare module 'swagger-client' {
     [securityKey: string]: ApiKey | BearerToken | OauthToken;
   }
 
-  interface Opts {
+  export interface Opts {
     authorizations?: SecurityValues;
     spec?: Json;
     url?: string;

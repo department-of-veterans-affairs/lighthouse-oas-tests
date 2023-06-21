@@ -123,7 +123,7 @@ declare module 'swagger-client/schema' {
   }
 
   export interface SchemaObject {
-    $ref?: any;
+    $ref?: string;
     type?: 'number' | 'string' | 'object' | 'array' | 'integer';
     required?: string[];
     items?: SchemaObject;

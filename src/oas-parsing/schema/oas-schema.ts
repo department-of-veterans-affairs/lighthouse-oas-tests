@@ -3,6 +3,7 @@ import SwaggerClient, {
   RequestBody,
   Response,
   SecurityValues,
+  Opts,
 } from 'swagger-client';
 import OASOperation, { OASOperationFactory } from '../operation';
 import ExampleGroup from '../example-group';
@@ -11,28 +12,14 @@ import OASServerFactory from '../server/oas-server.factory';
 import OASServer from '../server/oas-server';
 import { uniq } from 'lodash';
 
-interface OptsParams {
-  authorizations?: SecurityValues;
-  spec?: any;
-  url?: string;
-}
-
-// Temp approach to resolve Parameters<typeof SwaggerClientConstructor> errors
-async function SwaggerClientConstructor(
-  opts: OptsParams,
-): Promise<SwaggerClient> {
-  // eslint-disable-next-line no-return-await
-  return await new SwaggerClient(opts);
-}
-
 class OASSchema {
   private _client?: SwaggerClient;
-  private clientOptions: Parameters<typeof SwaggerClientConstructor>[0];
+  private clientOptions: Opts;
   private operations: OASOperation[];
   private url: string | undefined;
-  private rawSpec: any;
+  private rawSpec: string | undefined;
 
-  constructor(options: Parameters<typeof SwaggerClientConstructor>[0]) {
+  constructor(options: Opts) {
     this.url = options.url;
     if (options.spec) {
       // store a deep clone before client adds its own normalization and reference handling
@@ -47,9 +34,10 @@ class OASSchema {
     this._client = client;
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   public async getClient(): Promise<SwaggerClient> {
     if (!this._client) {
-      this._client = await new SwaggerClient(this.clientOptions);
+      this._client = new SwaggerClient(this.clientOptions);
     }
     return this._client;
   }
@@ -152,7 +140,7 @@ class OASSchema {
     return OASServerFactory.getServers(schema.spec.servers);
   };
 
-  getRawSchema = async (): Promise<any> => {
+  getRawSchema = async (): Promise<string> => {
     if (!this.rawSpec && this.url) {
       // Attempting to get raw spec from URL if not already available
       const spec = await fetch(this.url).then((res) => {
@@ -166,7 +154,7 @@ class OASSchema {
       this.rawSpec = spec;
     }
 
-    return this.rawSpec;
+    return this.rawSpec || '';
   };
 }
 
