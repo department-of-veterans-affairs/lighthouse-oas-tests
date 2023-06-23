@@ -2,7 +2,7 @@ import path from 'path';
 import { BaseValidator, Message } from '../../../validation';
 import OASSchema from '../../../oas-parsing/schema';
 import OASOperation from '../../../oas-parsing/operation/oas-operation';
-import OasRulesetMessage, { Type } from './oas-ruleset-message';
+import RulesetMessage, { Type } from './ruleset-message';
 import {
   Spectral,
   ISpectralDiagnostic as SpectralResult,
@@ -25,6 +25,8 @@ enum operationEnum {
   paths = 'ROOT:paths',
   schemas = 'COMPONENTS:schemas',
 }
+
+// TODO How to deal with this calculation with unknown set of rules??????
 
 // sharedRules & endpointRuleOperations intended to aid pass/warning/fail
 //  stat tracking by notifying LOAST the types of checks being performed.
@@ -76,14 +78,16 @@ const endpointRules = [
   'va-response-content-supported-mediatypes',
 ];
 
-class OasRulesetValidator extends BaseValidator {
+class RulesetValidator extends BaseValidator {
   private schema: OASSchema;
+  private rulesetfile: string;
   public operationMap: Map<string, Map<string, MessageSet>>;
 
-  constructor(schema: OASSchema) {
+  constructor(schema: OASSchema, rulesetName: string) {
     super();
     this.schema = schema;
     this.operationMap = new Map();
+    this.rulesetfile = rulesetName + '.yaml';
   }
 
   // Spectral results are for the OAS as a whole and not specifically for an individual operation or rule
@@ -95,7 +99,7 @@ class OasRulesetValidator extends BaseValidator {
     path: string[],
     props?: string[],
   ): void {
-    const message = new OasRulesetMessage(type, path, props);
+    const message = new RulesetMessage(type, path, props);
     const ruleMap = this.registerRule(operation, ruleName);
     const messageSet = ruleMap?.get(ruleName);
 
@@ -118,8 +122,9 @@ class OasRulesetValidator extends BaseValidator {
 
   private async runSpectral(schema: OASSchema): Promise<SpectralResult[]> {
     const spectral = new Spectral();
+    const rulesetFolder = path.resolve(__dirname, '..');
     const rulesetFilepath = path.resolve(
-      path.join(__dirname, './ruleset.yaml'),
+      path.join(rulesetFolder, this.rulesetfile),
     );
 
     spectral.setRuleset(await getRuleset(rulesetFilepath));
@@ -183,10 +188,10 @@ class OasRulesetValidator extends BaseValidator {
   private sanitizeResults(results: SpectralResult[]): void {
     for (const result of results) {
       const ruleName = result.code;
-      let msgType = Type.OasRulesetError;
+      let msgType = Type.RulesetError;
 
       if (result.severity === DiagnosticSeverity.Warning) {
-        msgType = Type.OasRulesetWarning;
+        msgType = Type.RulesetWarning;
       }
 
       const { operation, cleanedPath } = this.extractDetailsFromPath(
@@ -195,7 +200,7 @@ class OasRulesetValidator extends BaseValidator {
 
       if (operation === operationEnum.openapidoc) {
         // Indicates some manner of high level validation error
-        msgType = Type.OasRulesetError;
+        msgType = Type.RulesetError;
       }
 
       this.addMessage(operation, `${ruleName}`, msgType, cleanedPath, [
@@ -279,4 +284,4 @@ class OasRulesetValidator extends BaseValidator {
   }
 }
 
-export default OasRulesetValidator;
+export default RulesetValidator;
