@@ -1,18 +1,18 @@
-#extends: 'spectral:oas' #Commented out extension & operation-tag-defined for the time being since oas-ruleset.yaml includes this already
+extends: 'spectral:oas'
 rules:
-  #operation-tag-defined: off
+  operation-tag-defined: off
 
-  #va-property-names-camel-case:
-  #  description: Property names should be written in camelCase.
-  #  message: '`{{property}}` is not camelCase'
-  #  type: style
-  #  severity: warn
-  #  given: $..properties
-  #  then:
-  #    field: '@key'
-  #    function: casing
-  #    functionOptions:
-  #      type: camel
+  va-property-names-camel-case:
+    description: Property names should be written in camelCase.
+    message: '`{{property}}` is not camelCase'
+    type: style
+    severity: warn
+    given: $..properties
+    then:
+      field: '@key'
+      function: casing
+      functionOptions:
+        type: camel
 
   va-operation-security:
     description: Security must be declared for each operation. If this endpoint does not require authentication set the security object to an array with one blank object (- {}).
