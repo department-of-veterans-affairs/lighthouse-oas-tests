@@ -48,13 +48,13 @@ const spectralResults = [
     message: 'Tags missing property',
   },
   {
-    code: 'paths-error',
+    code: 'va-paths-custom-rule',
     severity: 1,
     path: ['paths', 'moat'],
     message: 'Paths missing property',
   },
   {
-    code: 'endpoint-error',
+    code: 'va-endpoint-custom-rule',
     severity: 1,
     path: ['paths', '/thering', 'GET', 'moat'],
     message: 'The Rings location is unknown',
@@ -132,7 +132,7 @@ const case7 = new Map().set('tags-error', {
     }),
   ),
 });
-const case8 = new Map().set('paths-error', {
+const case8 = new Map().set('va-paths-custom-rule', {
   failures: emptyMap,
   warnings: new Map().set(
     '8f1796be9ee67d74567c5d44f808caf72874c3d8',
@@ -142,7 +142,7 @@ const case8 = new Map().set('paths-error', {
     }),
   ),
 });
-const case9 = new Map().set('endpoint-error', {
+const case9 = new Map().set('va-endpoint-custom-rule', {
   failures: emptyMap,
   warnings: new Map().set(
     '98201d88f9e9a7b7f591e75866b74fd4096b7dcf',
@@ -170,6 +170,14 @@ jest.mock('@stoplight/spectral-core', () => {
       return {
         Spectral: jest.fn(),
         setRuleset: jest.fn(),
+        ruleset: {
+          rules: {
+            'missing-properties': { enabled: true },
+            'bad-properties': { enabled: false },
+            'va-paths-custom-rule': { enabled: true },
+            'va-endpoint-custom-rule': { enabled: true },
+          },
+        },
         run: mockSpectralRun,
       };
     }),
@@ -191,7 +199,7 @@ let rulesetName: string;
 let operation: string;
 let ruleName: string;
 
-describe('OasRulesetValidator', () => {
+describe('RulesetValidator', () => {
   beforeEach(() => {
     oasSchema = new OASSchema({ spec: {} });
     rulesetName = 'oas-ruleset';
@@ -239,6 +247,7 @@ describe('OasRulesetValidator', () => {
 
   describe('performValidation', () => {
     it('run oas-ruleset and sanitizes nine results', async () => {
+      oasSchema.getOperations = jest.fn().mockResolvedValue([]);
       const validator = new RulesetValidator(oasSchema, rulesetName);
       await validator.validate();
 

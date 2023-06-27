@@ -48,7 +48,7 @@ operationResults.set(
   }),
 );
 
-describe('OasRulesetSuite', () => {
+describe('RulesetSuite', () => {
   beforeEach(() => {
     oasSchema = new OASSchema({ spec: {} });
     rulesetName = 'oas-ruleset';
