@@ -29,7 +29,7 @@ jest.mock('../../src/loast', () => {
 
 // ruleset-wrapper needs be mocked to avoid Jest conflict with
 //  3rd party packages when they use package.json 'export'
-jest.mock('../../src/suites/oas-ruleset/validation/ruleset-wrapper', () => {
+jest.mock('../../src/suites/rulesets/validation/ruleset-wrapper', () => {
   return function (): Record<string, jest.Mock> {
     return {
       getRuleset: jest.fn(),

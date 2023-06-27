@@ -1,6 +1,6 @@
 import OASSchema from '../../../../src/oas-parsing/schema/oas-schema';
-import { Type } from '../../../../src/suites/oas-ruleset/validation/oas-ruleset-message';
-import OasRulesetValidator from '../../../../src/suites/oas-ruleset/validation/oas-ruleset-validator';
+import { Type } from '../../../../src/suites/rulesets/validation/ruleset-message';
+import RulesetValidator from '../../../../src/suites/rulesets/validation/ruleset-validator';
 
 const mockSpectralRun = jest.fn();
 const spectralResults = [
@@ -180,30 +180,29 @@ mockSpectralRun.mockResolvedValue(spectralResults);
 
 // ruleset-wrapper needs be mocked to avoid Jest conflict with
 //  3rd party packages when they use package.json 'export'
-jest.mock(
-  '../../../../src/suites/oas-ruleset/validation/ruleset-wrapper',
-  () => {
-    return {
-      getRuleset: jest.fn(),
-    };
-  },
-);
+jest.mock('../../../../src/suites/rulesets/validation/ruleset-wrapper', () => {
+  return {
+    getRuleset: jest.fn(),
+  };
+});
 
 let oasSchema: OASSchema;
+let rulesetName: string;
 let operation: string;
 let ruleName: string;
 
 describe('OasRulesetValidator', () => {
   beforeEach(() => {
     oasSchema = new OASSchema({ spec: {} });
+    rulesetName = 'oas-ruleset';
     operation = '/findTheRing:GET';
     ruleName = 'missing-properties';
   });
 
   describe('addMessage', () => {
     it('adds a validation failure', () => {
-      const validator = new OasRulesetValidator(oasSchema);
-      validator.addMessage(operation, ruleName, Type.OasRulesetError, [
+      const validator = new RulesetValidator(oasSchema, rulesetName);
+      validator.addMessage(operation, ruleName, Type.RulesetError, [
         'The ring has not be found',
       ]);
 
@@ -213,8 +212,8 @@ describe('OasRulesetValidator', () => {
     });
 
     it('adds a validation warning', () => {
-      const validator = new OasRulesetValidator(oasSchema);
-      validator.addMessage(operation, ruleName, Type.OasRulesetWarning, [
+      const validator = new RulesetValidator(oasSchema, rulesetName);
+      validator.addMessage(operation, ruleName, Type.RulesetWarning, [
         'The ring has not be found',
       ]);
 
@@ -224,11 +223,11 @@ describe('OasRulesetValidator', () => {
     });
 
     it('adds a repeated message', () => {
-      const validator = new OasRulesetValidator(oasSchema);
-      validator.addMessage(operation, ruleName, Type.OasRulesetWarning, [
+      const validator = new RulesetValidator(oasSchema, rulesetName);
+      validator.addMessage(operation, ruleName, Type.RulesetWarning, [
         'The ring has not be found',
       ]);
-      validator.addMessage(operation, ruleName, Type.OasRulesetWarning, [
+      validator.addMessage(operation, ruleName, Type.RulesetWarning, [
         'The ring has not be found',
       ]);
 
@@ -240,7 +239,7 @@ describe('OasRulesetValidator', () => {
 
   describe('performValidation', () => {
     it('run oas-ruleset and sanitizes nine results', async () => {
-      const validator = new OasRulesetValidator(oasSchema);
+      const validator = new RulesetValidator(oasSchema, rulesetName);
       await validator.validate();
 
       expect(validator.operationMap.size).toEqual(9);

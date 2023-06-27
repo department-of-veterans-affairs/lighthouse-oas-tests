@@ -1,11 +1,10 @@
 import SuiteFactory from '../../src/suites/suite-factory';
 import PositiveSuite from '../../src/suites/positive/positive-suite';
-import OasRulesetSuite from '../../src/suites/oas-ruleset/oas-ruleset-suite';
 import OASSchema from '../../src/oas-parsing/schema';
 
 // ruleset-wrapper needs be mocked to avoid Jest conflict with
 //  3rd party packages when they use package.json 'export'
-jest.mock('../../src/suites/oas-ruleset/validation/ruleset-wrapper', () => {
+jest.mock('../../src/suites/rulesets/validation/ruleset-wrapper', () => {
   return function (): Record<string, jest.Mock> {
     return {
       getRuleset: jest.fn(),
@@ -44,7 +43,7 @@ describe('SuiteFactory', () => {
       const options = { path: 'fake-path', apikey: 'fake-key' };
 
       await expect(
-        SuiteFactory.build(OasRulesetSuite.suiteId, {
+        SuiteFactory.build('oas-ruleset', {
           ...suiteConfig,
           options: options,
         }),
@@ -67,10 +66,13 @@ describe('SuiteFactory', () => {
     it('returns array of suite IDs', () => {
       const suiteIds = SuiteFactory.availableSuiteIds();
 
-      expect(suiteIds).toEqual([
-        PositiveSuite.suiteId,
-        OasRulesetSuite.suiteId,
-      ]);
+      expect(suiteIds).toEqual(
+        expect.arrayContaining([
+          PositiveSuite.suiteId,
+          'oas-ruleset',
+          'lighthouseAPIStandards',
+        ]),
+      );
     });
   });
 });
