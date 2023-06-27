@@ -188,7 +188,6 @@ abstract class PositiveValidator extends BaseValidator {
     return expected.properties;
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   private async checkObjectProperties(
     actual: Json,
     expected: SchemaObject,
