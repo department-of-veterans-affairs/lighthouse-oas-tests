@@ -5,20 +5,20 @@ import {
 } from '../../../../src/suites/positive/validation';
 
 const missingPropertyMiddleName = new PositiveMessage(
-  Type.MissingProperties,
+  Type.ResponseMissingProperties,
   ['body'],
   [['middleName'].join(', ')],
 );
 missingPropertyMiddleName.incrementCount();
 
 const missingPropertyAddress2 = new PositiveMessage(
-  Type.MissingProperties,
+  Type.ResponseMissingProperties,
   ['body', 'horcruxes', 'location'],
   [['address2'].join(', ')],
 );
 
 const requestBodyMissingProperties = new PositiveMessage(
-  Type.MissingProperties,
+  Type.RequestBodyMissingProperties,
   ['requestBody', 'example', 'horcruxes', 'location'],
   [['address2', 'name'].join(', ')],
 );

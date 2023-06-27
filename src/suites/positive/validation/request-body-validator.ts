@@ -2,6 +2,7 @@ import { RequestBodyObject } from 'swagger-client/schema';
 import OASOperation from '../../../oas-parsing/operation';
 import PositiveValidator from './positive-validator';
 import { Type } from './positive-message';
+import { REQUEST_BODY_PATH } from '../utilities/constants';
 
 class RequestBodyValidator extends PositiveValidator {
   private operation: OASOperation;
@@ -19,7 +20,7 @@ class RequestBodyValidator extends PositiveValidator {
   };
 
   private checkRequestBody(requestBody: RequestBodyObject): void {
-    const path: string[] = ['requestBody'];
+    const path: string[] = [REQUEST_BODY_PATH];
 
     // check for content schema presence
     const contentObjectKeys = Object.keys(requestBody.content);
