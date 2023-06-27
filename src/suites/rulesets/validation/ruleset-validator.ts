@@ -24,59 +24,41 @@ enum operationEnum {
   tags = 'ROOT:tags',
   paths = 'ROOT:paths',
   schemas = 'COMPONENTS:schemas',
+  endpoint = 'ENDPOINT',
+  property = 'PROPERTY',
 }
 
-// TODO How to deal with this calculation with unknown set of rules??????
-
-// sharedRules & endpointRuleOperations intended to aid pass/warning/fail
-//  stat tracking by notifying LOAST the types of checks being performed.
-//  This should be updated as new rules are added/removed
-const sharedRules: Record<string, string> = {
-  'va-openapi-supported-versions': operationEnum.openapi,
+// Assigning OOTB Spectral rules to operation groups to aid pass/warning/fail
+//  stat tracking by notifying LOAST the types of checks being performed by group.
+//  Should not need to be updated unless Spectral adds new core rules
+const spectralRuleGroups: Record<string, operationEnum> = {
   'info-contact': operationEnum.info,
   'info-description': operationEnum.info,
   'no-eval-in-markdown': operationEnum.info,
   'no-script-tags-in-markdown': operationEnum.info,
-  'va-info-description-minimum-length': operationEnum.info,
   'oas3-api-servers': operationEnum.servers,
   'oas3-server-trailing-slash': operationEnum.servers,
-  'typed-enum': operationEnum.schemas,
-  'duplicated-entry-in-enum': operationEnum.schemas,
+  'typed-enum': operationEnum.property,
+  'duplicated-entry-in-enum': operationEnum.property,
   'oas3-unused-component': operationEnum.schemas,
-  'oas3-schema': operationEnum.schemas,
-  'oas3-valid-schema-example': operationEnum.schemas,
+  'oas3-schema': operationEnum.property,
+  'oas3-valid-schema-example': operationEnum.property,
   'path-keys-no-trailing-slash': operationEnum.paths,
   'path-declarations-must-exist': operationEnum.paths,
   'path-not-include-query': operationEnum.paths,
-  'va-one-path-required': operationEnum.paths,
-  'va-one-operation-required': operationEnum.paths,
   'openapi-tags-uniqueness': operationEnum.tags,
+  'operation-tags': operationEnum.endpoint,
+  'operation-operationId': operationEnum.endpoint,
+  'operation-description': operationEnum.endpoint,
+  'operation-success-response': operationEnum.endpoint,
+  'operation-operationId-unique': operationEnum.endpoint,
+  'operation-parameters': operationEnum.endpoint,
+  'operation-tag-defined': operationEnum.endpoint,
+  'path-params': operationEnum.endpoint,
+  'oas3-valid-media-example': operationEnum.endpoint,
+  'oas3-operation-security-defined': operationEnum.endpoint,
+  'oas3-examples-value-or-externalValue': operationEnum.endpoint,
 };
-
-const endpointRules = [
-  'typed-enum',
-  'operation-tags',
-  'operation-operationId',
-  'operation-description',
-  'operation-success-response',
-  'operation-operationId-unique',
-  'operation-parameters',
-  'operation-tag-defined',
-  'duplicated-entry-in-enum',
-  'path-params',
-  'oas3-schema',
-  'oas3-valid-schema-example',
-  'oas3-valid-media-example',
-  'oas3-operation-security-defined',
-  'oas3-examples-value-or-externalValue',
-  'va-endpoint-summary-required',
-  'va-endpoint-summary-minimum-length',
-  'va-endpoint-description-minimum-length',
-  'va-param-description-required',
-  'va-param-example-required',
-  'va-request-content-supported-mediatypes',
-  'va-response-content-supported-mediatypes',
-];
 
 class RulesetValidator extends BaseValidator {
   private schema: OASSchema;
@@ -139,28 +121,57 @@ class RulesetValidator extends BaseValidator {
 
   // populateOperationMap() Setup operationMap before spectral runs
   //  based on if the rule was enabled in the ruleset and is included in stat tracking
+  //  Needed since raw Spectral results exclude rules when there are no details reported
   //  Spectral does not include some checks in loaded ruleset such as the "no-$ref-siblings" rule
   private populateOperationMap(
     operations: OASOperation[],
     rules: Record<string, any>,
   ): void {
     Object.entries(rules).forEach(([ruleName, rule]) => {
+      let operationGroup: operationEnum | undefined;
+
       if (rule.enabled) {
-        // Populating shared rules
-        if (sharedRules[ruleName]) {
-          this.registerRule(sharedRules[ruleName], ruleName);
+        // Custom rules are expected to follow a set pattern to assign their desired grouping
+        //  'va-paths-one-required' rule will be assigned to 'paths' operationGroup
+        const customRulePattern = /^va-(?<ruleOperation>\w+)-.*$/i;
+        const customRuleMatch = customRulePattern.exec(ruleName);
+
+        // Determine how to group rule
+        if (customRuleMatch) {
+          // Custom rule case: Using value from 'ruleOperation' regex group
+          const ruleOperation = customRuleMatch.groups?.ruleOperation;
+
+          if (ruleOperation) {
+            operationGroup = operationEnum[ruleOperation.toLowerCase()];
+          }
+        } else if (spectralRuleGroups[ruleName]) {
+          // Spectral rule case: Using already known value from spectralRuleGroups
+          operationGroup = spectralRuleGroups[ruleName];
         }
 
-        // Populating endpoint level rules
-        if (endpointRules.includes(ruleName)) {
-          operations.forEach((operation) => {
-            if (operation.operation.__originalOperationId) {
-              this.registerRule(
-                operation.operation.__originalOperationId,
-                ruleName,
-              );
+        // Registering rules
+        if (operationGroup) {
+          if (
+            operationGroup === operationEnum.endpoint ||
+            operationGroup === operationEnum.property
+          ) {
+            // Rule applies to all OAS operations
+            operations.forEach((operation) => {
+              if (operation.operation.__originalOperationId) {
+                this.registerRule(
+                  operation.operation.__originalOperationId,
+                  ruleName,
+                );
+              }
+            });
+
+            if (operationGroup === operationEnum.property) {
+              // Custom 'property' rules applies to OAS operations & schemas
+              this.registerRule(operationEnum.schemas, ruleName);
             }
-          });
+          } else {
+            this.registerRule(operationGroup, ruleName);
+          }
         }
       }
     });

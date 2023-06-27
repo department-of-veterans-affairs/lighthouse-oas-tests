@@ -20,6 +20,7 @@ CLI for testing Lighthouse APIs using OpenAPI specs
   - [Example Group Validation](#example-group-validation)
   - [Spectral Linting](#spectral-linting)
     - [Adding a new Spectral driven suite](#adding-a-new-spectral-driven-suite)
+    - [Creating a custom rule](#creating-a-custom-rule)
     - [Removing a Spectral driven suite](#removing-a-spectral-driven-suite)
 - [Local Development](#local-development)
 <!-- tocstop -->
@@ -660,38 +661,57 @@ These failures can occur for parameters and responses.
 
 All ruleset behavior is controlled by the yamls at `\src\suites\rulesets`. These yamls normally extend the `default` or `core rulesets` provided by Spectral and include additional `custom rulesets` intended to tailor validation for the VA. Each ruleset file is automatically detected and registered as a separate testing suite.
 
-Details surrounding the `core ruleset` can be found at [Spectral's OpenAPI-Rules](https://github.com/stoplightio/spectral/blob/develop/docs/reference/openapi-rules.md)
+Details surrounding the `core ruleset` and `customization` can be found at [Spectral's OpenAPI-Rules](https://github.com/stoplightio/spectral/blob/develop/docs/reference/openapi-rules.md)
 
 ### Adding a new Spectral driven suite
 
-Create a new yaml similar to "\src\suites\rulesets\\`<newSuite>`.yaml". A suite with name `newSuite` will automatically generate in LOAST based on the file name. This can then run alongside the other suites or it can be run standalone using the command line argument "-i `newSuite`"
+Create a new yaml with path similar to "\src\suites\rulesets\\`<newSuite>`.yaml". A suite with name `newSuite` will automatically generate in LOAST based on the file name. This can then run alongside the other suites or it can be run standalone using the command line argument "-i `newSuite`"
 
 Keep in mind:
 
 - There is no limit to the number of Spectral driven suites
-- Related rules should be grouped together in the same suite file to aid in reporting
-- Suites should avoid duplicating the rules in the other yaml. Several yamls extending `spectral:oas` should be avoided
-- Provided names cannot match previously existing suites: 'positive'
+- Rules with a similar goal should be grouped together in the same suite file to aid in reporting
+- Suites should avoid duplicating the rules in the other yamls. Several yamls extending `spectral:oas` should be avoided
+- Provided suite name cannot match previously existing suites: 'positive'
+
+### Creating a custom rule
+
+All custom rules are expected to follow a convention and use names starting with "va-`{Rule Group}`-" in order to get grouped with rules testing similar OAS sections. Example: A rule with name 'va-`paths`-one-required' would belong to group `paths`.
+
+Using this convention allows LOAST to display results grouped by the major OAS properties & endpoints. It also allows LOAST to properly track warning/failure/pass statistics. If this convention is not followed, the report will improperly exclude the rule when it passes or throws warnings.
+
+Supported Rule Groups:
+
+- openapi - Rule applies to 'openapi' property or is a generic validation
+- info - Rule applies to 'info' property
+- servers - Rule applies to 'servers' property
+- security - Rule applies to 'security' property
+- tags - Rule applies to 'tags' property
+- paths - Rule applies to 'paths' property
+- schemas - Rule applies to 'schemas' property
+- endpoint - Rule applies to all operations in OAS
+- property - Rule applies to all operations in OAS and schemas since it checks 'properties' which can be found under request/response/schemas
+- openapidoc - Reserved for when Spectral encounters severe problems that prevent rest of OAS being tested
 
 ### Removing a Spectral driven suite
 
 Delete the associated yaml under `\src\suites\rulesets` and LOAST will automatically stop offering the suite
 
-### Custom Rulesets
+### Custom Rulesets (suite: oas-ruleset)
 
-| Name                                     | Severity | Description                                                                 |
-| ---------------------------------------- | -------- | --------------------------------------------------------------------------- |
-| va-openapi-supported-versions            | Error    | Platform tooling requires openapi version 3.x.x                             |
-| va-info-description-minimum-length       | Warning  | Info's description appears to be short on details. Expected 1000+ chars     |
-| va-one-path-required                     | Error    | At least one path must exist                                                |
-| va-one-operation-required                | Error    | Each path must have at least one operation                                  |
-| va-endpoint-summary-required             | Error    | Endpoints must have a summary                                               |
-| va-endpoint-summary-minimum-length       | Warning  | Endpoint summary is too short. Expected 10+ chars                           |
-| va-endpoint-description-minimum-length   | Warning  | Endpoint descripting is too short. Expected 30+ chars                       |
-| va-param-description-required            | Error    | Parameters must have a description                                          |
-| va-params-example-required               | Error    | Parameters marked as required must have an 'example' or 'examples' property |
-| va-request-content-supported-mediatypes  | Error    | Insure content's media type under request is expected/supported             |
-| va-response-content-supported-mediatypes | Error    | Insure content's media type under response is expected/supported            |
+| Name                                              | Severity | Description                                                                 |
+| ------------------------------------------------- | -------- | --------------------------------------------------------------------------- |
+| va-openapi-supported-versions                     | Error    | Platform tooling requires openapi version 3.x.x                             |
+| va-info-description-minimum-length                | Warning  | Info's description appears to be short on details. Expected 1000+ chars     |
+| va-paths-one-required                             | Error    | At least one path must exist                                                |
+| va-paths-one-operation-required                   | Error    | Each path must have at least one operation                                  |
+| va-endpoint-summary-required                      | Error    | Endpoints must have a summary                                               |
+| va-endpoint-summary-minimum-length                | Warning  | Endpoint summary is too short. Expected 10+ chars                           |
+| va-endpoint-description-minimum-length            | Warning  | Endpoint descripting is too short. Expected 30+ chars                       |
+| va-endpoint-param-description-required            | Error    | Parameters must have a description                                          |
+| va-endpoint-param-example-required                | Error    | Parameters marked as required must have an 'example' or 'examples' property |
+| va-endpoint-request-content-supported-mediatypes  | Error    | Insure content's media type under request is expected/supported             |
+| va-endpoint-response-content-supported-mediatypes | Error    | Insure content's media type under response is expected/supported            |
 
 # Local Development
 

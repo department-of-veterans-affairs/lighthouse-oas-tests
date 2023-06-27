@@ -14,7 +14,7 @@ rules:
       functionOptions:
         type: camel
 
-  va-operation-security:
+  va-endpoint-operation-security:
     description: Security must be declared for each operation. If this endpoint does not require authentication set the security object to an array with one blank object (- {}).
     given: $.paths.[*].[get,post,put,patch,delete]
     severity: error
@@ -22,7 +22,7 @@ rules:
       field: security
       function: truthy
 
-  va-default-errors-internal-server-error:
+  va-endpoint-default-errors-internal-server-error:
     description: Response with error status code 500 is required for all endpoints.
     given: $.paths..responses
     severity: error
@@ -30,7 +30,7 @@ rules:
       field: '500'
       function: truthy
 
-  va-default-errors-bad-gateway:
+  va-endpoint-default-errors-bad-gateway:
     description: If an upstream service error could cause your API to throw a 500 error, consider catching it and raising a 502 instead.
     given: $.paths..responses
     severity: warn
@@ -38,7 +38,7 @@ rules:
       field: '502'
       function: truthy
 
-  va-default-errors-service-unavailable:
+  va-endpoint-default-errors-service-unavailable:
     description: If an upstream service outage could cause your API to throw a 500 error, consider catching it and raising a 503 instead.
     given: $.paths..responses
     severity: warn
