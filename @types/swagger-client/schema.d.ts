@@ -58,7 +58,7 @@ declare module 'swagger-client/schema' {
     requestBody?: RequestBodyObject;
     responses: { [responseStatus: string]: ResponseObject };
     security?: SecurityRequirementObject[];
-    __originalOperationId?: string
+    __originalOperationId?: string;
   }
 
   interface RequestBodyObject {
@@ -123,6 +123,7 @@ declare module 'swagger-client/schema' {
   }
 
   export interface SchemaObject {
+    $ref?: string;
     type?: 'number' | 'string' | 'object' | 'array' | 'integer';
     required?: string[];
     items?: SchemaObject;

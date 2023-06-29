@@ -6,12 +6,6 @@ declare module 'swagger-client' {
 
   export type Json = ReturnType<JSON['parse']>;
 
-  export interface Swagger {
-    spec: schema.OpenAPIObject;
-    apis: { [name: string]: Api };
-    execute: (options: ExecuteOptions) => Promise<Response>;
-  }
-
   export interface ExecuteOptions {
     parameters: { [name: string]: Json };
     operationId: string;
@@ -38,12 +32,6 @@ declare module 'swagger-client' {
 
   export type RequestBody = { [name: string]: Json };
 
-  type Api = {
-    [operationId: string]: (options: {
-      parameters: { [name: string]: Json };
-    }) => Promise<Response>;
-  };
-
   interface ValueObject {
     value: string;
   }
@@ -62,11 +50,18 @@ declare module 'swagger-client' {
     [securityKey: string]: ApiKey | BearerToken | OauthToken;
   }
 
-  interface Opts {
+  export interface Opts {
     authorizations?: SecurityValues;
     spec?: Json;
     url?: string;
   }
 
-  export default function swaggerClient(opts: Opts): Promise<Swagger>;
+  class SwaggerClient {
+    constructor(opts: Opts);
+    spec: schema.OpenAPIObject;
+    execute: (options: ExecuteOptions) => Promise<Response>;
+    static resolveSubtree(obj, path, options?): Promise<any>;
+  }
+
+  export default SwaggerClient;
 }

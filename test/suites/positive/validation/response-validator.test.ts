@@ -1,5 +1,8 @@
 import OASOperation from '../../../../src/oas-parsing/operation';
 import { ResponseValidator } from '../../../../src/suites/positive/validation';
+import OASSchema from '../../../../src/oas-parsing/schema';
+
+let oasSchema: OASSchema;
 
 describe('ResponseValidator', () => {
   let operation;
@@ -63,11 +66,16 @@ describe('ResponseValidator', () => {
         },
       },
     });
+
+    const json = {};
+    oasSchema = new OASSchema({
+      spec: json,
+    });
   });
 
   describe('validate', () => {
     it('adds a validation failure when response status code not in OAS', () => {
-      const validator = new ResponseValidator(operation, {
+      const validator = new ResponseValidator(oasSchema, operation, {
         ok: false,
         status: 500,
         url: 'http://anything.com',
@@ -87,7 +95,7 @@ describe('ResponseValidator', () => {
     });
 
     it('adds a validation failure Response content type does is not in the OAS', () => {
-      const validator = new ResponseValidator(operation, {
+      const validator = new ResponseValidator(oasSchema, operation, {
         ok: true,
         status: 200,
         url: 'http://anything.com',
@@ -116,7 +124,7 @@ describe('ResponseValidator', () => {
         example: 'application/json',
       });
 
-      const validator = new ResponseValidator(operation, {
+      const validator = new ResponseValidator(oasSchema, operation, {
         ok: true,
         status: 200,
         url: 'http://anything.com',
@@ -145,7 +153,7 @@ describe('ResponseValidator', () => {
         example: 'text/csv',
       });
 
-      const validator = new ResponseValidator(operation, {
+      const validator = new ResponseValidator(oasSchema, operation, {
         ok: true,
         status: 200,
         url: 'http://anything.com',
@@ -162,7 +170,7 @@ describe('ResponseValidator', () => {
     });
 
     it('does not compare Response content type to Accept header when there is no Accept header', () => {
-      const validator = new ResponseValidator(operation, {
+      const validator = new ResponseValidator(oasSchema, operation, {
         ok: true,
         status: 200,
         url: 'http://anything.com',
@@ -181,7 +189,7 @@ describe('ResponseValidator', () => {
     it('does not compare Response content type to Accept header when there are no parameters', () => {
       operation.parameters = undefined;
 
-      const validator = new ResponseValidator(operation, {
+      const validator = new ResponseValidator(oasSchema, operation, {
         ok: true,
         status: 200,
         url: 'http://anything.com',
@@ -198,7 +206,7 @@ describe('ResponseValidator', () => {
     });
 
     it('adds a validation warning when response body is not parsed', () => {
-      const validator = new ResponseValidator(operation, {
+      const validator = new ResponseValidator(oasSchema, operation, {
         ok: false,
         status: 200,
         url: 'http://anything.com',
@@ -218,7 +226,7 @@ describe('ResponseValidator', () => {
     });
 
     it('returns no validation failures when response is valid', () => {
-      const validator = new ResponseValidator(operation, {
+      const validator = new ResponseValidator(oasSchema, operation, {
         ok: false,
         status: 200,
         url: 'http://anything.com',
@@ -237,7 +245,7 @@ describe('ResponseValidator', () => {
     });
 
     it('is idempotent', () => {
-      const validator = new ResponseValidator(operation, {
+      const validator = new ResponseValidator(oasSchema, operation, {
         ok: false,
         status: 500,
         url: 'http://anything.com',
