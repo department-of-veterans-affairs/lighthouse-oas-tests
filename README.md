@@ -19,8 +19,9 @@ CLI for testing Lighthouse APIs using OpenAPI specs
 - [Validation](#validation)
   - [Example Group Validation](#example-group-validation)
   - [Spectral Linting](#spectral-linting)
-    - [Adding a new Spectral driven suite](#adding-a-new-spectral-driven-suite)
+    - [Adding a new Spectral driven suite or ruleset](#adding-a-new-spectral-driven-suite-or-ruleset)
     - [Creating a custom rule](#creating-a-custom-rule)
+    - [Jest testing custom rulesets](#jest-testing-custom-rulesets)
     - [Removing a Spectral driven suite](#removing-a-spectral-driven-suite)
 - [Local Development](#local-development)
 <!-- tocstop -->
@@ -663,7 +664,7 @@ All ruleset behavior is controlled by the yamls at `\src\suites\rulesets`. These
 
 Details surrounding the `core ruleset` and `customization` can be found at [Spectral's OpenAPI-Rules](https://github.com/stoplightio/spectral/blob/develop/docs/reference/openapi-rules.md)
 
-### Adding a new Spectral driven suite
+### Adding a new Spectral driven suite or ruleset
 
 Create a new yaml with path similar to "\src\suites\rulesets\\`<newSuite>`.yaml". A suite with name `newSuite` will automatically generate in LOAST based on the file name. This can then run alongside the other suites or it can be run standalone using the command line argument "-i `newSuite`"
 
@@ -692,6 +693,35 @@ Supported Rule Groups:
 - endpoint - Rule applies to all operations in OAS
 - property - Rule applies to all operations in OAS and schemas since it checks 'properties' which can be found under request/response/schemas
 - openapidoc - Reserved for when Spectral encounters severe problems that prevent rest of OAS being tested
+
+### Jest testing custom rulesets
+
+Since custom rulesets follow a nearly identical pattern concerning setup/testing a "ruleset.test" script has been created that automatically creates new Jest tests from the Spectral yamls and OAS test fixtures.
+
+Setup for the testing requires:
+
+- Updating the file at "/test/suites/rulesets/fixtures/setup.json". Format below:
+
+```
+  {
+    "`ruleset or suite name`" : {
+      "`rule name 1`": ["failure message 1","failure message 2", "failure message 3",...],
+      "`rule name 2`": ["failure message"],
+    },
+    "`second ruleset`" : {
+      "`another rule`": ["simple failure message"],
+    }
+  }
+```
+
+- Creating a OAS file at "/test/suites/rulesets/fixtures/`{rule name}`-pass.json" where the rule should detect no issues
+- Creating a second OAS file at "/test/suites/rulesets/fixtures/`{rule name}`-fail.json" where the rule should detect the issues declared in the setup.json
+
+Keep in mind:
+
+- Rules not declared in the setup.json are excluded from testing
+- If a rule does not set a "message" property, then Spectral will simply report the rule's description as the message
+- Rule descriptions don't support placeholders
 
 ### Removing a Spectral driven suite
 

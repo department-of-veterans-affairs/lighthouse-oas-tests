@@ -7,7 +7,7 @@ import rulesetFixtures from './fixtures/setup.json';
 
 // Logic below dynamically generates a series of tests for Spectral rulesets located at "/src/suites/rulesets/{{ruletSetName}}.yaml"
 //  "/test/suites/rulesets/fixtures/setup.json" declares spectral rules & failure messaging that are tested for rulesets
-//  "/test/suites/rulesets/fixtures/{{ruleName}}-pass.json" & "/fixtures/{{ruleName}}-fail.json" act as OAS files for pass and failures test
+//  "/test/suites/rulesets/fixtures/{{ruleName}}-pass.json" & "/fixtures/{{ruleName}}-fail.json" are OAS used for pass/failure testing
 
 enum ExpectedOutcome {
   PASS,
