@@ -4,19 +4,20 @@ import OASOperation from '../../../oas-parsing/operation';
 import PositiveValidator from './positive-validator';
 import { Type } from './positive-message';
 import MediumType from 'medium-type';
+import OASSchema from '../../../oas-parsing/schema';
 
 class ResponseValidator extends PositiveValidator {
+  private schema: OASSchema;
   private operation: OASOperation;
-
   private response: Response;
 
-  constructor(operation: OASOperation, response: Response) {
+  constructor(schema: OASSchema, operation: OASOperation, response: Response) {
     super();
+    this.schema = schema;
     this.operation = operation;
     this.response = response;
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   performValidation = async (): Promise<void> => {
     const responseSchema = this.operation.getResponseSchema(
       this.response.status,
@@ -51,10 +52,11 @@ class ResponseValidator extends PositiveValidator {
       if (this.response.body === undefined) {
         this.addMessage(Type.UnableToParseResponseBody, [], [contentType]);
       } else {
-        this.validateObjectAgainstSchema(
+        await this.validateObjectAgainstSchema(
           this.response.body,
           contentTypeSchema.schema,
           ['body'],
+          this.schema,
         );
       }
     } else {

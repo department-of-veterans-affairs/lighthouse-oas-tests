@@ -1,0 +1,6139 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Provider Directory API",
+    "description": "\n\n The Provider Directory API allows you to develop applications that return lists of VA providers and information such as provider locations, specialties, office hours, whether they are taking patients, and more.\n\n ## Background\n\n This API satisfies the Centers for Medicare & Medicaid Services (CMS) requirement that federal programs make provider directory information available through a public-facing API endpoint on the payer’s website.\n\n This API uses [HL7’s Fast Healthcare Interoperability Resources (FHIR)](https://www.hl7.org/fhir/overview.html) resources and follows the [HL7 Da Vinci PDex Plan Net Implementation Guide](http://www.hl7.org/fhir/us/davinci-pdex-plan-net/history.cfml). FHIR solutions are built from a standard set of modular components called resources, which can be assembled and implemented according to a variety of methods.\n\n ## Technical Overview\n\n The Provider Directory API allows queries that return data in [FHIR](https://www.hl7.org/fhir/overview.html) format from the Corporate Data Warehouse (CDW) database.  Data is available to this API 24-48 hours after it is entered into CDW.\n\n ## Authentication and Authorization\n\n API requests are authorized through a symmetric API token, provided in an HTTP header with name `apikey`. [Request an API key](https://developer.va.gov/apply).\n\n ## Test Data\n\n The database powering our sandbox environment is populated with test provider information that contains no PHI or PII.\n\n ## Consumer Onboarding\n\n ### Getting sandbox access\n\n - [Request an API key](https://developer.va.gov/onboarding/request-sandbox-access) to get sandbox access to this API. Access is automatically granted.\n - Our rate limit is 60 requests per minute. If you exceed this quota, your request will return a 429 status code. You may petition for increased rate limits by emailing us. Approval will be decided on a case-by-case basis.\n\n ### Getting production access\n\n - Getting production access requires multiple steps and can take over a month. Learn more about the [production request process](https://developer.va.gov/onboarding).",
+    "contact": {
+      "name": "developer.va.gov"
+    },
+    "version": "v0"
+  },
+  "externalDocs": {
+    "description": "DaVinci PDEX Plan Net Implementation Guide",
+    "url": "http://hl7.org/fhir/us/davinci-pdex-plan-net/index.html"
+  },
+  "servers": [
+    {
+      "url": "https://sandbox-api.va.gov/services/provider-directory/v0/r4",
+      "description": "Sandbox",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    },
+    {
+      "url": "https://api.va.gov/services/provider-directory/v0/r4",
+      "description": "Production",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/Location": {
+      "get": {
+        "tags": [
+          "Location"
+        ],
+        "summary": "Location Search",
+        "description": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition-plannet-Location.html",
+        "operationId": "GET:/Location",
+        "parameters": [
+          {
+            "name": "_id",
+            "in": "query",
+            "description": "The logical id of the resource. Once assigned, this value never changes.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "default": {
+                "value": "I2-JI7HH7SBZOCSIS7F7DI6BLHY4VNVELJM77KAYURLD5ZZWRQ2EY7Q0000"
+              }
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "description": "The logical identifier of the resource. Once assigned, this value never changes.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByIdentifier": {
+                "value": "I2-JI7HH7SBZOCSIS7F7DI6BLHY4VNVELJM77KAYURLD5ZZWRQ2EY7Q0000"
+              }
+            }
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "description": "Indicates the physical location of the record expressed using postal conventions (as opposed to GPS or other location definition formats).",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByAddress": {
+                "value": "151 KNOLLCROFT ROAD"
+              }
+            }
+          },
+          {
+            "name": "address-city",
+            "in": "query",
+            "description": "Indicates the geographical city where the location resides.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByAddress": {
+                "value": "LYONS"
+              }
+            }
+          },
+          {
+            "name": "address-state",
+            "in": "query",
+            "description": "Indicates the geographical state where the location resides.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByAddress": {
+                "value": "NJ"
+              }
+            }
+          },
+          {
+            "name": "address-postalcode",
+            "in": "query",
+            "description": "Indicates the postal code that designates the region where the location resides.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByAddress": {
+                "value": "07939"
+              }
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Indicates the name of the location as it is referenced by humans.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByName": {
+                "value": "VISUAL IMPAIRMENT SVCS OUTPATIENT REHAB"
+              }
+            }
+          },
+          {
+            "name": "_lastUpdated",
+            "in": "query",
+            "description": "The date when location record was last updated.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number of the search result.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "examples": {
+              "searchByAddress": {
+                "value": 1
+              },
+              "searchByName": {
+                "value": 1
+              }
+            }
+          },
+          {
+            "name": "_count",
+            "in": "query",
+            "description": "The number of resources that should be returned in a single page. The maximum count size is 100.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 30
+            },
+            "examples": {
+              "searchByAddress": {
+                "value": 30
+              },
+              "searchByName": {
+                "value": 30
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/fhir+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationBundle"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/Location/{id}": {
+      "get": {
+        "tags": [
+          "Location"
+        ],
+        "summary": "Location Read",
+        "description": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition-plannet-Location.html",
+        "operationId": "GET:/Location/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The logical id of the resource. Once assigned, this value never changes.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "I2-JI7HH7SBZOCSIS7F7DI6BLHY4VNVELJM77KAYURLD5ZZWRQ2EY7Q0000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/fhir+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Location"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/Organization": {
+      "get": {
+        "tags": [
+          "Organization"
+        ],
+        "summary": "Organization Search",
+        "description": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition-plannet-Organization.html",
+        "operationId": "GET:/Organization",
+        "parameters": [
+          {
+            "name": "_id",
+            "in": "query",
+            "description": "The logical id of the resource. Once assigned, this value never changes.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "default": {
+                "value": "I2-CYEXXOSUSGHOX6424MLNR4CQ4F7FZIOAZQJ3PH4L4MIIABRNZVVQ0000"
+              }
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "description": "The logical identifier of the resource. Once assigned, this value never changes.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByIdentifier": {
+                "value": "I2-CYEXXOSUSGHOX6424MLNR4CQ4F7FZIOAZQJ3PH4L4MIIABRNZVVQ0000"
+              }
+            }
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "description": "Indicates the physical location of the organization expressed using postal conventions (as opposed to GPS or other location definition formats).",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByAddress": {
+                "value": "2360 E PERSHING BLVD"
+              }
+            }
+          },
+          {
+            "name": "address-city",
+            "in": "query",
+            "description": "Indicates the geographical city where the organization resides.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByAddress": {
+                "value": "CHEYENNE"
+              }
+            }
+          },
+          {
+            "name": "address-state",
+            "in": "query",
+            "description": "Indicates the geographical state where the organization resides.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByAddress": {
+                "value": "WY"
+              }
+            }
+          },
+          {
+            "name": "address-postalcode",
+            "in": "query",
+            "description": "Indicates the postal code that designates the region where the organization resides.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByAddress": {
+                "value": "82001-5356"
+              }
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Indicates the name of the organization as it is referenced by humans.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByName": {
+                "value": "CHEYENNE VA MEDICAL"
+              }
+            }
+          },
+          {
+            "name": "_lastUpdated",
+            "in": "query",
+            "description": "The date when organization record was last updated.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number of the search result.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "examples": {
+              "searchByAddress": {
+                "value": 1
+              },
+              "searchByName": {
+                "value": 1
+              }
+            }
+          },
+          {
+            "name": "_count",
+            "in": "query",
+            "description": "The number of resources that should be returned in a single page. The maximum count size is 100.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 30
+            },
+            "examples": {
+              "searchByAddress": {
+                "value": 30
+              },
+              "searchByName": {
+                "value": 30
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/fhir+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationBundle"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/Organization/{id}": {
+      "get": {
+        "tags": [
+          "Organization"
+        ],
+        "summary": "Organization Read",
+        "description": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition-plannet-Organization.html",
+        "operationId": "GET:/Organization/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The logical id of the resource. Once assigned, this value never changes.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "I2-CYEXXOSUSGHOX6424MLNR4CQ4F7FZIOAZQJ3PH4L4MIIABRNZVVQ0000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/fhir+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organization"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/Practitioner": {
+      "get": {
+        "tags": [
+          "Practitioner"
+        ],
+        "summary": "Practitioner Search",
+        "description": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition-plannet-Practitioner.html",
+        "operationId": "GET:/Practitioner",
+        "parameters": [
+          {
+            "name": "_id",
+            "in": "query",
+            "description": "The logical id of the resource. Once assigned, this value never changes.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "default": {
+                "value": "I2-VLZYJVF7MOB2SFAKTAPNSQIBWZS22HGVT3A56E5D5PHDUWJGQIGQ0000"
+              }
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "description": "A unique identifier for a practitioner within a given system.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByIdentifier": {
+                "value": "I2-VLZYJVF7MOB2SFAKTAPNSQIBWZS22HGVT3A56E5D5PHDUWJGQIGQ0000"
+              }
+            }
+          },
+          {
+            "name": "family",
+            "in": "query",
+            "description": "The family name of the practitioner.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByFamily": {
+                "value": "DOE922"
+              },
+              "searchByFamilyAndGiven": {
+                "value": "DOE922"
+              }
+            }
+          },
+          {
+            "name": "given",
+            "in": "query",
+            "description": "The given name of the practitioner.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByGiven": {
+                "value": "JANE460"
+              },
+              "searchByFamilyAndGiven": {
+                "value": "JANE460"
+              }
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The given or family name of the practitioner.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByName": {
+                "value": "DOE922"
+              }
+            }
+          },
+          {
+            "name": "_lastUpdated",
+            "in": "query",
+            "description": "The date when practitioner record was last updated.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number of the search result.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "examples": {
+              "searchByFamily": {
+                "value": 1
+              },
+              "searchByGiven": {
+                "value": 1
+              },
+              "searchByFamilyAndGiven": {
+                "value": 1
+              },
+              "searchByName": {
+                "value": 1
+              }
+            }
+          },
+          {
+            "name": "_count",
+            "in": "query",
+            "description": "The number of resources that should be returned in a single page. The maximum count size is 100.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 30
+            },
+            "examples": {
+              "searchByFamily": {
+                "value": 30
+              },
+              "searchByGiven": {
+                "value": 30
+              },
+              "searchByFamilyAndGiven": {
+                "value": 30
+              },
+              "searchByName": {
+                "value": 30
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/fhir+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PractitionerBundle"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/Practitioner/{id}": {
+      "get": {
+        "tags": [
+          "Practitioner"
+        ],
+        "summary": "Practitioner Read",
+        "description": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition-plannet-Practitioner.html",
+        "operationId": "GET:/Practitioner/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The logical id of the resource. Once assigned, this value never changes.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "I2-VLZYJVF7MOB2SFAKTAPNSQIBWZS22HGVT3A56E5D5PHDUWJGQIGQ0000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/fhir+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Practitioner"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/PractitionerRole": {
+      "get": {
+        "tags": [
+          "PractitionerRole"
+        ],
+        "summary": "PractitionerRole Search",
+        "description": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition-plannet-PractitionerRole.html",
+        "operationId": "GET:/PractitionerRole",
+        "parameters": [
+          {
+            "name": "_id",
+            "in": "query",
+            "description": "The logical id of the resource. Once assigned, this value never changes.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "default": {
+                "value": "I2-GNRAKWQCFSLEQIWPGYGOBCC3KCH2ZUC6JZ6YY42MUPKH7XACFBRQ0000"
+              }
+            }
+          },
+          {
+            "name": "practitioner.identifier",
+            "in": "query",
+            "description": "A unique identifier for a practitioner within a given system.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByPractitionerIdentifier": {
+                "value": "I2-VLZYJVF7MOB2SFAKTAPNSQIBWZS22HGVT3A56E5D5PHDUWJGQIGQ0000"
+              }
+            }
+          },
+          {
+            "name": "practitioner.name",
+            "in": "query",
+            "description": "The given or family name of the practitioner.",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "searchByPractitionerName": {
+                "value": "DOE922"
+              }
+            }
+          },
+          {
+            "name": "_lastUpdated",
+            "in": "query",
+            "description": "The date when practitioner role record was last updated.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number being requested.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "examples": {
+              "searchByPractitionerName": {
+                "value": 1
+              }
+            }
+          },
+          {
+            "name": "_count",
+            "in": "query",
+            "description": "The number of resources that should be returned in a single page. The maximum count size is 100.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 30
+            },
+            "examples": {
+              "searchByPractitionerName": {
+                "value": 30
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/fhir+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PractitionerRoleBundle"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/PractitionerRole/{id}": {
+      "get": {
+        "tags": [
+          "PractitionerRole"
+        ],
+        "summary": "PractitionerRole Read",
+        "description": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition-plannet-PractitionerRole.html",
+        "operationId": "GET:/PractitionerRole/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The logical id of the resource. Once assigned, this value never changes.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "I2-GNRAKWQCFSLEQIWPGYGOBCC3KCH2ZUC6JZ6YY42MUPKH7XACFBRQ0000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/fhir+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PractitionerRole"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization information not provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "No API key found in request"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You cannot consume this service"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Request size limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "API rate limit exceeded"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationOutcome"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Address": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "use": {
+            "type": "string",
+            "enum": [
+              "home",
+              "work",
+              "temp",
+              "old",
+              "billing"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "postal",
+              "physical",
+              "both"
+            ]
+          },
+          "text": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "line": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "city": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "district": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "state": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "postalCode": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "country": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "period": {
+            "$ref": "#/components/schemas/Period"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/datatypes.html#Address"
+      },
+      "Age": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "value": {
+            "type": "number"
+          },
+          "comparator": {
+            "pattern": "(<|<=|>=|>)",
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "system": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "code": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          }
+        },
+        "description": "http://hl7.org/fhir/R4/datatypes.html#Age"
+      },
+      "Annotation": {
+        "required": [
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "authorReference": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "authorString": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "time": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?",
+            "type": "string"
+          },
+          "text": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/datatypes.html#Annotation"
+      },
+      "Attachment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "contentType": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "language": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "data": {
+            "pattern": "(\\s*([0-9a-zA-Z\\+\\=]){4}\\s*)+",
+            "type": "string"
+          },
+          "url": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          },
+          "hash": {
+            "pattern": "(\\s*([0-9a-zA-Z\\+\\=]){4}\\s*)+",
+            "type": "string"
+          },
+          "title": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "creation": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?",
+            "type": "string"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/datatypes.html#Attachment"
+      },
+      "BundleLink": {
+        "required": [
+          "relation",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "relation": {
+            "type": "string",
+            "enum": [
+              "about",
+              "alternate",
+              "appendix",
+              "archives",
+              "author",
+              "blocked-by",
+              "bookmark",
+              "canonical",
+              "chapter",
+              "cite-as",
+              "collection",
+              "contents",
+              "convertedFrom",
+              "copyright",
+              "create-form",
+              "current",
+              "describedby",
+              "describes",
+              "disclosure",
+              "dns-prefetch",
+              "duplicate",
+              "edit",
+              "edit-form",
+              "edit-media",
+              "enclosure",
+              "first",
+              "glossary",
+              "help",
+              "hosts",
+              "hub",
+              "icon",
+              "index",
+              "intervalAfter",
+              "intervalBefore",
+              "intervalContains",
+              "intervalDisjoint",
+              "intervalDuring",
+              "intervalEquals",
+              "intervalFinishedBy",
+              "intervalFinishes",
+              "intervalln",
+              "intervalMeets",
+              "intervalMetBy",
+              "intervalOverlappedBy",
+              "intervalOverlaps",
+              "intervalStartedBy",
+              "intervalStarts",
+              "item",
+              "last",
+              "latest-version",
+              "license",
+              "lrdd",
+              "memento",
+              "monitor",
+              "monitor-group",
+              "next",
+              "next-archive",
+              "nofollow",
+              "noreferrer",
+              "original",
+              "payment",
+              "pingback",
+              "preconnect",
+              "predecessor-version",
+              "prefetch",
+              "preload",
+              "prerender",
+              "prev",
+              "preview",
+              "previous",
+              "prev-archive",
+              "privacy-policy",
+              "profile",
+              "related",
+              "restconf",
+              "replies",
+              "search",
+              "section",
+              "self",
+              "service",
+              "start",
+              "stylesheet",
+              "subsection",
+              "successor-version",
+              "tag",
+              "terms-of-service",
+              "timegate",
+              "timemap",
+              "type",
+              "up",
+              "version-history",
+              "via",
+              "webmention",
+              "working-copy",
+              "working-copy-of"
+            ]
+          },
+          "url": {
+            "pattern": "\\S*",
+            "type": "string"
+          }
+        }
+      },
+      "CapabilityResource": {
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "type": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "profile": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "supportedProfile": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "documentation": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          },
+          "interaction": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceInteraction"
+            }
+          },
+          "versioning": {
+            "type": "string",
+            "enum": [
+              "no-version",
+              "versioned",
+              "versioned-update"
+            ]
+          },
+          "readHistory": {
+            "type": "boolean"
+          },
+          "updateCreate": {
+            "type": "boolean"
+          },
+          "conditionalCreate": {
+            "type": "boolean"
+          },
+          "conditionalRead": {
+            "type": "string",
+            "enum": [
+              "not-supported",
+              "modified-since",
+              "not-match",
+              "full-support"
+            ]
+          },
+          "conditionalUpdate": {
+            "type": "boolean"
+          },
+          "conditionalDelete": {
+            "type": "string",
+            "enum": [
+              "not-supported",
+              "single",
+              "multiple"
+            ]
+          },
+          "referencePolicy": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "literal",
+                "logical",
+                "resolves",
+                "enforced",
+                "local"
+              ]
+            }
+          },
+          "searchInclude": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "searchRevInclude": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "searchParam": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchParam"
+            }
+          },
+          "operation": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Operation"
+            }
+          }
+        }
+      },
+      "CapabilityStatement": {
+        "required": [
+          "date",
+          "fhirVersion",
+          "format",
+          "kind",
+          "resourceType",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string"
+          },
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "implicitRules": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "language": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "text": {
+            "$ref": "#/components/schemas/Narrative"
+          },
+          "contained": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Resource"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "url": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "version": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "name": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "title": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "active",
+              "retired",
+              "unknown"
+            ]
+          },
+          "experimental": {
+            "type": "boolean"
+          },
+          "date": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?",
+            "type": "string"
+          },
+          "publisher": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "contact": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactDetail"
+            }
+          },
+          "description": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          },
+          "useContext": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UsageContext"
+            }
+          },
+          "jurisdiction": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeableConcept"
+            }
+          },
+          "purpose": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          },
+          "copyright": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "instance",
+              "capability",
+              "requirements"
+            ]
+          },
+          "instantiates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "imports": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "software": {
+            "$ref": "#/components/schemas/Software"
+          },
+          "implementation": {
+            "$ref": "#/components/schemas/Implementation"
+          },
+          "fhirVersion": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "format": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "patchFormat": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "implementationGuide": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rest": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Rest"
+            }
+          },
+          "messaging": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Messaging"
+            }
+          },
+          "document": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            }
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/capabilitystatement.html"
+      },
+      "CodeableConcept": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "coding": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Coding"
+            }
+          },
+          "text": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/datatypes.html#CodeableConcept"
+      },
+      "CodeFilter": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "path": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "searchParam": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "valueSet": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "code": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Coding"
+            }
+          }
+        }
+      },
+      "Coding": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "system": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "version": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "code": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "display": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "userSelected": {
+            "type": "boolean"
+          }
+        },
+        "description": "https://hl7.org/fhir/R4/datatypes.html#Coding"
+      },
+      "ContactDetail": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "name": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "telecom": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactPoint"
+            }
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/metadatatypes.html#ContactDetail"
+      },
+      "ContactPoint": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "system": {
+            "type": "string",
+            "enum": [
+              "phone",
+              "fax",
+              "email",
+              "pager",
+              "other",
+              "url",
+              "sms"
+            ]
+          },
+          "value": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "use": {
+            "type": "string",
+            "enum": [
+              "home",
+              "work",
+              "temp",
+              "old",
+              "mobile"
+            ]
+          },
+          "rank": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "period": {
+            "$ref": "#/components/schemas/Period"
+          }
+        },
+        "description": "https://hl7.org/fhir/R4/datatypes.html#ContactPoint"
+      },
+      "Contributor": {
+        "required": [
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "type": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string",
+            "enum": [
+              "author",
+              "editor",
+              "reviewer",
+              "endorser"
+            ]
+          },
+          "name": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "contact": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactDetail"
+            }
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/metadatatypes.html#contributor"
+      },
+      "DataRequirement": {
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "type": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "profile": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "subjectCodeableConcept": {
+            "$ref": "#/components/schemas/CodeableConcept"
+          },
+          "subjectReference": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "mustSupport": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "codeFilter": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeFilter"
+            }
+          },
+          "dateFilter": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DateFilter"
+            }
+          },
+          "limit": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Sort"
+            }
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/metadatatypes.html#DataRequirement"
+      },
+      "DateFilter": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "path": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "searchParam": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "valueDateTime": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?",
+            "type": "string"
+          },
+          "valuePeriod": {
+            "$ref": "#/components/schemas/Period"
+          },
+          "valueDuration": {
+            "$ref": "#/components/schemas/Duration"
+          }
+        }
+      },
+      "Document": {
+        "required": [
+          "mode",
+          "profile"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "producer",
+              "consumer"
+            ]
+          },
+          "documentation": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          },
+          "profile": {
+            "pattern": "\\S*",
+            "type": "string"
+          }
+        }
+      },
+      "Dosage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "sequence": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "text": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "additionalInstruction": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeableConcept"
+            }
+          },
+          "patientInstruction": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "timing": {
+            "$ref": "#/components/schemas/Timing"
+          },
+          "asNeededBoolean": {
+            "type": "boolean"
+          },
+          "asNeededCodeableConcept": {
+            "$ref": "#/components/schemas/CodeableConcept"
+          },
+          "site": {
+            "$ref": "#/components/schemas/CodeableConcept"
+          },
+          "route": {
+            "$ref": "#/components/schemas/CodeableConcept"
+          },
+          "method": {
+            "$ref": "#/components/schemas/CodeableConcept"
+          },
+          "doseAndRate": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DosageDoseAndRate"
+            }
+          },
+          "maxDosePerPeriod": {
+            "$ref": "#/components/schemas/Ratio"
+          },
+          "maxDosePerAdministration": {
+            "$ref": "#/components/schemas/SimpleQuantity"
+          },
+          "maxDosePerLifetime": {
+            "$ref": "#/components/schemas/SimpleQuantity"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/dosage.html"
+      },
+      "DosageDoseAndRate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "type": {
+            "$ref": "#/components/schemas/CodeableConcept"
+          },
+          "doseRange": {
+            "$ref": "#/components/schemas/Range"
+          },
+          "doseQuantity": {
+            "$ref": "#/components/schemas/SimpleQuantity"
+          },
+          "rateRatio": {
+            "$ref": "#/components/schemas/Ratio"
+          },
+          "rateRange": {
+            "$ref": "#/components/schemas/Range"
+          },
+          "rateQuantity": {
+            "$ref": "#/components/schemas/SimpleQuantity"
+          }
+        }
+      },
+      "Duration": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "value": {
+            "type": "number"
+          },
+          "comparator": {
+            "pattern": "(<|<=|>=|>)",
+            "type": "string"
+          },
+          "unit": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "system": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "code": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/r4/datatypes.html#Duration"
+      },
+      "Expression": {
+        "required": [
+          "language"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "description": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "name": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "language": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "expression": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "reference": {
+            "pattern": "\\S*",
+            "type": "string"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/metadatatypes.html#expression"
+      },
+      "Extension": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "url": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "valueBase64Binary": {
+            "pattern": "(\\s*([0-9a-zA-Z\\+\\=]){4}\\s*)+",
+            "type": "string"
+          },
+          "valueBoolean": {
+            "type": "boolean"
+          },
+          "valueCanonical": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "valueCode": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "valueDate": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?)?",
+            "type": "string"
+          },
+          "valueDateTime": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?",
+            "type": "string"
+          },
+          "valueDecimal": {
+            "type": "number"
+          },
+          "valueId": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "valueInstant": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))",
+            "type": "string"
+          },
+          "valueInteger": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "valueMarkdown": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          },
+          "valueOid": {
+            "pattern": "urn:oid:[0-2](\\.(0|[1-9][0-9]*))+",
+            "type": "string"
+          },
+          "valuePositiveInt": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "valueString": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "valueTime": {
+            "pattern": "([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?",
+            "type": "string"
+          },
+          "valueUnsignedInt": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          },
+          "valueUri": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "valueUrl": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "valueUuid": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "valueAddress": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "valueAge": {
+            "$ref": "#/components/schemas/Age"
+          },
+          "valueAnnotation": {
+            "$ref": "#/components/schemas/Annotation"
+          },
+          "valueAttachment": {
+            "$ref": "#/components/schemas/Attachment"
+          },
+          "valueCodeableConcept": {
+            "$ref": "#/components/schemas/CodeableConcept"
+          },
+          "valueCoding": {
+            "$ref": "#/components/schemas/Coding"
+          },
+          "valueContactPoint": {
+            "$ref": "#/components/schemas/ContactPoint"
+          },
+          "valueCount": {
+            "$ref": "#/components/schemas/Quantity"
+          },
+          "valueDistance": {
+            "$ref": "#/components/schemas/Quantity"
+          },
+          "valueDuration": {
+            "$ref": "#/components/schemas/Duration"
+          },
+          "valueHumanName": {
+            "$ref": "#/components/schemas/HumanName"
+          },
+          "valueIdentifier": {
+            "$ref": "#/components/schemas/Identifier"
+          },
+          "valueMoney": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "valuePeriod": {
+            "$ref": "#/components/schemas/Period"
+          },
+          "valueQuantity": {
+            "$ref": "#/components/schemas/Quantity"
+          },
+          "valueRange": {
+            "$ref": "#/components/schemas/Range"
+          },
+          "valueRatio": {
+            "$ref": "#/components/schemas/Ratio"
+          },
+          "valueReference": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "valueSampledData": {
+            "$ref": "#/components/schemas/SampledData"
+          },
+          "valueSignature": {
+            "$ref": "#/components/schemas/Signature"
+          },
+          "valueTiming": {
+            "$ref": "#/components/schemas/Timing"
+          },
+          "valueContactDetail": {
+            "$ref": "#/components/schemas/ContactDetail"
+          },
+          "valueContributor": {
+            "$ref": "#/components/schemas/Contributor"
+          },
+          "valueDataRequirement": {
+            "$ref": "#/components/schemas/DataRequirement"
+          },
+          "valueExpression": {
+            "$ref": "#/components/schemas/Expression"
+          },
+          "valueParameterDefinition": {
+            "$ref": "#/components/schemas/ParameterDefinition"
+          },
+          "valueRelatedArtifact": {
+            "$ref": "#/components/schemas/RelatedArtifact"
+          },
+          "valueTriggerDefinition": {
+            "$ref": "#/components/schemas/TriggerDefinition"
+          },
+          "valueUsageContext": {
+            "$ref": "#/components/schemas/UsageContext"
+          },
+          "valueDosage": {
+            "$ref": "#/components/schemas/Dosage"
+          },
+          "valueMeta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "description": "http://hl7.org/fhir/R4/extensibility.html#extension"
+      },
+      "GatewayError": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "There is an error"
+          }
+        },
+        "description": "An API Gateway error response, e.g. for authorization failures or rate limit exceeded."
+      },
+      "HoursOfOperation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "daysOfWeek": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "mon",
+                "tue",
+                "wed",
+                "thu",
+                "fri",
+                "sat",
+                "sun"
+              ]
+            }
+          },
+          "allDay": {
+            "type": "boolean"
+          },
+          "openingTime": {
+            "pattern": "([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?",
+            "type": "string"
+          },
+          "closingTime": {
+            "pattern": "([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?",
+            "type": "string"
+          }
+        }
+      },
+      "HumanName": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "use": {
+            "type": "string",
+            "enum": [
+              "usual",
+              "official",
+              "temp",
+              "nickname",
+              "anonymous",
+              "old",
+              "maiden"
+            ]
+          },
+          "text": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "family": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "given": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "prefix": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "suffix": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "period": {
+            "$ref": "#/components/schemas/Period"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/datatypes.html#HumanName"
+      },
+      "Identifier": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "use": {
+            "type": "string",
+            "enum": [
+              "usual",
+              "official",
+              "temp",
+              "secondary",
+              "old"
+            ]
+          },
+          "type": {
+            "$ref": "#/components/schemas/CodeableConcept"
+          },
+          "system": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "value": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "period": {
+            "$ref": "#/components/schemas/Period"
+          },
+          "assigner": {
+            "$ref": "#/components/schemas/Reference"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/datatypes.html#Identifier"
+      },
+      "Implementation": {
+        "required": [
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "description": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "url": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "custodian": {
+            "$ref": "#/components/schemas/Reference"
+          }
+        }
+      },
+      "Issue": {
+        "required": [
+          "code",
+          "severity"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "fatal",
+              "error",
+              "warning",
+              "information"
+            ]
+          },
+          "code": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string",
+            "description": "https://www.hl7.org/fhir/R4/valueset-issue-type.html"
+          },
+          "details": {
+            "$ref": "#/components/schemas/CodeableConcept"
+          },
+          "diagnostics": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "location": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expression": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/operationoutcome-definitions.html#OperationOutcome.issue"
+      },
+      "Location": {
+        "required": [
+          "name",
+          "resourceType"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string"
+          },
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "implicitRules": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "language": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "text": {
+            "$ref": "#/components/schemas/Narrative"
+          },
+          "contained": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Resource"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "identifier": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Identifier"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended",
+              "inactive"
+            ]
+          },
+          "operationalStatus": {
+            "$ref": "#/components/schemas/Coding"
+          },
+          "name": {
+            "type": "string"
+          },
+          "alias": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "instance",
+              "kind"
+            ]
+          },
+          "type": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeableConcept"
+            }
+          },
+          "telecom": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactPoint"
+            }
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "physicalType": {
+            "$ref": "#/components/schemas/CodeableConcept"
+          },
+          "position": {
+            "$ref": "#/components/schemas/Position"
+          },
+          "managingOrganization": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "partOf": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "hoursOfOperation": {
+            "$ref": "#/components/schemas/HoursOfOperation"
+          },
+          "availabilityExceptions": {
+            "type": "string"
+          },
+          "endpoint": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reference"
+            }
+          }
+        },
+        "description": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition-plannet-Location.html",
+        "example": {
+          "resourceType": "Location",
+          "id": "I2-JI7HH7SBZOCSIS7F7DI6BLHY4VNVELJM77KAYURLD5ZZWRQ2EY7Q0000",
+          "status": "active",
+          "name": "VISUAL IMPAIRMENT SVCS OUTPATIENT REHAB",
+          "description": "VISUAL IMPAIRMENT SVCS OUTPATIENT REHAB (VISOR)",
+          "mode": "instance",
+          "type": [
+            {
+              "coding": [
+                {
+                  "display": "OUTPATIENT CLINIC"
+                }
+              ],
+              "text": "OUTPATIENT CLINIC"
+            }
+          ],
+          "telecom": [
+            {
+              "system": "phone",
+              "value": "908-647-0180 EXT 4437"
+            }
+          ],
+          "address": {
+            "text": "151 KNOLLCROFT ROAD LYONS NJ 07939",
+            "line": [
+              "151 KNOLLCROFT ROAD"
+            ],
+            "city": "LYONS",
+            "state": "NJ",
+            "postalCode": "07939"
+          },
+          "physicalType": {
+            "coding": [
+              {
+                "display": "BUILDING 7"
+              }
+            ],
+            "text": "BUILDING 7"
+          },
+          "managingOrganization": {
+            "reference": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Organization/I2-JD5EJVFSSEP6A6ZIEI55KCKEHLCZZPK44NSDYPMW2PGFV4A3D6FQ0000",
+            "display": "LYONS VA MEDICAL CENTER"
+          }
+        }
+      },
+      "LocationBundle": {
+        "required": [
+          "resourceType",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string"
+          },
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "implicitRules": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "language": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "identifier": {
+            "$ref": "#/components/schemas/Identifier"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "document",
+              "message",
+              "transaction",
+              "transaction-response",
+              "batch",
+              "batch-response",
+              "history",
+              "searchset",
+              "collection"
+            ]
+          },
+          "timestamp": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))",
+            "type": "string"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          },
+          "link": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleLink"
+            }
+          },
+          "entry": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LocationEntry"
+            }
+          },
+          "signature": {
+            "$ref": "#/components/schemas/Signature"
+          }
+        },
+        "example": {
+          "resourceType": "Bundle",
+          "type": "searchset",
+          "total": 1,
+          "link": [
+            {
+              "relation": "self",
+              "url": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Location?_id=I2-JI7HH7SBZOCSIS7F7DI6BLHY4VNVELJM77KAYURLD5ZZWRQ2EY7Q0000&page=1&_count=30"
+            },
+            {
+              "relation": "first",
+              "url": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Location?_id=I2-JI7HH7SBZOCSIS7F7DI6BLHY4VNVELJM77KAYURLD5ZZWRQ2EY7Q0000&page=1&_count=30"
+            },
+            {
+              "relation": "last",
+              "url": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Location?_id=I2-JI7HH7SBZOCSIS7F7DI6BLHY4VNVELJM77KAYURLD5ZZWRQ2EY7Q0000&page=1&_count=30"
+            }
+          ],
+          "entry": [
+            {
+              "fullUrl": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Location/I2-JI7HH7SBZOCSIS7F7DI6BLHY4VNVELJM77KAYURLD5ZZWRQ2EY7Q0000",
+              "resource": {
+                "resourceType": "Location",
+                "id": "I2-JI7HH7SBZOCSIS7F7DI6BLHY4VNVELJM77KAYURLD5ZZWRQ2EY7Q0000",
+                "status": "active",
+                "name": "VISUAL IMPAIRMENT SVCS OUTPATIENT REHAB",
+                "description": "VISUAL IMPAIRMENT SVCS OUTPATIENT REHAB (VISOR)",
+                "mode": "instance",
+                "type": [
+                  {
+                    "coding": [
+                      {
+                        "display": "OUTPATIENT CLINIC"
+                      }
+                    ],
+                    "text": "OUTPATIENT CLINIC"
+                  }
+                ],
+                "telecom": [
+                  {
+                    "system": "phone",
+                    "value": "908-647-0180 EXT 4437"
+                  }
+                ],
+                "address": {
+                  "text": "151 KNOLLCROFT ROAD LYONS NJ 07939",
+                  "line": [
+                    "151 KNOLLCROFT ROAD"
+                  ],
+                  "city": "LYONS",
+                  "state": "NJ",
+                  "postalCode": "07939"
+                },
+                "physicalType": {
+                  "coding": [
+                    {
+                      "display": "BUILDING 7"
+                    }
+                  ],
+                  "text": "BUILDING 7"
+                },
+                "managingOrganization": {
+                  "reference": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Organization/I2-JD5EJVFSSEP6A6ZIEI55KCKEHLCZZPK44NSDYPMW2PGFV4A3D6FQ0000",
+                  "display": "LYONS VA MEDICAL CENTER"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "LocationEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "link": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleLink"
+            }
+          },
+          "fullUrl": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "search": {
+            "$ref": "#/components/schemas/Search"
+          },
+          "request": {
+            "$ref": "#/components/schemas/Request"
+          },
+          "response": {
+            "$ref": "#/components/schemas/Response"
+          }
+        }
+      },
+      "Messaging": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "endpoint": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessagingEndpoint"
+            }
+          },
+          "reliableCache": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          },
+          "documentation": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          },
+          "supportedMessage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SupportedMessage"
+            }
+          }
+        }
+      },
+      "MessagingEndpoint": {
+        "required": [
+          "address",
+          "protocol"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "protocol": {
+            "$ref": "#/components/schemas/Coding"
+          },
+          "address": {
+            "pattern": "\\S*",
+            "type": "string"
+          }
+        }
+      },
+      "Meta": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "versionId": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "lastUpdated": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))",
+            "type": "string"
+          },
+          "source": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "profile": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "security": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Coding"
+            }
+          },
+          "tag": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Coding"
+            }
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/resource.html#meta"
+      },
+      "Money": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "value": {
+            "type": "number"
+          },
+          "currency": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/datatypes.html#Money"
+      },
+      "Narrative": {
+        "required": [
+          "div",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "generated",
+              "extensions",
+              "additional",
+              "empty"
+            ]
+          },
+          "div": {
+            "pattern": "<.+>",
+            "type": "string"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/narrative.html"
+      },
+      "Operation": {
+        "required": [
+          "definition",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "name": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "definition": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "documentation": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          }
+        }
+      },
+      "OperationOutcome": {
+        "required": [
+          "issue",
+          "resourceType"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string"
+          },
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "implicitRules": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "language": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "text": {
+            "$ref": "#/components/schemas/Narrative"
+          },
+          "contained": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Resource"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "issue": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            }
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/operationoutcome.html",
+        "example": {
+          "resourceType": "OperationOutcome",
+          "issue": [
+            {
+              "severity": "error",
+              "code": "request error",
+              "details": {
+                "text": "This request can not be processed"
+              }
+            }
+          ]
+        }
+      },
+      "Organization": {
+        "required": [
+          "active",
+          "name",
+          "resourceType"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string"
+          },
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "implicitRules": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "language": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "text": {
+            "$ref": "#/components/schemas/Narrative"
+          },
+          "contained": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Resource"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "identifier": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Identifier"
+            }
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeableConcept"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "alias": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "telecom": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactPoint"
+            }
+          },
+          "address": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          "partOf": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "contact": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationContact"
+            }
+          },
+          "endpoint": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reference"
+            }
+          }
+        },
+        "description": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition-plannet-Organization.html",
+        "example": {
+          "resourceType": "Organization",
+          "id": "I2-CYEXXOSUSGHOX6424MLNR4CQ4F7FZIOAZQJ3PH4L4MIIABRNZVVQ0000",
+          "identifier": [
+            {
+              "system": "http://hl7.org/fhir/sid/us-npi",
+              "value": "1164471991"
+            },
+            {
+              "use": "usual",
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                    "code": "FI",
+                    "display": "Facility ID"
+                  }
+                ],
+                "text": "Facility ID"
+              },
+              "system": "https://api.va.gov/services/provider-directory/v0/r4/NamingSystem/va-facility-identifier",
+              "value": "vha_442"
+            }
+          ],
+          "active": true,
+          "name": "CHEYENNE VA MEDICAL",
+          "address": [
+            {
+              "text": "2360 E PERSHING BLVD CHEYENNE WY 82001-5356",
+              "line": [
+                "2360 E PERSHING BLVD"
+              ],
+              "city": "CHEYENNE",
+              "state": "WY",
+              "postalCode": "82001-5356"
+            }
+          ]
+        }
+      },
+      "OrganizationBundle": {
+        "required": [
+          "resourceType",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string"
+          },
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "implicitRules": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "language": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "identifier": {
+            "$ref": "#/components/schemas/Identifier"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "document",
+              "message",
+              "transaction",
+              "transaction-response",
+              "batch",
+              "batch-response",
+              "history",
+              "searchset",
+              "collection"
+            ]
+          },
+          "timestamp": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))",
+            "type": "string"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          },
+          "link": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleLink"
+            }
+          },
+          "entry": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationEntry"
+            }
+          },
+          "signature": {
+            "$ref": "#/components/schemas/Signature"
+          }
+        },
+        "example": {
+          "resourceType": "Bundle",
+          "type": "searchset",
+          "total": 1,
+          "link": [
+            {
+              "relation": "first",
+              "url": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Organization?_id=I2-CYEXXOSUSGHOX6424MLNR4CQ4F7FZIOAZQJ3PH4L4MIIABRNZVVQ0000&_count=30&page=1"
+            },
+            {
+              "relation": "self",
+              "url": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Organization?_id=I2-CYEXXOSUSGHOX6424MLNR4CQ4F7FZIOAZQJ3PH4L4MIIABRNZVVQ0000&_count=30&page=1"
+            },
+            {
+              "relation": "last",
+              "url": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Organization?_id=I2-CYEXXOSUSGHOX6424MLNR4CQ4F7FZIOAZQJ3PH4L4MIIABRNZVVQ0000&_count=30&page=1"
+            }
+          ],
+          "entry": [
+            {
+              "fullUrl": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Organization/I2-CYEXXOSUSGHOX6424MLNR4CQ4F7FZIOAZQJ3PH4L4MIIABRNZVVQ0000",
+              "resource": {
+                "resourceType": "Organization",
+                "id": "I2-CYEXXOSUSGHOX6424MLNR4CQ4F7FZIOAZQJ3PH4L4MIIABRNZVVQ0000",
+                "identifier": [
+                  {
+                    "system": "http://hl7.org/fhir/sid/us-npi",
+                    "value": "1164471991"
+                  },
+                  {
+                    "use": "usual",
+                    "type": {
+                      "coding": [
+                        {
+                          "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                          "code": "FI",
+                          "display": "Facility ID"
+                        }
+                      ],
+                      "text": "Facility ID"
+                    },
+                    "system": "https://api.va.gov/services/provider-directory/v0/r4/NamingSystem/va-facility-identifier",
+                    "value": "vha_442"
+                  }
+                ],
+                "active": true,
+                "name": "CHEYENNE VA MEDICAL",
+                "address": [
+                  {
+                    "text": "2360 E PERSHING BLVD CHEYENNE WY 82001-5356",
+                    "line": [
+                      "2360 E PERSHING BLVD"
+                    ],
+                    "city": "CHEYENNE",
+                    "state": "WY",
+                    "postalCode": "82001-5356"
+                  }
+                ]
+              },
+              "search": {
+                "mode": "match"
+              }
+            }
+          ]
+        }
+      },
+      "OrganizationContact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "purpose": {
+            "$ref": "#/components/schemas/CodeableConcept"
+          },
+          "name": {
+            "$ref": "#/components/schemas/HumanName"
+          },
+          "telecom": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactPoint"
+            }
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          }
+        }
+      },
+      "OrganizationEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "link": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleLink"
+            }
+          },
+          "fullUrl": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Organization"
+          },
+          "search": {
+            "$ref": "#/components/schemas/Search"
+          },
+          "request": {
+            "$ref": "#/components/schemas/Request"
+          },
+          "response": {
+            "$ref": "#/components/schemas/Response"
+          }
+        }
+      },
+      "ParameterDefinition": {
+        "required": [
+          "type",
+          "use"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "name": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "use": {
+            "type": "string",
+            "enum": [
+              "in",
+              "out"
+            ]
+          },
+          "min": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "max": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "documentation": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "type": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "profile": {
+            "pattern": "\\S*",
+            "type": "string"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/metadatatypes.html#parameterdefinition"
+      },
+      "Period": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "start": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?",
+            "type": "string"
+          },
+          "end": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?",
+            "type": "string"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/datatypes.html#Period"
+      },
+      "Position": {
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "longitude": {
+            "type": "number"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "altitude": {
+            "type": "number"
+          }
+        }
+      },
+      "Practitioner": {
+        "required": [
+          "identifier",
+          "name",
+          "resourceType"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string"
+          },
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "implicitRules": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "language": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "text": {
+            "$ref": "#/components/schemas/Narrative"
+          },
+          "contained": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Resource"
+            }
+          },
+          "extensions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtensions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "identifier": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Identifier"
+            }
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HumanName"
+            }
+          },
+          "telecom": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactPoint"
+            }
+          },
+          "address": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female",
+              "other",
+              "unknown"
+            ]
+          },
+          "birthDate": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?)?",
+            "type": "string"
+          },
+          "photo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Attachment"
+            }
+          },
+          "qualification": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PractitionerQualification"
+            }
+          },
+          "communication": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeableConcept"
+            }
+          }
+        },
+        "description": " http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition-plannet-Practitioner.html",
+        "example": {
+          "resourceType": "Practitioner",
+          "id": "I2-VLZYJVF7MOB2SFAKTAPNSQIBWZS22HGVT3A56E5D5PHDUWJGQIGQ0000",
+          "identifier": [
+            {
+              "use": "usual",
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/v2/0203",
+                    "code": "MR"
+                  }
+                ]
+              },
+              "system": "http://va.gov/mpi",
+              "value": "1015517260V990420",
+              "assigner": {
+                "display": "Master Patient Index"
+              }
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/us-npi",
+              "value": "1932127842"
+            }
+          ],
+          "active": true,
+          "name": [
+            {
+              "family": "DOE922",
+              "given": [
+                "JANE460"
+              ],
+              "prefix": [
+                "DR."
+              ],
+              "suffix": [
+                "MD"
+              ]
+            }
+          ],
+          "telecom": [
+            {
+              "system": "phone",
+              "value": "555-555-1137",
+              "use": "work"
+            },
+            {
+              "system": "phone",
+              "value": "555-4055",
+              "use": "home"
+            },
+            {
+              "system": "pager",
+              "value": "5-541",
+              "use": "mobile"
+            }
+          ],
+          "address": [
+            {
+              "line": [
+                "555 E 5TH ST",
+                "SUITE B"
+              ],
+              "city": "CHEYENNE",
+              "state": "WYOMING",
+              "postalCode": "82001",
+              "period": {
+                "start": "2010-01-01",
+                "end": "2015-04-02"
+              }
+            }
+          ],
+          "gender": "female",
+          "birthDate": "1964-02-23",
+          "qualification": [
+            {
+              "code": {
+                "text": "MD"
+              }
+            }
+          ]
+        }
+      },
+      "PractitionerAvailableTime": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "daysOfWeek": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "mon",
+                "tue",
+                "wed",
+                "thu",
+                "fri",
+                "sat",
+                "sun"
+              ]
+            }
+          },
+          "allDay": {
+            "type": "boolean"
+          },
+          "availableStartTime": {
+            "pattern": "([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?",
+            "type": "string"
+          },
+          "availableEndTime": {
+            "pattern": "([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?",
+            "type": "string"
+          }
+        }
+      },
+      "PractitionerBundle": {
+        "required": [
+          "resourceType",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string"
+          },
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "implicitRules": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "language": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "identifier": {
+            "$ref": "#/components/schemas/Identifier"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "document",
+              "message",
+              "transaction",
+              "transaction-response",
+              "batch",
+              "batch-response",
+              "history",
+              "searchset",
+              "collection"
+            ]
+          },
+          "timestamp": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))",
+            "type": "string"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          },
+          "link": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleLink"
+            }
+          },
+          "entry": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PractitionerEntry"
+            }
+          },
+          "signature": {
+            "$ref": "#/components/schemas/Signature"
+          }
+        },
+        "example": {
+          "resourceType": "Bundle",
+          "type": "searchset",
+          "total": 1,
+          "link": [
+            {
+              "relation": "first",
+              "url": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Practitioner?_id=I2-VLZYJVF7MOB2SFAKTAPNSQIBWZS22HGVT3A56E5D5PHDUWJGQIGQ0000&_count=30&page=1"
+            },
+            {
+              "relation": "self",
+              "url": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Practitioner?_id=I2-VLZYJVF7MOB2SFAKTAPNSQIBWZS22HGVT3A56E5D5PHDUWJGQIGQ0000&_count=30&page=1"
+            },
+            {
+              "relation": "last",
+              "url": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Practitioner?_id=I2-VLZYJVF7MOB2SFAKTAPNSQIBWZS22HGVT3A56E5D5PHDUWJGQIGQ0000&_count=30&page=1"
+            }
+          ],
+          "entry": [
+            {
+              "fullUrl": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Practitioner/I2-VLZYJVF7MOB2SFAKTAPNSQIBWZS22HGVT3A56E5D5PHDUWJGQIGQ0000",
+              "resource": {
+                "resourceType": "Practitioner",
+                "id": "I2-VLZYJVF7MOB2SFAKTAPNSQIBWZS22HGVT3A56E5D5PHDUWJGQIGQ0000",
+                "identifier": [
+                  {
+                    "use": "usual",
+                    "type": {
+                      "coding": [
+                        {
+                          "system": "http://hl7.org/fhir/v2/0203",
+                          "code": "MR"
+                        }
+                      ]
+                    },
+                    "system": "http://va.gov/mpi",
+                    "value": "1015517260V990420",
+                    "assigner": {
+                      "display": "Master Patient Index"
+                    }
+                  },
+                  {
+                    "system": "http://hl7.org/fhir/sid/us-npi",
+                    "value": "1932127842"
+                  }
+                ],
+                "active": true,
+                "name": [
+                  {
+                    "family": "DOE922",
+                    "given": [
+                      "JANE460"
+                    ],
+                    "prefix": [
+                      "DR."
+                    ],
+                    "suffix": [
+                      "MD"
+                    ]
+                  }
+                ],
+                "telecom": [
+                  {
+                    "system": "phone",
+                    "value": "555-555-1137",
+                    "use": "work"
+                  },
+                  {
+                    "system": "phone",
+                    "value": "555-4055",
+                    "use": "home"
+                  },
+                  {
+                    "system": "pager",
+                    "value": "5-541",
+                    "use": "mobile"
+                  }
+                ],
+                "address": [
+                  {
+                    "line": [
+                      "555 E 5TH ST",
+                      "SUITE B"
+                    ],
+                    "city": "CHEYENNE",
+                    "state": "WYOMING",
+                    "postalCode": "82001",
+                    "period": {
+                      "start": "2010-01-01",
+                      "end": "2015-04-02"
+                    }
+                  }
+                ],
+                "gender": "female",
+                "birthDate": "1964-02-23",
+                "qualification": [
+                  {
+                    "code": {
+                      "text": "MD"
+                    }
+                  }
+                ]
+              },
+              "search": {
+                "mode": "match"
+              }
+            }
+          ]
+        }
+      },
+      "PractitionerEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "link": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleLink"
+            }
+          },
+          "fullUrl": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Practitioner"
+          },
+          "search": {
+            "$ref": "#/components/schemas/Search"
+          },
+          "request": {
+            "$ref": "#/components/schemas/Request"
+          },
+          "response": {
+            "$ref": "#/components/schemas/Response"
+          }
+        }
+      },
+      "PractitionerNotAvailable": {
+        "required": [
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "during": {
+            "$ref": "#/components/schemas/Period"
+          }
+        }
+      },
+      "PractitionerQualification": {
+        "required": [
+          "code"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "identifier": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Identifier"
+            }
+          },
+          "code": {
+            "$ref": "#/components/schemas/CodeableConcept"
+          },
+          "period": {
+            "$ref": "#/components/schemas/Period"
+          },
+          "issuer": {
+            "$ref": "#/components/schemas/Reference"
+          }
+        }
+      },
+      "PractitionerRole": {
+        "required": [
+          "organization",
+          "practitioner",
+          "resourceType"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string"
+          },
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "implicitRules": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "language": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "text": {
+            "$ref": "#/components/schemas/Narrative"
+          },
+          "contained": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Resource"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "identifier": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Identifier"
+            }
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "period": {
+            "$ref": "#/components/schemas/Period"
+          },
+          "practitioner": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "organization": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "code": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeableConcept"
+            }
+          },
+          "specialty": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeableConcept"
+            }
+          },
+          "location": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reference"
+            }
+          },
+          "healthcareService": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reference"
+            }
+          },
+          "telecom": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactPoint"
+            }
+          },
+          "availableTime": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PractitionerAvailableTime"
+            }
+          },
+          "notAvailable": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PractitionerNotAvailable"
+            }
+          },
+          "availabilityExceptions": {
+            "type": "string"
+          },
+          "endpoint": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reference"
+            }
+          }
+        },
+        "description": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition-plannet-PractitionerRole.html",
+        "example": {
+          "resourceType": "PractitionerRole",
+          "id": "I2-GNRAKWQCFSLEQIWPGYGOBCC3KCH2ZUC6JZ6YY42MUPKH7XACFBRQ0000",
+          "active": true,
+          "practitioner": {
+            "reference": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Practitioner/I2-VLZYJVF7MOB2SFAKTAPNSQIBWZS22HGVT3A56E5D5PHDUWJGQIGQ0000",
+            "display": "DOE922,JANE460"
+          },
+          "organization": {
+            "reference": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Organization/I2-CYEXXOSUSGHOX6424MLNR4CQ4F7FZIOAZQJ3PH4L4MIIABRNZVVQ0000",
+            "display": "CHEYENNE VA MEDICAL"
+          },
+          "code": [
+            {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/practitioner-role",
+                  "code": "PHYSICIAN",
+                  "display": "PSYCHOLOGIST"
+                }
+              ],
+              "text": "PSYCHOLOGIST"
+            }
+          ],
+          "specialty": [
+            {
+              "coding": [
+                {
+                  "system": "http://nucc.org/provider-taxonomy",
+                  "code": "V111500"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://nucc.org/provider-taxonomy",
+                  "code": "V111000"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://nucc.org/provider-taxonomy",
+                  "code": "V110900"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://nucc.org/provider-taxonomy",
+                  "code": "207Q00000X"
+                }
+              ]
+            }
+          ],
+          "location": [
+            {
+              "reference": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Location/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000",
+              "display": "ZZCHY LASTNAME MEDICAL"
+            }
+          ],
+          "healthcareService": [
+            {
+              "display": "MEDICAL SERVICE"
+            }
+          ],
+          "telecom": [
+            {
+              "system": "phone",
+              "value": "555-555-1137"
+            },
+            {
+              "system": "phone",
+              "value": "555-4055"
+            },
+            {
+              "system": "pager",
+              "value": "5-541"
+            }
+          ]
+        }
+      },
+      "PractitionerRoleBundle": {
+        "required": [
+          "resourceType",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string"
+          },
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "implicitRules": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "language": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "identifier": {
+            "$ref": "#/components/schemas/Identifier"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "document",
+              "message",
+              "transaction",
+              "transaction-response",
+              "batch",
+              "batch-response",
+              "history",
+              "searchset",
+              "collection"
+            ]
+          },
+          "timestamp": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))",
+            "type": "string"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          },
+          "link": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleLink"
+            }
+          },
+          "entry": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PractitionerRoleEntry"
+            }
+          },
+          "signature": {
+            "$ref": "#/components/schemas/Signature"
+          }
+        },
+        "example": {
+          "resourceType": "Bundle",
+          "type": "searchset",
+          "total": 1,
+          "link": [
+            {
+              "relation": "first",
+              "url": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/PractitionerRole?_id=I2-GNRAKWQCFSLEQIWPGYGOBCC3KCH2ZUC6JZ6YY42MUPKH7XACFBRQ0000&_count=30&page=1"
+            },
+            {
+              "relation": "self",
+              "url": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/PractitionerRole?_id=I2-GNRAKWQCFSLEQIWPGYGOBCC3KCH2ZUC6JZ6YY42MUPKH7XACFBRQ0000&_count=30&page=1"
+            },
+            {
+              "relation": "last",
+              "url": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/PractitionerRole?_id=I2-GNRAKWQCFSLEQIWPGYGOBCC3KCH2ZUC6JZ6YY42MUPKH7XACFBRQ0000&_count=30&page=1"
+            }
+          ],
+          "entry": [
+            {
+              "fullUrl": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/PractitionerRole/I2-GNRAKWQCFSLEQIWPGYGOBCC3KCH2ZUC6JZ6YY42MUPKH7XACFBRQ0000",
+              "resource": {
+                "resourceType": "PractitionerRole",
+                "id": "I2-GNRAKWQCFSLEQIWPGYGOBCC3KCH2ZUC6JZ6YY42MUPKH7XACFBRQ0000",
+                "active": true,
+                "practitioner": {
+                  "reference": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Practitioner/I2-VLZYJVF7MOB2SFAKTAPNSQIBWZS22HGVT3A56E5D5PHDUWJGQIGQ0000",
+                  "display": "DOE922,JANE460"
+                },
+                "organization": {
+                  "reference": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Organization/I2-CYEXXOSUSGHOX6424MLNR4CQ4F7FZIOAZQJ3PH4L4MIIABRNZVVQ0000",
+                  "display": "CHEYENNE VA MEDICAL"
+                },
+                "code": [
+                  {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/practitioner-role",
+                        "code": "PHYSICIAN",
+                        "display": "PSYCHOLOGIST"
+                      }
+                    ],
+                    "text": "PSYCHOLOGIST"
+                  }
+                ],
+                "specialty": [
+                  {
+                    "coding": [
+                      {
+                        "system": "http://nucc.org/provider-taxonomy",
+                        "code": "V111500"
+                      }
+                    ]
+                  },
+                  {
+                    "coding": [
+                      {
+                        "system": "http://nucc.org/provider-taxonomy",
+                        "code": "V111000"
+                      }
+                    ]
+                  },
+                  {
+                    "coding": [
+                      {
+                        "system": "http://nucc.org/provider-taxonomy",
+                        "code": "V110900"
+                      }
+                    ]
+                  },
+                  {
+                    "coding": [
+                      {
+                        "system": "http://nucc.org/provider-taxonomy",
+                        "code": "207Q00000X"
+                      }
+                    ]
+                  }
+                ],
+                "location": [
+                  {
+                    "reference": "https://sandbox-api.va.gov/services/provider-directory/v0/r4/Location/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000",
+                    "display": "ZZCHY LASTNAME MEDICAL"
+                  }
+                ],
+                "healthcareService": [
+                  {
+                    "display": "MEDICAL SERVICE"
+                  }
+                ],
+                "telecom": [
+                  {
+                    "system": "phone",
+                    "value": "555-555-1137"
+                  },
+                  {
+                    "system": "phone",
+                    "value": "555-4055"
+                  },
+                  {
+                    "system": "pager",
+                    "value": "5-541"
+                  }
+                ]
+              },
+              "search": {
+                "mode": "match"
+              }
+            }
+          ]
+        }
+      },
+      "PractitionerRoleEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "link": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleLink"
+            }
+          },
+          "fullUrl": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/PractitionerRole"
+          },
+          "search": {
+            "$ref": "#/components/schemas/Search"
+          },
+          "request": {
+            "$ref": "#/components/schemas/Request"
+          },
+          "response": {
+            "$ref": "#/components/schemas/Response"
+          }
+        }
+      },
+      "Quantity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "value": {
+            "type": "number"
+          },
+          "comparator": {
+            "pattern": "(<|<=|>=|>)",
+            "type": "string"
+          },
+          "unit": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "system": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "code": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/datatypes.html#Quantity"
+      },
+      "Range": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "low": {
+            "$ref": "#/components/schemas/SimpleQuantity"
+          },
+          "high": {
+            "$ref": "#/components/schemas/SimpleQuantity"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/datatypes.html#Range"
+      },
+      "Ratio": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "numerator": {
+            "$ref": "#/components/schemas/Quantity"
+          },
+          "denominator": {
+            "$ref": "#/components/schemas/Quantity"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/datatypes.html#Ratio"
+      },
+      "Reference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "reference": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "type": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "identifier": {
+            "$ref": "#/components/schemas/Identifier"
+          },
+          "display": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/references.html"
+      },
+      "RelatedArtifact": {
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "documentation",
+              "justification",
+              "citation",
+              "predecessor",
+              "successor",
+              "derived-from",
+              "depends-on",
+              "composed-of"
+            ]
+          },
+          "label": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "display": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "citation": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          },
+          "url": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "document": {
+            "$ref": "#/components/schemas/Attachment"
+          },
+          "resource": {
+            "pattern": "\\S*",
+            "type": "string"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/metadatatypes.html#relatedartifact"
+      },
+      "Request": {
+        "type": "object",
+        "description": "https://hl7.org/fhir/R4/bundle.html"
+      },
+      "Resource": {
+        "type": "object",
+        "description": "https://www.hl7.org/fhir/R4/resource.html"
+      },
+      "ResourceInteraction": {
+        "required": [
+          "code"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "read",
+              "vread",
+              "update",
+              "patch",
+              "delete",
+              "history-instance",
+              "history-type",
+              "create",
+              "search-type"
+            ]
+          },
+          "documentation": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          }
+        }
+      },
+      "Response": {
+        "type": "object",
+        "description": "https://hl7.org/fhir/R4/bundle.html"
+      },
+      "Rest": {
+        "required": [
+          "mode"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "client",
+              "server"
+            ]
+          },
+          "documentation": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          },
+          "security": {
+            "$ref": "#/components/schemas/Security"
+          },
+          "resource": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CapabilityResource"
+            }
+          },
+          "interaction": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestInteraction"
+            }
+          },
+          "searchParam": {
+            "$ref": "#/components/schemas/SearchParam"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/Operation"
+          },
+          "compartment": {
+            "pattern": "\\S*",
+            "type": "string"
+          }
+        }
+      },
+      "RestInteraction": {
+        "required": [
+          "code"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "transaction",
+              "batch",
+              "search-system",
+              "history-system"
+            ]
+          },
+          "documentation": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          }
+        }
+      },
+      "SampledData": {
+        "required": [
+          "dimensions",
+          "origin",
+          "period"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "origin": {
+            "$ref": "#/components/schemas/SimpleQuantity"
+          },
+          "period": {
+            "type": "number"
+          },
+          "factor": {
+            "type": "number"
+          },
+          "lowerLimit": {
+            "type": "number"
+          },
+          "upperLimit": {
+            "type": "number"
+          },
+          "dimensions": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "data": {
+            "type": "string"
+          }
+        },
+        "description": "http://hl7.org/fhir/R4/datatypes.html#SampledData"
+      },
+      "Search": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "pattern": "\\S*",
+            "type": "string"
+          }
+        },
+        "description": "https://hl7.org/fhir/R4/bundle.html"
+      },
+      "SearchParam": {
+        "required": [
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "name": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "definition": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "number",
+              "date",
+              "string",
+              "token",
+              "reference",
+              "composite",
+              "quantity",
+              "uri",
+              "special"
+            ]
+          },
+          "documentation": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          }
+        }
+      },
+      "Security": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "cors": {
+            "type": "boolean"
+          },
+          "service": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeableConcept"
+            }
+          },
+          "description": {
+            "pattern": "\\s*(\\S|\\s)*",
+            "type": "string"
+          }
+        }
+      },
+      "Signature": {
+        "required": [
+          "type",
+          "when",
+          "who"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "type": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Coding"
+            }
+          },
+          "when": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))",
+            "type": "string"
+          },
+          "who": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "onBehalfOf": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "targetFormat": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "sigFormat": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          },
+          "data": {
+            "pattern": "(\\s*([0-9a-zA-Z\\+\\=]){4}\\s*)+",
+            "type": "string"
+          }
+        },
+        "description": "http://hl7.org/fhir/R4/datatypes.html#Signature"
+      },
+      "SimpleQuantity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "value": {
+            "type": "number"
+          },
+          "unit": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "system": {
+            "pattern": "\\S*",
+            "type": "string"
+          },
+          "code": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/datatypes.html#SimpleQuantity"
+      },
+      "Software": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "name": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "version": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "releaseDate": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?",
+            "type": "string"
+          }
+        }
+      },
+      "Sort": {
+        "required": [
+          "direction",
+          "path"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "path": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "direction": {
+            "pattern": "[^\\s]+(\\s[^\\s]+)*",
+            "type": "string",
+            "enum": [
+              "ascending",
+              "descending"
+            ]
+          }
+        }
+      },
+      "SupportedMessage": {
+        "required": [
+          "definition",
+          "mode"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "modifierExtension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "sender",
+              "receiver"
+            ]
+          },
+          "definition": {
+            "pattern": "\\S*",
+            "type": "string"
+          }
+        }
+      },
+      "Timing": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "event": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "repeat": {
+            "$ref": "#/components/schemas/TimingRepeat"
+          },
+          "code": {
+            "$ref": "#/components/schemas/CodeableConcept"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/datatypes.html#Timing"
+      },
+      "TimingRepeat": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "boundsDuration": {
+            "$ref": "#/components/schemas/Duration"
+          },
+          "boundsRange": {
+            "$ref": "#/components/schemas/Range"
+          },
+          "boundsPeriod": {
+            "$ref": "#/components/schemas/Period"
+          },
+          "count": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "countMax": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "duration": {
+            "type": "number"
+          },
+          "durationMax": {
+            "type": "number"
+          },
+          "durationUnit": {
+            "type": "string",
+            "enum": [
+              "s",
+              "min",
+              "h",
+              "d",
+              "wk",
+              "mo",
+              "a"
+            ]
+          },
+          "frequency": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "frequencyMax": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "period": {
+            "type": "number"
+          },
+          "periodMax": {
+            "type": "number"
+          },
+          "periodUnit": {
+            "type": "string",
+            "enum": [
+              "s",
+              "min",
+              "h",
+              "d",
+              "wk",
+              "mo",
+              "a"
+            ]
+          },
+          "dayOfWeek": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "mon",
+                "tue",
+                "wed",
+                "thu",
+                "fri",
+                "sat",
+                "sun"
+              ]
+            }
+          },
+          "timeOfDay": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "when": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "MORN",
+                "MORN.early",
+                "MORN.late",
+                "NOON",
+                "AFT",
+                "AFT.early",
+                "AFT.late",
+                "EVE",
+                "EVE.early",
+                "EVE.late",
+                "NIGHT",
+                "PHS",
+                "HS",
+                "WAKE",
+                "C",
+                "CM",
+                "CD",
+                "CV",
+                "AC",
+                "ACM",
+                "ACD",
+                "ACV",
+                "PC",
+                "PCM",
+                "PCD",
+                "PCV"
+              ]
+            }
+          },
+          "offset": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TriggerDefinition": {
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "named-event",
+              "periodic",
+              "data-changed",
+              "data-added",
+              "data-modified",
+              "data-removed",
+              "data-accessed",
+              "data-access-ended"
+            ]
+          },
+          "name": {
+            "pattern": "[ \\r\\n\\t\\S]+",
+            "type": "string"
+          },
+          "timingTiming": {
+            "$ref": "#/components/schemas/Timing"
+          },
+          "timingReference": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "timingDate": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?)?",
+            "type": "string"
+          },
+          "timingDateTime": {
+            "pattern": "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?",
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataRequirement"
+            }
+          },
+          "condition": {
+            "$ref": "#/components/schemas/Expression"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/metadatatypes.html#triggerdefinition"
+      },
+      "UsageContext": {
+        "required": [
+          "code"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
+            "type": "string"
+          },
+          "extension": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Extension"
+            }
+          },
+          "code": {
+            "$ref": "#/components/schemas/Coding"
+          },
+          "valueCodeableConcept": {
+            "$ref": "#/components/schemas/CodeableConcept"
+          },
+          "valueQuantity": {
+            "$ref": "#/components/schemas/Quantity"
+          },
+          "valueRange": {
+            "$ref": "#/components/schemas/Range"
+          },
+          "valueReference": {
+            "$ref": "#/components/schemas/Reference"
+          }
+        },
+        "description": "https://www.hl7.org/fhir/R4/metadatatypes.html#UsageContext"
+      }
+    },
+    "securitySchemes": {
+      "apikey": {
+        "type": "apiKey",
+        "name": "apikey",
+        "in": "header"
+      }
+    }
+  }
+}

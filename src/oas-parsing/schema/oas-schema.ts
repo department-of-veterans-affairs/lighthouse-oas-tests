@@ -1,9 +1,9 @@
-import swaggerClient, {
+import SwaggerClient, {
   ExecuteOptions,
   RequestBody,
   Response,
   SecurityValues,
-  Swagger,
+  Opts,
 } from 'swagger-client';
 import OASOperation, { OASOperationFactory } from '../operation';
 import ExampleGroup from '../example-group';
@@ -13,13 +13,13 @@ import OASServer from '../server/oas-server';
 import { uniq } from 'lodash';
 
 class OASSchema {
-  private _client?: Swagger;
-  private clientOptions: Parameters<typeof swaggerClient>[0];
+  private _client?: SwaggerClient;
+  private clientOptions: Opts;
   private operations: OASOperation[];
   private url: string | undefined;
-  private rawSpec: any;
+  private rawSpec: string | undefined;
 
-  constructor(options: Parameters<typeof swaggerClient>[0]) {
+  constructor(options: Opts) {
     this.url = options.url;
     if (options.spec) {
       // store a deep clone before client adds its own normalization and reference handling
@@ -30,13 +30,14 @@ class OASSchema {
     this.operations = [];
   }
 
-  public set client(client: Swagger) {
+  public set client(client: SwaggerClient) {
     this._client = client;
   }
 
-  private async getClient(): Promise<Swagger> {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  public async getClient(): Promise<SwaggerClient> {
     if (!this._client) {
-      this._client = await swaggerClient(this.clientOptions);
+      this._client = new SwaggerClient(this.clientOptions);
     }
     return this._client;
   }
@@ -139,7 +140,7 @@ class OASSchema {
     return OASServerFactory.getServers(schema.spec.servers);
   };
 
-  getRawSchema = async (): Promise<any> => {
+  getRawSchema = async (): Promise<string> => {
     if (!this.rawSpec && this.url) {
       // Attempting to get raw spec from URL if not already available
       const spec = await fetch(this.url).then((res) => {
@@ -153,7 +154,7 @@ class OASSchema {
       this.rawSpec = spec;
     }
 
-    return this.rawSpec;
+    return this.rawSpec || '';
   };
 }
 

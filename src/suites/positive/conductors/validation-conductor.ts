@@ -52,12 +52,13 @@ export default class ValidationConductor {
       );
 
       const responseValidationConductor = new ResponseValidationConductor(
+        this.schema,
         response,
         this.operation,
       );
 
       const [responseValidationFailures, responseValidationWarnings] =
-        responseValidationConductor.validate();
+        await responseValidationConductor.validate();
 
       failures = new Map([...failures, ...responseValidationFailures]);
       warnings = new Map([...warnings, ...responseValidationWarnings]);

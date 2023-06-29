@@ -7,29 +7,29 @@ import {
 } from '../../../fixtures/utilities/oas-operations';
 
 describe('RequestBodyValidator', () => {
-  it('contains no failures or warnings when the operation does not have a request body', () => {
+  it('contains no failures or warnings when the operation does not have a request body', async () => {
     const validator = new RequestBodyValidator(operationSimpleGet);
-    validator.validate();
+    await validator.validate();
 
     expect(validator.failures.size).toEqual(0);
     expect(validator.warnings.size).toEqual(0);
   });
 
-  it('contains no failures or warnings for a valid request body', () => {
+  it('contains no failures or warnings for a valid request body', async () => {
     const validator = new RequestBodyValidator(
       operationPutStudentValidRequestBody,
     );
-    validator.validate();
+    await validator.validate();
 
     expect(validator.failures.size).toEqual(0);
     expect(validator.warnings.size).toEqual(0);
   });
 
-  it('adds a validation failure if content does not contain a schema object', () => {
+  it('adds a validation failure if content does not contain a schema object', async () => {
     const validator = new RequestBodyValidator(
       operationPutStudentRequestBodyMissingSchema,
     );
-    validator.validate();
+    await validator.validate();
 
     const failures = validator.failures;
 
@@ -41,11 +41,11 @@ describe('RequestBodyValidator', () => {
     expect(validator.warnings.size).toEqual(0);
   });
 
-  it('adds validation failures and warnings from validateObjectAgainstSchema', () => {
+  it('adds validation failures and warnings from validateObjectAgainstSchema', async () => {
     const validator = new RequestBodyValidator(
       operationPutStudentRequestBodyFailures,
     );
-    validator.validate();
+    await validator.validate();
 
     const failures = validator.failures;
     const warnings = validator.warnings;
