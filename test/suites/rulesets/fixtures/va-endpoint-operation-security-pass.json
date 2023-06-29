@@ -1,0 +1,27 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+    },
+    "tags": [
+    ],
+    "paths": {
+        "/onePathExist": {
+            "get":{ 
+                "tags": [],
+                "summary": "",
+                "description": "",
+                "responses": {},
+                "security": [
+                    { "apikey": [] }
+                ]
+            }
+        }
+    },
+    "components": {
+    },
+    "security": [
+        {
+            "apikey": []
+        }
+    ]
+}
