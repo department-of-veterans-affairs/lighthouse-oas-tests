@@ -1,4 +1,4 @@
-import Command, { flags } from '@oclif/command';
+import { Command, Flags, Args } from '@oclif/core';
 import { OASResult } from '../validation';
 import { DEFAULT_TEST_NAME, DEFAULT_SUITE_ID } from '../utilities/constants';
 import Loast from '../loast';
@@ -9,45 +9,44 @@ export default class Suites extends Command {
     'Runs a set of test suites for an API based on the OpenAPI spec';
 
   static flags = {
-    help: flags.help({ char: 'h' }),
-    apiKey: flags.string({
+    help: Flags.help({ char: 'h' }),
+    apiKey: Flags.string({
       char: 'a',
       description: 'API key to use',
     }),
-    bearerToken: flags.string({
+    bearerToken: Flags.string({
       char: 'b',
       description: 'Bearer token to use',
       env: 'LOAST_BEARER_TOKEN',
     }),
-    server: flags.string({
+    server: Flags.string({
       char: 's',
       description: 'Server URL to use',
     }),
-    id: flags.string({
+    id: Flags.string({
       char: 'i',
       multiple: true,
       description: 'Suite Ids to use',
     }),
-    jsonOutput: flags.boolean({
+    jsonOutput: Flags.boolean({
       char: 'j',
       description: 'Format output as JSON',
     }),
-    warning: flags.boolean({
+    warning: Flags.boolean({
       char: 'w',
       description: 'remove warnings',
     }),
   };
 
-  static args = [
-    {
-      name: 'path',
+  static args = {
+    path: Args.string({
       required: true,
       description: 'Url or local file path containing the OpenAPI spec',
-    },
-  ];
+    }),
+  };
 
   async run(): Promise<void> {
-    const { args, flags } = this.parse(Suites);
+    const { args, flags } = await this.parse(Suites);
 
     const loast = new Loast(DEFAULT_TEST_NAME, {
       path: args.path,
