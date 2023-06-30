@@ -2,6 +2,12 @@ import OASSchema from '../../../../src/oas-parsing/schema/oas-schema';
 import { Type } from '../../../../src/suites/oas-ruleset/validation/oas-ruleset-message';
 import OasRulesetValidator from '../../../../src/suites/oas-ruleset/validation/oas-ruleset-validator';
 
+jest.mock('@stoplight/spectral-ruleset-bundler/with-loader', () => {
+  return {
+    bundleAndLoadRuleset: jest.fn(),
+  };
+});
+
 const mockSpectralRun = jest.fn();
 const spectralResults = [
   {
@@ -177,17 +183,6 @@ jest.mock('@stoplight/spectral-core', () => {
 });
 
 mockSpectralRun.mockResolvedValue(spectralResults);
-
-// ruleset-wrapper needs be mocked to avoid Jest conflict with
-//  3rd party packages when they use package.json 'export'
-jest.mock(
-  '../../../../src/suites/oas-ruleset/validation/ruleset-wrapper',
-  () => {
-    return {
-      getRuleset: jest.fn(),
-    };
-  },
-);
 
 let oasSchema: OASSchema;
 let operation: string;
