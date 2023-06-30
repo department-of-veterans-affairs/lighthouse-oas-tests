@@ -4,16 +4,6 @@ import OASSchema from '../../../src/oas-parsing/schema/oas-schema';
 import { SuiteConfig } from '../../../src/suites';
 import RulesetSuite from '../../../src/suites/rulesets/ruleset-suite';
 
-// ruleset-wrapper needs be mocked to avoid Jest conflict with
-//  3rd party packages when they use package.json 'export'
-jest.mock('../../../src/suites/rulesets/validation/ruleset-wrapper', () => {
-  return function (): Record<string, jest.Mock> {
-    return {
-      getRuleset: jest.fn(),
-    };
-  };
-});
-
 const oasResults = [
   {
     operationId: '/findTheRing:GET',

@@ -186,14 +186,6 @@ jest.mock('@stoplight/spectral-core', () => {
 
 mockSpectralRun.mockResolvedValue(spectralResults);
 
-// ruleset-wrapper needs be mocked to avoid Jest conflict with
-//  3rd party packages when they use package.json 'export'
-jest.mock('../../../../src/suites/rulesets/validation/ruleset-wrapper', () => {
-  return {
-    getRuleset: jest.fn(),
-  };
-});
-
 let oasSchema: OASSchema;
 let rulesetName: string;
 let operation: string;
