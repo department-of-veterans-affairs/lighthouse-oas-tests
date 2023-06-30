@@ -8,7 +8,9 @@ import {
   ISpectralDiagnostic as SpectralResult,
 } from '@stoplight/spectral-core';
 import { DiagnosticSeverity } from '@stoplight/types';
-import { getRuleset } from './ruleset-wrapper';
+import { fetch } from '@stoplight/spectral-runtime';
+import { bundleAndLoadRuleset } from '@stoplight/spectral-ruleset-bundler/with-loader';
+import fs from 'fs';
 
 declare type MessageSet = {
   failures: Map<string, Message>;
@@ -122,7 +124,12 @@ class OasRulesetValidator extends BaseValidator {
       path.join(__dirname, './ruleset.yaml'),
     );
 
-    spectral.setRuleset(await getRuleset(rulesetFilepath));
+    const ruleset = await bundleAndLoadRuleset(rulesetFilepath, {
+      fs,
+      fetch,
+    });
+
+    spectral.setRuleset(ruleset);
 
     if (spectral.ruleset) {
       const operations = await schema.getOperations();
