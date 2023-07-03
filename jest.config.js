@@ -2,7 +2,7 @@ module.exports = {
   testResultsProcessor: './node_modules/jest-junit-reporter',
   preset: 'ts-jest',
   transform: {
-    '^.+\\.{ts|tsx}?$': ['ts-jest', {
+    '^.+\\.tsx?$': ['ts-jest', {
       diagnostics: false,
     }]
   },
