@@ -4,6 +4,7 @@ import { Json, SchemaObject } from 'swagger-client/schema';
 import OASSchema from '../../../oas-parsing/schema';
 import { BaseValidator } from '../../../validation';
 import { Message } from '../../../validation';
+import { REQUEST_BODY_PATH } from '../utilities/constants';
 import PositiveMessage, { Type } from './positive-message';
 
 abstract class PositiveValidator extends BaseValidator {
@@ -243,7 +244,11 @@ abstract class PositiveValidator extends BaseValidator {
     );
 
     if (missingOptionalProperties.length > 0) {
-      this.addMessage(Type.MissingProperties, path, [
+      const warningType =
+        path[0] === REQUEST_BODY_PATH
+          ? Type.RequestBodyMissingProperties
+          : Type.ResponseMissingProperties;
+      this.addMessage(warningType, path, [
         missingOptionalProperties.join(', '),
       ]);
     }
