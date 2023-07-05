@@ -2,7 +2,8 @@ import { Severity, MessageTemplate, Message } from '../../../validation';
 
 export enum Type {
   EmptyArray,
-  MissingProperties,
+  RequestBodyMissingProperties,
+  ResponseMissingProperties,
   ContentTypeMismatch,
   DuplicateEnum,
   EnumMismatch,
@@ -30,7 +31,12 @@ const messageTemplates: Record<Type, MessageTemplate> = {
     details:
       'Warning: This array was found to be empty and therefore could not be validated.',
   },
-  [Type.MissingProperties]: {
+  [Type.RequestBodyMissingProperties]: {
+    severity: Severity.WARNING,
+    details:
+      'Warning: Request body is missing non-required properties that were unable to be validated, including {0}.',
+  },
+  [Type.ResponseMissingProperties]: {
     severity: Severity.WARNING,
     details:
       'Warning: Response object is missing non-required properties that were unable to be validated, including {0}.',
