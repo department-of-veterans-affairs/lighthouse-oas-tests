@@ -40,7 +40,7 @@ export default class ValidationConductor {
       this.exampleGroup,
     );
 
-    let [failures, warnings] = requestValidationConductor.validate();
+    let [failures, warnings] = await requestValidationConductor.validate();
 
     if (failures.size === 0) {
       const response = await this.schema.execute(

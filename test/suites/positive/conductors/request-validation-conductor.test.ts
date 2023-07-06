@@ -69,7 +69,7 @@ describe('RequestValidationConductor', () => {
   });
 
   describe('validate', () => {
-    it('returns the expected failures and warnings', () => {
+    it('returns the expected failures and warnings', async () => {
       const expectedFailures = new Map<string, Message>([
         ...parameterSchemaFailureMap,
         ...requestBodyFailureMap,
@@ -80,7 +80,7 @@ describe('RequestValidationConductor', () => {
         operationSimpleGet,
         exampleGroupEmptyDefault,
       );
-      const [failures, warnings] = requestValidationConductor.validate();
+      const [failures, warnings] = await requestValidationConductor.validate();
 
       expect(failures).toEqual(expectedFailures);
       expect(warnings).toEqual(requestBodyWarningMap);

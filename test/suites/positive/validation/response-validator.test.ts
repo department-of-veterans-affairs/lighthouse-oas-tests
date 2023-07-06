@@ -74,7 +74,7 @@ describe('ResponseValidator', () => {
   });
 
   describe('validate', () => {
-    it('adds a validation failure when response status code not in OAS', () => {
+    it('adds a validation failure when response status code not in OAS', async () => {
       const validator = new ResponseValidator(oasSchema, operation, {
         ok: false,
         status: 500,
@@ -85,7 +85,7 @@ describe('ResponseValidator', () => {
         body: {},
       });
 
-      validator.validate();
+      await validator.validate();
       const failures = validator.failures;
 
       expect(failures.size).toEqual(1);
@@ -94,7 +94,7 @@ describe('ResponseValidator', () => {
       );
     });
 
-    it('adds a validation failure Response content type does is not in the OAS', () => {
+    it('adds a validation failure Response content type does is not in the OAS', async () => {
       const validator = new ResponseValidator(oasSchema, operation, {
         ok: true,
         status: 200,
@@ -105,7 +105,7 @@ describe('ResponseValidator', () => {
         body: {},
       });
 
-      validator.validate();
+      await validator.validate();
       const failures = validator.failures;
 
       expect(failures.size).toEqual(1);
@@ -114,7 +114,7 @@ describe('ResponseValidator', () => {
       );
     });
 
-    it('adds a validation failure when Response content type does not match the Accept header', () => {
+    it('adds a validation failure when Response content type does not match the Accept header', async () => {
       operation.parameters?.push({
         name: 'Accept',
         in: 'header',
@@ -134,7 +134,7 @@ describe('ResponseValidator', () => {
         body: 'Breakfast,Second Breakfast,Elevenses,Luncheon,Afternoon Tea,Dinner,Supper',
       });
 
-      validator.validate();
+      await validator.validate();
       const failures = validator.failures;
 
       expect(failures.size).toEqual(1);
@@ -143,7 +143,7 @@ describe('ResponseValidator', () => {
       );
     });
 
-    it('does not add a validation failure when Response content type matches the Accept header', () => {
+    it('does not add a validation failure when Response content type matches the Accept header', async () => {
       operation.parameters?.push({
         name: 'Accept',
         in: 'header',
@@ -163,13 +163,13 @@ describe('ResponseValidator', () => {
         body: 'Breakfast,Second Breakfast,Elevenses,Luncheon,Afternoon Tea,Dinner,Supper',
       });
 
-      validator.validate();
+      await validator.validate();
       const failures = validator.failures;
 
       expect(failures.size).toEqual(0);
     });
 
-    it('does not compare Response content type to Accept header when there is no Accept header', () => {
+    it('does not compare Response content type to Accept header when there is no Accept header', async () => {
       const validator = new ResponseValidator(oasSchema, operation, {
         ok: true,
         status: 200,
@@ -180,13 +180,13 @@ describe('ResponseValidator', () => {
         body: 'Breakfast,Second Breakfast,Elevenses,Luncheon,Afternoon Tea,Dinner,Supper',
       });
 
-      validator.validate();
+      await validator.validate();
       const failures = validator.failures;
 
       expect(failures.size).toEqual(0);
     });
 
-    it('does not compare Response content type to Accept header when there are no parameters', () => {
+    it('does not compare Response content type to Accept header when there are no parameters', async () => {
       operation.parameters = undefined;
 
       const validator = new ResponseValidator(oasSchema, operation, {
@@ -199,13 +199,13 @@ describe('ResponseValidator', () => {
         body: 'Breakfast,Second Breakfast,Elevenses,Luncheon,Afternoon Tea,Dinner,Supper',
       });
 
-      validator.validate();
+      await validator.validate();
       const failures = validator.failures;
 
       expect(failures.size).toEqual(0);
     });
 
-    it('adds a validation warning when response body is not parsed', () => {
+    it('adds a validation warning when response body is not parsed', async () => {
       const validator = new ResponseValidator(oasSchema, operation, {
         ok: false,
         status: 200,
@@ -216,7 +216,7 @@ describe('ResponseValidator', () => {
         body: undefined,
       });
 
-      validator.validate();
+      await validator.validate();
       const warnings = validator.warnings;
 
       expect(warnings.size).toEqual(1);
@@ -225,7 +225,7 @@ describe('ResponseValidator', () => {
       );
     });
 
-    it('returns no validation failures when response is valid', () => {
+    it('returns no validation failures when response is valid', async () => {
       const validator = new ResponseValidator(oasSchema, operation, {
         ok: false,
         status: 200,
@@ -238,13 +238,13 @@ describe('ResponseValidator', () => {
         },
       });
 
-      validator.validate();
+      await validator.validate();
       const failures = validator.failures;
 
       expect(failures.size).toEqual(0);
     });
 
-    it('is idempotent', () => {
+    it('is idempotent', async () => {
       const validator = new ResponseValidator(oasSchema, operation, {
         ok: false,
         status: 500,
@@ -255,7 +255,7 @@ describe('ResponseValidator', () => {
         body: {},
       });
 
-      validator.validate();
+      await validator.validate();
       let failures = validator.failures;
 
       expect(failures.size).toEqual(1);
@@ -264,7 +264,7 @@ describe('ResponseValidator', () => {
       );
 
       // call valdiate again to check for idempotency
-      validator.validate();
+      await validator.validate();
       failures = validator.failures;
 
       expect(failures.size).toEqual(1);

@@ -5,7 +5,7 @@ import { ExampleGroupValidator } from '../../../../src/suites/positive/validatio
 describe('ExampleGroupValidator', () => {
   describe('validate', () => {
     describe('input parameters is missing a required parameter', () => {
-      it('adds a validation failure', () => {
+      it('adds a validation failure', async () => {
         const operation = new OASOperation({
           operationId: 'hobbits or something',
           parameters: [
@@ -25,7 +25,7 @@ describe('ExampleGroupValidator', () => {
         const exampleGroup = new ExampleGroup('default', {});
         const validator = new ExampleGroupValidator(exampleGroup, operation);
 
-        validator.validate();
+        await validator.validate();
 
         const failures = validator.failures;
         expect(failures.size).toEqual(1);
@@ -35,7 +35,7 @@ describe('ExampleGroupValidator', () => {
       });
 
       describe('other parameter validation failures are present', () => {
-        it('validates all parameters', () => {
+        it('validates all parameters', async () => {
           const operation = new OASOperation({
             operationId: 'hobbits or something',
             parameters: [
@@ -66,7 +66,7 @@ describe('ExampleGroupValidator', () => {
             family: 1,
           });
           const validator = new ExampleGroupValidator(exampleGroup, operation);
-          validator.validate();
+          await validator.validate();
 
           const failures = validator.failures;
           expect(failures.size).toEqual(2);
@@ -80,7 +80,7 @@ describe('ExampleGroupValidator', () => {
       });
     });
 
-    it('adds a validation failures if example does not match schema', () => {
+    it('adds a validation failures if example does not match schema', async () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
         parameters: [
@@ -99,7 +99,7 @@ describe('ExampleGroupValidator', () => {
       const exampleGroup = new ExampleGroup('default', { fit: 123 });
       const validator = new ExampleGroupValidator(exampleGroup, operation);
 
-      validator.validate();
+      await validator.validate();
 
       const failures = validator.failures;
       expect(failures.size).toEqual(1);
@@ -108,7 +108,7 @@ describe('ExampleGroupValidator', () => {
       );
     });
 
-    it('is idempotent', () => {
+    it('is idempotent', async () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
         parameters: [
@@ -128,7 +128,7 @@ describe('ExampleGroupValidator', () => {
       const exampleGroup = new ExampleGroup('default', {});
       const validator = new ExampleGroupValidator(exampleGroup, operation);
 
-      validator.validate();
+      await validator.validate();
 
       let failures = validator.failures;
       expect(failures.size).toEqual(1);
@@ -137,7 +137,7 @@ describe('ExampleGroupValidator', () => {
       );
 
       // call valdiate again to check for idempotency
-      validator.validate();
+      await validator.validate();
 
       failures = validator.failures;
       expect(failures.size).toEqual(1);

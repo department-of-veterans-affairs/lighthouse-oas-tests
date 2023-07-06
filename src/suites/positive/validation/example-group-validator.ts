@@ -16,14 +16,15 @@ class ExampleGroupValidator extends PositiveValidator {
     this.operation = operation;
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   performValidation = async (): Promise<void> => {
     this.checkMissingRequiredParameters();
     const examples = this.exampleGroup.examples;
 
-    Object.entries(examples).forEach(([name, example]) => {
-      this.checkExample(name, example);
-    });
+    await Promise.all(
+      Object.entries(examples).map(async ([name, example]) => {
+        await this.checkExample(name, example);
+      }),
+    );
   };
 
   private checkMissingRequiredParameters(): void {
@@ -43,29 +44,29 @@ class ExampleGroupValidator extends PositiveValidator {
     }
   }
 
-  private checkExample(name: string, example: Json): void {
+  private async checkExample(name: string, example: Json): Promise<void> {
     const path = ['parameters', name];
 
     const parameter = this.operation.getParameter(name);
 
     if (parameter) {
-      this.checkParameterObject(parameter, example, path);
+      await this.checkParameterObject(parameter, example, path);
     }
   }
 
-  private checkParameterObject(
+  private async checkParameterObject(
     parameter: ParameterObject,
     example: Json,
     path: string[],
-  ): void {
+  ): Promise<void> {
     if (parameterHasSchema(parameter)) {
-      this.validateObjectAgainstSchema(example, parameter.schema, [
+      await this.validateObjectAgainstSchema(example, parameter.schema, [
         ...path,
         'example',
       ]);
     } else {
       const contentObjectKey = Object.keys(parameter.content)[0];
-      this.validateObjectAgainstSchema(
+      await this.validateObjectAgainstSchema(
         example,
         parameter.content[contentObjectKey].schema,
         [...path, 'example'],

@@ -12,14 +12,15 @@ class RequestBodyValidator extends PositiveValidator {
     this.operation = operation;
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   performValidation = async (): Promise<void> => {
     if (this.operation.requestBody !== undefined) {
-      this.checkRequestBody(this.operation.requestBody);
+      await this.checkRequestBody(this.operation.requestBody);
     }
   };
 
-  private checkRequestBody(requestBody: RequestBodyObject): void {
+  private async checkRequestBody(
+    requestBody: RequestBodyObject,
+  ): Promise<void> {
     const path: string[] = [REQUEST_BODY_PATH];
 
     // check for content schema presence
@@ -41,7 +42,10 @@ class RequestBodyValidator extends PositiveValidator {
     const schema = content[key].schema;
     if (schema) {
       const example = this.operation.exampleRequestBody;
-      this.validateObjectAgainstSchema(example, schema, [...path, 'example']);
+      await this.validateObjectAgainstSchema(example, schema, [
+        ...path,
+        'example',
+      ]);
     }
   }
 }
