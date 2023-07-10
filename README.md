@@ -2,7 +2,7 @@
 
 # LOAST
 
-CLI for testing Lighthouse APIs using OpenAPI specs 
+CLI for testing Lighthouse APIs using OpenAPI specs
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/loast.svg)](https://npmjs.org/package/loast)
@@ -129,242 +129,244 @@ For example, an endpoint that accepts either an address or a set of positional c
 
   <details><summary>Sample JSON</summary>
 
-  ```json
-  "paths" : {
-    "/Location" : {
-      "get" : {
-        "tags" : [
-          "Location"
-        ],
-        "operationId" : "locationSearch",
-        "parameters" : [
-          {
-            "name": "lat",
-            "in": "query",
-            "description": "Latitude of the location.",
-            "schema": {
-              "type": "number",
-              "format": "float"
-            },
-            "examples": {
-              "coordinates": {
-                "value": 123.4
-              }
-            }
+```json
+"paths" : {
+  "/Location" : {
+    "get" : {
+      "tags" : [
+        "Location"
+      ],
+      "operationId" : "locationSearch",
+      "parameters" : [
+        {
+          "name": "lat",
+          "in": "query",
+          "description": "Latitude of the location.",
+          "schema": {
+            "type": "number",
+            "format": "float"
           },
-          {
-            "name": "lng",
-            "in": "query",
-            "description": "Longitude of the location.",
-            "style": "form",
-            "schema": {
-              "type": "number",
-              "format": "float"
-            },
-            "examples": {
-              "coordinates": {
-                "value": 456.7
-              }
-            }
-          },
-          {
-            "name" : "address",
-            "in" : "query",
-            "description" : "Indicates the physical location expressed using postal conventions.",
-            "schema" : {
-              "type" : "string"
-            },
-            "examples" : {
-              "address" : {
-                "value" : "151 KNOLLCROFT ROAD"
-              }
-            }
-          },
-          {
-            "name" : "address-city",
-            "in" : "query",
-            "description" : "Indicates the geographical city where the location resides.",
-            "schema" : {
-              "type" : "string"
-            },
-            "examples" : {
-              "address" : {
-                "value" : "LYONS"
-              }
-            }
-          },
-          {
-            "name" : "address-state",
-            "in" : "query",
-            "description" : "Indicates the geographical state where the location resides.",
-            "schema" : {
-              "type" : "string"
-            },
-            "examples" : {
-              "address" : {
-                "value" : "NJ"
-              }
-            }
-          },
-          {
-            "name" : "address-postalcode",
-            "in" : "query",
-            "description" : "Indicates the postal code that designates the region where the location resides.",
-            "schema" : {
-              "type" : "string"
-            },
-            "examples" : {
-              "address" : {
-                "value" : "07939"
-              }
+          "examples": {
+            "coordinates": {
+              "value": 123.4
             }
           }
-        ]
-      }
+        },
+        {
+          "name": "lng",
+          "in": "query",
+          "description": "Longitude of the location.",
+          "style": "form",
+          "schema": {
+            "type": "number",
+            "format": "float"
+          },
+          "examples": {
+            "coordinates": {
+              "value": 456.7
+            }
+          }
+        },
+        {
+          "name" : "address",
+          "in" : "query",
+          "description" : "Indicates the physical location expressed using postal conventions.",
+          "schema" : {
+            "type" : "string"
+          },
+          "examples" : {
+            "address" : {
+              "value" : "151 KNOLLCROFT ROAD"
+            }
+          }
+        },
+        {
+          "name" : "address-city",
+          "in" : "query",
+          "description" : "Indicates the geographical city where the location resides.",
+          "schema" : {
+            "type" : "string"
+          },
+          "examples" : {
+            "address" : {
+              "value" : "LYONS"
+            }
+          }
+        },
+        {
+          "name" : "address-state",
+          "in" : "query",
+          "description" : "Indicates the geographical state where the location resides.",
+          "schema" : {
+            "type" : "string"
+          },
+          "examples" : {
+            "address" : {
+              "value" : "NJ"
+            }
+          }
+        },
+        {
+          "name" : "address-postalcode",
+          "in" : "query",
+          "description" : "Indicates the postal code that designates the region where the location resides.",
+          "schema" : {
+            "type" : "string"
+          },
+          "examples" : {
+            "address" : {
+              "value" : "07939"
+            }
+          }
+        }
+      ]
     }
   }
+}
 
-  //Example Group
-  {
-    "name": "coordinates",
-    "examples": {
-      "lat": 123.4,
-      "lng": 456.7
-    }
-  },
-  {
-    "name": "address",
-    "examples": {
-      "address": "151 KNOLLCROFT ROAD",
-      "address-city": "LYONS",
-      "address-state": "NJ",
-      "address-postalcode": "07939"
-    }
-  },
-  {
-    "name": "default",
-    "examples": {}
+//Example Group
+{
+  "name": "coordinates",
+  "examples": {
+    "lat": 123.4,
+    "lng": 456.7
   }
-  ```
+},
+{
+  "name": "address",
+  "examples": {
+    "address": "151 KNOLLCROFT ROAD",
+    "address-city": "LYONS",
+    "address-state": "NJ",
+    "address-postalcode": "07939"
+  }
+},
+{
+  "name": "default",
+  "examples": {}
+}
+```
+
   </details>
 
-If the endpoint has no required parameters, but must be called with some combination of optional parameters, name one of the groups "default".  Otherwise, `loast` will use a default group with no parameters.
+If the endpoint has no required parameters, but must be called with some combination of optional parameters, name one of the groups "default". Otherwise, `loast` will use a default group with no parameters.
 
   <details><summary>Sample JSON</summary>
 
-  ```json
-  "paths" : {
-    "/Location" : {
-      "get" : {
-        "tags" : [
-          "Location"
-        ],
-        "operationId" : "locationSearch",
-        "parameters" : [
-          {
-            "name": "lat",
-            "in": "query",
-            "description": "Latitude of the location.",
-            "schema": {
-              "type": "number",
-              "format": "float"
-            },
-            "examples": {
-              "default": {
-                "value": 123.4
-              }
-            }
+```json
+"paths" : {
+  "/Location" : {
+    "get" : {
+      "tags" : [
+        "Location"
+      ],
+      "operationId" : "locationSearch",
+      "parameters" : [
+        {
+          "name": "lat",
+          "in": "query",
+          "description": "Latitude of the location.",
+          "schema": {
+            "type": "number",
+            "format": "float"
           },
-          {
-            "name": "lng",
-            "in": "query",
-            "description": "Longitude of the location.",
-            "style": "form",
-            "schema": {
-              "type": "number",
-              "format": "float"
-            },
-            "examples": {
-              "default": {
-                "value": 456.7
-              }
-            }
-          },
-          {
-            "name" : "address",
-            "in" : "query",
-            "description" : "Indicates the physical location expressed using postal conventions.",
-            "schema" : {
-              "type" : "string"
-            },
-            "examples" : {
-              "address" : {
-                "value" : "151 KNOLLCROFT ROAD"
-              }
-            }
-          },
-          {
-            "name" : "address-city",
-            "in" : "query",
-            "description" : "Indicates the geographical city where the location resides.",
-            "schema" : {
-              "type" : "string"
-            },
-            "examples" : {
-              "address" : {
-                "value" : "LYONS"
-              }
-            }
-          },
-          {
-            "name" : "address-state",
-            "in" : "query",
-            "description" : "Indicates the geographical state where the location resides.",
-            "schema" : {
-              "type" : "string"
-            },
-            "examples" : {
-              "address" : {
-                "value" : "NJ"
-              }
-            }
-          },
-          {
-            "name" : "address-postalcode",
-            "in" : "query",
-            "description" : "Indicates the postal code that designates the region where the location resides.",
-            "schema" : {
-              "type" : "string"
-            },
-            "examples" : {
-              "address" : {
-                "value" : "07939"
-              }
+          "examples": {
+            "default": {
+              "value": 123.4
             }
           }
-        ]
-      }
+        },
+        {
+          "name": "lng",
+          "in": "query",
+          "description": "Longitude of the location.",
+          "style": "form",
+          "schema": {
+            "type": "number",
+            "format": "float"
+          },
+          "examples": {
+            "default": {
+              "value": 456.7
+            }
+          }
+        },
+        {
+          "name" : "address",
+          "in" : "query",
+          "description" : "Indicates the physical location expressed using postal conventions.",
+          "schema" : {
+            "type" : "string"
+          },
+          "examples" : {
+            "address" : {
+              "value" : "151 KNOLLCROFT ROAD"
+            }
+          }
+        },
+        {
+          "name" : "address-city",
+          "in" : "query",
+          "description" : "Indicates the geographical city where the location resides.",
+          "schema" : {
+            "type" : "string"
+          },
+          "examples" : {
+            "address" : {
+              "value" : "LYONS"
+            }
+          }
+        },
+        {
+          "name" : "address-state",
+          "in" : "query",
+          "description" : "Indicates the geographical state where the location resides.",
+          "schema" : {
+            "type" : "string"
+          },
+          "examples" : {
+            "address" : {
+              "value" : "NJ"
+            }
+          }
+        },
+        {
+          "name" : "address-postalcode",
+          "in" : "query",
+          "description" : "Indicates the postal code that designates the region where the location resides.",
+          "schema" : {
+            "type" : "string"
+          },
+          "examples" : {
+            "address" : {
+              "value" : "07939"
+            }
+          }
+        }
+      ]
     }
   }
+}
 
-  //Example Group
-  {
-    "name": "default",
-    "examples": {
-      "lat": 123.4,
-      "lng": 456.7
-    }
-  },
-  {
-    "name": "address",
-    "examples": {
-      "address": "151 KNOLLCROFT ROAD",
-      "address-city": "LYONS",
-      "address-state": "NJ",
-      "address-postalcode": "07939"
-    }
+//Example Group
+{
+  "name": "default",
+  "examples": {
+    "lat": 123.4,
+    "lng": 456.7
   }
-  ```
+},
+{
+  "name": "address",
+  "examples": {
+    "address": "151 KNOLLCROFT ROAD",
+    "address-city": "LYONS",
+    "address-state": "NJ",
+    "address-postalcode": "07939"
+  }
+}
+```
+
   </details>
 
 ## Parameter Groups
@@ -745,7 +747,7 @@ Debugging with WebStorm can be accomplished by creating a Node.js run/debug conf
 Set the **JavaScript File** field to: `bin/run`  
 Set the **Application Parameters** field to: `suites -a YOUR_API_KEY test/fixtures/facilities_oas.json -s https://sandbox-api.va.gov/services/va_facilities/{version}`
 
-To build the application automatically, configure a before-launch task of type **Run npm script**.  
+To build the application automatically, configure a before-launch task of type **Run npm script**:  
 Set the **Command** field to: `run`  
 Set the **Scripts** field to: `build`
 
