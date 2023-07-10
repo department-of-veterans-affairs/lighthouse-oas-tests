@@ -30,4 +30,4 @@ Note: The keyword, eg. `fix`, must be the first word in the commit message and b
 Include the associated JIRA ticket number so that JIRA hooks will automatically link the two togather.
 
 - Suggested format: "#Ticket Number#/ #Short description#"
-- Example: "API-1231/ Enhancement to test functionality"
+- Example: "API-1231/ Enhancement to test functionality".
