@@ -814,7 +814,7 @@ Debugging with WebStorm can be accomplished by creating a Node.js run/debug conf
 Set the **JavaScript File** field to: `bin/run`  
 Set the **Application Parameters** field to: `suites -a YOUR_API_KEY test/fixtures/facilities_oas.json -s https://sandbox-api.va.gov/services/va_facilities/{version}`
 
-To build the application automatically, configure a before-launch task of type **Run npm script**.  
+To build the application automatically, configure a before-launch task of type **Run npm script**:  
 Set the **Command** field to: `run`  
 Set the **Scripts** field to: `build`
 
