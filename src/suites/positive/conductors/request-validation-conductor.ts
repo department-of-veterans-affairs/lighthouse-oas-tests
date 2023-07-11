@@ -24,7 +24,7 @@ export default class RequestValidationConductor {
     const parameterSchemaValidator = new ParameterSchemaValidator(
       this.operation,
     );
-    parameterSchemaValidator.validate();
+    await parameterSchemaValidator.validate();
     failures = new Map([...failures, ...parameterSchemaValidator.failures]);
     warnings = new Map([...warnings, ...parameterSchemaValidator.warnings]);
 
