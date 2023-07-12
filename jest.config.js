@@ -1,10 +1,10 @@
 module.exports = {
   testResultsProcessor: './node_modules/jest-junit-reporter',
   preset: 'ts-jest',
-  globals: {
-    'ts-jest': {
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', {
       diagnostics: false,
-    },
+    }]
   },
   coveragePathIgnorePatterns: ["/node_modules/", "/lib/", "/test/lib-test/"],
   coverageThreshold: {

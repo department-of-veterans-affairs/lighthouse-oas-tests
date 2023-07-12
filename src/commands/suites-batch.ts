@@ -1,4 +1,4 @@
-import Command, { flags } from '@oclif/command';
+import { Command, Flags, Args } from '@oclif/core';
 import { OASResult } from '../validation';
 import { Config } from '../config';
 import { FileIn } from '../utilities/file-in';
@@ -10,26 +10,25 @@ export default class SuitesBatch extends Command {
     'Runs a set of test suites against multiple OAS for all APIs in the config file based on their OpenAPI specs';
 
   static flags = {
-    help: flags.help({ char: 'h' }),
-    id: flags.string({
+    help: Flags.help({ char: 'h' }),
+    id: Flags.string({
       char: 'i',
       multiple: true,
       description: 'Suite Ids to use',
     }),
   };
 
-  static args = [
-    {
-      name: 'path',
+  static args = {
+    path: Args.string({
       required: true,
       description:
         'Local file path for the JSON config file. See example file at https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/blob/master/batch-configs/example-batch-config.json',
-    },
-  ];
+    }),
+  };
 
   async run(): Promise<void> {
-    const { args, flags } = this.parse(SuitesBatch);
-    const suiteIds: string[] = flags.id;
+    const { args, flags } = await this.parse(SuitesBatch);
+    const suiteIds: string[] | undefined = flags.id;
     const config: Config = FileIn.loadConfigFromFile(args.path);
     const batchResults = await this.getBatchResults(config, suiteIds);
 

@@ -14,16 +14,6 @@ const mockGetOperations = jest.fn();
 
 jest.mock('../src/utilities/file-in/file-in');
 
-// ruleset-wrapper needs be mocked to avoid Jest conflict with
-//  3rd party packages when they use package.json 'export'
-jest.mock('../src/suites/oas-ruleset/validation/ruleset-wrapper', () => {
-  return function (): Record<string, jest.Mock> {
-    return {
-      getRuleset: jest.fn(),
-    };
-  };
-});
-
 jest.mock('../src/oas-parsing/schema', () => {
   return function (): Record<string, jest.Mock> {
     return {
