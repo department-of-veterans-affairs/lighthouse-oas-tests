@@ -26,7 +26,7 @@ rules:
       function: length
       functionOptions:
         min: 1000
-  va-one-path-required:
+  va-paths-one-required:
     description: At least one path must exist
     given: $.paths
     severity: error
@@ -34,7 +34,7 @@ rules:
       function: length
       functionOptions:
         min: 1
-  va-one-operation-required:
+  va-paths-one-operation-required:
     description: Each path must have at least one operation
     given: $.paths[*]
     severity: error
@@ -67,14 +67,14 @@ rules:
       function: length
       functionOptions:
         min: 30
-  va-param-description-required:
+  va-endpoint-param-description-required:
     description: Parameters must have a description
     given: $..*.parameters[*]
     severity: error
     then:
       field: description
       function: truthy
-  va-param-example-required:
+  va-endpoint-param-example-required:
     description: Parameters marked as required must have an example or examples property
     given: $..*.parameters[?(@ && @.required == true)]
     severity: error
@@ -84,7 +84,7 @@ rules:
         properties:
           - example
           - examples
-  va-request-content-supported-mediatypes:
+  va-endpoint-request-content-supported-mediatypes:
     description: Content's media type name must be one of the supported options
     given: $..*.requestBody.content.*~
     severity: error
@@ -101,7 +101,7 @@ rules:
           - application/vnd.geo+json
           - application/jwt
           - text/csv
-  va-response-content-supported-mediatypes:
+  va-endpoint-response-content-supported-mediatypes:
     description: Content's media type name must be one of the supported options
     given: $..responses.*.content.*~
     severity: error

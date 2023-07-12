@@ -1,0 +1,62 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+    },
+    "tags": [
+    ],
+    "paths": {
+        "/onePathExist": {
+            "get":{ 
+                "tags": [],
+                "summary": "",
+                "description": "",
+                "requestBody": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "street_address_1": {
+                                        "type": "object",
+                                        "description": "street address 1",
+                                        "nullable": true,
+                                        "example":	"50 Irving Street, Northwest"
+                                    },
+                                    "street_address_2": {
+                                        "type": "object",
+                                        "description": "street address 1",
+                                        "nullable": true,
+                                        "example":	"Apt. #2"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "address":{
+                "type": "object",
+                "properties": {
+                    "street_address_3": {
+                        "type": "object",
+                        "description": "P.O. Box",
+                        "nullable": true,
+                        "example":	"P.O. Box 12412"
+                    },
+                    "properCase": {
+                        "type": "object",
+                        "description": "Should pass both tests",
+                        "nullable": true,
+                        "example":	"5"
+                    }
+                }
+            }
+        }
+    }
+}
