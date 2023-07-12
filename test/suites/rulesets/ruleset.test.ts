@@ -41,7 +41,7 @@ async function setupSpectral(rulesetName: string): Promise<Spectral> {
   );
 
   const spectral = new Spectral();
-  const ruleset = await bundleAndLoadRuleset(rulesetFilepath, {
+  const ruleset = await bundleAndLoadRuleset(rulesetPath, {
     fs,
     fetch,
   });

@@ -2,6 +2,12 @@ import OASSchema from '../../../../src/oas-parsing/schema/oas-schema';
 import { Type } from '../../../../src/suites/rulesets/validation/ruleset-message';
 import RulesetValidator from '../../../../src/suites/rulesets/validation/ruleset-validator';
 
+jest.mock('@stoplight/spectral-ruleset-bundler/with-loader', () => {
+  return {
+    bundleAndLoadRuleset: jest.fn(),
+  };
+});
+
 const mockSpectralRun = jest.fn();
 const spectralResults = [
   {
