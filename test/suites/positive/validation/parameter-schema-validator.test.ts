@@ -4,7 +4,7 @@ import { ParameterSchemaValidator } from '../../../../src/suites/positive/valida
 
 describe('ParameterSchemaValidator', () => {
   describe('validate', () => {
-    it('it adds a validation failure if both content and schema exist on parameter', () => {
+    it('it adds a validation failure if both content and schema exist on parameter', async () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
         parameters: [
@@ -30,7 +30,7 @@ describe('ParameterSchemaValidator', () => {
       });
 
       const validator = new ParameterSchemaValidator(operation);
-      validator.validate();
+      await validator.validate();
 
       const failures = validator.failures;
 
@@ -40,7 +40,7 @@ describe('ParameterSchemaValidator', () => {
       );
     });
 
-    it('registers a validation failure if content contains more than one entry', () => {
+    it('registers a validation failure if content contains more than one entry', async () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
         parameters: [
@@ -68,7 +68,7 @@ describe('ParameterSchemaValidator', () => {
       });
 
       const validator = new ParameterSchemaValidator(operation);
-      validator.validate();
+      await validator.validate();
 
       const failures = validator.failures;
 
@@ -78,7 +78,7 @@ describe('ParameterSchemaValidator', () => {
       );
     });
 
-    it('adds a validation failure if content does not contain a schema object', () => {
+    it('adds a validation failure if content does not contain a schema object', async () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
         parameters: [
@@ -101,7 +101,7 @@ describe('ParameterSchemaValidator', () => {
       });
 
       const validator = new ParameterSchemaValidator(operation);
-      validator.validate();
+      await validator.validate();
 
       const failures = validator.failures;
 
@@ -111,7 +111,7 @@ describe('ParameterSchemaValidator', () => {
       );
     });
 
-    it('adds a validation failure if neither content nor schema exist on parameter', () => {
+    it('adds a validation failure if neither content nor schema exist on parameter', async () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
         parameters: [
@@ -125,7 +125,7 @@ describe('ParameterSchemaValidator', () => {
       });
 
       const validator = new ParameterSchemaValidator(operation);
-      validator.validate();
+      await validator.validate();
 
       const failures = validator.failures;
 
@@ -135,7 +135,7 @@ describe('ParameterSchemaValidator', () => {
       );
     });
 
-    it('adds a validation failure if parameter has both example and examples', () => {
+    it('adds a validation failure if parameter has both example and examples', async () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
         parameters: [
@@ -156,7 +156,7 @@ describe('ParameterSchemaValidator', () => {
       });
 
       const validator = new ParameterSchemaValidator(operation);
-      validator.validate();
+      await validator.validate();
 
       const failures = validator.failures;
 
@@ -166,7 +166,7 @@ describe('ParameterSchemaValidator', () => {
       );
     });
 
-    it('does not register a validation failure if content is shaped correctly', () => {
+    it('does not register a validation failure if content is shaped correctly', async () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
         parameters: [
@@ -188,12 +188,12 @@ describe('ParameterSchemaValidator', () => {
       });
 
       const validator = new ParameterSchemaValidator(operation);
-      validator.validate();
+      await validator.validate();
 
       expect(validator.failures.size).toEqual(0);
     });
 
-    it('does not register a validation failure if schema is shaped correctly', () => {
+    it('does not register a validation failure if schema is shaped correctly', async () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
         parameters: [
@@ -210,12 +210,12 @@ describe('ParameterSchemaValidator', () => {
       });
 
       const validator = new ParameterSchemaValidator(operation);
-      validator.validate();
+      await validator.validate();
 
       expect(validator.failures.size).toEqual(0);
     });
 
-    it('is idempotent', () => {
+    it('is idempotent', async () => {
       const operation = new OASOperation({
         operationId: 'hobbits or something',
         parameters: [
@@ -238,7 +238,7 @@ describe('ParameterSchemaValidator', () => {
       });
 
       const validator = new ParameterSchemaValidator(operation);
-      validator.validate();
+      await validator.validate();
 
       let failures = validator.failures;
 
@@ -248,7 +248,7 @@ describe('ParameterSchemaValidator', () => {
       );
 
       // call valdiate again to check for idempotency
-      validator.validate();
+      await validator.validate();
 
       failures = validator.failures;
       expect(failures.size).toEqual(1);

@@ -17,19 +17,19 @@ export default class RequestValidationConductor {
     this.exampleGroup = exampleGroup;
   }
 
-  validate(): Map<string, Message>[] {
+  async validate(): Promise<Map<string, Message>[]> {
     let failures: Map<string, Message> = new Map();
     let warnings: Map<string, Message> = new Map();
 
     const parameterSchemaValidator = new ParameterSchemaValidator(
       this.operation,
     );
-    parameterSchemaValidator.validate();
+    await parameterSchemaValidator.validate();
     failures = new Map([...failures, ...parameterSchemaValidator.failures]);
     warnings = new Map([...warnings, ...parameterSchemaValidator.warnings]);
 
     const requestBodyValidator = new RequestBodyValidator(this.operation);
-    requestBodyValidator.validate();
+    await requestBodyValidator.validate();
     failures = new Map([...failures, ...requestBodyValidator.failures]);
     warnings = new Map([...warnings, ...requestBodyValidator.warnings]);
 
@@ -37,7 +37,7 @@ export default class RequestValidationConductor {
       this.exampleGroup,
       this.operation,
     );
-    exampleGroupValidator.validate();
+    await exampleGroupValidator.validate();
     failures = new Map([...failures, ...exampleGroupValidator.failures]);
     warnings = new Map([...warnings, ...exampleGroupValidator.warnings]);
 
