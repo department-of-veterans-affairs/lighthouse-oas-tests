@@ -60,7 +60,7 @@ describe('SuiteFactory', () => {
         expect.arrayContaining([
           PositiveSuite.suiteId,
           'oas-ruleset',
-          'lighthouseAPIStandards',
+          'lighthouse-api-standards',
         ]),
       );
     });
