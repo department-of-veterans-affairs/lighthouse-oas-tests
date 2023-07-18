@@ -34,10 +34,11 @@ class OASSchema {
     this._client = client;
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   public async getClient(): Promise<SwaggerClient> {
     if (!this._client) {
-      this._client = new SwaggerClient(this.clientOptions);
+      // Oddity below is due to swagger-client not officially supporting TS and leveraging a asynchronous constructor
+      // eslint-disable-next-line @typescript-eslint/await-thenable
+      this._client = await new SwaggerClient(this.clientOptions);
     }
     return this._client;
   }
