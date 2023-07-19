@@ -3,9 +3,10 @@ import RequestValidationConductor from './request-validation-conductor';
 import OASOperation from '../../../oas-parsing/operation';
 import ExampleGroup from '../../../oas-parsing/example-group';
 import OASSchema from '../../../oas-parsing/schema';
-import { RequestBody, SecurityValues } from 'swagger-client';
+import { SecurityValues } from 'swagger-client';
 import ResponseValidationConductor from './response-validation-conductor';
 import { OperationExample } from '../../../oas-parsing/operation-example';
+import ExampleRequestBody from '../../../oas-parsing/request-body/example-request-body';
 
 export default class ValidationConductor {
   private schema: OASSchema;
@@ -14,7 +15,9 @@ export default class ValidationConductor {
 
   private exampleGroup: ExampleGroup;
 
-  private requestBody: RequestBody;
+  private exampleRequestBody: ExampleRequestBody;
+
+  private operationExampleName: string;
 
   private securityValues: SecurityValues;
 
@@ -22,14 +25,15 @@ export default class ValidationConductor {
 
   constructor(
     schema: OASSchema,
-    { operation, exampleGroup, requestBody }: OperationExample,
+    { operation, exampleGroup, exampleRequestBody, name }: OperationExample,
     securityValues: SecurityValues,
     server: string | undefined,
   ) {
     this.schema = schema;
     this.operation = operation;
     this.exampleGroup = exampleGroup;
-    this.requestBody = requestBody;
+    this.exampleRequestBody = exampleRequestBody;
+    this.operationExampleName = name;
     this.securityValues = securityValues;
     this.server = server;
   }
@@ -38,6 +42,7 @@ export default class ValidationConductor {
     const requestValidationConductor = new RequestValidationConductor(
       this.operation,
       this.exampleGroup,
+      this.exampleRequestBody,
     );
 
     let [failures, warnings] = await requestValidationConductor.validate();
@@ -47,7 +52,7 @@ export default class ValidationConductor {
         this.operation,
         this.exampleGroup,
         this.securityValues,
-        this.requestBody,
+        this.exampleRequestBody.requestBody,
         this.server,
       );
 
@@ -70,7 +75,7 @@ export default class ValidationConductor {
     return new OperationResult(
       this.operation.operationId,
       originalOperationId,
-      this.exampleGroup.name,
+      this.operationExampleName,
       failures,
       warnings,
     );

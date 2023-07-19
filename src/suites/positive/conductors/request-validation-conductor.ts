@@ -6,15 +6,23 @@ import {
   RequestBodyValidator,
 } from '../validation';
 import Message from '../../../validation/message';
+import ExampleRequestBody from '../../../oas-parsing/request-body/example-request-body';
 
 export default class RequestValidationConductor {
   private operation: OASOperation;
 
   private exampleGroup: ExampleGroup;
 
-  constructor(operation: OASOperation, exampleGroup: ExampleGroup) {
+  private exampleRequestBody: ExampleRequestBody;
+
+  constructor(
+    operation: OASOperation,
+    exampleGroup: ExampleGroup,
+    exampleRequestBody: ExampleRequestBody,
+  ) {
     this.operation = operation;
     this.exampleGroup = exampleGroup;
+    this.exampleRequestBody = exampleRequestBody;
   }
 
   async validate(): Promise<Map<string, Message>[]> {
@@ -28,7 +36,10 @@ export default class RequestValidationConductor {
     failures = new Map([...failures, ...parameterSchemaValidator.failures]);
     warnings = new Map([...warnings, ...parameterSchemaValidator.warnings]);
 
-    const requestBodyValidator = new RequestBodyValidator(this.operation);
+    const requestBodyValidator = new RequestBodyValidator(
+      this.operation,
+      this.exampleRequestBody.requestBody,
+    );
     await requestBodyValidator.validate();
     failures = new Map([...failures, ...requestBodyValidator.failures]);
     warnings = new Map([...warnings, ...requestBodyValidator.warnings]);

@@ -9,13 +9,14 @@ export default class OperationExampleFactory {
 
     for (const operation of operations) {
       const exampleGroups = operation.exampleGroups;
+      const exampleRequestBodies = operation.exampleRequestBodies;
 
       for (const exampleGroup of exampleGroups) {
-        operationExamples.push({
-          operation,
-          exampleGroup,
-          requestBody: operation.exampleRequestBody,
-        });
+        for (const exampleRequestBody of exampleRequestBodies) {
+          operationExamples.push(
+            new OperationExample(operation, exampleGroup, exampleRequestBody),
+          );
+        }
       }
     }
 
