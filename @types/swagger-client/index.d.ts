@@ -56,12 +56,12 @@ declare module 'swagger-client' {
     url?: string;
   }
 
-  class SwaggerClient {
-    constructor(opts: Opts);
+  export class SwaggerClient {
     spec: schema.OpenAPIObject;
     execute: (options: ExecuteOptions) => Promise<Response>;
-    static resolveSubtree(obj, path, options?): Promise<any>;
   }
 
-  export default SwaggerClient;
+  export function resolveSubtree(obj, path, options?): Promise<any>;
+
+  export default function init(opts: Opts): Promise<SwaggerClient>;
 }

@@ -1,5 +1,5 @@
 import loadJsonFile from 'load-json-file';
-import SwaggerClient, { SecurityValues } from 'swagger-client';
+import { SwaggerClient, SecurityValues } from 'swagger-client';
 import OASOperation from '../../../src/oas-parsing/operation';
 import OASSchema from '../../../src/oas-parsing/schema';
 import OASServer from '../../../src/oas-parsing/server/oas-server';
