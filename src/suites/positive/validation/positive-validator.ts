@@ -1,5 +1,5 @@
 import { isEqual, uniqWith } from 'lodash';
-import SwaggerClient from 'swagger-client';
+import { resolveSubtree } from 'swagger-client';
 import { Json, SchemaObject } from 'swagger-client/schema';
 import OASSchema from '../../../oas-parsing/schema';
 import { BaseValidator } from '../../../validation';
@@ -176,10 +176,7 @@ abstract class PositiveValidator extends BaseValidator {
       }
 
       const client = await schema.getClient();
-      const resolvedElement = await SwaggerClient.resolveSubtree(
-        client.spec,
-        resolvePath,
-      );
+      const resolvedElement = await resolveSubtree(client.spec, resolvePath);
 
       if (resolvedElement) {
         return resolvedElement.spec.properties;

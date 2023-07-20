@@ -1,4 +1,6 @@
-import SwaggerClient, {
+import {
+  default as SwaggerClientInit,
+  SwaggerClient,
   ExecuteOptions,
   RequestBody,
   Response,
@@ -36,9 +38,7 @@ class OASSchema {
 
   public async getClient(): Promise<SwaggerClient> {
     if (!this._client) {
-      // Oddity below is due to swagger-client not officially supporting TS and leveraging a asynchronous constructor
-      // eslint-disable-next-line @typescript-eslint/await-thenable
-      this._client = await new SwaggerClient(this.clientOptions);
+      this._client = await SwaggerClientInit(this.clientOptions);
     }
     return this._client;
   }
