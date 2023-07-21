@@ -5,6 +5,7 @@ import {
   NO_REQUEST_BODY,
   REQUEST_BODY_REQUIRED_FIELDS_ONLY,
 } from '../../utilities/constants';
+import { Json, SchemaObject } from 'swagger-client';
 
 class RequestBodyFactory {
   static buildFromOperation(operation: OASOperation): ExampleRequestBody[] {
@@ -20,85 +21,84 @@ class RequestBodyFactory {
     const schema = mediaTypeObject.schema;
     const mediaTypeObjectExample = mediaTypeObject.example;
 
+    let defaultRequestBody: ExampleRequestBody | undefined = undefined;
+
     if (mediaTypeObjectExample) {
       // create default request body - example field as is
-      const defaultRequestBody = new ExampleRequestBody(
+      defaultRequestBody = new ExampleRequestBody(
         DEFAULT_REQUEST_BODY,
         mediaTypeObjectExample,
       );
+    } else if (schema) {
+      // create default request body from schema
+      defaultRequestBody = this.buildFromSchemaExamples(schema);
+    }
 
-      // create request body with only required fields if necessary
-      if (schema) {
-        const requiredProperties = schema.required;
+    // create request body with only required fields if necessary
+    if (defaultRequestBody !== undefined) {
+      const requiredFieldsRequestBody = this.buildRequiredFieldsOnlyRequestBody(
+        defaultRequestBody.requestBody,
+        schema.required,
+      );
 
-        if (
-          requiredProperties &&
-          Object.keys(mediaTypeObjectExample).length > requiredProperties.length
-        ) {
-          const requiredPropertiesOnlyRequestBody = {};
-          Object.entries(mediaTypeObjectExample).forEach(([key, value]) => {
-            if (requiredProperties.includes(key)) {
-              requiredPropertiesOnlyRequestBody[key] = value;
-            }
-          });
-
-          const requiredPropertiesExampleRequestBody = new ExampleRequestBody(
-            REQUEST_BODY_REQUIRED_FIELDS_ONLY,
-            requiredPropertiesOnlyRequestBody,
-          );
-
-          return [defaultRequestBody, requiredPropertiesExampleRequestBody];
-        }
+      if (requiredFieldsRequestBody !== undefined) {
+        return [defaultRequestBody, requiredFieldsRequestBody];
       }
 
       return [defaultRequestBody];
     }
 
-    // create default request body, including all schema properties that include an example
+    return [emptyRequestBody];
+  }
+
+  private static buildFromSchemaExamples(
+    schema: SchemaObject,
+  ): ExampleRequestBody | undefined {
     const schemaProperties = schema.properties;
 
     if (schemaProperties) {
-      const defaultRequestBody = {};
+      const requestBody = {};
       Object.entries(schemaProperties).forEach(([key, value]) => {
         if (value.example) {
-          defaultRequestBody[key] = value.example;
+          requestBody[key] = value.example;
         }
       });
 
-      const defaultExampleRequestBody = new ExampleRequestBody(
+      const exampleRequestBody = new ExampleRequestBody(
         DEFAULT_REQUEST_BODY,
-        defaultRequestBody,
+        requestBody,
       );
 
-      // create request body with only required fields if necessary
-      const requiredProperties = schema.required;
-
-      if (
-        requiredProperties &&
-        Object.keys(defaultRequestBody).length > requiredProperties.length
-      ) {
-        const requiredPropertiesOnlyRequestBody = {};
-        Object.entries(defaultRequestBody).forEach(([key, value]) => {
-          if (requiredProperties.includes(key)) {
-            requiredPropertiesOnlyRequestBody[key] = value;
-          }
-        });
-
-        const requiredPropertiesExampleRequestBody = new ExampleRequestBody(
-          REQUEST_BODY_REQUIRED_FIELDS_ONLY,
-          requiredPropertiesOnlyRequestBody,
-        );
-
-        return [
-          defaultExampleRequestBody,
-          requiredPropertiesExampleRequestBody,
-        ];
-      }
-
-      return [defaultExampleRequestBody];
+      return exampleRequestBody;
     }
 
-    return [emptyRequestBody];
+    return undefined;
+  }
+
+  private static buildRequiredFieldsOnlyRequestBody(
+    defaultExample: Json,
+    requiredProperties: string[] | undefined,
+  ): ExampleRequestBody | undefined {
+    if (
+      requiredProperties &&
+      Object.keys(defaultExample).length > requiredProperties.length
+    ) {
+      const requiredPropertiesOnlyRequestBody = {};
+      Object.entries(defaultExample).forEach(([key, value]) => {
+        if (requiredProperties.includes(key)) {
+          requiredPropertiesOnlyRequestBody[key] = value;
+        }
+      });
+
+      const requiredPropertiesExampleRequestBody = new ExampleRequestBody(
+        REQUEST_BODY_REQUIRED_FIELDS_ONLY,
+        requiredPropertiesOnlyRequestBody,
+      );
+
+      return requiredPropertiesExampleRequestBody;
+    }
+
+    return undefined;
   }
 }
 
