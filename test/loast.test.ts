@@ -2,7 +2,7 @@ import { TestOptions } from '../src/config';
 import { OASResult } from '../src/validation';
 import SuiteFactory from '../src/suites/suite-factory';
 import PositiveSuite from '../src/suites/positive/positive-suite';
-import OasRulesetSuite from '../src/suites/oas-ruleset/oas-ruleset-suite';
+import OasRulesetSuite from '../src/suites/rulesets/ruleset-suite';
 import { securitySchemeAPIKey } from './fixtures/utilities/oas-security-schemes';
 import { operationExampleResultFailuresWarnings } from './fixtures/validation/operation-results';
 import { FileIn } from '../src/utilities/file-in';

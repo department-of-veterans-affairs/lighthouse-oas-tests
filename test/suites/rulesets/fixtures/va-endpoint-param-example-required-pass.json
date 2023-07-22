@@ -1,0 +1,34 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+    },
+    "tags": [
+    ],
+    "paths": {
+        "/onePathExist": {
+            "get":{ 
+                "tags": [],
+                "summary": "",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "paramName",
+                        "in": "query",
+                        "description": "This description exist for this example",
+                        "required": true,
+                        "schema": {},
+                        "examples": {
+                            "paramName": {
+                                "description": "param description",
+                                "value": "exampleValue"
+                            }
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    },
+    "components": {
+    }
+}

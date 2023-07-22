@@ -1,4 +1,6 @@
-import SwaggerClient, {
+import {
+  default as SwaggerClientInit,
+  SwaggerClient,
   ExecuteOptions,
   RequestBody,
   Response,
@@ -34,10 +36,9 @@ class OASSchema {
     this._client = client;
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   public async getClient(): Promise<SwaggerClient> {
     if (!this._client) {
-      this._client = new SwaggerClient(this.clientOptions);
+      this._client = await SwaggerClientInit(this.clientOptions);
     }
     return this._client;
   }

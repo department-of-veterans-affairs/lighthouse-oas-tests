@@ -2,7 +2,7 @@ const operationResults = new Map();
 
 import OASSchema from '../../../src/oas-parsing/schema/oas-schema';
 import { SuiteConfig } from '../../../src/suites';
-import OasRulesetSuite from '../../../src/suites/oas-ruleset/oas-ruleset-suite';
+import RulesetSuite from '../../../src/suites/rulesets/ruleset-suite';
 
 const oasResults = [
   {
@@ -14,24 +14,22 @@ const oasResults = [
   },
 ];
 
-jest.mock(
-  '../../../src/suites/oas-ruleset/validation/oas-ruleset-validator',
-  () => {
-    return {
-      __esModule: true,
-      default: jest.fn().mockImplementation(() => {
-        return {
-          SpectralValidator: jest.fn(),
-          validate: jest.fn(),
-          operationMap: operationResults,
-        };
-      }),
-    };
-  },
-);
+jest.mock('../../../src/suites/rulesets/validation/ruleset-validator', () => {
+  return {
+    __esModule: true,
+    default: jest.fn().mockImplementation(() => {
+      return {
+        SpectralValidator: jest.fn(),
+        validate: jest.fn(),
+        operationMap: operationResults,
+      };
+    }),
+  };
+});
 
 let suiteConfig: SuiteConfig;
 let oasSchema: OASSchema;
+let rulesetName: string;
 operationResults.set(
   '/findTheRing:GET',
   new Map().set('no-rings-found', {
@@ -40,9 +38,10 @@ operationResults.set(
   }),
 );
 
-describe('OasRulesetSuite', () => {
+describe('RulesetSuite', () => {
   beforeEach(() => {
     oasSchema = new OASSchema({ spec: {} });
+    rulesetName = 'oas-ruleset';
     suiteConfig = {
       options: { path: 'pathToTheRing' },
       schema: oasSchema,
@@ -51,7 +50,7 @@ describe('OasRulesetSuite', () => {
 
   describe('conduct', () => {
     it('calls oas-ruleset validator and returns results', async () => {
-      const suite = new OasRulesetSuite();
+      const suite = new RulesetSuite(rulesetName);
       await suite.setup(suiteConfig);
 
       expect(await suite.conduct()).toEqual(oasResults);
@@ -60,7 +59,7 @@ describe('OasRulesetSuite', () => {
 
   describe('getLabel', () => {
     it('returns label', async () => {
-      const suite = new OasRulesetSuite();
+      const suite = new RulesetSuite(rulesetName);
       await suite.setup(suiteConfig);
 
       expect(suite.getLabel()).toEqual('(oas-ruleset)');

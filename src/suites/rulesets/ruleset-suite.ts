@@ -1,28 +1,38 @@
 import { OperationResult } from '../../validation';
 import Suite, { SuiteConfig } from '../suite';
-import OasRulesetValidator from './validation/oas-ruleset-validator';
+import RulesetValidator from './validation/ruleset-validator';
 
 /**
  * Reviews the OAS following the rules defined.
  * This uses spectral to define the rules.
+ * Logic expects a corresponding sibling '<ruleset>.yaml' file to contain relevant rules for Spectral
  */
-export default class OasRulesetSuite extends Suite {
-  public static suiteId = 'oas-ruleset';
-  protected static label = '(oas-ruleset)';
-  private oasRulesetValidator!: OasRulesetValidator;
+export default class RulesetSuite extends Suite {
+  private rulesetName: string;
+  private rulesetLabel: string;
+  private rulesetValidator!: RulesetValidator;
+
+  constructor(rulesetName: string) {
+    super();
+    this.rulesetName = rulesetName;
+    this.rulesetLabel = '(' + rulesetName + ')';
+  }
 
   public async setup(suiteConfig: SuiteConfig): Promise<void> {
     await super.setup(suiteConfig);
 
-    this.oasRulesetValidator = new OasRulesetValidator(suiteConfig.schema);
+    this.rulesetValidator = new RulesetValidator(
+      suiteConfig.schema,
+      this.rulesetName,
+    );
   }
 
   async conduct(): Promise<OperationResult[]> {
     const results: OperationResult[] = [];
 
-    await this.oasRulesetValidator.validate();
+    await this.rulesetValidator.validate();
 
-    const operationMap = this.oasRulesetValidator.operationMap;
+    const operationMap = this.rulesetValidator.operationMap;
     const operations = operationMap.keys();
 
     for (const operationId of operations) {
@@ -53,6 +63,6 @@ export default class OasRulesetSuite extends Suite {
   }
 
   public getLabel(): string {
-    return OasRulesetSuite.label;
+    return this.rulesetLabel;
   }
 }

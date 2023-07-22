@@ -1,6 +1,8 @@
+import fs from 'fs';
+import path from 'path';
 import { Suite, SuiteConfig } from '../suites';
 import PositiveSuite from './positive/positive-suite';
-import OasRulesetSuite from './oas-ruleset/oas-ruleset-suite';
+import RulesetSuite from './rulesets/ruleset-suite';
 
 // Additional test suites simply need to be defined here to be included in Loast
 export default class SuiteFactory {
@@ -10,18 +12,12 @@ export default class SuiteFactory {
   ): Promise<Suite> {
     let suite;
 
-    switch (suiteId) {
-      case PositiveSuite.suiteId: {
-        suite = new PositiveSuite();
-        break;
-      }
-      case OasRulesetSuite.suiteId: {
-        suite = new OasRulesetSuite();
-        break;
-      }
-      default: {
-        throw new Error(`Unable to find suite with ID ${suiteId}`);
-      }
+    if (suiteId === PositiveSuite.suiteId) {
+      suite = new PositiveSuite();
+    } else if (SuiteFactory.rulesetSuiteIds().includes(suiteId)) {
+      suite = new RulesetSuite(suiteId);
+    } else {
+      throw new Error(`Unable to find suite with ID ${suiteId}`);
     }
 
     await suite.setup(config);
@@ -29,6 +25,19 @@ export default class SuiteFactory {
   }
 
   public static availableSuiteIds(): string[] {
-    return [PositiveSuite.suiteId, OasRulesetSuite.suiteId];
+    const suiteIds = SuiteFactory.rulesetSuiteIds();
+    suiteIds.push(PositiveSuite.suiteId);
+
+    return suiteIds;
+  }
+
+  private static rulesetSuiteIds(): string[] {
+    const rulesetFolder = path.resolve(__dirname, 'rulesets');
+    const rulesetSuiteIds = fs
+      .readdirSync(rulesetFolder, { withFileTypes: true })
+      .filter((item) => !item.isDirectory() && item.name.endsWith('.yaml'))
+      .map((item) => item.name.replace('.yaml', ''));
+
+    return rulesetSuiteIds;
   }
 }

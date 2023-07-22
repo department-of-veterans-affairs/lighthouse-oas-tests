@@ -1,23 +1,23 @@
 import { Severity, MessageTemplate, Message } from '../../../validation';
 
 export enum Type {
-  OasRulesetWarning,
-  OasRulesetError,
+  RulesetWarning,
+  RulesetError,
 }
 
 //  For Spectral the templates are based on the originally provided message given from the tool
 const messageTemplates: Record<Type, MessageTemplate> = {
-  [Type.OasRulesetWarning]: {
+  [Type.RulesetWarning]: {
     severity: Severity.WARNING,
     details: '{0}',
   },
-  [Type.OasRulesetError]: {
+  [Type.RulesetError]: {
     severity: Severity.ERROR,
     details: '{0}',
   },
 };
 
-class OasRulesetMessage extends Message {
+class RulesetMessage extends Message {
   constructor(type: Type, path: string[], _properties?: string[]) {
     super(type, path, _properties);
 
@@ -28,4 +28,4 @@ class OasRulesetMessage extends Message {
   }
 }
 
-export default OasRulesetMessage;
+export default RulesetMessage;
