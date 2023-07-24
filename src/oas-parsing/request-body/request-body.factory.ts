@@ -3,7 +3,7 @@ import ExampleRequestBody from './example-request-body';
 import {
   DEFAULT_REQUEST_BODY,
   NO_REQUEST_BODY,
-  REQUEST_BODY_REQUIRED_FIELDS_ONLY,
+  REQUIRED_FIELDS_REQUEST_BODY,
 } from '../../utilities/constants';
 import { Json, SchemaObject } from 'swagger-client';
 
@@ -91,7 +91,7 @@ class RequestBodyFactory {
       });
 
       const requiredPropertiesExampleRequestBody = new ExampleRequestBody(
-        REQUEST_BODY_REQUIRED_FIELDS_ONLY,
+        REQUIRED_FIELDS_REQUEST_BODY,
         requiredPropertiesOnlyRequestBody,
       );
 

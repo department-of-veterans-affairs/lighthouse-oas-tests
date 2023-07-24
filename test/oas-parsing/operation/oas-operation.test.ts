@@ -3,7 +3,7 @@ import { OperationObject } from 'swagger-client';
 import { operationSimpleGet } from '../../fixtures/utilities/oas-operations';
 import {
   DEFAULT_REQUEST_BODY,
-  REQUEST_BODY_REQUIRED_FIELDS_ONLY,
+  REQUIRED_FIELDS_REQUEST_BODY,
 } from '../../../src/utilities/constants';
 
 describe('OASOperation', () => {
@@ -121,7 +121,7 @@ describe('OASOperation', () => {
 
       const requiredFieldsExampleRequestBody = exampleRequestBodies.find(
         (exampleRequestBody) =>
-          exampleRequestBody.name === REQUEST_BODY_REQUIRED_FIELDS_ONLY,
+          exampleRequestBody.name === REQUIRED_FIELDS_REQUEST_BODY,
       );
       expect(requiredFieldsExampleRequestBody).toBeDefined();
 

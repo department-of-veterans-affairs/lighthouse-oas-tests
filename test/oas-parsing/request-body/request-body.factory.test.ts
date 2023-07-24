@@ -4,7 +4,7 @@ import RequestBodyFactory from '../../../src/oas-parsing/request-body/request-bo
 import ExampleRequestBody from '../../../src/oas-parsing/request-body/example-request-body';
 import {
   DEFAULT_REQUEST_BODY,
-  REQUEST_BODY_REQUIRED_FIELDS_ONLY,
+  REQUIRED_FIELDS_REQUEST_BODY,
 } from '../../../src/utilities/constants';
 import { emptyExampleRequestBody } from '../../fixtures/utilities/example-request-bodies';
 
@@ -42,7 +42,7 @@ const expectedDefaultExampleRequestBody = new ExampleRequestBody(
 );
 
 const expectedRequiredFieldsExampleRequestBody = new ExampleRequestBody(
-  REQUEST_BODY_REQUIRED_FIELDS_ONLY,
+  REQUIRED_FIELDS_REQUEST_BODY,
   requiredFieldsRequestBody,
 );
 

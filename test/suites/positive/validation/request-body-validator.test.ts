@@ -1,5 +1,5 @@
 import { RequestBodyValidator } from '../../../../src/suites/positive/validation';
-import { REQUEST_BODY_REQUIRED_FIELDS_ONLY } from '../../../../src/utilities/constants';
+import { REQUIRED_FIELDS_REQUEST_BODY } from '../../../../src/utilities/constants';
 import {
   operationSimpleGet,
   operationPutStudentRequestBodyMissingSchema,
@@ -51,7 +51,7 @@ describe('RequestBodyValidator', () => {
     const requiredPropertiesRequestBody =
       operationPutStudentRequestBodyFailures.exampleRequestBodies.find(
         (exampleRequestBody) =>
-          exampleRequestBody.name === REQUEST_BODY_REQUIRED_FIELDS_ONLY,
+          exampleRequestBody.name === REQUIRED_FIELDS_REQUEST_BODY,
       )?.requestBody;
     expect(requiredPropertiesRequestBody).toBeDefined();
 

@@ -1,8 +1,7 @@
 export const DEFAULT_PARAMETER_GROUP = 'default';
 export const NO_REQUEST_BODY = 'noRequestBody';
 export const DEFAULT_REQUEST_BODY = 'defaultRequestBody';
-export const REQUEST_BODY_REQUIRED_FIELDS_ONLY =
-  'requiredPropertiesRequestBody';
+export const REQUIRED_FIELDS_REQUEST_BODY = 'requiredPropertiesRequestBody';
 export const DEFAULT_SUITE_ID = 'suite';
 export const DEFAULT_TEST_NAME = 'test';
 
