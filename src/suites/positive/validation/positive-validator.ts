@@ -169,8 +169,15 @@ abstract class PositiveValidator extends BaseValidator {
     schema?: OASSchema,
   ): Promise<{ [property: string]: SchemaObject } | undefined> {
     if (expected.$ref && schema) {
-      const resolvePath = expected.$ref.split('/');
+      // The reference string may contain a URL before the path, but we're only interested in the path.
+      // So, anything left of the # char is removed.
+      let reference = expected.$ref;
+      const hashPosition = reference.indexOf('#');
+      if (hashPosition >= 0) {
+        reference = reference.substring(hashPosition);
+      }
 
+      const resolvePath = reference.split('/');
       if (resolvePath.length > 0 && resolvePath[0] === '#') {
         resolvePath.shift();
       }
@@ -182,7 +189,7 @@ abstract class PositiveValidator extends BaseValidator {
       );
 
       if (resolvedElement) {
-        return resolvedElement.spec.properties;
+        return resolvedElement.spec?.properties;
       }
     }
 
