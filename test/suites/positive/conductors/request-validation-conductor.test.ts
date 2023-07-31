@@ -8,7 +8,7 @@ import {
 import { emptyWarningMap, requestBodyWarningMap } from '../fixtures/warnings';
 import { exampleGroupEmptyDefault } from '../../../fixtures/utilities/example-groups';
 import { operationSimpleGet } from '../../../fixtures/utilities/oas-operations';
-import { emptyExampleRequestBody } from '../../../fixtures/utilities/example-request-bodies';
+import { exampleRequestBodyEmpty } from '../../../fixtures/utilities/example-request-bodies';
 
 const mockParameterValidate = jest.fn();
 const mockRequestBodyValidate = jest.fn();
@@ -80,7 +80,7 @@ describe('RequestValidationConductor', () => {
       const requestValidationConductor = new RequestValidationConductor(
         operationSimpleGet,
         exampleGroupEmptyDefault,
-        emptyExampleRequestBody,
+        exampleRequestBodyEmpty,
       );
       const [failures, warnings] = await requestValidationConductor.validate();
 

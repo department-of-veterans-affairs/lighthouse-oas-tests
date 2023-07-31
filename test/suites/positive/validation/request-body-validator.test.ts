@@ -4,7 +4,7 @@ import {
   operationSimpleGet,
   operationPutStudentRequestBodyMissingSchema,
   operationPutStudentRequestBodyFailures,
-  operationPutStudentValidRequestBody,
+  operationWithExampleGroupsAndExampleRequestBodies,
 } from '../../../fixtures/utilities/oas-operations';
 
 describe('RequestBodyValidator', () => {
@@ -21,8 +21,8 @@ describe('RequestBodyValidator', () => {
 
   it('contains no failures or warnings for a valid request body', async () => {
     const validator = new RequestBodyValidator(
-      operationPutStudentValidRequestBody,
-      operationPutStudentValidRequestBody.exampleRequestBodies[0].requestBody,
+      operationWithExampleGroupsAndExampleRequestBodies,
+      operationWithExampleGroupsAndExampleRequestBodies.exampleRequestBodies[0].requestBody,
     );
     await validator.validate();
 

@@ -25,7 +25,12 @@ export default class ValidationConductor {
 
   constructor(
     schema: OASSchema,
-    { operation, exampleGroup, exampleRequestBody, name }: OperationExample,
+    {
+      operation,
+      exampleGroup,
+      exampleRequestBody,
+      name: operationExampleName,
+    }: OperationExample,
     securityValues: SecurityValues,
     server: string | undefined,
   ) {
@@ -33,7 +38,7 @@ export default class ValidationConductor {
     this.operation = operation;
     this.exampleGroup = exampleGroup;
     this.exampleRequestBody = exampleRequestBody;
-    this.operationExampleName = name;
+    this.operationExampleName = operationExampleName;
     this.securityValues = securityValues;
     this.server = server;
   }

@@ -1,12 +1,12 @@
 import { OperationObject } from 'swagger-client';
 import OASOperation from '../../../src/oas-parsing/operation/oas-operation';
 import RequestBodyFactory from '../../../src/oas-parsing/request-body/request-body.factory';
-import ExampleRequestBody from '../../../src/oas-parsing/request-body/example-request-body';
 import {
-  DEFAULT_REQUEST_BODY,
-  REQUIRED_FIELDS_REQUEST_BODY,
-} from '../../../src/utilities/constants';
-import { emptyExampleRequestBody } from '../../fixtures/utilities/example-request-bodies';
+  exampleRequestBodyEmpty,
+  exampleRequestBodyDefault,
+  exampleRequestBodyRequiredOnly,
+} from '../../fixtures/utilities/example-request-bodies';
+import { requestBodyOptionalPropertiesMediaTypeExample } from '../../fixtures/utilities/oas-request-bodies';
 
 const oasOperationObject: OperationObject = {
   operationId: 'postHobbit',
@@ -25,51 +25,17 @@ const oasOperationObject: OperationObject = {
   },
 };
 
-const requestBody = {
-  age: 'eleventy one',
-  home: 'The Shire',
-  hobby: 'eating',
-};
-
-const requiredFieldsRequestBody = {
-  age: 'eleventy one',
-  home: 'The Shire',
-};
-
-const expectedDefaultExampleRequestBody = new ExampleRequestBody(
-  DEFAULT_REQUEST_BODY,
-  requestBody,
-);
-
-const expectedRequiredFieldsExampleRequestBody = new ExampleRequestBody(
-  REQUIRED_FIELDS_REQUEST_BODY,
-  requiredFieldsRequestBody,
-);
-
 it('RequestBodyFactory.buildFromOperation() returns ExampleRequestBodies from MediaTypeObject example', () => {
-  oasOperationObject.requestBody = {
-    required: true,
-    content: {
-      'application/json': {
-        schema: {
-          required: ['age', 'home'],
-        },
-        example: requestBody,
-      },
-    },
-  };
+  oasOperationObject.requestBody =
+    requestBodyOptionalPropertiesMediaTypeExample;
 
   const oasOperation = new OASOperation(oasOperationObject);
   const exampleRequestBodies =
     RequestBodyFactory.buildFromOperation(oasOperation);
 
   expect(exampleRequestBodies).toHaveLength(2);
-  expect(exampleRequestBodies).toContainEqual(
-    expectedDefaultExampleRequestBody,
-  );
-  expect(exampleRequestBodies).toContainEqual(
-    expectedRequiredFieldsExampleRequestBody,
-  );
+  expect(exampleRequestBodies).toContainEqual(exampleRequestBodyDefault);
+  expect(exampleRequestBodies).toContainEqual(exampleRequestBodyRequiredOnly);
 });
 
 it('RequestBodyFactory.buildFromOperation() returns one ExampleRequestBody when default and required fields request bodies are the same', () => {
@@ -78,9 +44,25 @@ it('RequestBodyFactory.buildFromOperation() returns one ExampleRequestBody when 
     content: {
       'application/json': {
         schema: {
+          type: 'object',
           required: ['age', 'home', 'hobby'],
+          properties: {
+            age: {
+              type: 'string',
+            },
+            home: {
+              type: 'string',
+            },
+            hobby: {
+              type: 'string',
+            },
+          },
         },
-        example: requestBody,
+        example: {
+          age: 'eleventy one',
+          home: 'The Shire',
+          hobby: 'eating',
+        },
       },
     },
   };
@@ -90,9 +72,7 @@ it('RequestBodyFactory.buildFromOperation() returns one ExampleRequestBody when 
     RequestBodyFactory.buildFromOperation(oasOperation);
 
   expect(exampleRequestBodies).toHaveLength(1);
-  expect(exampleRequestBodies).toContainEqual(
-    expectedDefaultExampleRequestBody,
-  );
+  expect(exampleRequestBodies).toContainEqual(exampleRequestBodyDefault);
 });
 
 it('RequestBodyFactory.buildFromOperation() returns ExampleRequestBodies from MediaTypeObject schema examples', () => {
@@ -127,12 +107,8 @@ it('RequestBodyFactory.buildFromOperation() returns ExampleRequestBodies from Me
     RequestBodyFactory.buildFromOperation(oasOperation);
 
   expect(exampleRequestBodies).toHaveLength(2);
-  expect(exampleRequestBodies).toContainEqual(
-    expectedDefaultExampleRequestBody,
-  );
-  expect(exampleRequestBodies).toContainEqual(
-    expectedRequiredFieldsExampleRequestBody,
-  );
+  expect(exampleRequestBodies).toContainEqual(exampleRequestBodyDefault);
+  expect(exampleRequestBodies).toContainEqual(exampleRequestBodyRequiredOnly);
 });
 
 it('RequestBodyFactory.buildFromOperation() returns empty ExampleRequestBody when operation does not require a request body', () => {
@@ -142,7 +118,7 @@ it('RequestBodyFactory.buildFromOperation() returns empty ExampleRequestBody whe
     RequestBodyFactory.buildFromOperation(oasOperation);
 
   expect(exampleRequestBodies).toHaveLength(1);
-  expect(exampleRequestBodies).toContainEqual(emptyExampleRequestBody);
+  expect(exampleRequestBodies).toContainEqual(exampleRequestBodyEmpty);
 });
 
 it('RequestBodyFactory.buildFromOperation() returns empty ExampleRequestBody when schema properties are not set', () => {
@@ -163,5 +139,5 @@ it('RequestBodyFactory.buildFromOperation() returns empty ExampleRequestBody whe
     RequestBodyFactory.buildFromOperation(oasOperation);
 
   expect(exampleRequestBodies).toHaveLength(1);
-  expect(exampleRequestBodies).toContainEqual(emptyExampleRequestBody);
+  expect(exampleRequestBodies).toContainEqual(exampleRequestBodyEmpty);
 });

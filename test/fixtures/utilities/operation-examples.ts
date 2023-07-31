@@ -8,20 +8,20 @@ import {
   exampleGroupEmptyDefault,
   exampleGroupTomRiddle,
 } from './example-groups';
-import { emptyExampleRequestBody } from './example-request-bodies';
+import { exampleRequestBodyEmpty } from './example-request-bodies';
 
 export const operationExampleSimpleGetDefault = new OperationExample(
   operationSimpleGet,
   exampleGroupEmptyDefault,
-  emptyExampleRequestBody,
+  exampleRequestBodyEmpty,
 );
 export const operationExampleTomRiddleExGroup = new OperationExample(
   operationGetWithExampleGroups,
   exampleGroupTomRiddle,
-  emptyExampleRequestBody,
+  exampleRequestBodyEmpty,
 );
 export const operationExampleDefaultExGroup = new OperationExample(
   operationGetWithExampleGroups,
   exampleGroupDefault,
-  emptyExampleRequestBody,
+  exampleRequestBodyEmpty,
 );
