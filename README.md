@@ -538,58 +538,85 @@ Example Groups are built from Parameter objects in both the Path Item Object and
 
   </details>
 
-## Example Request Body
+## Example Request Bodies
 
-An Example Request Body is built from Property objects in the Request Body's Content schema.
-All properties listed as required will be included in the example request body.
-Properties that are not required will not be included, even if a property example is provided.
+If an Operation requires a request body, LOAST will build a default ExampleRequestBody using an OAS Operation source in order of precedence:
 
-<details><summary>Sample JSON</summary>
+- MediaTypeObject.example
+- The "example" field on each property in MediaTypeObject.schema.properties
+
+The default ExampleRequestBody will include every field included in MediaTypeObject.example or every property in MediaTypeObject.schema.properties that has its "example" field set.
+
+If the default ExampleRequestBody contains optional fields, then an additional required-fields-only ExampleRequestBody will be constructed. This request body will only contain fields that are marked as required in MediaTypeObject.schema.
+
+<details><summary>Sample JSON - MediaTypeObject.example</summary>
 
 ```json
-  "schemas": {
-    "VeteranStatusRequest": {
-      "type": "object",
-      "required": [
-        "ssn",
-        "first_name",
-        "last_name",
-        "birth_date"
-      ],
-      "properties": {
-        "ssn": {
-          "type": "string",
-          "example": "555-55-5555"
-        },
-        "first_name": {
-          "type": "string",
-          "example": "John"
-        },
-        "last_name": {
-          "type": "string",
-          "example": "Doe"
-        },
-        "birth_date": {
-          "type": "string",
-          "example": "1965-01-01"
-        },
-        "middle_name": {
-          "type": "string",
-          "example": "Theodore"
-        },
-        "gender": {
-          "type": "string",
-          "enum": [
-            "M",
-            "F"
-          ],
-          "example": "M"
+  "paths": {
+    "/status": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "ssn",
+                  "first_name",
+                  "last_name",
+                  "birth_date"
+                ],
+                "properties": {
+                  "ssn": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "birth_date": {
+                    "type": "string"
+                  },
+                  "middle_name": {
+                    "type": "string"
+                  },
+                  "gender": {
+                    "type": "string",
+                    "enum": [
+                      "M",
+                      "F"
+                    ]
+                  }
+                }
+              },
+              "example": {
+                "ssn": "555-55-5555",
+                "first_name": "John",
+                "last_name": "Doe",
+                "birth_date": "1965-01-01",
+                "middle_name": "Theodore",
+                "gender": "M"
+              }
+            }
+          }
         }
       }
     }
   }
 
-  //Example Request Body
+  //Example Request Body - default
+  {
+    "ssn": "555-55-5555",
+    "first_name": "John",
+    "last_name": "Doe",
+    "birth_date": "1965-01-01",
+    "middle_name": "Theodore",
+    "gender": "M"
+  }
+
+  //Example Request Body - required fields only
   {
     "ssn": "555-55-5555",
     "first_name": "John",
@@ -599,6 +626,84 @@ Properties that are not required will not be included, even if a property exampl
 ```
 
 </details>
+</br>
+
+<details><summary>Sample JSON - schema.properties "example" fields</summary>
+
+```json
+  "paths": {
+    "/status": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "ssn",
+                  "first_name",
+                  "last_name",
+                  "birth_date"
+                ],
+                "properties": {
+                  "ssn": {
+                    "type": "string",
+                    "example": "555-55-5555"
+                  },
+                  "first_name": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "example": "Doe"
+                  },
+                  "birth_date": {
+                    "type": "string",
+                    "example": "1965-01-01"
+                  },
+                  "middle_name": {
+                    "type": "string",
+                    "example": "Theodore"
+                  },
+                  "gender": {
+                    "type": "string",
+                    "enum": [
+                      "M",
+                      "F"
+                    ],
+                    "example": "M"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  //Example Request Body - default
+  {
+    "ssn": "555-55-5555",
+    "first_name": "John",
+    "last_name": "Doe",
+    "birth_date": "1965-01-01",
+    "middle_name": "Theodore",
+    "gender": "M"
+  }
+
+  //Example Request Body - required fields only
+  {
+    "ssn": "555-55-5555",
+    "first_name": "John",
+    "last_name": "Doe",
+    "birth_date": "1965-01-01"
+  }
+```
+
+</details>
+</br>
 
 # Validation
 

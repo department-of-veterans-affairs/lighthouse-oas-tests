@@ -1,4 +1,4 @@
-import { OperationObject, ParameterObject, RequestBody } from 'swagger-client';
+import { OperationObject, ParameterObject } from 'swagger-client';
 import {
   RequestBodyObject,
   ResponseObject,
@@ -8,6 +8,7 @@ import ExampleGroup, { ExampleGroupFactory } from '../example-group';
 import OASSecurity from '../security';
 import OASSecurityFactory from '../security/oas-security.factory';
 import RequestBodyFactory from '../request-body/request-body.factory';
+import ExampleRequestBody from '../request-body/example-request-body';
 
 class OASOperation {
   readonly operation: OperationObject;
@@ -22,7 +23,7 @@ class OASOperation {
 
   private _exampleGroups: ExampleGroup[];
 
-  private _exampleRequestBody: RequestBody;
+  private _exampleRequestBodies: ExampleRequestBody[];
 
   constructor(
     operation: OperationObject,
@@ -33,7 +34,7 @@ class OASOperation {
     this.parameters = operation.parameters;
     this.requestBody = operation.requestBody;
     this._exampleGroups = ExampleGroupFactory.buildFromOperation(this);
-    this._exampleRequestBody = RequestBodyFactory.buildFromOperation(this);
+    this._exampleRequestBodies = RequestBodyFactory.buildFromOperation(this);
     this.security = OASSecurityFactory.getSecurities(
       operation.security ?? securities,
     );
@@ -43,8 +44,8 @@ class OASOperation {
     return [...this._exampleGroups];
   }
 
-  get exampleRequestBody(): RequestBody {
-    return { ...this._exampleRequestBody };
+  get exampleRequestBodies(): ExampleRequestBody[] {
+    return [...this._exampleRequestBodies];
   }
 
   get requiredParameterNames(): string[] {

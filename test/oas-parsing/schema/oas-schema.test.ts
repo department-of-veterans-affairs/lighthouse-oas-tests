@@ -7,6 +7,7 @@ import {
   securitySchemeAPIKey,
   securitySchemeTeacherAPIKey,
 } from '../../fixtures/utilities/oas-security-schemes';
+import { DEFAULT_REQUEST_BODY } from '../../../src/utilities/constants';
 
 describe('OASSchema', () => {
   const generateSchema = async (filePath: string): Promise<OASSchema> => {
@@ -105,7 +106,7 @@ describe('OASSchema', () => {
       };
     });
 
-    it('calls the provided operation with the provided parameters and request body without apiKey', async () => {
+    it('calls the provided operation with the provided parameters and request bodies without apiKey', async () => {
       const operation = new OASOperation(operationObject);
       const executeMock = jest.fn(
         (_arg) => new Promise((resolve) => resolve(_arg)),
@@ -119,17 +120,24 @@ describe('OASSchema', () => {
 
       const [exampleGroup] = operation.exampleGroups;
       const securities: SecurityValues = {};
-      const requestBody = operation.exampleRequestBody;
       const server =
         'https://sandbox-api.va.gov/services/va_facilities/{version}';
 
-      await schema.execute(
-        operation,
-        exampleGroup,
-        securities,
-        requestBody,
-        server,
-      );
+      const requiredFieldsRequestBody = operation.exampleRequestBodies.find(
+        (exampleRequestBody) =>
+          exampleRequestBody.name === DEFAULT_REQUEST_BODY,
+      )?.requestBody;
+      expect(requiredFieldsRequestBody).toBeDefined;
+
+      if (requiredFieldsRequestBody !== undefined) {
+        await schema.execute(
+          operation,
+          exampleGroup,
+          securities,
+          requiredFieldsRequestBody,
+          server,
+        );
+      }
 
       expect(executeMock).toHaveBeenCalledWith({
         operationId: 'getFacilityById',
@@ -139,6 +147,7 @@ describe('OASSchema', () => {
         },
         requestBody: {
           id: 'secondTestId',
+          zip: '00000',
         },
         securities: {
           authorized: {},

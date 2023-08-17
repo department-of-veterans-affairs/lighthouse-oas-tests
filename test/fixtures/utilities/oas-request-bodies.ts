@@ -31,6 +31,35 @@ export const requestBodyValid: RequestBodyObject = {
   },
 };
 
+export const requestBodyOptionalPropertiesMediaTypeExample: RequestBodyObject =
+  {
+    required: true,
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          required: ['age', 'home'],
+          properties: {
+            age: {
+              type: 'string',
+            },
+            home: {
+              type: 'string',
+            },
+            hobby: {
+              type: 'string',
+            },
+          },
+        },
+        example: {
+          age: 'eleventy one',
+          home: 'The Shire',
+          hobby: 'eating',
+        },
+      },
+    },
+  };
+
 export const requestBodyMissingSchema: RequestBodyObject = {
   required: true,
   content: {

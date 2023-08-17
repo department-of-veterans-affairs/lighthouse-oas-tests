@@ -1,6 +1,10 @@
 import OASOperation from '../../../src/oas-parsing/operation';
 import { OperationObject } from 'swagger-client';
 import { operationSimpleGet } from '../../fixtures/utilities/oas-operations';
+import {
+  DEFAULT_REQUEST_BODY,
+  REQUIRED_FIELDS_REQUEST_BODY,
+} from '../../../src/utilities/constants';
 
 describe('OASOperation', () => {
   const baseOperation = {
@@ -95,12 +99,40 @@ describe('OASOperation', () => {
     });
   });
 
-  describe('getExampleRequestBody', () => {
-    it('returns the example request body', () => {
-      const exampleRequestBody = operation.exampleRequestBody;
-      expect(Object.keys(exampleRequestBody)).toHaveLength(2);
-      expect(exampleRequestBody.age).toEqual('eleventy one');
-      expect(exampleRequestBody.home).toEqual('The Shire');
+  describe('getExampleRequestBodies', () => {
+    it('returns the example request bodies', () => {
+      const exampleRequestBodies = operation.exampleRequestBodies;
+      expect(exampleRequestBodies).toHaveLength(2);
+
+      const defaultExampleRequestBody = exampleRequestBodies.find(
+        (exampleRequestBody) =>
+          exampleRequestBody.name === DEFAULT_REQUEST_BODY,
+      );
+      expect(defaultExampleRequestBody).toBeDefined();
+
+      const defaultRequestBody = defaultExampleRequestBody?.requestBody;
+      expect(defaultRequestBody).toBeDefined();
+      if (defaultRequestBody !== undefined) {
+        expect(Object.keys(defaultRequestBody)).toHaveLength(3);
+        expect(defaultRequestBody.age).toEqual('eleventy one');
+        expect(defaultRequestBody.home).toEqual('The Shire');
+        expect(defaultRequestBody.hobby).toEqual('eating');
+      }
+
+      const requiredFieldsExampleRequestBody = exampleRequestBodies.find(
+        (exampleRequestBody) =>
+          exampleRequestBody.name === REQUIRED_FIELDS_REQUEST_BODY,
+      );
+      expect(requiredFieldsExampleRequestBody).toBeDefined();
+
+      const requiredFieldsRequestBody =
+        requiredFieldsExampleRequestBody?.requestBody;
+      expect(requiredFieldsRequestBody).toBeDefined();
+      if (requiredFieldsRequestBody !== undefined) {
+        expect(Object.keys(requiredFieldsRequestBody)).toHaveLength(2);
+        expect(requiredFieldsRequestBody.age).toEqual('eleventy one');
+        expect(requiredFieldsRequestBody.home).toEqual('The Shire');
+      }
     });
   });
 

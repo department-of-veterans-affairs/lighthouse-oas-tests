@@ -3,13 +3,16 @@ import OASOperation from '../../../oas-parsing/operation';
 import PositiveValidator from './positive-validator';
 import { Type } from './positive-message';
 import { REQUEST_BODY_PATH } from '../utilities/constants';
+import { RequestBody } from 'swagger-client';
 
 class RequestBodyValidator extends PositiveValidator {
   private operation: OASOperation;
+  private requestBody: RequestBody;
 
-  constructor(operation: OASOperation) {
+  constructor(operation: OASOperation, requestBody: RequestBody) {
     super();
     this.operation = operation;
+    this.requestBody = requestBody;
   }
 
   performValidation = async (): Promise<void> => {
@@ -41,8 +44,7 @@ class RequestBodyValidator extends PositiveValidator {
     const [key] = Object.keys(content);
     const schema = content[key].schema;
     if (schema) {
-      const example = this.operation.exampleRequestBody;
-      await this.validateObjectAgainstSchema(example, schema, [
+      await this.validateObjectAgainstSchema(this.requestBody, schema, [
         ...path,
         'example',
       ]);
