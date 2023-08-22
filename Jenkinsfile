@@ -1,7 +1,9 @@
 pipeline {
   agent {
     docker {
-      image 'vasdvp/lighthouse-node-application-base:node16'
+      image 'ghcr.io/department-of-veterans-affairs/health-apis-docker-octopus/lighthouse-node-application-base:node16'
+      registryUrl 'https://ghcr.io'
+      registryCredentialsId 'GITHUB_USERNAME_TOKEN'
     }
   }
   environment {
