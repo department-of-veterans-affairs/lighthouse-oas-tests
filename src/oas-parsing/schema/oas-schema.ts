@@ -76,7 +76,25 @@ class OASSchema {
       ) !== undefined
     ) {
       options.responseContentType = options.parameters.Accept;
+    } else if (operation.operation.responses['200']) {
+      //options.responseContentType = Object.keys(
+      //  operation.operation.responses['200'].content,
+      //)[0];
+      //options.responseContentType = 'application/json';
+    } else if (operation.operation.responses['201']) {
+      //options.responseContentType = Object.keys(
+      //  operation.operation.responses['201'].content,
+      //)[0];
+      //options.responseContentType = 'application/json';
     }
+
+    const requestInterceptor = (request) => {
+      // eslint-disable-next-line no-console
+      console.log(request);
+      return request;
+    };
+
+    options.requestInterceptor = requestInterceptor;
 
     return schema.execute(options).catch((error) => {
       return error.response;
