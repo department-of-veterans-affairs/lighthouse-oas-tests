@@ -891,7 +891,7 @@ Debugging with Visual Studio Code can be accomplished by adding or updating `./.
         "-a",
         "YOUR_API_KEY",
         "-s",
-        "https://sandbox-api.va.gov/services/va_facilities/{version}"
+        "https://sandbox-api.va.gov/services/va_facilities/{version}",
         "test/fixtures/facilities_oas.json"
       ],
       "preLaunchTask": "npm: build"
