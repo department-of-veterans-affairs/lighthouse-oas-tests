@@ -94,7 +94,10 @@ class OASSchema {
     return this.operations;
   };
 
-  getRelevantSecuritySchemes = async (): Promise<OASSecurityScheme[]> => {
+  getRelevantSecuritySchemes = async (): Promise<{
+    relevantSecuritySchemes: OASSecurityScheme[];
+    missingSecuritySchemes: string[];
+  }> => {
     const operations = await this.getOperations();
     const uniqueSecurities = uniq(
       operations.flatMap((operation) => {
@@ -103,7 +106,7 @@ class OASSchema {
     );
 
     if (uniqueSecurities.length === 0) {
-      return [];
+      return { relevantSecuritySchemes: [], missingSecuritySchemes: [] };
     }
 
     const schema = await this.getClient();
@@ -122,18 +125,17 @@ class OASSchema {
       }
     }
 
-    if (missingSecuritySchemes.length > 0) {
-      throw new Error(
-        `The following security requirements exist but no corresponding security scheme exists on the components object: ${missingSecuritySchemes.join(
-          ', ',
-        )}.
-  See more at: https://swagger.io/specification/#security-requirement-object`,
-      );
-    }
+    // if (missingSecuritySchemes.length > 0 && suiteIds.includes('positive')) {
+    //   throw new MissingSecuritySchemeError(missingSecuritySchemes);
+    // }
 
-    return securitySchemes.filter((scheme) =>
+    const relevantSecuritySchemes = securitySchemes.filter((scheme) =>
       uniqueSecurities.includes(scheme.key),
     );
+    return {
+      relevantSecuritySchemes,
+      missingSecuritySchemes,
+    };
   };
 
   getServers = async (): Promise<OASServer[]> => {

@@ -5,6 +5,8 @@ import { FILE_PROTOCOL } from './utilities/constants';
 import OASSchema from './oas-parsing/schema';
 import { FileIn } from './utilities/file-in';
 import { SuiteFactory, SuiteConfig } from './suites';
+import { MissingSecuritySchemeError } from './Errors/MissingSecuritySchemeError';
+import PositiveSuite from './suites/positive/positive-suite';
 
 export default class Loast {
   private testName: string;
@@ -20,14 +22,15 @@ export default class Loast {
   // getResults(): Entry point for all LOAST testing (Whether by command line or by Node import).
   //  Conducts choosen test suites based on 'suiteIds' option and returns a set of test results per suite.
   public async getResults(): Promise<OASResult[]> {
-    await this.populateSuiteConfig();
-
+    this.populateSuiteConfig();
     const results: OASResult[] = [];
     let suiteIds = this.options.suiteIds;
 
     if (!suiteIds || suiteIds.length === 0) {
       suiteIds = SuiteFactory.availableSuiteIds();
     }
+
+    await this.populateRelevantSecuritySchemas(suiteIds);
 
     await Promise.all(
       suiteIds.map(async (suiteId) => {
@@ -63,7 +66,7 @@ export default class Loast {
     );
   }
 
-  private async populateSuiteConfig(): Promise<void> {
+  private populateSuiteConfig(): void {
     const oasSchemaOptions: ConstructorParameters<typeof OASSchema>[0] = {};
 
     const parsed = parsePath(this.options.path);
@@ -74,11 +77,27 @@ export default class Loast {
     }
 
     const schema = new OASSchema(oasSchemaOptions);
-    this.relevantSecuritySchemes = await schema.getRelevantSecuritySchemes();
 
     this.suiteConfig = {
       options: this.options,
       schema: schema,
     };
+  }
+
+  private async populateRelevantSecuritySchemas(
+    suiteIds: string[],
+  ): Promise<void> {
+    const { relevantSecuritySchemes, missingSecuritySchemes } =
+      await this.suiteConfig.schema.getRelevantSecuritySchemes();
+
+    // only the positive suite should throw an error if a security scheme is missing
+    if (
+      missingSecuritySchemes.length > 0 &&
+      suiteIds.includes(PositiveSuite.suiteId)
+    ) {
+      throw new MissingSecuritySchemeError(missingSecuritySchemes);
+    }
+
+    this.relevantSecuritySchemes = relevantSecuritySchemes;
   }
 }
