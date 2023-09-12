@@ -125,10 +125,6 @@ class OASSchema {
       }
     }
 
-    // if (missingSecuritySchemes.length > 0 && suiteIds.includes('positive')) {
-    //   throw new MissingSecuritySchemeError(missingSecuritySchemes);
-    // }
-
     const relevantSecuritySchemes = securitySchemes.filter((scheme) =>
       uniqueSecurities.includes(scheme.key),
     );

@@ -23,6 +23,7 @@ export default class Loast {
   //  Conducts choosen test suites based on 'suiteIds' option and returns a set of test results per suite.
   public async getResults(): Promise<OASResult[]> {
     this.populateSuiteConfig();
+
     const results: OASResult[] = [];
     let suiteIds = this.options.suiteIds;
 
