@@ -8,6 +8,7 @@ import Suite, { SuiteConfig } from '../suite';
 import { SecurityValues } from 'swagger-client';
 import { SecurityValuesFactory } from '../../oas-parsing/security-values';
 import OASSchema from '../../oas-parsing/schema';
+import { MissingSecuritySchemeError } from '../../Errors/MissingSecuritySchemeError';
 
 export default class PositiveSuite extends Suite {
   public static suiteId = 'positive';
@@ -24,8 +25,11 @@ export default class PositiveSuite extends Suite {
 
     this.server = suiteConfig.options.server;
     this.schema = suiteConfig.schema;
-    const relevantSecuritySchemes =
+    const { relevantSecuritySchemes, missingSecuritySchemes } =
       await this.schema.getRelevantSecuritySchemes();
+    if (missingSecuritySchemes.length > 0) {
+      throw new MissingSecuritySchemeError(missingSecuritySchemes);
+    }
 
     this.securityValues = SecurityValuesFactory.buildFromSecuritySchemes(
       relevantSecuritySchemes,

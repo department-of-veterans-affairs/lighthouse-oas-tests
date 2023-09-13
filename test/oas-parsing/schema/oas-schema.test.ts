@@ -162,28 +162,30 @@ describe('OASSchema', () => {
     it('returns an empty string when no operations use security', async () => {
       const filePath = 'test/fixtures/oas/security/no_security_oas.json';
       const schema = await generateSchema(filePath);
-      const securitySchemes = await schema.getRelevantSecuritySchemes();
-      expect(securitySchemes).toEqual([]);
+      const { relevantSecuritySchemes } =
+        await schema.getRelevantSecuritySchemes();
+      expect(relevantSecuritySchemes).toEqual([]);
     });
 
-    it('throws an error if securitySchemes are missing', async () => {
+    it('returns securitySchemes are missing in missingSecuritySchemes', async () => {
       const filePath =
         'test/fixtures/oas/security/missing_security_scheme_oas.json';
       const schema = await generateSchema(filePath);
-      await expect(async () =>
-        schema.getRelevantSecuritySchemes(),
-      ).rejects.toThrow(
-        `The following security requirements exist but no corresponding security scheme exists on the components object: teacher.\n  See more at: https://swagger.io/specification/#security-requirement-object`,
-      );
+      const { missingSecuritySchemes } =
+        await schema.getRelevantSecuritySchemes();
+      expect(missingSecuritySchemes).toEqual(['teacher']);
     });
 
     it('returns relevant securitySchemes', async () => {
       const filePath = 'test/fixtures/oas/security/valid_securities_oas.json';
       const schema = await generateSchema(filePath);
-      const securitySchemes = await schema.getRelevantSecuritySchemes();
-      expect(securitySchemes).toHaveLength(2);
-      expect(securitySchemes).toContainEqual(securitySchemeAPIKey);
-      expect(securitySchemes).toContainEqual(securitySchemeTeacherAPIKey);
+      const { relevantSecuritySchemes } =
+        await schema.getRelevantSecuritySchemes();
+      expect(relevantSecuritySchemes).toHaveLength(2);
+      expect(relevantSecuritySchemes).toContainEqual(securitySchemeAPIKey);
+      expect(relevantSecuritySchemes).toContainEqual(
+        securitySchemeTeacherAPIKey,
+      );
     });
   });
 

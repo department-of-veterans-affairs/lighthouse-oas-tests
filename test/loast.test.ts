@@ -7,6 +7,7 @@ import { securitySchemeAPIKey } from './fixtures/utilities/oas-security-schemes'
 import { operationExampleResultFailuresWarnings } from './fixtures/validation/operation-results';
 import { FileIn } from '../src/utilities/file-in';
 import { Loast } from '../src';
+import { MissingSecuritySchemeError } from '../src/Errors/MissingSecuritySchemeError';
 
 const mockGetServers = jest.fn();
 const mockGetRelevantSecuritySchemes = jest.fn();
@@ -69,7 +70,10 @@ describe('Loast', () => {
       .fn()
       .mockReturnValue([PositiveSuite.suiteId, 'validation', 'lint']);
 
-    mockGetRelevantSecuritySchemes.mockResolvedValue([securitySchemeAPIKey]);
+    mockGetRelevantSecuritySchemes.mockResolvedValue({
+      relevantSecuritySchemes: [securitySchemeAPIKey],
+      missingSecuritySchemes: [],
+    });
   });
 
   describe('getResults', () => {
@@ -144,6 +148,17 @@ describe('Loast', () => {
       const results = await new Loast('test', options).getResults();
 
       expect(results.length).toEqual(totalSuites.length);
+    });
+
+    it('throws an error when there is a missing security scheme', async () => {
+      mockGetRelevantSecuritySchemes.mockResolvedValue({
+        relevantSecuritySchemes: [],
+        missingSecuritySchemes: ['fakeKey'],
+      });
+
+      await expect(
+        new Loast('winterfell', options).getResults(),
+      ).rejects.toThrow(MissingSecuritySchemeError);
     });
   });
 });
