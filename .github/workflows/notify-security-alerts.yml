@@ -75,3 +75,4 @@ jobs:
           SLACK_FOOTER: "@team_quokka Please address findings as soon as possible"
           MSG_MINIMAL: true
           SLACK_MESSAGE: ${{join(steps.alerts_summary.outputs.summary, '\n')}}
+
