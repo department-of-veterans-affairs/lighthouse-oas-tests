@@ -45,3 +45,11 @@ rules:
     then:
       field: '503'
       function: truthy
+
+  va-endpoint-default-errors-gateway-timeout:
+    description: If your API is not receiving a timely response from an upstream service and could cause it to throw a 500 error, consider catching it and raising a 504 instead.
+    given: $.paths..responses
+    severity: warn
+    then:
+      field: '504'
+      function: truthy

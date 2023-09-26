@@ -17,6 +17,7 @@
         "va-property-names-camel-case": ["`street_address_1` is not camelCase", "`street_address_2` is not camelCase", "`street_address_3` is not camelCase"],
         "va-endpoint-default-errors-internal-server-error": ["A Response with error status code 500 is required for all endpoints."],
         "va-endpoint-default-errors-bad-gateway": ["If an upstream service error could cause your API to throw a 500 error, consider catching it and raising a 502 instead."],
-        "va-endpoint-default-errors-service-unavailable": ["If an upstream service outage could cause your API to throw a 500 error, consider catching it and raising a 503 instead."]
+        "va-endpoint-default-errors-service-unavailable": ["If an upstream service outage could cause your API to throw a 500 error, consider catching it and raising a 503 instead."],
+        "va-endpoint-default-errors-gateway-timeout": ["If your API is not receiving a timely response from an upstream service and could cause it to throw a 500 error, consider catching it and raising a 504 instead."]
     }
 }
