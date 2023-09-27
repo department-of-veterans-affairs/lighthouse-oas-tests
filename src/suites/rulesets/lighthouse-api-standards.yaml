@@ -38,6 +38,14 @@ rules:
       field: '401'
       function: truthy
 
+  va-endpoint-default-errors-forbidden:
+    description: A response with error status code 403 is required for all endpoints.
+    given: $.paths..responses
+    severity: error
+    then:
+      field: '403'
+      function: truthy
+
   va-endpoint-default-errors-internal-server-error:
     description: A Response with error status code 500 is required for all endpoints.
     given: $.paths..responses
