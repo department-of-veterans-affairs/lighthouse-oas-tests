@@ -23,7 +23,7 @@ rules:
       function: truthy
 
   va-endpoint-default-errors-bad-request:
-    description: A Response with error status code 400 is required for all endpoints.
+    description: A response with error status code 400 is required for all endpoints.
     given: $.paths..responses
     severity: error
     then:
@@ -31,7 +31,7 @@ rules:
       function: truthy
 
   va-endpoint-default-errors-unauthorized:
-    description: A Response with error status code 401 is required for all endpoints.
+    description: A response with error status code 401 is required for all endpoints.
     given: $.paths..responses
     severity: error
     then:
@@ -47,7 +47,7 @@ rules:
       function: truthy
 
   va-endpoint-default-errors-internal-server-error:
-    description: A Response with error status code 500 is required for all endpoints.
+    description: A response with error status code 500 is required for all endpoints.
     given: $.paths..responses
     severity: error
     then:
