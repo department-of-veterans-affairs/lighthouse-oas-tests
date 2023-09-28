@@ -19,6 +19,7 @@
         "va-endpoint-default-errors-unauthorized": ["A response with error status code 401 is required for all endpoints."],
         "va-endpoint-default-errors-forbidden": ["A response with error status code 403 is required for all endpoints."],
         "va-endpoint-default-errors-not-found": ["A response with error status code 404 is required for all endpoints."],
+        "va-endpoint-default-errors-too-many-requests": ["A response with error status code 429 is required for all endpoints."],
         "va-endpoint-default-errors-internal-server-error": ["A response with error status code 500 is required for all endpoints."],
         "va-endpoint-default-errors-bad-gateway": ["If an upstream service error could cause your API to throw a 500 error, consider catching it and raising a 502 instead."],
         "va-endpoint-default-errors-service-unavailable": ["If an upstream service outage could cause your API to throw a 500 error, consider catching it and raising a 503 instead."],
