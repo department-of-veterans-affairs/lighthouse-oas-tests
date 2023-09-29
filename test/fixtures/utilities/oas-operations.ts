@@ -2,7 +2,6 @@ import OASOperation from '../../../src/oas-parsing/operation';
 import {
   requestBodyMissingSchema,
   requestBodyWithFailures,
-  requestBodyValid,
   requestBodyOptionalPropertiesMediaTypeExample,
 } from './oas-request-bodies';
 
