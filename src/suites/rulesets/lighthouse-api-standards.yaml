@@ -54,14 +54,6 @@ rules:
       field: '404'
       function: truthy
 
-  va-endpoint-default-errors-too-many-requests:
-    description: A response with error status code 429 is required for all endpoints.
-    given: $.paths..responses
-    severity: error
-    then:
-      field: '429'
-      function: truthy
-
   va-endpoint-default-errors-internal-server-error:
     description: A response with error status code 500 is required for all endpoints.
     given: $.paths..responses
