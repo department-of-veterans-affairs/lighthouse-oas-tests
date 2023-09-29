@@ -14,6 +14,14 @@
     },
     "lighthouse-api-standards" : {
         "va-endpoint-operation-security": ["Security must be declared for each operation. If this endpoint does not require authentication set the security object to an array with one blank object (- {})."],
-        "va-property-names-camel-case": ["`street_address_1` is not camelCase", "`street_address_2` is not camelCase", "`street_address_3` is not camelCase"]
+        "va-property-names-camel-case": ["`street_address_1` is not camelCase", "`street_address_2` is not camelCase", "`street_address_3` is not camelCase"],
+        "va-endpoint-default-errors-bad-request": ["A response with error status code 400 is required for all endpoints."],
+        "va-endpoint-default-errors-unauthorized": ["A response with error status code 401 is required for all endpoints."],
+        "va-endpoint-default-errors-forbidden": ["A response with error status code 403 is required for all endpoints."],
+        "va-endpoint-default-errors-not-found": ["A response with error status code 404 is required for all endpoints."],
+        "va-endpoint-default-errors-internal-server-error": ["A response with error status code 500 is required for all endpoints."],
+        "va-endpoint-default-errors-bad-gateway": ["If an upstream service error could cause your API to throw a 500 error, consider catching it and raising a 502 instead."],
+        "va-endpoint-default-errors-service-unavailable": ["If an upstream service outage could cause your API to throw a 500 error, consider catching it and raising a 503 instead."],
+        "va-endpoint-default-errors-gateway-timeout": ["If your API is not receiving a timely response from an upstream service and could cause it to throw a 500 error, consider catching it and raising a 504 instead."]
     }
 }

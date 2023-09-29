@@ -22,8 +22,40 @@ rules:
       field: security
       function: truthy
 
+  va-endpoint-default-errors-bad-request:
+    description: A response with error status code 400 is required for all endpoints.
+    given: $.paths..responses
+    severity: error
+    then:
+      field: '400'
+      function: truthy
+
+  va-endpoint-default-errors-unauthorized:
+    description: A response with error status code 401 is required for all endpoints.
+    given: $.paths..responses
+    severity: error
+    then:
+      field: '401'
+      function: truthy
+
+  va-endpoint-default-errors-forbidden:
+    description: A response with error status code 403 is required for all endpoints.
+    given: $.paths..responses
+    severity: error
+    then:
+      field: '403'
+      function: truthy
+
+  va-endpoint-default-errors-not-found:
+    description: A response with error status code 404 is required for all endpoints.
+    given: $.paths..responses
+    severity: error
+    then:
+      field: '404'
+      function: truthy
+
   va-endpoint-default-errors-internal-server-error:
-    description: Response with error status code 500 is required for all endpoints.
+    description: A response with error status code 500 is required for all endpoints.
     given: $.paths..responses
     severity: error
     then:
@@ -44,4 +76,12 @@ rules:
     severity: warn
     then:
       field: '503'
+      function: truthy
+
+  va-endpoint-default-errors-gateway-timeout:
+    description: If your API is not receiving a timely response from an upstream service and could cause it to throw a 500 error, consider catching it and raising a 504 instead.
+    given: $.paths..responses
+    severity: warn
+    then:
+      field: '504'
       function: truthy
