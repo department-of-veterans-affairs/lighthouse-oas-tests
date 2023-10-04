@@ -1,0 +1,46 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+    },
+    "tags": [
+    ],
+    "paths": {
+        "/onePathExist": {
+            "get":{ 
+                "tags": [],
+                "summary": "",
+                "description": "",
+                "requestBody": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "isVeteran": {
+                                        "type": "boolean",
+                                        "description": "boolean property prefixed with is",
+                                        "example":	true
+                                    },
+                                    "hasClaims": {
+                                        "type": "boolean",
+                                        "description": "boolean property prefixed with has",
+                                        "example":	true
+                                    },
+                                    "canAccess": {
+                                        "type": "boolean",
+                                        "description": "boolean property prefixed with can",
+                                        "example":	false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        }
+    },
+    "components": {
+    }
+}
