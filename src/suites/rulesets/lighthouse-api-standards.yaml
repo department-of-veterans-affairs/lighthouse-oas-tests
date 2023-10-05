@@ -6,9 +6,8 @@ rules:
     description: Booleans should be prefixed with an auxiliary verb (such as is, has, or can).
     message: '`{{property}}` is not prefixed with an auxiliary verb'
     severity: warn
-    given: $..properties
+    given: $..properties.[?(@.type === "boolean")]~
     then:
-      type: boolean
       function: pattern
       functionOptions:
         match: /^(is|has|can).+$/i
