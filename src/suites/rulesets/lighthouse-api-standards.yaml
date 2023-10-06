@@ -2,6 +2,16 @@ extends: 'spectral:oas'
 rules:
   operation-tag-defined: off
 
+  va-property-names-booleans:
+    description: Booleans should be prefixed with an auxiliary verb (such as is, has, or can).
+    message: '`{{property}}` is not prefixed with an auxiliary verb (e.g. "veteran" becomes "isVeteran")'
+    severity: warn
+    given: $..properties.[?(@.type === "boolean")]~
+    then:
+      function: pattern
+      functionOptions:
+        match: /^(is|has|can).+$/i
+
   va-property-names-camel-case:
     description: Property names should be written in camelCase.
     message: '`{{property}}` is not camelCase'
