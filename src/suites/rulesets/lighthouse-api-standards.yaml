@@ -104,3 +104,12 @@ rules:
       function: pattern
       functionOptions:
         notMatch: /[_]/
+
+  va-paths-contain-no-underscores:
+    description: Paths must use dashes rather than underscores for spaces in words.
+    given: $..paths[*]~
+    severity: error
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: /[_]/  
