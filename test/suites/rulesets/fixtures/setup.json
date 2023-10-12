@@ -24,7 +24,7 @@
         "va-endpoint-default-errors-bad-gateway": ["If an upstream service error could cause your API to throw a 500 error, consider catching it and raising a 502 instead."],
         "va-endpoint-default-errors-service-unavailable": ["If an upstream service outage could cause your API to throw a 500 error, consider catching it and raising a 503 instead."],
         "va-endpoint-default-errors-gateway-timeout": ["If your API is not receiving a timely response from an upstream service and could cause it to throw a 500 error, consider catching it and raising a 504 instead."],
-        "va-server-urls-contain-no-underscores": ["Base (server) URLs must use dashes rather than underscores for spaces in words."],
+        "va-servers-url-contains-no-underscores": ["Base (server) URLs must use dashes rather than underscores for spaces in words."],
         "va-paths-contain-no-underscores": ["Paths must use dashes rather than underscores for spaces in words."]
     }
 }
