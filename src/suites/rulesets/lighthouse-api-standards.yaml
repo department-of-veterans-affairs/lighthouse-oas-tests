@@ -96,7 +96,7 @@ rules:
       field: '504'
       function: truthy
 
-  va-server-urls-contain-no-underscores:
+  va-servers-url-contains-no-underscores:
     description: Base (server) URLs must use dashes rather than underscores for spaces in words.
     given: $..servers.[url]
     severity: error
