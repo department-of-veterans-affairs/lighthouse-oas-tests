@@ -1,0 +1,31 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+    },
+    "servers":[
+        {
+            "url": "https://sandbox-api.va.gov/services/some_api/{version}",
+            "description": "Sandbox",
+            "variables": {
+                "version": {
+                    "default": "v1"
+                }
+            }
+        }
+    ],
+    "tags": [
+    ],
+    "paths": {
+        "/onePathExist": {
+            "get":{ 
+                "tags": [],
+                "summary": "",
+                "description": "",
+                "parameters": [],
+                "responses": {}
+            }
+        }
+    },
+    "components": {
+    }
+}

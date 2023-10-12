@@ -1,0 +1,22 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+    },
+    "servers": [
+    ],
+    "tags": [
+    ],
+    "paths": {
+        "/example/some-path": {
+            "get":{ 
+                "tags": "",
+                "summary": "",
+                "description": "",
+                "parameters": [],
+                "responses": {}
+            }
+        }
+    },
+    "components": {
+    }
+}
