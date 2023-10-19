@@ -1,0 +1,38 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+    },
+    "tags": [
+    ],
+    "paths": {
+        "/onePathExist": {
+            "post":{ 
+                "tags": [],
+                "summary": "",
+                "description": "",
+                "requestBody": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "trainingType": {
+                                        "type": "string",
+                                        "example": "underGrad",
+                                        "enum": [
+                                            "underGrad"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        }
+    },
+    "components": {
+    }
+}
