@@ -32,7 +32,7 @@ rules:
     then:
       function: pattern
       functionOptions:
-        match: /^[A-Z]+(?:_[A-Z]+)*$/
+        match: /^[A-Z]+[A-Z0-9]+(?:_[A-Z0-9]+)*$/
 
   va-endpoint-operation-security:
     description: Security must be declared for each operation. If this endpoint does not require authentication set the security object to an array with one blank object (- {}).
