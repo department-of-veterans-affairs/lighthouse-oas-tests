@@ -24,6 +24,16 @@ rules:
       functionOptions:
         type: camel
 
+  va-property-enum-values-upper-case:
+    description: Enums should be UPPER_CASE strings with underscores in place of spaces.
+    message: Enums should be UPPER_CASE strings with underscores in place of spaces.
+    severity: warn
+    given: $..properties..enum[*]
+    then:
+      function: pattern
+      functionOptions:
+        match: /^[A-Z]+[A-Z0-9]+(?:_[A-Z0-9]+)*$/
+
   va-endpoint-operation-security:
     description: Security must be declared for each operation. If this endpoint does not require authentication set the security object to an array with one blank object (- {}).
     given: $.paths.[*].[get,post,put,patch,delete]
