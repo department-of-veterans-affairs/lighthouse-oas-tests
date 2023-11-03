@@ -1,0 +1,43 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+    },
+    "tags": [
+    ],
+    "paths": {
+        "/onePathExist": {
+            "post":{ 
+                "tags": [],
+                "summary": "",
+                "description": "",
+                "requestBody": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                   "claimDate": {
+                                        "format": "date",
+                                        "type": "string",
+                                        "description": "Date in YY-MM-DD format",
+                                        "example": "23-06-04"
+                                    },
+                                    "closeDate": {
+                                        "format": "date",
+                                        "type": "string",
+                                        "description": "Date in YY/MM format",
+                                        "example": "19-09"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        }
+    },
+    "components": {
+    }
+}
