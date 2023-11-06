@@ -3,5 +3,6 @@
 /bin
 /**/fixtures/**/*
 jest.config.js
+jest.e2e.config.js
 .eslintrc.js
 /@types
