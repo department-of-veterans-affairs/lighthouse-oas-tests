@@ -42,7 +42,7 @@ rules:
     then:
       function: pattern
       functionOptions:
-        match: /([1-9]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))$|([1-9]\d{3}-(0[1-9]|1[0-2]))$/
+        match: /(\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))$|(\d{4}-(0[1-9]|1[0-2]))$/
 
   va-endpoint-operation-security:
     description: Security must be declared for each operation. If this endpoint does not require authentication set the security object to an array with one blank object (- {}).
