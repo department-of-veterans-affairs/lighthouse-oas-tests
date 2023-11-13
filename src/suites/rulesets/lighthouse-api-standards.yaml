@@ -34,6 +34,16 @@ rules:
       functionOptions:
         match: /^[A-Z]+[A-Z0-9]+(?:_[A-Z0-9]+)*$/
 
+  va-property-date-format:
+    description: Dates must follow the format YYYY-MM-DD or YYYY-MM
+    message: Dates must follow the format YYYY-MM-DD or YYYY-MM
+    severity: error
+    given: $..properties.[?(@.format == "date")].example
+    then:
+      function: pattern
+      functionOptions:
+        match: /(\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))$|(\d{4}-(0[1-9]|1[0-2]))$/
+
   va-endpoint-operation-security:
     description: Security must be declared for each operation. If this endpoint does not require authentication set the security object to an array with one blank object (- {}).
     given: $.paths.[*].[get,post,put,patch,delete]
