@@ -3,8 +3,18 @@ import SwaggerClient from 'swagger-client';
 import PositiveSuite from '../../../src/suites/positive/positive-suite';
 
 describe('ExampleGroupValidator', () => {
+  let logSpy;
+
+  beforeEach(() => {
+    // Suppress console output from Suites.run() to avoid cluttering test output
+    logSpy = jest.spyOn(Suites.prototype, 'log').mockImplementation(() => {
+      return;
+    });
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
+    logSpy.mockRestore();
   });
 
   SwaggerClient.prototype.execute = jest.fn((options) => {
