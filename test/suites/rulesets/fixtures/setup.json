@@ -17,6 +17,7 @@
         "va-property-names-booleans": ["`veteran` is not prefixed with an auxiliary verb (e.g. \"veteran\" becomes \"isVeteran\")", "`claims` is not prefixed with an auxiliary verb (e.g. \"veteran\" becomes \"isVeteran\")", "`access` is not prefixed with an auxiliary verb (e.g. \"veteran\" becomes \"isVeteran\")"],
         "va-property-names-camel-case": ["`street_address_1` is not camelCase", "`street_address_2` is not camelCase", "`street_address_3` is not camelCase"],
         "va-property-enum-values-upper-case": ["Enums should be UPPER_CASE strings with underscores in place of spaces."],
+        "va-property-date-time-format": ["Timestamps must be in ISO 8601 format \"YYYY-MM-DDTHH:MM:SSZ\"", "Timestamps must be in ISO 8601 format \"YYYY-MM-DDTHH:MM:SSZ\""],
         "va-property-date-format": ["Dates must follow the format YYYY-MM-DD or YYYY-MM", "Dates must follow the format YYYY-MM-DD or YYYY-MM", "Dates must follow the format YYYY-MM-DD or YYYY-MM", "Dates must follow the format YYYY-MM-DD or YYYY-MM"],
         "va-endpoint-default-errors-bad-request": ["A response with error status code 400 is required for all endpoints."],
         "va-endpoint-default-errors-unauthorized": ["A response with error status code 401 is required for all endpoints."],
