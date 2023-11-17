@@ -1,0 +1,43 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+    },
+    "tags": [
+    ],
+    "paths": {
+        "/onePathExist": {
+            "post":{ 
+                "tags": [],
+                "summary": "",
+                "description": "",
+                "requestBody": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                   "someDateTime": {
+                                        "format": "date-time",
+                                        "type": "string",
+                                        "description": "Timestamp not in ISO 8601 format",
+                                        "example": "2018-06-04T08:00:00"
+                                    },
+                                    "anotherDateTime": {
+                                        "format": "date-time",
+                                        "type": "string",
+                                        "description": "Timestamp not in ISO 8601 format",
+                                        "example": "2018-06-0408:00:00"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        }
+    },
+    "components": {
+    }
+}
