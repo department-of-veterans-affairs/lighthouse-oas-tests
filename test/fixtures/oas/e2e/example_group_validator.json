@@ -1,0 +1,90 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Example Group Validator E2E OAS",
+    "description": "E2E test OAS that contains errors that should be caught by the exampleGroupValidator",
+    "contact": {
+      "name": "developer.va.gov"
+    },
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "https://example.com/services/example_group_validator/{version}",
+      "description": "Sandbox",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "name": "example-group-validator",
+      "description": "Example Group Validator E2E test"
+    }
+  ],
+  "paths": {
+    "/example_group_validator": {
+      "get": {
+        "tags": ["example-group-validator"],
+        "summary": "Summary",
+        "description": "Description",
+        "operationId": "getInvalidExampleGroups",
+        "parameters": [
+          {
+            "name": "missing_parameter",
+            "in": "query",
+            "description": "Missing parameter",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "missing_parameter": {}
+            }
+          },
+          {
+            "name": "mismatched_string_parameter",
+            "in": "query",
+            "description": "Parameter with the wrong type",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "mismatched_parameter": {
+                "value": 1234
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "OAuth": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://example.com/oauth2/example-group-validator/system/v1/token",
+            "scopes": {}
+          }
+        }
+      }
+    }
+  }
+}
