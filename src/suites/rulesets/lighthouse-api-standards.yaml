@@ -145,9 +145,18 @@ rules:
         notMatch: /[_]/
 
   va-info-description-invalid-url:
-    description: Info's description must not contain URLs that reference an environment.
+    description: Info's description must not contain URLs that reference a particular environment.
     severity: error
     given: $.info.description
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: /(http:\/\/|https:\/\/)?([\-\][a-z0-9]+)*?(developer\.va\.gov)/ig
+
+  va-paths-description-invalid-url:
+    description: A path's description must not contain URLs that reference a particular environment.
+    severity: error
+    given: $.paths.*.*.description
     then:
       function: pattern
       functionOptions:
