@@ -41,7 +41,7 @@ describe('PositiveSuite', () => {
 
     const results = await conduct.mock.results[0].value;
     const failedOperations = results.filter(
-      (result) => result.failedOperations.size > 0,
+      (result) => result.failures.size > 0,
     );
     expect(failedOperations.length).toEqual(0);
   });
