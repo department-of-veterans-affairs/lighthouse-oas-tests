@@ -1,0 +1,74 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Response Validator E2E OAS",
+    "description": "E2E test OAS that contains errors that should be caught by the ResponseValidator",
+    "contact": {
+      "name": "developer.va.gov"
+    },
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "https://example.com/services/response_validator/{version}",
+      "description": "Sandbox",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "name": "response-validator",
+      "description": "Response Validator E2E test"
+    }
+  ],
+  "paths": {
+    "/response_validator": {
+      "get": {
+        "tags": ["response-validator"],
+        "summary": "Summary",
+        "description": "Description",
+        "operationId": "responseValidator",
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "OAuth": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://example.com/oauth2/response-validator/system/v1/token",
+            "scopes": {}
+          }
+        }
+      }
+    }
+  }
+}
