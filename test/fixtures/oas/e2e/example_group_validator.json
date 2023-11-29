@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Example Group Validator E2E OAS",
-    "description": "E2E test OAS that contains errors that should be caught by the exampleGroupValidator",
+    "description": "E2E test OAS that contains errors that should be caught by the ExampleGroupValidator",
     "contact": {
       "name": "developer.va.gov"
     },

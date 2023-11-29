@@ -2,38 +2,35 @@ import Suites from '../../../src/commands/suites';
 import SwaggerClient from 'swagger-client';
 import PositiveSuite from '../../../src/suites/positive/positive-suite';
 
-describe('ExampleGroupValidator', () => {
-  let logSpy;
+let logSpy;
+let mockExecuteResponse;
 
-  beforeEach(() => {
-    // Suppress console output from Suites.run() to avoid cluttering test output
-    logSpy = jest.spyOn(Suites.prototype, 'log').mockImplementation(() => {
-      return;
-    });
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-    logSpy.mockRestore();
-  });
-
-  SwaggerClient.prototype.execute = jest.fn((options) => {
-    return Promise.resolve({
-      ok: true,
-      status: 200,
+beforeEach(() => {
+  SwaggerClient.prototype.execute = jest.fn((options) =>
+    Promise.resolve({
       url: options.server,
-      headers: {
-        'content-type': 'application/json',
-      },
-    });
-  });
+      ...mockExecuteResponse,
+    }),
+  );
 
-  it('passes with valid parameters', async () => {
+  // Suppress console output from Suites.run() to avoid cluttering test output
+  logSpy = jest.spyOn(Suites.prototype, 'log').mockImplementation(() => {
+    return;
+  });
+});
+
+afterEach(() => {
+  jest.clearAllMocks();
+  logSpy.mockRestore();
+});
+
+describe('PositiveSuite', () => {
+  it('passes with a valid oas', async () => {
     const conduct = jest.spyOn(PositiveSuite.prototype, 'conduct');
     await Suites.run([
-      'test/fixtures/oas/example_groups_oas.json',
+      'test/fixtures/oas/community_care_oas.json',
       '-s',
-      'https://sandbox-api.va.gov/services/va_facilities/{version}',
+      'https://sandbox-api.va.gov/services/community-care/{version}',
       '-b',
       'test_token',
       '-i',
@@ -43,9 +40,21 @@ describe('ExampleGroupValidator', () => {
     expect(conduct).toHaveBeenCalledTimes(1);
 
     const results = await conduct.mock.results[0].value;
-    const failures = results.filter((result) => result.failures.size > 0);
-    expect(failures.length).toEqual(0);
+    const failedOperations = results.filter(
+      (result) => result.failures.size > 0,
+    );
+    expect(failedOperations.length).toEqual(0);
   });
+});
+
+describe('ExampleGroupValidator', () => {
+  mockExecuteResponse = {
+    ok: true,
+    status: 200,
+    headers: {
+      'content-type': 'application/json',
+    },
+  };
 
   it('fails with invalid parameters', async () => {
     const conduct = jest.spyOn(PositiveSuite.prototype, 'conduct');
@@ -63,8 +72,82 @@ describe('ExampleGroupValidator', () => {
 
     const expectedFailures = ['missing_parameter', 'mismatched_parameter'];
     const results = await conduct.mock.results[0].value;
-    const failures = results.filter((result) => result.failures.size > 0);
-    const failedTestGroups = failures.map((failure) => failure.testGroupName);
+    const failedOperations = results.filter(
+      (result) => result.failures.size > 0,
+    );
+    const failedTestGroups = failedOperations.map(
+      (failure) => failure.testGroupName,
+    );
+
     expect(failedTestGroups).toEqual(expectedFailures);
+  });
+});
+
+describe('ResponseValidator', () => {
+  it('fails when the response code is incorrect', async () => {
+    mockExecuteResponse = {
+      ok: false,
+      status: 500,
+      headers: {
+        'content-type': 'application/json',
+      },
+    };
+
+    const conduct = jest.spyOn(PositiveSuite.prototype, 'conduct');
+    await Suites.run([
+      'test/fixtures/oas/e2e/response_validator.json',
+      '-s',
+      'https://example.com/services/response_validator/{version}',
+      '-b',
+      'test_token',
+      '-i',
+      'positive',
+    ]);
+
+    expect(conduct).toHaveBeenCalledTimes(1);
+
+    const results = await conduct.mock.results[0].value;
+    const failedOperations = results.filter(
+      (result) => result.failures.size > 0,
+    );
+    const failures = failedOperations[0].failures;
+
+    expect(failedOperations.length).toEqual(1);
+    expect(failures).toContainValidationFailure(
+      'Response status code was a non 2XX value: 500',
+    );
+  });
+
+  it('fails when the response type is incorrect', async () => {
+    mockExecuteResponse = {
+      ok: true,
+      status: 200,
+      headers: {
+        'content-type': 'text/html',
+      },
+    };
+
+    const conduct = jest.spyOn(PositiveSuite.prototype, 'conduct');
+    await Suites.run([
+      'test/fixtures/oas/e2e/response_validator.json',
+      '-s',
+      'https://example.com/services/response_validator/{version}',
+      '-b',
+      'test_token',
+      '-i',
+      'positive',
+    ]);
+
+    expect(conduct).toHaveBeenCalledTimes(1);
+
+    const results = await conduct.mock.results[0].value;
+    const failedOperations = results.filter(
+      (result) => result.failures.size > 0,
+    );
+    const failures = failedOperations[0].failures;
+
+    expect(failures).toContainValidationFailure(
+      'Response content type not present in schema. Actual content type: text/html',
+    );
   });
 });
