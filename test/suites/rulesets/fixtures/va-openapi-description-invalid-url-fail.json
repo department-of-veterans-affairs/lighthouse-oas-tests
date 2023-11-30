@@ -1,0 +1,53 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "description": "This description contains a URL with an environment reference https://developer.va.gov/explore/api/some-api/docs"
+    },
+    "servers": [
+        {
+            "url": "https://sandbox-api.va.gov/services/some-api/{version}",
+            "description": "This description contains a URL with an environment reference https://developer.va.gov/explore/api/some-api/docs",
+            "variables": {
+                "version": {
+                    "default": "v1"
+                }
+            }
+        },
+        {
+            "url": "https://api.va.gov/services/some-api/{version}",
+            "description": "Production",
+            "variables": {
+                "version": {
+                    "default": "v1"
+                }
+            }
+        }
+    ],
+    "tags": [
+    ],
+    "paths": {
+        "/onePathExist": {
+            "get":{ 
+                "tags": [],
+                "summary": "",
+                "description": "This description contains a URL with an environment reference https://staging-developer.va.gov/explore/api/some-api/docs",
+                "parameters": [],
+                "responses": {}
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "productionOauth": {
+                "type": "oauth2",
+                "description": "This description contains a URL with an environment reference https://dev-developer.va.gov/explore/api/some-api/auth",
+                "flows": {}
+            },
+            "sandboxOauth": {
+                "type": "oauth2",
+                "description": "This description contains a URL with an environment reference https://dev-developer.va.gov/explore/api/some-api/auth",
+                "flows": {}
+            }
+        }  
+    }
+}
