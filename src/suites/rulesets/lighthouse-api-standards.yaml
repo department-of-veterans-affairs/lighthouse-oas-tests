@@ -142,4 +142,13 @@ rules:
     then:
       function: pattern
       functionOptions:
-        notMatch: /[_]/  
+        notMatch: /[_]/
+
+  va-openapi-description-invalid-url:
+    description: Descriptions must not contain URLs that reference a particular environment such as https://dev-developer.va.gov or https://developer.va.gov.
+    severity: error
+    given: $..*.description
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: /(http:\/\/|https:\/\/)?([\-\][a-z0-9]+)*?(developer\.va\.gov)/ig
