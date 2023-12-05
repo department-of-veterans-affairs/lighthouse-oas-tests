@@ -1,0 +1,100 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Request Body Validator E2E OAS",
+    "description": "E2E test OAS that contains errors that should be caught by the RequestBodyValidator",
+    "contact": {
+      "name": "developer.va.gov"
+    },
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "https://example.com/services/request_body_validator/{version}",
+      "description": "Sandbox",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "name": "request-body-validator",
+      "description": "Request Body Validator E2E test"
+    }
+  ],
+  "paths": {
+    "/type_schema_mismatch": {
+      "get": {
+        "tags": ["request-body-validator"],
+        "summary": "Summary",
+        "description": "Description",
+        "operationId": "type_schema_mismatch",
+        "parameters": [],
+        "requestBody": {
+          "description": "description",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": 123
+                  },
+                  "age": {
+                    "type": "integer",
+                    "example": "string"
+                  },
+                  "enum": {
+                    "type": "string",
+                    "enum": ["a", "b", "c", "c"],
+                    "example": "d"
+                  }
+                }
+              },
+              "examples": {
+                "exampleObject": {
+                  "value": {
+                    "name": 123,
+                    "age": "string",
+                    "enum": "d"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "OAuth": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://example.com/oauth2/request_body_validator/system/v1/token",
+            "scopes": {}
+          }
+        }
+      }
+    }
+  }
+}
