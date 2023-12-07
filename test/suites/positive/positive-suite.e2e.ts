@@ -151,3 +151,48 @@ describe('ResponseValidator', () => {
     );
   });
 });
+
+describe('RequestBodyValidator', () => {
+  it('contains expected failures', async () => {
+    mockExecuteResponse = {
+      ok: true,
+      status: 200,
+      headers: {
+        'content-type': 'application/json',
+      },
+    };
+
+    const conduct = jest.spyOn(PositiveSuite.prototype, 'conduct');
+    await Suites.run([
+      'test/fixtures/oas/e2e/request_body_validator.json',
+      '-s',
+      'https://example.com/services/request_body_validator/{version}',
+      '-b',
+      'test_token',
+      '-i',
+      'positive',
+    ]);
+
+    expect(conduct).toHaveBeenCalledTimes(1);
+
+    const results = await conduct.mock.results[0].value;
+    const failedOperations = results.filter(
+      (result) => result.failures.size > 0,
+    );
+    const failures = failedOperations[0].failures;
+
+    expect(failures.size).toEqual(4);
+    expect(failures).toContainValidationFailure(
+      'Actual type did not match schema. Schema type: integer. Actual type: string. Path: requestBody -> example -> age',
+    );
+    expect(failures).toContainValidationFailure(
+      'Actual type did not match schema. Schema type: string. Actual type: number. Path: requestBody -> example -> name',
+    );
+    expect(failures).toContainValidationFailure(
+      'Schema enum contains duplicate values. Enum values: ["a","b","c","c"]. Path: requestBody -> example -> enum',
+    );
+    expect(failures).toContainValidationFailure(
+      'Actual value does not match schema enum. Enum values: ["a","b","c","c"]. Actual value: "d". Path: requestBody -> example -> enum',
+    );
+  });
+});
