@@ -830,7 +830,7 @@ Keep in mind:
 
 ### Removing a Spectral driven suite
 
-Delete the associated yaml under `\src\suites\rulesets` and LOAST will automatically stop offering the suite
+Delete the associated yaml under `\src\suites\rulesets` and LOAST will automatically stop offering the suite.
 
 ### Custom Rulesets (suite: oas-ruleset)
 
