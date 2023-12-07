@@ -1,0 +1,180 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Parameter Schema E2E OAS",
+    "description": "E2E test OAS that contains errors that should be caught by the ParameterSchema",
+    "contact": {
+      "name": "developer.va.gov"
+    },
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "https://example.com/services/parameter_schema_validator/{version}",
+      "description": "Sandbox",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "name": "parameter-schema",
+      "description": "Parameter Schema E2E test"
+    }
+  ],
+  "paths": {
+    "/query_and_content_exist": {
+      "get": {
+        "summary": "Summary",
+        "description": "Description",
+        "operationId": "query_and_content_exist",
+        "parameters": [
+          {
+            "name": "query param",
+            "in": "query",
+            "example": "query param",
+            "schema": {
+              "type": "string"
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "content"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth": []
+          }
+        ]
+      }
+    },
+    "/extra_content_entry": {
+      "get": {
+        "summary": "Summary",
+        "description": "Description",
+        "operationId": "extra_content_entry",
+        "parameters": [
+          {
+            "name": "extra content",
+            "in": "query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "content"
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "content"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth": []
+          }
+        ]
+      }
+    },
+    "/content_without_schema": {
+      "get": {
+        "summary": "Summary",
+        "description": "Description",
+        "operationId": "content_without_schema",
+        "parameters": [
+          {
+            "name": "query param",
+            "in": "query",
+            "example": "query param",
+            "content": {
+              "application/json": {
+                "example": "content"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth": []
+          }
+        ]
+      }
+    },
+    "/no_content_or_schema": {
+      "get": {
+        "summary": "Summary",
+        "description": "Description",
+        "operationId": "no_content_or_schema",
+        "parameters": [
+          {
+            "name": "query param",
+            "in": "query",
+            "example": "query param"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "OAuth": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://example.com/oauth2/parameter-schema/system/v1/token",
+            "scopes": {}
+          }
+        }
+      }
+    }
+  }
+}
