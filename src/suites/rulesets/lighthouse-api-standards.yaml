@@ -151,4 +151,4 @@ rules:
     then:
       function: pattern
       functionOptions:
-        notMatch: /(http:\/\/|https:\/\/)?([\-\][a-z0-9]+)*?(developer\.va\.gov)/ig
+        notMatch: /(https?:\/\/)?([-][a-z0-9]+)*(developer\.va\.gov)/ig
