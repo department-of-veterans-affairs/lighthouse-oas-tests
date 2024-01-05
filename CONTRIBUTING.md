@@ -21,7 +21,7 @@ to release new versions automatically.
 - Commits of type `feat` will trigger feature releases, think `0.1.0`
 - Commits with `BREAKING CHANGE` in body or footer will trigger breaking releases, think `1.0.0`
 
-All other commit types will trigger no new release.
+All other commit types will NOT trigger a new release.
 
 Note: The keyword, eg. `fix`, must be the first word in the commit message and be followed by a `:` in order to trigger a release. If the commit is the result of a github pull request being squashed and merged, the title of the pull request must start with the keyword. Periods cannot be in commit messages.
 
