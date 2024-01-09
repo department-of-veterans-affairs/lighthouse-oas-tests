@@ -6,7 +6,7 @@ rules:
     description: Booleans should be prefixed with an auxiliary verb (such as is, has, or can).
     message: '`{{property}}` is not prefixed with an auxiliary verb (e.g. "veteran" becomes "isVeteran")'
     severity: warn
-    given: $..properties.[?(@.type === "boolean")]~
+    given: $..properties[?(@.type === "boolean")]
     then:
       function: pattern
       functionOptions:
@@ -38,7 +38,7 @@ rules:
     description: Dates must follow the format YYYY-MM-DD or YYYY-MM
     message: Dates must follow the format YYYY-MM-DD or YYYY-MM
     severity: error
-    given: $..properties.[?(@.format == "date")].example
+    given: $..properties[?(@.format == "date")].example
     then:
       function: pattern
       functionOptions:
@@ -48,7 +48,7 @@ rules:
     description: Timestamps must be in ISO 8601 format YYYY-MM-DDTHH:MM:SSZ
     message: Timestamps must be in ISO 8601 format "YYYY-MM-DDTHH:MM:SSZ"
     severity: error
-    given: $..properties.[?(@.format == "date-time")].example
+    given: $..properties[?(@.format == "date-time")].example
     then:
       function: pattern
       functionOptions:
