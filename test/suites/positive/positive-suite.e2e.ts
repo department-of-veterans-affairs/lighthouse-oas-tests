@@ -1,6 +1,7 @@
 import Suites from '../../../src/commands/suites';
 import SwaggerClient from 'swagger-client';
 import PositiveSuite from '../../../src/suites/positive/positive-suite';
+import ExampleGroupValidator from '../../../src/suites/positive/validation/example-group-validator';
 
 let logSpy;
 let mockExecuteResponse;
@@ -193,6 +194,59 @@ describe('RequestBodyValidator', () => {
     );
     expect(failures).toContainValidationFailure(
       'Actual value does not match schema enum. Enum values: ["a","b","c","c"]. Actual value: "d". Path: requestBody -> example -> enum',
+    );
+  });
+});
+
+describe('ParameterSchemaValidator', () => {
+  beforeEach(() => {
+    ExampleGroupValidator.prototype.performValidation = jest.fn(() =>
+      Promise.resolve(),
+    );
+    // jest.spyOn(ExampleGroupValidator.prototype, 'validate').mockResolvedValue();
+  });
+
+  it('fails when schema and content are set', async () => {
+    ExampleGroupValidator.prototype.validate = jest.fn(() => Promise.resolve());
+    jest.spyOn(ExampleGroupValidator.prototype, 'validate').mockResolvedValue();
+    mockExecuteResponse = {
+      ok: true,
+      status: 200,
+      headers: {
+        'content-type': 'application/json',
+      },
+    };
+
+    const conduct = jest.spyOn(PositiveSuite.prototype, 'conduct');
+    await Suites.run([
+      'test/fixtures/oas/e2e/parameter_schema_validator.json',
+      '-s',
+      'https://example.com/services/parameter_schema_validator/{version}',
+      '-b',
+      'test_token',
+      '-i',
+      'positive',
+    ]);
+
+    expect(conduct).toHaveBeenCalledTimes(1);
+
+    const results = await conduct.mock.results[0].value;
+    const failedOperations = results.filter(
+      (result) => result.failures.size > 0,
+    );
+
+    expect(failedOperations.length).toEqual(4);
+    expect(failedOperations[0].failures).toContainValidationFailure(
+      'Parameter object must have either schema or content set, but not both. Path: parameters -> query param',
+    );
+    expect(failedOperations[1].failures).toContainValidationFailure(
+      'Parameter content object should only have one key. Path: parameters -> extra content -> content',
+    );
+    expect(failedOperations[2].failures).toContainValidationFailure(
+      'The media type obejct in the content field is missing a schema object. Path: parameters -> query param -> content -> application/json',
+    );
+    expect(failedOperations[3].failures).toContainValidationFailure(
+      'Parameter object must have either schema or content set, but found neither. Path: parameters -> query param',
     );
   });
 });
