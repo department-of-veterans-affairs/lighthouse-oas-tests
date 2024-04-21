@@ -1,7 +1,7 @@
 {
   "name": "loast",
   "description": "CLI for testing Lighthouse APIs using OpenAPI specs",
-  "version": "0.0.0-development",
+  "version": "0.0.1-development",
   "bin": {
     "loast": "./bin/run"
   },
