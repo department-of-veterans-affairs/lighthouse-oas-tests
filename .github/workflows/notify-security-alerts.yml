@@ -66,7 +66,7 @@ jobs:
         if: steps.alerts_summary.outputs.count > 0
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_LIGHTHOUSE }}
-          SLACK_CHANNEL: "team-quokka"
+          SLACK_CHANNEL: "team-quokka-alerts"
           SLACK_MSG_AUTHOR: "libertybot"
           SLACK_USERNAME: Blartbot
           SLACK_COLOR: danger
