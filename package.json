@@ -39,7 +39,7 @@
     "jest-junit-reporter": "^1.1.0",
     "oclif": "^3.9.1",
     "prettier": "^2.1.2",
-    "semantic-release": "^24.0.0",
+    "semantic-release": "^19.0.3",
     "ts-jest": "^29.1.0",
     "typescript": "^5.1.3"
   },
