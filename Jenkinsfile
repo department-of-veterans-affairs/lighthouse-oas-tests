@@ -13,7 +13,7 @@ pipeline {
   stages {
     stage('Setup') {
       steps {
-        sh 'sudo rm -rf node_modules'
+        sh 'rm -rf node_modules'
         sh 'npm ci'
       }
     }
