@@ -4,6 +4,7 @@ pipeline {
       image 'ghcr.io/department-of-veterans-affairs/health-apis-docker-octopus/lighthouse-node-application-base:v2-node18'
       registryUrl 'https://ghcr.io'
       registryCredentialsId 'GITHUB_USERNAME_TOKEN'
+      args '-w $HOME/lhuser'
     }
   }
   environment {
