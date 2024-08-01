@@ -13,6 +13,7 @@ pipeline {
   stages {
     stage('Setup') {
       steps {
+        sh 'npm cache clean --force'
         sh 'npm ci'
       }
     }
