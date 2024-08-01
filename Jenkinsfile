@@ -14,6 +14,7 @@ pipeline {
     stage('Setup') {
       steps {
         sh 'ls -l'
+        sh 'pwd'
         sh 'npm ci'
       }
     }
