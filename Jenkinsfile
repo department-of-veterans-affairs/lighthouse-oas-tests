@@ -12,37 +12,44 @@ pipeline {
 
   stages {
     stage('Setup') {
-      steps {
-        sh 'npm cache clean --force'
-        sh 'rm -rf node_modules'
-        sh 'npm config set cache /var/jenkins_home/.npm --global'
-        sh 'npm ci'
+      dir('/home/lhuser') {
+        steps {
+          sh 'npm ci'
+        }
       }
     }
     stage('Lint') {
-      steps{
-        sh 'npm run lint'
+      dir('/home/lhuser') {
+        steps {
+          sh 'npm run lint'
+        }
       }
     }
     stage('Test') {
-      steps {
-        sh 'npm run test:ci'
+      dir('/home/lhuser') {
+        steps {
+          sh 'npm run test:ci'
+        }
       }
     }
     stage('Build') {
-      steps {
-        sh 'npm run build'
+      dir('/home/lhuser') {
+        steps {
+          sh 'npm run build'
+        }
       }
     }
     stage('Release') {
-      steps {
-        withCredentials([
+      dir('/home/lhuser') {
+        steps {
+          withCredentials([
           usernamePassword(
             credentialsId: 'GITHUB_USERNAME_TOKEN',
             usernameVariable: 'GITHUB_USERNAME',
             passwordVariable: 'GITHUB_TOKEN')
         ]) {
-          sh 'npm run release'
+            sh 'npm run release'
+        }
         }
       }
     }
