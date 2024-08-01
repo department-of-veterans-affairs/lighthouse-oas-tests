@@ -13,6 +13,7 @@ pipeline {
   stages {
     stage('Setup') {
       steps {
+        sh 'ls -l'
         sh 'npm ci'
       }
     }
