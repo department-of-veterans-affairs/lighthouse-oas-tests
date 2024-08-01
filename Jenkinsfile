@@ -14,6 +14,8 @@ pipeline {
     stage('Setup') {
       steps {
         sh 'npm cache clean --force'
+        sh 'rm -rf node_modules'
+        sh 'npm config set cache /var/jenkins_home/.npm --global'
         sh 'npm ci'
       }
     }
