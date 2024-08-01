@@ -13,35 +13,35 @@ pipeline {
   stages {
     stage('Setup') {
         steps {
-        dir('/home/lhuser') {
+        dir('/lhuser') {
           sh 'npm ci'
         }
         }
     }
     stage('Lint') {
         steps {
-        dir('/home/lhuser') {
+        dir('/lhuser') {
           sh 'npm run lint'
         }
         }
     }
     stage('Test') {
         steps {
-        dir('/home/lhuser') {
+        dir('/lhuser') {
           sh 'npm run test:ci'
         }
         }
     }
     stage('Build') {
         steps {
-        dir('/home/lhuser') {
+        dir('/lhuser') {
           sh 'npm run build'
         }
         }
     }
     stage('Release') {
         steps {
-        dir('/home/lhuser') {
+        dir('/lhuser') {
           withCredentials([
           usernamePassword(
             credentialsId: 'GITHUB_USERNAME_TOKEN',
