@@ -85,42 +85,23 @@ export default class Suites extends Command {
   private logTestResults(
     results: OASResult[],
     isJsonOutput: boolean,
-    hasWarningFlag: boolean,
+    withoutWarnings: boolean,
   ): void {
-    results.forEach((result) => {
-      if (hasWarningFlag) this.noWarningsIncluded(result);
-      if (isJsonOutput) {
-        const output = JSONStructuredOutputFactory.buildFromOASResult(result);
-        this.log(JSON.stringify(output));
-      } else {
-        this.log(result.toString());
-      }
+    if (withoutWarnings) {
+      results.forEach((result) => this.removeWarnings(result));
+    }
 
-      this.determineFailure(result);
-    });
-  }
-
-  determineFailure(result: OASResult): void {
-    const failedOperationCount = result.results
-      ? result.results.filter((result) => result.failures.size > 0).length
-      : 0;
-
-    const totalOperationCount = result.results ? result.results.length : 0;
-
-    const passedOperationCount = totalOperationCount - failedOperationCount;
-
-    if (failedOperationCount > 0) {
-      this.log(
-        `${failedOperationCount}/${totalOperationCount} operation${
-          totalOperationCount > 1 ? 's' : ''
-        } failed; ${passedOperationCount}/${totalOperationCount} operation${
-          totalOperationCount > 1 ? 's' : ''
-        } passed`,
+    if (isJsonOutput) {
+      const output = results.map((result) =>
+        JSONStructuredOutputFactory.buildFromOASResult(result),
       );
+      this.log(JSON.stringify(output));
+    } else {
+      results.forEach((result) => this.log(result.toString()));
     }
   }
 
-  noWarningsIncluded(result: OASResult): OASResult {
+  removeWarnings(result: OASResult): OASResult {
     result.results?.map((item) => {
       delete item.warnings;
     });

@@ -8,6 +8,7 @@ import {
   oasResultMixedResultsString,
   oasResultError,
   oasResultErrorJson,
+  oasResultMixedResultsStringWithoutWarnings,
 } from '../fixtures/validation/oas-results';
 
 const mockGetResults = jest.fn();
@@ -70,10 +71,7 @@ describe('Suites', () => {
 
       await Suites.run(['pathDoesNotMatter.json']);
 
-      expect(result).toEqual([
-        `${oasResultFailureString}\n`,
-        `1/1 operation failed; 0/1 operation passed\n`,
-      ]);
+      expect(result).toEqual([`${oasResultFailureString}\n`]);
     });
   });
 
@@ -83,10 +81,16 @@ describe('Suites', () => {
 
       await Suites.run(['pathDoesNotMatter.json']);
 
-      expect(result).toEqual([
-        `${oasResultMixedResultsString}\n`,
-        `2/3 operations failed; 1/3 operations passed\n`,
-      ]);
+      const string = `${oasResultMixedResultsString}\n`;
+      expect(result).toEqual([string]);
     });
+  });
+
+  it('removeWarnings removes warnings from results', async () => {
+    mockGetResults.mockResolvedValue([oasResultMixedResults]);
+
+    await Suites.run(['pathDoesNotMatter.json', '-w']);
+
+    expect(result).toEqual([oasResultMixedResultsStringWithoutWarnings]);
   });
 });

@@ -52,8 +52,17 @@ export default class OASResult {
       }
 
       resultString += this.results.map((result) => result.toString()).join('');
-    }
 
+      resultString += '\n';
+      const passedOperationCount = totalOperationCount - failingOperationCount;
+      if (failingOperationCount > 0) {
+        resultString += `${failingOperationCount}/${totalOperationCount} operation${
+          totalOperationCount > 1 ? 's' : ''
+        } failed; ${passedOperationCount}/${totalOperationCount} operation${
+          totalOperationCount > 1 ? 's' : ''
+        } passed`;
+      }
+    }
     return resultString;
   }
 }
