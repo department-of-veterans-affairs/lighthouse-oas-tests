@@ -27,7 +27,7 @@ export const oasResultSuccess = new OASResult(
 );
 
 export const oasResultSuccessString = `winterfell oas-ruleset: Succeeded
-${operationExampleResultNoFailuresWarningsString}`;
+${operationExampleResultNoFailuresWarningsString}\n`;
 
 export const oasResultSuccessStructure: StructuredOutput = {
   suiteId: oasResultSuccess.suiteId,
@@ -52,7 +52,7 @@ export const oasResultFailure = new OASResult(
 );
 
 export const oasResultFailureString = `riverrun oas-ruleset: 1/1 operation failed
-${operationExampleResultFailuresWarningsString}`;
+${operationExampleResultFailuresWarningsString}\n1/1 operation failed; 0/1 operation passed`;
 
 export const oasResultFailureStructure: StructuredOutput = {
   suiteId: oasResultSuccess.suiteId,
@@ -81,7 +81,18 @@ export const oasResultMixedResults = new OASResult(
 );
 
 export const oasResultMixedResultsString = `dragonstone oas-ruleset: 2/3 operations failed
-${operationExampleResultFailuresWarningsString}${operationExampleResultFailuresNoWarningsString}${operationExampleResultNoFailuresWarningsString}`;
+${operationExampleResultFailuresWarningsString}${operationExampleResultFailuresNoWarningsString}${operationExampleResultNoFailuresWarningsString}\n2/3 operations failed; 1/3 operations passed`;
+
+export const oasResultMixedResultsStringWithoutWarnings = `dragonstone oas-ruleset: 2/3 operations failed
+  GET:/harryPotter - default: Failed
+    - Actual type did not match schema. Schema type: number. Actual type: string. Path: body -> age. Found 2 times
+    - Actual object missing required property. Required property: glasses. Path: body. Found 1 time
+  GET:/he-who-must-not-be-named - tomRiddle: Failed
+    - Actual object missing required property. Required property: house. Path: body. Found 1 time
+  GET:/he-who-must-not-be-named - voldermort: Succeeded
+
+2/3 operations failed; 1/3 operations passed
+`;
 
 export const oasResultMixedResultsStructure: StructuredOutput = {
   suiteId: oasResultSuccess.suiteId,
@@ -121,9 +132,9 @@ export const oasResultErrorStructure: StructuredOutput = {
 };
 
 export const oasResultErrorJson =
-  `{"suiteId":"oas-ruleset","id":"${oasResultError.testName}",` +
+  `[{"suiteId":"oas-ruleset","id":"${oasResultError.testName}",` +
   `"config":{"oasPath":"${oasResultError.oasPath}","server":"${oasResultError.server}","authenticationType":[]},` +
-  `"error":"${oasResultError.error}"}`;
+  `"error":"${oasResultError.error}"}]`;
 
 export const oasResultMissingPath = new OASResult(
   'oas-ruleset',
