@@ -93,7 +93,7 @@ _See code: [src/commands/suites.ts](https://github.com/department-of-veterans-af
 
 ## `loast suites-batch PATH`
 
-Runs happy-path tests for all APIs in the config file based on their OpenAPI specs
+Runs happy-path tests for all APIs in the config file based on their OpenAPI specs.
 
 ```
 USAGE
