@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'ghcr.io/department-of-veterans-affairs/health-apis-docker-octopus/lighthouse-node-application-base:node16'
+      image 'ghcr.io/department-of-veterans-affairs/health-apis-docker-octopus/lighthouse-node-application-base:v2-node16'
       registryUrl 'https://ghcr.io'
       registryCredentialsId 'GITHUB_USERNAME_TOKEN'
     }
@@ -17,7 +17,7 @@ pipeline {
       }
     }
     stage('Lint') {
-      steps{
+      steps {
         sh 'npm run lint'
       }
     }
