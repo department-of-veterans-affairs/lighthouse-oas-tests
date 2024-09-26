@@ -13,6 +13,7 @@ pipeline {
   stages {
     stage('Setup') {
       steps {
+        sh 'npm install -g npm@8.19.4'
         sh 'npm ci'
       }
     }
