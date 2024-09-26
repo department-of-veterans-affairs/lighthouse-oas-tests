@@ -13,7 +13,7 @@ pipeline {
   stages {
     stage('Setup') {
       steps {
-        sh 'npm install'
+        sh 'npm ci'
       }
     }
     stage('Lint') {
