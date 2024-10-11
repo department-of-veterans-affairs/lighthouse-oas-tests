@@ -13,7 +13,6 @@ pipeline {
   stages {
     stage('Setup') {
       steps {
-        sh 'chown -R 1000:1000 "/.npm"'
         sh 'npm ci'
       }
     }
