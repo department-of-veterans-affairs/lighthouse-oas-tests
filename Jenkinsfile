@@ -25,7 +25,9 @@ pipeline {
         sh 'npm install -g npm@latest'
 
         // Switch to non-root user
-        sh 'su jenkins'
+        sh 'whoami'
+        sh 'su jenkins -s /bin/bash'
+        sh 'whoami'
 
         // Verify npm version
         sh 'npm --version'
