@@ -24,8 +24,6 @@ pipeline {
         // Install latest npm
         sh 'npm install -g npm@latest'
 
-        sh 'runuser -u 1000 bash'
-
         // Verify npm version
         sh 'npm --version'
 
