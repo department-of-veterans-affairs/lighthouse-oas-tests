@@ -1,9 +1,10 @@
 pipeline {
   agent {
     docker {
-      image 'ghcr.io/department-of-veterans-affairs/health-apis-docker-octopus/lighthouse-node-application-base:node16'
+      image 'ghcr.io/department-of-veterans-affairs/health-apis-docker-octopus/lighthouse-node-application-base:v2-node18'
       registryUrl 'https://ghcr.io'
       registryCredentialsId 'GITHUB_USERNAME_TOKEN'
+      // args '-u root:root'
     }
   }
   environment {
@@ -13,11 +14,25 @@ pipeline {
   stages {
     stage('Setup') {
       steps {
-        sh 'npm install'
+        sh '''
+          npm cache clean --force
+          mkdir -p /.npm
+          chown -R 1000:1000 /.npm
+          npm config set cache /.npm --global
+        '''
+
+        // Install latest npm
+        sh 'npm install -g npm@latest'
+
+        // Verify npm version
+        sh 'npm --version'
+
+        // Run npm ci
+        sh 'npm ci'
       }
     }
     stage('Lint') {
-      steps{
+      steps {
         sh 'npm run lint'
       }
     }
