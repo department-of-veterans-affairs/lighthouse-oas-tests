@@ -45,7 +45,8 @@
   },
   "overrides": {
     "axios": ">=1.7.4",
-    "rollup": ">=3.29.5"
+    "rollup": ">=3.29.5",
+    "jsonpath-plus": ">=10.0.0"
   },
   "engines": {
     "node": ">=8.0.0"
