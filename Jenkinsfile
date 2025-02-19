@@ -13,6 +13,8 @@ pipeline {
   stages {
     stage('Setup') {
       steps {
+        // Set npm cache to a directory within the home directory
+        sh 'npm config set cache "$HOME/.npm"'
         sh 'npm install'
       }
     }
