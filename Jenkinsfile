@@ -8,7 +8,6 @@ pipeline {
   }
   environment {
     NPM_TOKEN = credentials('LIGHTHOUSE_NPM_REGISTRY_TOKEN')
-    HOME = "${WORKSPACE}"
   }
 
   stages {
