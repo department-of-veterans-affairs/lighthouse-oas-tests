@@ -18,7 +18,7 @@ pipeline {
         // This might require sudo if /etc/passwd is not writable.
         sh '''
           if ! getent passwd $(id -u) > /dev/null; then
-            echo "jenkins:x:$(id -u):$(id -g):Jenkins User:$HOME:/bin/bash" | sudo tee -a /etc/passwd
+            echo "jenkins:x:$(id -u):$(id -g):Jenkins User:$HOME:/bin/bash" >> /etc/passwd
           fi
         '''
       }
