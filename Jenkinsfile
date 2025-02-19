@@ -12,6 +12,17 @@ pipeline {
   }
 
   stages {
+    stage('Prepare Environment') {
+      steps {
+        // Append a passwd entry for the current user if not present.
+        // This might require sudo if /etc/passwd is not writable.
+        sh '''
+          if ! getent passwd $(id -u) > /dev/null; then
+            echo "jenkins:x:$(id -u):$(id -g):Jenkins User:$HOME:/bin/bash" | sudo tee -a /etc/passwd
+          fi
+        '''
+      }
+    }
     stage('Setup npm Cache') {
         steps {
           // Create a cache directory inside the workspace
