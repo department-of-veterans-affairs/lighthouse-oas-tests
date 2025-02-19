@@ -1,18 +1,26 @@
 pipeline {
   agent {
     docker {
-      image 'ghcr.io/department-of-veterans-affairs/health-apis-docker-octopus/lighthouse-node-application-base:node16'
+      image 'ghcr.io/department-of-veterans-affairs/health-apis-docker-octopus/lighthouse-node-application-base:v2-node18'
       registryUrl 'https://ghcr.io'
       registryCredentialsId 'GITHUB_USERNAME_TOKEN'
     }
   }
   environment {
     NPM_TOKEN = credentials('LIGHTHOUSE_NPM_REGISTRY_TOKEN')
+    NPM_CONFIG_CACHE = '/tmp/.npm' // Set a custom cache directory
+    HOME = '/tmp' // Set HOME to a writable directory
+
   }
 
   stages {
     stage('Setup') {
       steps {
+        // Clean up node_modules and npm cache
+        sh 'rm -rf node_modules'
+        sh 'npm cache clean --force'
+        // Change ownership of the npm cache directory
+        sh 'sudo chown -R $(id -u):$(id -g) $NPM_CONFIG_CACHE || true'
         sh 'npm install'
       }
     }
