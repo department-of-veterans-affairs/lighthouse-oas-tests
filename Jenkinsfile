@@ -9,6 +9,7 @@ pipeline {
   environment {
     NPM_TOKEN = credentials('LIGHTHOUSE_NPM_REGISTRY_TOKEN')
     NPM_CONFIG_CACHE = '/tmp/.npm' // Set a custom cache directory
+    HOME = '/tmp' // Set HOME to a writable directory
 
   }
 
