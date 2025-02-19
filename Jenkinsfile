@@ -11,10 +11,16 @@ pipeline {
   }
 
   stages {
+    stage('Setup npm Cache') {
+        steps {
+          // Create a cache directory inside the workspace
+          sh 'mkdir -p $WORKSPACE/.npm'
+          // Set npm cache to the workspace directory
+          sh 'npm config set cache $WORKSPACE/.npm'
+        }
+      }
     stage('Setup') {
       steps {
-        // Set npm cache to a directory within the home directory
-        sh 'npm config set cache "$HOME/.npm"'
         sh 'npm install'
       }
     }
