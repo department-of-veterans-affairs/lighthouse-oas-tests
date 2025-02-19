@@ -16,7 +16,7 @@ pipeline {
           // Create a cache directory inside the workspace
           sh 'mkdir -p $WORKSPACE/.npm'
           // Set npm cache to the workspace directory
-          sh 'npm config set cache $WORKSPACE/.npm'
+          sh 'npm config --userconfig=$WORKSPACE/.npmrc set cache $WORKSPACE/.npm'
         }
       }
     stage('Setup') {
