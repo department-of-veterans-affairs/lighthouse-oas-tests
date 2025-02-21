@@ -13,14 +13,16 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/department-of-veterans-affairs/health-apis-docker-octopus/lighthouse-node-application-base:v2-node18-di
 
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18.x'
-        cache: 'npm'
+    # - name: Use Node.js ${{ matrix.node-version }}
+    #   uses: actions/setup-node@v3
+    #   with:
+    #     node-version: '18.x'
+    #     cache: 'npm'
     - run: npm ci
     - run: npm run build
     - run: npm run test:ci
