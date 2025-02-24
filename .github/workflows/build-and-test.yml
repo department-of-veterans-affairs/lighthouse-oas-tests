@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/department-of-veterans-affairs/health-apis-docker-octopus/lighthouse-node-application-base:node16
-      options: --user root
+      # options: --user root
     steps:
     - uses: actions/checkout@v4
     # - name: Use Node.js ${{ matrix.node-version }}
