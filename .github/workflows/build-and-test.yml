@@ -23,6 +23,7 @@ jobs:
     #   with:
     #     node-version: '18.x'
     #     cache: 'npm'
+    - run: mkdir -p /__w/lighthouse-oas-tests/lighthouse-oas-tests/test/lib-test && chmod -R 777 /__w/lighthouse-oas-tests/lighthouse-oas-tests/test/lib-test
     - run: npm ci
     - run: npm run build
     - run: npm run test:ci
