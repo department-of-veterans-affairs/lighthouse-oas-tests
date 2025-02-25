@@ -16,6 +16,8 @@ jobs:
     container:
       image: ghcr.io/department-of-veterans-affairs/health-apis-docker-octopus/lighthouse-node-application-base:node16
       options: --user root
+      env: 
+        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     steps:
     - uses: actions/checkout@v4
     # - name: Use Node.js ${{ matrix.node-version }}
