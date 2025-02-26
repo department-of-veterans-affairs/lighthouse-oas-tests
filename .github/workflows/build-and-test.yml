@@ -14,8 +14,8 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/department-of-veterans-affairs/health-apis-docker-octopus/lighthouse-node-application-base:node16
-      options: --user root
+      image: ghcr.io/department-of-veterans-affairs/health-apis-docker-octopus/lighthouse-node-application-base:v2-node18-di
+      options: --user root -v ${{github.workspace}}:/home/lhuser:rw
       env: 
         ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     steps:
