@@ -11,14 +11,18 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/department-of-veterans-affairs/health-apis-docker-octopus/lighthouse-node-application-base:v2-node18
-      options: --user lhuser
-      env: 
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+      options: --user root
+
     steps:
+    - name: Update system libraries
+      run: |
+        apt-get update
+        apt-get install -y libc6
+    - name: Switch to lhuser
+      run: su lhuser
     - uses: actions/checkout@v4
     # - name: Use Node.js ${{ matrix.node-version }}
     #   uses: actions/setup-node@v3
