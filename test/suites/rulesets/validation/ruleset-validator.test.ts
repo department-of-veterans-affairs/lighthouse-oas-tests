@@ -211,7 +211,7 @@ describe('RulesetValidator', () => {
       validator.addMessage(operation, ruleName, Type.RulesetError, [
         'The ring has not be found',
       ]);
-      throw new Error(':)');
+
       expect(validator.operationMap.get(operation)?.has(ruleName)).toEqual(
         true,
       );
