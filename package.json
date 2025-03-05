@@ -7,7 +7,7 @@
   },
   "bugs": "https://github.com/department-of-veterans-affairs/lighthouse-oas-tests/issues",
   "dependencies": {
-    "@oclif/core": "^4.2.8",
+    "@oclif/core": "^2.16.0",
     "@stoplight/spectral-core": "^1.19.4",
     "@stoplight/spectral-ruleset-bundler": "^1.5.2",
     "content-type": "^1.0.5",
