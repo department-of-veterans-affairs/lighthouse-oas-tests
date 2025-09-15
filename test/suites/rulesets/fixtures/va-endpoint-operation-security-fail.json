@@ -10,15 +10,11 @@
                 "tags": [],
                 "summary": "",
                 "description": "",
-                "responses": {}
+                "responses": {},
+                "security": [{},{"as":["sdf"]}]
             }
         }
     },
     "components": {
-    },
-    "security": [
-        {
-            "apikey": []
-        }
-    ]
+    }
 }
