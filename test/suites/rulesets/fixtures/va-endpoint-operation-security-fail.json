@@ -11,7 +11,7 @@
                 "summary": "",
                 "description": "",
                 "responses": {},
-                "security": [{},{"as":["sdf"]}]
+                "security": [{}]
             }
         }
     },
