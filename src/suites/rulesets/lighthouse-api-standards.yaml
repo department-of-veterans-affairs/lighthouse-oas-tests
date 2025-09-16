@@ -63,6 +63,14 @@ rules:
       functionOptions:
         min: 1
 
+  va-openapi-security-root-level:
+    description: Security is not applied at the root level (globally).
+    given: $
+    severity: warn
+    then:
+      field: 'security'
+      function: truthy
+
   va-endpoint-default-errors-bad-request:
     description: A response with error status code 400 is required for all endpoints.
     given: $.paths..responses

@@ -14,6 +14,7 @@
     },
     "lighthouse-api-standards" : {
         "va-endpoint-operation-security": ["The \"security\" array at endpoint operation must not contain empty objects."],
+        "va-openapi-security-root-level": ["Security is not applied at the root level (globally)."],
         "va-property-names-booleans": ["`veteran` is not prefixed with an auxiliary verb (e.g. \"veteran\" becomes \"isVeteran\")", "`claims` is not prefixed with an auxiliary verb (e.g. \"veteran\" becomes \"isVeteran\")", "`access` is not prefixed with an auxiliary verb (e.g. \"veteran\" becomes \"isVeteran\")"],
         "va-property-names-camel-case": ["`street_address_1` is not camelCase", "`street_address_2` is not camelCase", "`street_address_3` is not camelCase"],
         "va-property-enum-values-upper-case": ["Enums should be UPPER_CASE strings with underscores in place of spaces."],
