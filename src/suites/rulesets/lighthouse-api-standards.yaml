@@ -63,7 +63,7 @@ rules:
       functionOptions:
         min: 1
 
-  va-openapi-security-root-level:
+  va-openapidoc-root-level:
     description: Security is not applied at the root level (globally).
     given: $
     severity: warn

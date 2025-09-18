@@ -75,7 +75,7 @@ class RulesetValidator extends BaseValidator {
   }
 
   // Spectral results are for the OAS as a whole and not specifically for an individual operation or rule
-  //  To aid creating OpertaionResult[] going to store error/warning based on the two keys 'operation' & 'rule'
+  //  To aid creating OperationResult[] going to store error/warning based on the two keys 'operation' & 'rule'
   public addMessage(
     operation: string,
     ruleName: string,
