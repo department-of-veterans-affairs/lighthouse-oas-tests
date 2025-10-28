@@ -9,7 +9,7 @@
   "dependencies": {
     "@oclif/core": "^2.16.0",
     "@stoplight/spectral-core": "^1.19.4",
-    "@stoplight/spectral-ruleset-bundler": "^1.5.2",
+    "@stoplight/spectral-ruleset-bundler": "^1.6.3",
     "content-type": "^1.0.5",
     "js-yaml": "^4.1.0",
     "load-json-file": "^6.2.0",
