@@ -62,6 +62,15 @@ rules:
       field: security
       function: truthy
 
+    va-security-root-level-empty-objects:
+    description: The "security" array at the root level must not contain empty objects.
+    given: $.security[*]
+    severity: error
+    then:
+      function: length
+      functionOptions:
+        min: 1
+
   va-endpoint-default-errors-bad-request:
     description: A response with error status code 400 is required for all endpoints.
     given: $.paths..responses
