@@ -62,7 +62,7 @@ rules:
       field: security
       function: truthy
 
-    va-security-root-level-empty-objects:
+  va-security-root-level-empty-objects:
     description: The "security" array at the root level must not contain empty objects.
     given: $.security[*]
     severity: error
