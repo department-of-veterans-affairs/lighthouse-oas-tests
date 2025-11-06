@@ -4,13 +4,13 @@ on:
   workflow_dispatch: # Allows manual triggering
   push: #runs on any commit
   pull_request:
-    branches: [ main ] # Adjust branches as needed
+    branches: [ master ] # Adjust branches as needed
 
 jobs:
   codeql:
     name: CodeQL Scan
     # Use the reusable CodeQL workflow from the SecRel pipeline repository
-    uses: department-of-veterans-affairs/lighthouse-tornado-secrel-pipeline/.github/workflows/codeql.yml@v6
+    uses: department-of-veterans-affairs/lighthouse-tornado-secrel-pipeline/.github/workflows/codeql.yml@v7
     with:
       # Specify the path to your SecRel configuration file
       config-file: .github/secrel/config.yml
