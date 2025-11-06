@@ -1,18 +1,41 @@
-name: SecRel CodeQL Analysis
+name: CodeQL Analysis
 
 on:
   workflow_dispatch: # Allows manual triggering
-  push: #runs on any commit
+  push:
+    branches: [ master ]
   pull_request:
-    branches: [ master ] # Adjust branches as needed
+    branches: [ master ]
+  schedule:
+    - cron: '0 0 * * 1' # Run weekly on Mondays
+
+permissions:
+  security-events: write
+  contents: read
 
 jobs:
-  codeql:
-    name: CodeQL Scan
-    # Use the reusable CodeQL workflow from the SecRel pipeline repository
-    uses: department-of-veterans-affairs/lighthouse-tornado-secrel-pipeline/.github/workflows/codeql.yml@v7
-    with:
-      # Specify the path to your SecRel configuration file
-      config-file: .github/secrel/config.yml
-    # Ensures the workflow has access to necessary secrets (like GITHUB_TOKEN)
-    secrets: inherit
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+    
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
