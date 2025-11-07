@@ -1,6 +1,7 @@
 # taken from the semantic-release documentation
 # https://semantic-release.gitbook.io/semantic-release/recipes/ci-configurations/github-actions
-
+# node version updated to 20.x to support semantic-release v24
+# semantic-release v24 properly captures git commit history
 name: Release
 on:
   push:
