@@ -55,11 +55,20 @@ rules:
         match: /(\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))(T[0-2]\d:[0-5]\d:[0-5]\dZ)$/
 
   va-endpoint-operation-security:
-    description: Security must be declared for each operation. If this endpoint does not require authentication set the security object to an array with one blank object (- {}).
-    given: $.paths.[*].[get,post,put,patch,delete]
+    description: The "security" array at endpoint operation must not contain empty objects.
+    given: $.paths..security[*]
     severity: error
     then:
-      field: security
+      function: length
+      functionOptions:
+        min: 1
+
+  va-openapidoc-root-level-security:
+    description: Security is not applied at the root level (globally).
+    given: $
+    severity: warn
+    then:
+      field: 'security'
       function: truthy
 
   va-endpoint-default-errors-bad-request:
