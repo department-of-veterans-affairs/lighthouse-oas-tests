@@ -13,6 +13,7 @@ CLI for testing Lighthouse APIs using OpenAPI specs
 <!-- toc -->
 
 - [LOAST](#loast)
+- [Overview](#overview)
 - [Usage](#usage)
 - [Commands](#commands)
 - [OpenApi Spec Setup](#openapi-spec-setup)
@@ -25,6 +26,12 @@ CLI for testing Lighthouse APIs using OpenAPI specs
     - [Removing a Spectral driven suite](#removing-a-spectral-driven-suite)
 - [Local Development](#local-development)
 <!-- tocstop -->
+
+<!-- overview documentation -->
+
+[Architecture Diagrams](https://confluence.devops.va.gov/pages/viewpage.action?spaceKey=VAExternal&title=LOAST+Architecture+Overview)
+
+<!-- overview documentation stop-->
 
 # Usage
 
